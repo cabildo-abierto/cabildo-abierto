@@ -62,7 +62,7 @@ export async function reprocessCollection(ctx: AppContext, collection: string, o
 
         if(onlyRecords) {
             await ctx.kysely.transaction().execute(async trx => {
-                await addRecordsToDBBatch(trx, refAndRecords)
+                await Effect.runPromise(addRecordsToDBBatch(trx, refAndRecords))
             })
         } else {
             await Effect.runPromiseExit(processRecords(ctx, refAndRecords, processor, true))

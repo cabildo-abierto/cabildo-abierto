@@ -151,6 +151,7 @@ export const createArticleHandler: EffHandler<CreateArticleProps> = (
         Effect.catchTag("InsertRecordError", () => Effect.fail("El artículo se creó, pero hubo un error al procesarlo.")),
         Effect.catchTag("InvalidValueError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
         Effect.catchTag("UpdateRedisError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
+        Effect.catchTag("DBInsertError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
         Effect.catchTag("AddJobsError", () => Effect.fail("Ocurrió un error al crear el artículo.")),
         Effect.catchTag("CIDEncodeError", () => Effect.fail("Ocurrió un error al crear el artículo."))
     )

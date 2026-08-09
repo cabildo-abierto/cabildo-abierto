@@ -15,11 +15,9 @@ import {
 } from "#/services/sync/event-processing/topic.js";
 import {DB} from "prisma/generated/types.js";
 import {
-    addRecordsToDBBatch,
-    InsertRecordError,
     processDirtyRecordsBatch,
     processDirtyPostsBatch,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {AppBskyFeedLike, AppBskyFeedRepost} from "@atproto/api"
 import {
@@ -28,9 +26,9 @@ import {
 } from "@cabildo-abierto/api"
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {Effect, pipe} from "effect";
+import {Effect} from "effect";
 
-import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
+import {AddJobError, DBDeleteError, DBInsertError, InvalidValueError} from "#/utils/errors.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {AppContext} from "#/setup.js";
 
@@ -113,24 +111,22 @@ function addReactionJobs(
 }
 
 
-function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionRecord>[], reprocess = false) {
+function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionRecord>[], trx: Transaction<DB>, reprocess = false) {
     records = records.filter(r => isReactionType(getCollectionFromUri(r.ref.uri)))
     if (records.length == 0) return Effect.succeed(0)
 
     const reactionType = getCollectionFromUri(records[0].ref.uri)
     if (!isReactionType(reactionType)) return Effect.fail(new InvalidValueError(`Reacción inválida: ${reactionType}`))
 
-    const insertReactions = ctx.kysely.transaction().execute(async (trx) => {
-        await addRecordsToDBBatch(trx, records)
-
+    return Effect.gen(function* () {
         const subjects = records.map(r => ({uri: r.record.subject.uri, cid: r.record.subject.cid}))
-        await processDirtyRecordsBatch(trx, subjects)
+        yield* processDirtyRecordsBatch(trx, subjects)
 
         const reasons = records
             .map(r => ArCabildoabiertoWikiVoteReject.isRecord(r.record) ? r.record.reason : null)
             .filter((x): x is NonNullable<typeof x> => x != null)
 
-        await processDirtyPostsBatch(trx, reasons)
+        yield* processDirtyPostsBatch(trx, reasons)
 
         const reactions = records.map(r => ({
             uri: r.ref.uri,
@@ -138,16 +134,19 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
             subjectCid: r.record.subject.cid
         }))
 
-        await trx
-            .insertInto("Reaction")
-            .values(reactions)
-            .onConflict((oc) =>
-                oc.column("uri").doUpdateSet({
-                    subjectId: eb => eb.ref('excluded.subjectId'),
-                    subjectCid: eb => eb.ref("excluded.subjectCid")
-                })
-            )
-            .execute()
+        yield* Effect.tryPromise({
+            try: () => trx
+                .insertInto("Reaction")
+                .values(reactions)
+                .onConflict((oc) =>
+                    oc.column("uri").doUpdateSet({
+                        subjectId: eb => eb.ref('excluded.subjectId'),
+                        subjectCid: eb => eb.ref("excluded.subjectCid")
+                    })
+                )
+                .execute(),
+            catch: error => new DBInsertError(error)
+        })
 
         const hasReacted = records.map(r => ({
             userId: getDidFromUri(r.ref.uri),
@@ -156,14 +155,20 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
             id: uuidv4()
         }))
 
-        const inserted = await trx
-            .insertInto("HasReacted")
-            .values(hasReacted)
-            .onConflict(oc => oc.columns(["recordId", "reactionType", "userId"]).doNothing())
-            .returning(['recordId'])
-            .execute()
+        const inserted = yield* Effect.tryPromise({
+            try: () => trx
+                .insertInto("HasReacted")
+                .values(hasReacted)
+                .onConflict(oc => oc.columns(["recordId", "reactionType", "userId"]).doNothing())
+                .returning(['recordId'])
+                .execute(),
+            catch: error => new DBInsertError(error)
+        })
 
-        await batchIncrementReactionCounter(trx, reactionType, inserted.map(r => r.recordId))
+        yield* Effect.tryPromise({
+            try: () => batchIncrementReactionCounter(trx, reactionType, inserted.map(r => r.recordId)),
+            catch: error => new DBInsertError(error)
+        })
 
         if (isTopicVote(reactionType)) {
             if (reactionType == "ar.cabildoabierto.wiki.voteReject") {
@@ -179,15 +184,18 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
                 }).filter((v): v is NonNullable<typeof v> => v != null)
 
                 try {
-                    await trx
-                        .insertInto("VoteReject")
-                        .values(votes)
-                        .onConflict((oc) =>
-                            oc.column("uri").doUpdateSet({
-                                reasonId: (eb) => eb.ref('excluded.reasonId'),
-                            })
-                        )
-                        .execute()
+                    yield* Effect.tryPromise({
+                        try: () => trx
+                            .insertInto("VoteReject")
+                            .values(votes)
+                            .onConflict((oc) =>
+                                oc.column("uri").doUpdateSet({
+                                    reasonId: (eb) => eb.ref('excluded.reasonId'),
+                                })
+                            )
+                            .execute(),
+                        catch: error => new DBInsertError(error)
+                    })
                 } catch (err) {
                     ctx.logger.pino.info({error: err}, "error inserting vote reject")
                     throw err
@@ -195,60 +203,70 @@ function addReactionRecordsToDB(ctx: AppContext, records: RefAndRecord<ReactionR
             }
 
             if (records.length > 0 && inserted.length > 0) {
-                const topicVotes = await trx
-                    .selectFrom("TopicVersion")
-                    .innerJoin("Reaction", "TopicVersion.uri", "Reaction.subjectId")
-                    .select([
-                        "TopicVersion.topicId",
-                        "TopicVersion.uri",
-                        "Reaction.uri as reactionUri"
-                    ])
-                    .where("Reaction.uri", "in", records.map(r => r.ref.uri))
-                    .where("TopicVersion.uri", "in", inserted.map(r => r.recordId))
-                    .execute()
+                const topicVotes = yield* Effect.tryPromise({
+                    try: () => trx
+                        .selectFrom("TopicVersion")
+                        .innerJoin("Reaction", "TopicVersion.uri", "Reaction.subjectId")
+                        .select([
+                            "TopicVersion.topicId",
+                            "TopicVersion.uri",
+                            "Reaction.uri as reactionUri"
+                        ])
+                        .where("Reaction.uri", "in", records.map(r => r.ref.uri))
+                        .where("TopicVersion.uri", "in", inserted.map(r => r.recordId))
+                        .execute(),
+                    catch: error => new DBInsertError(error)
+                })
                 const topicIdsList = unique(topicVotes.map(t => t.topicId))
 
-                if (!reprocess) await updateTopicsCurrentVersionBatch(ctx, trx, topicIdsList)
+                if (!reprocess) {
+                    yield* Effect.tryPromise({
+                        try: () => updateTopicsCurrentVersionBatch(ctx, trx, topicIdsList),
+                        catch: error => new DBInsertError(error)
+                    })
+                }
 
                 return {topicIdsList, topicVotes}
             }
         }
         return {topicVotes: [] as { reactionUri: string, uri: string, topicId: string }[], topicIdsList: [] as string[]}
-    })
-
-    return pipe(
-        Effect.tryPromise({
-            try: () => insertReactions,
-            catch: error => new InsertRecordError(error instanceof Error ? error : undefined)
-        }),
+    }).pipe(
         Effect.tap(res => addReactionJobs(ctx, res, records)),
         Effect.map(() => records.length),
         Effect.withSpan("addRecordsToDB Reaction")
     )
 }
 
-export const likeRecordProcessor: RecordProcessor<AppBskyFeedLike.Record> = {
+export const likeProcessor: Processor<AppBskyFeedLike.Record> = {
     validator: (ctx, record: AppBskyFeedLike.Record) => Effect.succeed(AppBskyFeedLike.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<AppBskyFeedLike.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<AppBskyFeedLike.Record>["addRecordsToDB"]
 }
 
-export const repostRecordProcessor: RecordProcessor<AppBskyFeedRepost.Record> = {
+export const likeRecordProcessor = likeProcessor
+
+export const repostProcessor: Processor<AppBskyFeedRepost.Record> = {
     validator: (ctx, record: AppBskyFeedRepost.Record) => Effect.succeed(AppBskyFeedRepost.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<AppBskyFeedRepost.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<AppBskyFeedRepost.Record>["addRecordsToDB"]
 }
 
-export const voteAcceptRecordProcessor: RecordProcessor<ArCabildoabiertoWikiVoteAccept.Record> = {
+export const repostRecordProcessor = repostProcessor
+
+export const voteAcceptProcessor: Processor<ArCabildoabiertoWikiVoteAccept.Record> = {
     validator: (ctx, record: ArCabildoabiertoWikiVoteAccept.Record) => Effect.succeed(ArCabildoabiertoWikiVoteAccept.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<ArCabildoabiertoWikiVoteAccept.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<ArCabildoabiertoWikiVoteAccept.Record>["addRecordsToDB"]
 }
 
-export const voteRejectRecordProcessor: RecordProcessor<ArCabildoabiertoWikiVoteReject.Record> = {
+export const voteAcceptRecordProcessor = voteAcceptProcessor
+
+export const voteRejectProcessor: Processor<ArCabildoabiertoWikiVoteReject.Record> = {
     validator: (ctx, record: ArCabildoabiertoWikiVoteReject.Record) => Effect.succeed(ArCabildoabiertoWikiVoteReject.validateRecord(record)),
-    addRecordsToDB: addReactionRecordsToDB as RecordProcessor<ArCabildoabiertoWikiVoteReject.Record>["addRecordsToDB"]
+    addRecordsToDB: addReactionRecordsToDB as Processor<ArCabildoabiertoWikiVoteReject.Record>["addRecordsToDB"]
 }
 
+export const voteRejectRecordProcessor = voteRejectProcessor
 
-export const reactionRecordProcessor: RecordProcessor<ReactionRecord> = {
+
+export const reactionProcessor: Processor<ReactionRecord> = {
     validator: (ctx, record: ReactionRecord) => {
         const $type = record.$type
         if ($type === "app.bsky.feed.like") return Effect.succeed(AppBskyFeedLike.validateRecord(record))
@@ -259,6 +277,8 @@ export const reactionRecordProcessor: RecordProcessor<ReactionRecord> = {
     },
     addRecordsToDB: addReactionRecordsToDB
 }
+
+export const reactionRecordProcessor = reactionProcessor
 
 
 export const reactionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {

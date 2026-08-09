@@ -2,12 +2,11 @@ import WebSocket, {RawData} from 'ws';
 import {getCAUsersDids} from "#/services/user/users.js";
 import {AppContext} from "#/setup.js";
 import {getUri, isCAProfile, isFollow} from "@cabildo-abierto/utils";
-import {addPendingEvent, getCAUsersAndFollows} from "#/services/sync/sync-user.js";
+import {addPendingEvent} from "#/services/sync/sync-user.js";
 import {CommitEvent, JetstreamEvent} from "#/lib/types.js";
 import {AppBskyGraphFollow} from "@atproto/api"
 import {processEventsBatch} from "#/services/sync/event-processing/event-processor.js";
 import {LRUCache} from 'lru-cache'
-import {env} from "#/lib/env.js";
 import {updateTimestamp} from "#/services/admin/status.js";
 import {Effect} from "effect";
 
@@ -21,7 +20,6 @@ export function getUriFromCommitEvent(commitEvent: CommitEvent) {
 
 export class MirrorMachine {
     caUsers: Set<string> = new Set()
-    extendedUsers: Set<string> = new Set()
     tooLargeUsers: Set<string> = new Set()
     eventCounter: number = 0
     relevantEventCounter: number = 0
@@ -41,23 +39,13 @@ export class MirrorMachine {
         await this.ctx.redisCache.mirrorStatus.clear()
 
         this.ctx.logger.pino.info({
-            ca: this.caUsers.size,
-            extended: this.extendedUsers.size
+            ca: this.caUsers.size
         }, "mirrored users size")
-    }
-
-    useExtended() {
-        return env.MIRROR_EXTENDED_USERS
     }
 
     async fetchUsers() {
         const dids = await Effect.runPromise(getCAUsersDids(this.ctx))
-        let extendedUsers: string[] = []
-        if (this.useExtended()) {
-            extendedUsers = (await getCAUsersAndFollows(this.ctx)).map(x => x.did)
-        }
         this.caUsers = new Set(dids)
-        this.extendedUsers = new Set(extendedUsers.filter(x => !this.caUsers.has(x)))
         this.tooLargeUsers = new Set()
     }
 
@@ -134,15 +122,13 @@ export class MirrorMachine {
 
         if (e.kind == "commit" && isCAProfile(e.commit.collection) && e.commit.rkey == "self") {
             this.caUsers.add(e.did)
-            this.extendedUsers.add(e.did)
             this.ctx.logger.pino.info({did: e.did}, "user added to ca")
         }
 
         const inCA = this.caUsers.has(e.did)
-        const inExtended = this.extendedUsers.has(e.did)
         const inTooLarge = this.tooLargeUsers.has(e.did)
 
-        if ((!inCA && !inExtended) || inTooLarge) {
+        if (!inCA || inTooLarge) {
             if (inTooLarge) {
                 this.ctx.logger.pino.info({did: e.did, reason: "repo too large"}, "event ignored")
             }
@@ -158,11 +144,8 @@ export class MirrorMachine {
             await this.processEvent(this.ctx, e, inCA)
             if (e.kind == "commit" && isFollow(e.commit.collection) && e.commit.operation != "delete") {
                 const record: AppBskyGraphFollow.Record = e.commit.record
-                this.extendedUsers.add(record.subject)
                 this.ctx.logger.pino.info({did: record.subject}, "added extended user to mirror")
             }
-        } else if (inExtended && e.kind == "commit" && isFollow(e.commit.collection)) {
-            await this.processEvent(this.ctx, e, inCA)
         }
     }
 

@@ -14,7 +14,7 @@ import {hydrateProfileViewBasic} from "#/services/hydration/profile.js";
 import {createPost} from "#/services/write/post.js";
 import {ATDeleteRecordError, deleteRecords} from "#/services/delete.js";
 import {Effect} from "effect";
-import {DBSelectError} from "#/utils/errors.js";
+import {DBInsertError, DBSelectError} from "#/utils/errors.js";
 import {InsertRecordError} from "#/services/sync/event-processing/record-processor.js";
 import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
@@ -146,6 +146,7 @@ export const voteEdit = (
     InsertRecordError |
     InvalidValueError |
     UpdateRedisError |
+    DBInsertError |
     AddJobError |
     ATCreateLikeError |
     ATCreateRepostError |

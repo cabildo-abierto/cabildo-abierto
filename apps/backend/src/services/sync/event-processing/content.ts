@@ -8,9 +8,11 @@ import {AppContext} from "#/setup.js";
 import {ContentContextRef, getCollectionFromUri, getPollId} from "@cabildo-abierto/utils";
 import {JobToAdd} from "#/jobs/worker.js";
 import {processDirtyRecordsBatch} from "#/services/sync/event-processing/record-processor.js";
+import {Effect} from "effect";
+import {DBInsertError} from "#/utils/errors.js";
 
 
-export const processContentsBatch = async (
+export const processContentsBatch = (
     ctx: AppContext,
     trx: Transaction<DB>,
     records: {
@@ -18,7 +20,7 @@ export const processContentsBatch = async (
         record: SyncContentProps
     }[],
     topicIds?: string[]
-): Promise<JobToAdd[]> => {
+): Effect.Effect<JobToAdd[], DBInsertError> => Effect.gen(function* () {
     if (records.length == 0) return []
 
     const blobData = records
@@ -28,11 +30,14 @@ export const processContentsBatch = async (
         .filter(b => b != null)
 
     if (blobData.length > 0) {
-        await trx
-            .insertInto("Blob")
-            .values(blobData)
-            .onConflict((oc) => oc.column("cid").doNothing())
-            .execute()
+        yield* Effect.tryPromise({
+            try: () => trx
+                .insertInto("Blob")
+                .values(blobData)
+                .onConflict((oc) => oc.column("cid").doNothing())
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
     }
 
     const contentDatasetLinks = records.flatMap(c =>
@@ -56,38 +61,45 @@ export const processContentsBatch = async (
         }
     })
     if (contentData.length > 0) {
-        await trx
-            .insertInto("Content")
-            .values(contentData)
-            .onConflict(oc =>
-                oc.column("uri").doUpdateSet({
-                    text: (eb) => eb.ref('excluded.text'),
-                    textBlobId: (eb) => eb.ref('excluded.textBlobId'),
-                    format: (eb) => eb.ref('excluded.format'),
-                    selfLabels: (eb) => eb.ref('excluded.selfLabels'),
-                    createdAt: (eb) => eb.ref('excluded.createdAt'),
-                })
-            )
-            .execute()
+        yield* Effect.tryPromise({
+            try: () => trx
+                .insertInto("Content")
+                .values(contentData)
+                .onConflict(oc =>
+                    oc.column("uri").doUpdateSet({
+                        text: (eb) => eb.ref('excluded.text'),
+                        textBlobId: (eb) => eb.ref('excluded.textBlobId'),
+                        format: (eb) => eb.ref('excluded.format'),
+                        selfLabels: (eb) => eb.ref('excluded.selfLabels'),
+                        createdAt: (eb) => eb.ref('excluded.createdAt'),
+                    })
+                )
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
 
         const textAv: {text: string, createdAt: Date, uri: string}[] = contentData
             .map(x => x.text ? {...x, text: x.text} : null)
             .filter(x => x != null)
+
         if(textAv.length > 0) {
-            await trx
-                .insertInto("SearchableContent")
-                .values(textAv.map(t => {
-                    return {
-                        text: t.text,
-                        createdAt: t.createdAt,
-                        collection: getCollectionFromUri(t.uri),
-                        uri: t.uri
-                    }
-                }))
-                .onConflict((oc) => oc.column("uri").doUpdateSet({
-                    text: eb => eb.ref("excluded.text")
-                }))
-                .execute()
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("SearchableContent")
+                    .values(textAv.map(t => {
+                        return {
+                            text: t.text,
+                            createdAt: t.createdAt,
+                            collection: getCollectionFromUri(t.uri),
+                            uri: t.uri
+                        }
+                    }))
+                    .onConflict((oc) => oc.column("uri").doUpdateSet({
+                        text: eb => eb.ref("excluded.text")
+                    }))
+                    .execute(),
+                catch: (error) => new DBInsertError(error)
+            })
         }
 
         const polls = contentData
@@ -112,45 +124,57 @@ export const processContentsBatch = async (
                 .map(p => p.container.type == "topic" ? p.container.id : undefined)
                 .filter(x => x != null)
             if(pollTopicIds.length > 0) {
-                await trx.insertInto("Topic")
-                    .values(pollTopicIds.map(p => ({id: p, synonyms: []})))
-                    .onConflict(oc => oc.column("id").doNothing())
-                    .execute()
+                yield* Effect.tryPromise({
+                    try: () => trx.insertInto("Topic")
+                        .values(pollTopicIds.map(p => ({id: p, synonyms: []})))
+                        .onConflict(oc => oc.column("id").doNothing())
+                        .execute(),
+                    catch: (error) => new DBInsertError(error)
+                })
             }
 
-            await trx
-                .insertInto("Poll")
-                .values(polls.map(p => {
-                    const poll = p.poll
-                    const id = getPollId(poll.key, p.container)
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("Poll")
+                    .values(polls.map(p => {
+                        const poll = p.poll
+                        const id = getPollId(poll.key, p.container)
 
-                    return {
-                        id,
-                        choices: poll.poll.choices.map(c => c.label),
-                        description: poll.poll.description,
-                        createdAt: new Date(),
-                        topicId: p.container.type == "topic" ? p.container.id : undefined,
-                        parentRecordId: p.container.type == "uri" ? p.container.uri : undefined,
-                    }
-                }))
-                .onConflict((oc) => oc.column("id").doNothing())
-                .execute()
+                        return {
+                            id,
+                            choices: poll.poll.choices.map(c => c.label),
+                            description: poll.poll.description,
+                            createdAt: new Date(),
+                            topicId: p.container.type == "topic" ? p.container.id : undefined,
+                            parentRecordId: p.container.type == "uri" ? p.container.uri : undefined,
+                        }
+                    }))
+                    .onConflict((oc) => oc.column("id").doNothing())
+                    .execute(),
+                catch: (error) => new DBInsertError(error)
+            })
         }
     }
 
     if (contentDatasetLinks.length > 0) {
-        await processDirtyRecordsBatch(trx, contentDatasetLinks.map(c => ({uri: c.B})))
-        await trx.insertInto("Dataset").values(contentDatasetLinks.map(c => ({
-            uri: c.B,
-            title: "",
-            columns: []
-        }))).onConflict(oc => oc.doNothing()).execute()
+        yield* processDirtyRecordsBatch(trx, contentDatasetLinks.map(c => ({uri: c.B})))
+        yield* Effect.tryPromise({
+            try: () => trx.insertInto("Dataset").values(contentDatasetLinks.map(c => ({
+                uri: c.B,
+                title: "",
+                columns: []
+            }))).onConflict(oc => oc.doNothing()).execute(),
+            catch: (error) => new DBInsertError(error)
+        })
         // TO DO: Borrar datasets que se dejaron de usar
-        await trx
-            .insertInto("_ContentToDataset")
-            .values(contentDatasetLinks)
-            .onConflict(oc => oc.columns(['A', 'B']).doNothing())
-            .execute()
+        yield* Effect.tryPromise({
+            try: () => trx
+                .insertInto("_ContentToDataset")
+                .values(contentDatasetLinks)
+                .onConflict(oc => oc.columns(['A', 'B']).doNothing())
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
     }
 
     const moderationReq = contentData.filter(c => {
@@ -172,4 +196,4 @@ export const processContentsBatch = async (
     } else {
         return []
     }
-}
+})

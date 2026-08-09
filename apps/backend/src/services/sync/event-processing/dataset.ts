@@ -4,23 +4,21 @@ import {
 import {ArCabildoabiertoDataDataset} from "@cabildo-abierto/api"
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
 import {
-    addRecordsToDBBatch,
-    InsertRecordError,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 
 
-export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset.Record> = {
+export const datasetProcessor: Processor<ArCabildoabiertoDataDataset.Record> = {
     validator: (ctx, record: ArCabildoabiertoDataDataset.Record) => {
         return Effect.succeed(ArCabildoabiertoDataDataset.validateRecord(record))
     },
 
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoDataDataset.Record>[], reprocess = false) => {
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoDataDataset.Record>[], trx, reprocess = false) => Effect.gen(function* () {
         const datasets = records.map(({ref, record: r}) => ({
             uri: ref.uri,
             columns: r.columns.map(({name}: { name: string }) => (name)),
@@ -44,10 +42,8 @@ export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset
         )
 
 
-        const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-
-            await trx
+        yield* Effect.tryPromise({
+            try: () => trx
                 .insertInto("Dataset")
                 .values(datasets)
                 .onConflict((oc) => (
@@ -57,34 +53,45 @@ export const datasetRecordProcessor: RecordProcessor<ArCabildoabiertoDataDataset
                         description: (eb) => eb.ref("excluded.description"),
                     })
                 ))
-                .execute()
+                .execute(),
+            catch: error => new DBInsertError(error)
+        })
 
-            await trx
-                .insertInto("Blob")
-                .values(blobs)
-                .onConflict((oc) => oc.column("cid").doNothing())
-                .execute()
+        if (blobs.length > 0) {
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("Blob")
+                    .values(blobs)
+                    .onConflict((oc) => oc.column("cid").doNothing())
+                    .execute(),
+                catch: error => new DBInsertError(error)
+            })
+        }
 
-            await trx
+        yield* Effect.tryPromise({
+            try: () => trx
                 .deleteFrom("DataBlock")
                 .where("datasetId", "in", records.map(r => r.ref.uri))
-                .execute()
-
-            await trx
-                .insertInto("DataBlock")
-                .values(blocks)
-                .onConflict((oc) => oc.column("cid").doNothing())
-                .execute()
-
-            return records.length
+                .execute(),
+            catch: error => new DBInsertError(error)
         })
 
-        return Effect.tryPromise({
-            try: () => insertRecords,
-            catch: () => new InsertRecordError()
-        })
-    }
+        if (blocks.length > 0) {
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("DataBlock")
+                    .values(blocks)
+                    .onConflict((oc) => oc.column("cid").doNothing())
+                    .execute(),
+                catch: error => new DBInsertError(error)
+            })
+        }
+
+        return records.length
+    })
 }
+
+export const datasetRecordProcessor = datasetProcessor
 
 
 export const datasetDeleteProcessor: DeleteProcessor = (ctx, uris) => {

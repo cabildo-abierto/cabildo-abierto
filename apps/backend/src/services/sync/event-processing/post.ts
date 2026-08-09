@@ -19,17 +19,15 @@ import {
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
 import {
-    addRecordsToDBBatch,
-    InsertRecordError,
     processDirtyRecordsBatch,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {Transaction} from "kysely";
 import {DB} from "../../../../prisma/generated/types.js";
-import {Effect, pipe} from "effect";
+import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 import {AppContext} from "#/setup.js";
 
 
@@ -45,7 +43,7 @@ function getQuotedPostRef(r: AppBskyFeedPost.Record): ATProtoStrongRef | undefin
 }
 
 
-async function createReferences(records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>) {
+function createReferences(records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>) {
     const referencedRefs: ATProtoStrongRef[] = records.reduce((acc, r) => {
         const quoteRef = getQuotedPostRef(r.record)
         return [
@@ -55,11 +53,11 @@ async function createReferences(records: RefAndRecord<AppBskyFeedPost.Record>[],
             ...(quoteRef ? [quoteRef] : [])
         ]
     }, [] as ATProtoStrongRef[])
-    await processDirtyRecordsBatch(trx, referencedRefs)
+    return processDirtyRecordsBatch(trx, referencedRefs)
 }
 
 
-async function createContents(ctx: AppContext, records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>): Promise<JobToAdd[]> {
+function createContents(ctx: AppContext, records: RefAndRecord<AppBskyFeedPost.Record>[], trx: Transaction<DB>) {
     const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => {
         let datasetsUsed: string[] = []
         if (ArCabildoabiertoEmbedVisualization.isMain(r.record.embed) && ArCabildoabiertoEmbedVisualization.isDatasetDataSource(r.record.embed.dataSource)) {
@@ -78,7 +76,7 @@ async function createContents(ctx: AppContext, records: RefAndRecord<AppBskyFeed
         }
     })
 
-    return await processContentsBatch(ctx, trx, contents)
+    return processContentsBatch(ctx, trx, contents)
 }
 
 
@@ -109,16 +107,15 @@ function createNotifications(posts: {replyToId: string | null, uri: string}[]): 
 }
 
 
-export const postRecordProcessor: RecordProcessor<AppBskyFeedPost.Record> = {
+export const postProcessor: Processor<AppBskyFeedPost.Record> = {
     validator: (ctx, record: AppBskyFeedPost.Record) => {
         return Effect.succeed(AppBskyFeedPost.validateRecord(record))
     },
 
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<AppBskyFeedPost.Record>[], reprocess = false) => {
-        const query = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-            await createReferences(records, trx)
-            const jobs = await createContents(ctx, records, trx)
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<AppBskyFeedPost.Record>[], trx, reprocess = false) => {
+        return Effect.gen(function* () {
+            yield* createReferences(records, trx)
+            const jobs = yield* createContents(ctx, records, trx)
 
             const posts = records.map(({ref, record: r}) => ({
                 facets: r.facets ? JSON.stringify(r.facets) : null,
@@ -132,15 +129,19 @@ export const postRecordProcessor: RecordProcessor<AppBskyFeedPost.Record> = {
                 langs: r.langs ?? []
             }))
 
-            const existing = await trx
+            const existing = yield* Effect.tryPromise({
+                try: () => trx
                 .selectFrom("Post")
                 .select("uri")
                 .where("uri", "in", posts.map(p => p.uri))
-                .execute()
+                .execute(),
+                catch: error => new DBInsertError(error)
+            })
 
             const existingSet = new Set(existing.map(p => p.uri))
 
-            await trx
+            yield* Effect.tryPromise({
+                try: () => trx
                 .insertInto("Post")
                 .values(posts)
                 .onConflict((oc) =>
@@ -153,19 +154,15 @@ export const postRecordProcessor: RecordProcessor<AppBskyFeedPost.Record> = {
                         langs: (eb) => eb.ref('excluded.langs')
                     })
                 )
-                .execute()
+                .execute(),
+                catch: error => new DBInsertError(error)
+            })
 
             return {
                 posts: posts.filter(p => !existingSet.has(p.uri)),
                 jobs
             }
-        })
-
-        return pipe(
-            Effect.tryPromise({
-                try: () => query,
-                catch: error => new InsertRecordError(error instanceof Error ? error : undefined)
-            }),
+        }).pipe(
             Effect.tap(({posts: insertedPosts, jobs}) => {
                 if (insertedPosts.length > 0 && !reprocess) {
                     const parents = insertedPosts.map(i => i.replyToId)
@@ -203,6 +200,8 @@ export const postRecordProcessor: RecordProcessor<AppBskyFeedPost.Record> = {
         )
     }
 }
+
+export const postRecordProcessor = postProcessor
 
 
 export const postDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {

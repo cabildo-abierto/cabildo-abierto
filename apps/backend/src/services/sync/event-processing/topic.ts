@@ -7,10 +7,9 @@ import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {
-    addRecordsToDBBatch,
     InsertRecordError,
     ProcessCreateError,
-    RecordProcessor,
+    Processor,
     ValidationError
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
@@ -18,13 +17,13 @@ import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {Effect, pipe} from "effect";
 import {DB} from "prisma/generated/types.js";
-import {AddJobError, DBDeleteError, InvalidValueError} from "#/utils/errors.js";
+import {AddJobError, DBDeleteError, DBInsertError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
 
 
-export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTopicVersion.Record> = {
+export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.Record> = {
     validator: (ctx: AppContext, record: ArCabildoabiertoWikiTopicVersion.Record): Effect.Effect<ValidationResult<ArCabildoabiertoWikiTopicVersion.Record>, ValidationError> => {
         const logger = ctx.logger
         return Effect.gen(function* () {
@@ -56,6 +55,7 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
     addRecordsToDB: (
         ctx: AppContext,
         records: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[],
+        trx,
         reprocess: boolean = false
     ): Effect.Effect<number, ProcessCreateError | InvalidValueError> => {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
@@ -81,9 +81,8 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
             authorship: r.record.claimsAuthorship ?? false
         }))
 
-        const insertTopics = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-            const jobs = await processContentsBatch(
+        return Effect.gen(function* () {
+            const jobs = yield* processContentsBatch(
                 ctx,
                 trx,
                 contents,
@@ -91,47 +90,52 @@ export const topicVersionRecordProcessor: RecordProcessor<ArCabildoabiertoWikiTo
             )
 
 
-            await trx
-                .insertInto("Topic")
-                .values(topics.map(t => ({...t, synonyms: []})))
-                .onConflict((oc) => oc.column("id").doUpdateSet({
-                    lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
-                }))
-                .execute()
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("Topic")
+                    .values(topics.map(t => ({...t, synonyms: []})))
+                    .onConflict((oc) => oc.column("id").doUpdateSet({
+                        lastEdit: sql`GREATEST("Topic"."lastEdit", excluded."lastEdit")`
+                    }))
+                    .execute(),
+                catch: (error) => new DBInsertError(error)
+            })
 
             if (topicVersions.length > 0) {
-                const inserted = await trx
-                    .insertInto("TopicVersion")
-                    .values(topicVersions)
-                    .onConflict(oc => oc.column("uri").doUpdateSet({
-                        topicId: eb => eb.ref("excluded.topicId"),
-                        message: (eb) => eb.ref("excluded.message"),
-                        props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
-                    }))
-                    .returning(["topicId", "TopicVersion.uri"])
-                    .execute()
+                const inserted = yield* Effect.tryPromise({
+                    try: () => trx
+                        .insertInto("TopicVersion")
+                        .values(topicVersions)
+                        .onConflict(oc => oc.column("uri").doUpdateSet({
+                            topicId: eb => eb.ref("excluded.topicId"),
+                            message: (eb) => eb.ref("excluded.message"),
+                            props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
+                        }))
+                        .returning(["topicId", "TopicVersion.uri"])
+                        .execute(),
+                    catch: (error) => new DBInsertError(error)
+                })
 
-                await updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId))
+                yield* Effect.tryPromise({
+                    try: () => updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId)),
+                    catch: (error) => new InsertRecordError(error)
+                })
 
                 return {inserted, jobs}
             } else {
                 return {inserted: [], jobs}
             }
-        })
-
-        return pipe(
-            Effect.tryPromise({
-                try: () => insertTopics,
-                catch: (error) => new InsertRecordError(error)
-            }),
+        }).pipe(
             Effect.tap(({inserted, jobs}) => {
                 return !reprocess ? createJobs(ctx, records, inserted, topics, jobs) : Effect.void
             }),
             Effect.map(() => records.length),
-            Effect.withSpan("TopicVersionRecordProcessor.addRecordsToDB")
+            Effect.withSpan("TopicVersionProcessor.addRecordsToDB")
         )
     }
 }
+
+export const topicVersionRecordProcessor = topicVersionProcessor
 
 
 const createJobs = (

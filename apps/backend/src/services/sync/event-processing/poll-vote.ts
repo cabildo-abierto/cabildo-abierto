@@ -4,22 +4,20 @@ import {
     getPollKeyFromId
 } from "@cabildo-abierto/utils";
 import {
-    addRecordsToDBBatch,
-    InsertRecordError,
     processDirtyRecordsBatch,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {ArCabildoabiertoEmbedPollVote} from "@cabildo-abierto/api"
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {Effect, pipe} from "effect";
+import {Effect} from "effect";
 import {ValidationResult} from "@atproto/lexicon";
 import {CIDEncodeError, getPollKey} from "#/services/write/topic.js";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 import {AppContext} from "#/setup.js";
 
 
-export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollVote.Record> = {
+export const pollVoteProcessor: Processor<ArCabildoabiertoEmbedPollVote.Record> = {
     validator: (ctx, record: ArCabildoabiertoEmbedPollVote.Record): Effect.Effect<ValidationResult<ArCabildoabiertoEmbedPollVote.Record>, CIDEncodeError> => {
         return Effect.gen(function* () {
             const res = ArCabildoabiertoEmbedPollVote.validateRecord(record)
@@ -41,13 +39,11 @@ export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollV
         })
     },
 
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoEmbedPollVote.Record>[], reprocess = false) => {
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoEmbedPollVote.Record>[], trx, reprocess = false) => {
         records = records.filter(r => getCollectionFromUri(r.ref.uri) == "ar.cabildoabierto.embed.pollVote")
         if (records.length == 0) return Effect.succeed(0)
 
-        const insertVotes = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-
+        return Effect.gen(function* () {
             const containers = records
                 .map(r => {
                     const container = getPollContainerFromId(r.record.subjectId)
@@ -55,7 +51,7 @@ export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollV
                     return null
                 })
                 .filter((x): x is { uri: string } => x != null)
-            await processDirtyRecordsBatch(trx, containers)
+            yield* processDirtyRecordsBatch(trx, containers)
 
             const polls = records.map(r => ({
                 id: r.record.subjectId,
@@ -65,11 +61,14 @@ export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollV
             }))
 
             if (polls.length > 0) {
-                await trx
-                    .insertInto("Poll")
-                    .values(polls)
-                    .onConflict(oc => oc.column("id").doNothing())
-                    .execute()
+                yield* Effect.tryPromise({
+                    try: () => trx
+                        .insertInto("Poll")
+                        .values(polls)
+                        .onConflict(oc => oc.column("id").doNothing())
+                        .execute(),
+                    catch: error => new DBInsertError(error)
+                })
             }
 
             const votes = records.map(r => ({
@@ -78,26 +77,22 @@ export const pollVoteRecordProcessor: RecordProcessor<ArCabildoabiertoEmbedPollV
                 choice: r.record.choice
             }))
 
-            await trx
-                .insertInto("PollVote")
-                .values(votes)
-                .onConflict((oc) =>
-                    oc.column("uri").doUpdateSet({
-                        pollId: eb => eb.ref('excluded.pollId'),
-                        choice: eb => eb.ref("excluded.choice")
-                    })
-                )
-                .execute()
-        })
+            yield* Effect.tryPromise({
+                try: () => trx
+                    .insertInto("PollVote")
+                    .values(votes)
+                    .onConflict((oc) =>
+                        oc.column("uri").doUpdateSet({
+                            pollId: eb => eb.ref('excluded.pollId'),
+                            choice: eb => eb.ref("excluded.choice")
+                        })
+                    )
+                    .execute(),
+                catch: error => new DBInsertError(error)
+            })
 
-        return pipe(
-            Effect.tryPromise({
-                try: () => insertVotes,
-                catch: error => new InsertRecordError(error instanceof Error ? error : undefined)
-            }),
-            Effect.map(() => records.length),
-            Effect.withSpan("addRecordsToDB PollVote")
-        )
+            return records.length
+        }).pipe(Effect.withSpan("addRecordsToDB PollVote"))
     }
 }
 

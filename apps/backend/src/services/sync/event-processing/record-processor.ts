@@ -1,15 +1,16 @@
 import {AppContext} from "#/setup.js";
 import {ATProtoStrongRef} from "@cabildo-abierto/api";
-import {getCollectionFromUri, getDidFromUri, getRkeyFromUri, splitUri, sum, unique} from "@cabildo-abierto/utils";
+import {getCollectionFromUri, getRkeyFromUri, sum, unique} from "@cabildo-abierto/utils";
 import {ValidationResult} from "@atproto/lexicon";
 import {parseRecord} from "#/services/sync/parse.js";
 import {RefAndRecord} from "#/services/sync/types.js";
-import {Transaction} from "kysely";
-import {DB} from "prisma/generated/types.js";
-import {Effect, pipe} from "effect";
-
-import {AddJobError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
+import {Effect} from "effect";
+import {AddJobError, DBInsertError, InvalidValueError, UpdateRedisError} from "#/utils/errors.js";
 import {CIDEncodeError} from "#/services/write/topic.js";
+import {Transaction} from "kysely";
+import {getDidFromUri, splitUri} from "@cabildo-abierto/utils";
+import {createUsersBatch} from "#/services/user/creation.js";
+import {DB} from "../../../../prisma/generated/types.js";
 
 
 export class InsertRecordError {
@@ -24,7 +25,7 @@ export class InsertRecordError {
     }
 }
 
-export type ProcessCreateError = CIDEncodeError | InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError
+export type ProcessCreateError = CIDEncodeError | InsertRecordError | InvalidValueError | UpdateRedisError | AddJobError | DBInsertError
 
 
 export type ValidationError = CIDEncodeError
@@ -33,39 +34,40 @@ export type ValidationError = CIDEncodeError
 type RecordValidator<T> = (ctx: AppContext, record: T) => Effect.Effect<ValidationResult<T>, ValidationError>
 
 
-export type RecordProcessor<T = any> = {
+export type Processor<T = any> = {
     validator: RecordValidator<T>
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<T>[], reprocess?: boolean) => Effect.Effect<number, ProcessCreateError>
+    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<T>[], trx: Transaction<DB>, reprocess?: boolean) =>
+        Effect.Effect<number, ProcessCreateError>
 }
 
 
 export const processRecords = <T>(
     ctx: AppContext,
     records: RefAndRecord[],
-    processor: RecordProcessor<T>,
+    processor: Processor<T>,
     reprocess: boolean = false,
-): Effect.Effect<number, ProcessCreateError | ValidationError> => {
-    if(records.length == 0) return Effect.succeed(0)
+): Effect.Effect<number, ProcessCreateError | ValidationError> => Effect.gen(function* () {
+    if(records.length == 0) return 0
 
-    return parseRecords(
+    const validatedRecords = yield* parseRecords(
         ctx,
         records,
         processor.validator
-    ).pipe(Effect.flatMap(validatedRecords => {
-        return processValidatedRecords(
-            ctx,
-            validatedRecords,
-            processor,
-            reprocess
-        )
-    }))
-}
+    )
+    ctx.logger.pino.info({count: records.length, collection: getCollectionFromUri(records[0].ref.uri), valid: validatedRecords.length}, "processing records")
+    return yield* processValidatedRecords(
+        ctx,
+        validatedRecords,
+        processor,
+        reprocess
+    )
+})
 
 
 export const processInBatches = <T>(
     ctx: AppContext,
     records: RefAndRecord[],
-    processor: RecordProcessor<T>,
+    processor: Processor<T>,
     reprocess: boolean = false
 ): Effect.Effect<void, ProcessCreateError | UpdateRedisError | InvalidValueError | ValidationError> => {
     if(records.length == 0) return Effect.void
@@ -88,26 +90,45 @@ export const processInBatches = <T>(
 export const processValidatedRecords = <T>(
     ctx: AppContext,
     records: RefAndRecord<T>[],
-    processor: RecordProcessor<T>,
+    processor: Processor<T>,
     reprocess: boolean = false
-): Effect.Effect<number, ProcessCreateError> => {
-    if(records.length == 0) return Effect.succeed(0)
+): Effect.Effect<number, ProcessCreateError> => Effect.gen(function* () {
+    if(records.length == 0) return 0
 
     const collection = getCollectionFromUri(records[0].ref.uri)
 
-    return pipe(
-        processor.addRecordsToDB(ctx, records, reprocess),
-        Effect.tap(() => {
-            return !reprocess ? Effect.tryPromise({
-                try: () => ctx.redisCache.onUpdateRecords(records),
-                catch: () => new UpdateRedisError()
-            }) : Effect.void
-        }),
-        Effect.flatMap(processed => Effect.succeed(processed)),
+    const trx = yield* Effect.tryPromise({
+        try: () => ctx.kysely.startTransaction().execute(),
+        catch: (e) => new DBInsertError(e)
+    })
+
+    const processed = yield* Effect.gen(function* () {
+        yield* addRecordsToDBBatch(trx, records)
+
+        return yield* processor
+            .addRecordsToDB(ctx, records, trx, reprocess)
+            .pipe(Effect.withSpan(`addRecordsToDB ${collection}`))
+    }).pipe(
+        Effect.tap(() => Effect.tryPromise({
+            try: () => trx.commit().execute(),
+            catch: (e) => new DBInsertError(e)
+        })),
+        Effect.tapError(() => Effect.tryPromise({
+            try: () => trx.rollback().execute(),
+            catch: () => new DBInsertError()
+        }).pipe(Effect.ignore)),
         Effect.withSpan(`processValidated ${collection}`)
     )
-}
 
+    if(!reprocess) {
+        yield* Effect.tryPromise({
+            try: () => ctx.redisCache.onUpdateRecords(records),
+            catch: () => new UpdateRedisError()
+        })
+    }
+
+    return processed
+})
 
 const parseRecords = <T>(
     ctx: AppContext,
@@ -146,7 +167,10 @@ const parseRecords = <T>(
 
 
 
-export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: ATProtoStrongRef, record: any }[]) {
+export const addRecordsToDBBatch = (
+    trx: Transaction<DB>,
+    records: { ref: ATProtoStrongRef, record: any }[]
+) => Effect.gen(function* () {
     const data: {
         uri: string,
         cid: string,
@@ -176,11 +200,11 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
     })
 
     const users = unique(records.map(r => getDidFromUri(r.ref.uri)))
-    await createUsersBatch(trx, users)
+    yield* createUsersBatch(trx, users)
 
-    try {
-        if(data.length > 0){
-            await trx
+    if(data.length > 0){
+        yield* Effect.tryPromise({
+            try: () => trx
                 .insertInto("Record")
                 .values(data)
                 .onConflict((oc) =>
@@ -190,69 +214,64 @@ export async function addRecordsToDBBatch(trx: Transaction<DB>, records: { ref: 
                         collection: eb.ref('excluded.collection'),
                         createdAt: eb.ref('excluded.createdAt'),
                         authorId: eb.ref('excluded.authorId'),
-                        record: eb.ref('excluded.record'),
-                        lastUpdatedAt: eb.ref('excluded.lastUpdatedAt'), // caIndexedAt no se actualiza
-                        editedAt: eb.case()
-                            .when("Record.cid", "!=", eb.ref("excluded.cid"))
-                            .then(new Date()).else(eb.ref("Record.editedAt")).end()
+                        record: eb.ref('excluded.record')
                     }))
                 )
-                .execute()
-        }
-    } catch (err) {
-        console.log(err)
-        console.log("Error processing records")
+                .execute(),
+            catch: (e) => new DBInsertError(e)
+        })
     }
-}
+})
 
 
-export async function createUsersBatch(trx: Transaction<DB>, dids: string[]) {
-    if (dids.length == 0) return
-    dids = unique(dids)
-    await trx
-        .insertInto("User")
-        .values(dids.map(did => ({did, createdAt: new Date()})))
-        .onConflict((oc) => oc.column("did").doNothing())
-        .execute()
-}
-
-
-export async function processDirtyPostsBatch(trx: Transaction<DB>, refs: ATProtoStrongRef[]) {
+export const processDirtyPostsBatch = (
+    trx: Transaction<DB>,
+    refs: ATProtoStrongRef[]
+) => Effect.gen(function* () {
     refs = refs.filter(
         r => getCollectionFromUri(r.uri) == "app.bsky.feed.post"
     )
     if(refs.length == 0) return
-    await processDirtyRecordsBatch(trx, refs)
-    await trx
-        .insertInto("Content")
-        .values(refs.map(r => {
-            return {
-                uri: r.uri,
-                collection: getCollectionFromUri(r.uri),
-                selfLabels: [],
-                embeds: []
-            }
-        }))
-        .onConflict(oc => oc.column("uri").doNothing())
-        .execute()
-    await trx
-        .insertInto("Post")
-        .values(refs.map(r => {
-            return {
-                uri: r.uri,
-                langs: []
-            }
-        }))
-        .onConflict(oc => oc.column("uri").doNothing())
-        .execute()
-}
+    yield* processDirtyRecordsBatch(trx, refs)
+    yield* Effect.tryPromise({
+        try: () => trx
+            .insertInto("Content")
+            .values(refs.map(r => {
+                return {
+                    uri: r.uri,
+                    collection: getCollectionFromUri(r.uri),
+                    selfLabels: [],
+                    embeds: []
+                }
+            }))
+            .onConflict(oc => oc.column("uri").doNothing())
+            .execute(),
+        catch: (e) => new DBInsertError(e)
+    })
+    yield* Effect.tryPromise({
+        try: () => trx
+            .insertInto("Post")
+            .values(refs.map(r => {
+                return {
+                    uri: r.uri,
+                    langs: []
+                }
+            }))
+            .onConflict(oc => oc.column("uri").doNothing())
+            .execute(),
+        catch: (e) => new DBInsertError(e)
+    })
+})
 
 
-export async function processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri: string, cid?: string}[]) {
+export const processDirtyRecordsBatch = (
+    trx: Transaction<DB>,
+    refs: {uri: string, cid?: string}[]
+) => Effect.gen(function* () {
     if (refs.length == 0) return
 
     const users = refs.map(r => getDidFromUri(r.uri))
-    await createUsersBatch(trx, users)
+    yield* createUsersBatch(trx, users)
 
     const data = refs.map(({uri, cid}) => ({
         uri,
@@ -266,13 +285,14 @@ export async function processDirtyRecordsBatch(trx: Transaction<DB>, refs: {uri:
 
     if (data.length == 0) return
 
-    await trx
-        .insertInto("Record")
-        .values(data)
-        .onConflict((oc) => oc.column("uri").doNothing())
-        .execute()
-}
-
-
+    yield* Effect.tryPromise({
+        try: () => trx
+            .insertInto("Record")
+            .values(data)
+            .onConflict((oc) => oc.column("uri").doNothing())
+            .execute(),
+        catch: (e) => new DBInsertError(e)
+    })
+})
 
 

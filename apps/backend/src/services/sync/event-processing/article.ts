@@ -5,21 +5,19 @@ import {SyncContentProps} from "#/services/sync/types.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoFeedArticle, ATProtoStrongRef} from "@cabildo-abierto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {
-    addRecordsToDBBatch,
-    InsertRecordError,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {Effect} from "effect";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 
 
-export const articleRecordProcessor: RecordProcessor<ArCabildoabiertoFeedArticle.Record> = {
+export const articleProcessor: Processor<ArCabildoabiertoFeedArticle.Record> = {
     validator: (ctx, record: ArCabildoabiertoFeedArticle.Record) => {
         return Effect.gen(function* () {
             const res = ArCabildoabiertoFeedArticle.validateRecord(record)
@@ -46,7 +44,12 @@ export const articleRecordProcessor: RecordProcessor<ArCabildoabiertoFeedArticle
         })
     },
 
-    addRecordsToDB: (ctx: AppContext, records: RefAndRecord<ArCabildoabiertoFeedArticle.Record>[], reprocess = false) => {
+    addRecordsToDB: (
+        ctx: AppContext,
+        records: RefAndRecord<ArCabildoabiertoFeedArticle.Record>[],
+        trx,
+        reprocess = false
+    ) => {
         const contents: { ref: ATProtoStrongRef, record: SyncContentProps }[] = records.map(r => ({
             record: {
                 format: r.record.format,
@@ -67,62 +70,57 @@ export const articleRecordProcessor: RecordProcessor<ArCabildoabiertoFeedArticle
             description: r.record.description
         }))
 
-        let jobs: JobToAdd[] = []
-        const insertArticle = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-            jobs.push(...await processContentsBatch(ctx, trx, contents))
-
-            await trx
-                .insertInto("Article")
-                .values(articles)
-                .onConflict((oc) =>
-                    oc.column("uri").doUpdateSet({
-                        title: (eb) => eb.ref('excluded.title'),
-                        previewImage: eb => eb.ref("excluded.previewImage"),
-                        description: eb => eb.ref("excluded.description")
-                    })
-                )
-                .execute()
-        })
-
-        const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
-
-        jobs.push(
-            {
-                label: "update-author-status",
-                data: authors,
-                priority: 11
-            },
-            {
-                label: "update-following-feed-on-new-content",
-                data: records.map(r => r.ref.uri)
-            },
-            {
-                label: "update-contents-topic-mentions",
-                data: records.map(r => r.ref.uri),
-                priority: 11
-            },
-            {
-                label: "update-interactions-score",
-                data: records.map(r => r.ref.uri),
-                priority: 11
-            }
-        )
-
-        const addJobs = ctx.worker?.addJobs(jobs)
-
         return Effect.gen(function*() {
+            let jobs: JobToAdd[] = []
+            jobs.push(...yield* processContentsBatch(ctx, trx, contents))
+
             yield* Effect.tryPromise({
-                try: () => insertArticle,
-                catch: () => new InsertRecordError()
+                try: () => trx
+                    .insertInto("Article")
+                    .values(articles)
+                    .onConflict((oc) =>
+                        oc.column("uri").doUpdateSet({
+                            title: (eb) => eb.ref('excluded.title'),
+                            previewImage: eb => eb.ref("excluded.previewImage"),
+                            description: eb => eb.ref("excluded.description")
+                        })
+                    )
+                    .execute(),
+                catch: (error) => new DBInsertError(error)
             })
 
-            if(!reprocess) yield* addJobs
+            const authors = unique(records.map(r => getDidFromUri(r.ref.uri)))
+
+            jobs.push(
+                {
+                    label: "update-author-status",
+                    data: authors,
+                    priority: 11
+                },
+                {
+                    label: "update-following-feed-on-new-content",
+                    data: records.map(r => r.ref.uri)
+                },
+                {
+                    label: "update-contents-topic-mentions",
+                    data: records.map(r => r.ref.uri),
+                    priority: 11
+                },
+                {
+                    label: "update-interactions-score",
+                    data: records.map(r => r.ref.uri),
+                    priority: 11
+                }
+            )
+
+            if(!reprocess) yield* ctx.worker?.addJobs(jobs)
 
             return records.length
         })
     }
 }
+
+export const articleRecordProcessor = articleProcessor
 
 
 export const articleDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {

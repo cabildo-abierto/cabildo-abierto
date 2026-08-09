@@ -166,7 +166,7 @@ export async function createTestContext(): Promise<AppContext> {
 
     const result = await sql<{ dbName: string }>`SELECT current_database() as "dbName"`.execute(ctx.kysely);
 
-    if(result.rows[0].dbName != "ca-sql-dev") throw Error(`Los tests deberían correrse sobre la base de datos de desarrollo! ${result.rows[0].dbName}`)
+    if(result.rows[0].dbName != "ca-sql-dev" && !result.rows[0].dbName.endsWith("test")) throw Error(`Los tests deberían correrse sobre la base de datos de desarrollo! ${result.rows[0].dbName}`)
 
     return ctx
 }

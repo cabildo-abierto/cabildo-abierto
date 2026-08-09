@@ -24,18 +24,6 @@ import {AddJobError} from "#/utils/errors.js";
 import {ProcessDeleteError, processDeletes} from "#/services/sync/event-processing/delete-processor.js";
 
 
-export async function getCAUsersAndFollows(ctx: AppContext) {
-    return await ctx.kysely
-        .selectFrom("User")
-        .innerJoin("Follow", "User.did", "Follow.userFollowedId")
-        .innerJoin("Record", "Record.uri", "Follow.uri")
-        .innerJoin("User as Follower", "Follower.did", "Record.authorId")
-        .where("Follower.inCA", "=", true)
-        .select(["User.did"])
-        .distinct()
-        .execute()
-}
-
 
 export class RepoTooLargeError {
     readonly _tag = "RepoTooLargeError"
@@ -181,10 +169,10 @@ function processRepoBatch(
     return Effect.gen(function* () {
         for (const collection of collections) {
             const records: RefAndRecord[] = batch.get(collection) ?? []
+            ctx.logger.pino.info({collection, count: records.length}, "processing repo batch")
             if(records.length == 0) {
                 continue
             }
-
             yield* processInBatches(ctx, records, getRecordProcessor(ctx, collection))
         }
     }) as Effect.Effect<void, ProcessCreateError, never>
@@ -326,7 +314,8 @@ function isCAUser(ctx: AppContext, did: string): Effect.Effect<boolean, UserNotF
 export const syncUser = (
     ctx: AppContext,
     did: string,
-    collections?: string[]
+    collections?: string[],
+    runningMirror: boolean = true
 ): Effect.Effect<void, SyncError> => {
     const normalizedCollections = collections
         ? collections.map(shortCollectionToCollection)
@@ -334,13 +323,16 @@ export const syncUser = (
 
     return Effect.gen(function* () {
         const inCA = yield* isCAUser(ctx, did)
+        yield* Effect.annotateCurrentSpan({inCA})
 
-        const mirrorStatus = yield* ctx.redisCache.mirrorStatus.get(did, inCA)
-        yield* Effect.annotateCurrentSpan({inCA, mirrorStatus})
+        if(runningMirror) {
+            const mirrorStatus = yield* ctx.redisCache.mirrorStatus.get(did, inCA)
+            yield* Effect.annotateCurrentSpan({mirrorStatus})
 
-        if(mirrorStatus != "InProcess") {
-            yield* Effect.annotateCurrentSpan({result: "not-in-process"})
-            return
+            if(mirrorStatus != "InProcess") {
+                yield* Effect.annotateCurrentSpan({result: "not-in-process"})
+                return
+            }
         }
 
         const doc = yield* getServiceEndpointForDid(ctx, did)
@@ -353,7 +345,9 @@ export const syncUser = (
 
         yield* updateHandle(ctx, did)
 
-        yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
+        if(runningMirror) {
+            yield* ctx.redisCache.mirrorStatus.set(did, "Sync", inCA)
+        }
         yield* Effect.annotateCurrentSpan({result: "success"})
     }).pipe(
         Effect.withSpan("runSync", {
@@ -364,7 +358,13 @@ export const syncUser = (
     ).pipe(
         Effect.catchAll(error => {
             return isCAUser(ctx, did).pipe(
-                Effect.flatMap(inCA => ctx.redisCache.mirrorStatus.set(did, "Failed", inCA).pipe(Effect.flatMap(() => Effect.void)))
+                Effect.flatMap(inCA => {
+                    return runningMirror ?
+                        ctx.redisCache.mirrorStatus
+                            .set(did, "Failed", inCA)
+                            .pipe(Effect.flatMap(() => Effect.void)) :
+                        Effect.void
+                })
             ).pipe(Effect.tap(Effect.annotateCurrentSpan({result: "failed", errorTag: error._tag})))
         })
     )

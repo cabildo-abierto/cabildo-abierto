@@ -3,26 +3,29 @@ import {ArCabildoabiertoActorCaProfile} from "@cabildo-abierto/api"
 import {AppBskyActorProfile} from "@atproto/api"
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {
-    addRecordsToDBBatch,
     InsertRecordError,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
 import {RefAndRecord} from "#/services/sync/types.js";
 import {AppContext} from "#/setup.js";
 import {Effect} from "effect";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
+import {Transaction} from "kysely";
+import {DB} from "../../../../prisma/generated/types.js";
 
 
-export const caProfileRecordProcessor: RecordProcessor<ArCabildoabiertoActorCaProfile.Record> = {
+export const caProfileProcessor: Processor<ArCabildoabiertoActorCaProfile.Record> = {
     validator: (ctx, record: ArCabildoabiertoActorCaProfile.Record) => {
         return Effect.succeed(ArCabildoabiertoActorCaProfile.validateRecord(record))
     },
 
-    addRecordsToDB: (ctx, records, reprocess = false) => {
-        return processCAProfilesBatch(ctx, records)
+    addRecordsToDB: (ctx, records, trx, reprocess = false) => {
+        return processCAProfilesBatch(ctx, records, trx)
     }
 }
+
+export const caProfileRecordProcessor = caProfileProcessor
 
 
 export const caProfileDeleteProcessor: DeleteProcessor = (ctx, uris) => {
@@ -47,7 +50,7 @@ export const caProfileDeleteProcessor: DeleteProcessor = (ctx, uris) => {
 }
 
 
-export const oldCAProfileRecordProcessor: RecordProcessor<any> = {
+export const oldCAProfileProcessor: Processor<any> = {
 
     validator: (ctx, r: any) => {
         return Effect.succeed({
@@ -56,12 +59,14 @@ export const oldCAProfileRecordProcessor: RecordProcessor<any> = {
         })
     },
 
-    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
-        return processCAProfilesBatch(ctx, records)
+    addRecordsToDB: (ctx, records, trx, reprocess: boolean = false) => {
+        return processCAProfilesBatch(ctx, records, trx)
     }
 }
 
-function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effect.Effect<number, InsertRecordError> {
+export const oldCAProfileRecordProcessor = oldCAProfileProcessor
+
+function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[], trx: Transaction<DB>): Effect.Effect<number, DBInsertError> {
     const userProfileRecords = records.filter(r => getRkeyFromUri(r.ref.uri) == "self")
     const values = userProfileRecords.map(r => {
         return {
@@ -72,10 +77,10 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
         }
     })
 
-    const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
-        await addRecordsToDBBatch(trx, records)
+    if (values.length == 0) return Effect.succeed(0)
 
-        await trx
+    return Effect.tryPromise({
+        try: () => trx
             .insertInto("User")
             .values(values)
             .onConflict(oc => oc.column("did").doUpdateSet(() => ({
@@ -83,22 +88,19 @@ function processCAProfilesBatch(ctx: AppContext, records: RefAndRecord[]): Effec
                 inCA: eb => eb.ref("excluded.inCA"),
                 createdAt: eb => eb.ref("excluded.createdAt")
             })))
-            .execute()
-
-        return values.length
-    })
-
-    return Effect.tryPromise({
-        try: () => insertRecords,
-        catch: (error) => new InsertRecordError(error)
-    }).pipe(Effect.withSpan("processCAProfilesBatch", {attributes: {records: records.map(r => r.ref.uri)}}))
+            .execute(),
+        catch: (error) => new DBInsertError(error)
+    }).pipe(
+        Effect.map(() => values.length),
+        Effect.withSpan("processCAProfilesBatch", {attributes: {records: records.map(r => r.ref.uri)}})
+    )
 }
 
 
-export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Record> = {
+export const bskyProfileProcessor: Processor<AppBskyActorProfile.Record> = {
     validator: (ctx, record) => Effect.succeed(AppBskyActorProfile.validateRecord(record)),
 
-    addRecordsToDB: (ctx, records, reprocess: boolean = false) => {
+    addRecordsToDB: (ctx, records, trx, reprocess: boolean = false) => {
         return Effect.gen(function*() {
             const values: {
                 did: string
@@ -131,7 +133,7 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
             }))
 
             yield* Effect.tryPromise({
-                try: () => ctx.kysely
+                try: () => trx
                     .insertInto("User")
                     .values(values)
                     .onConflict(oc => oc.column("did").doUpdateSet(() => ({
@@ -143,13 +145,15 @@ export const bskyProfileRecordProcessor: RecordProcessor<AppBskyActorProfile.Rec
                         description: eb => eb.ref("excluded.description")
                     })))
                     .execute(),
-                catch: () => new InsertRecordError()
+                catch: error => new DBInsertError(error)
             })
 
             return values.length
         }).pipe(Effect.catchTag("HandleResolutionError", () => Effect.fail(new InsertRecordError())))
     }
 }
+
+export const bskyProfileRecordProcessor = bskyProfileProcessor
 
 
 function avatarUrl(did: string, cid: string) {

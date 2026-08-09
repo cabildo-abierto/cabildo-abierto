@@ -50,7 +50,8 @@ export const getConversations: EffHandler<{}, GetConversationsOutput> = (
     }
     return out
 }).pipe(
-    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las conversaciones."))
+    Effect.catchTag("DBSelectError", () => Effect.fail("Ocurrió un error al obtener las conversaciones.")),
+    Effect.catchTag("NotFoundError", () => Effect.fail("Ocurrió un error al obtener las conversaciones."))
 )
 
 type SendMessageParams = { message: MessageInput, convoId: string }

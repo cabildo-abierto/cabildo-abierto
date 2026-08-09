@@ -7,30 +7,7 @@ import {RefAndRecord} from "#/services/sync/types.js";
 import {isValidHandle} from "@atproto/syntax";
 import {Effect} from "effect";
 import {processDeletes} from "#/services/sync/event-processing/delete-processor.js";
-
-
-function newUser(ctx: AppContext, did: string, inCA: boolean) {
-    if (inCA) {
-        return ctx.kysely.insertInto("User")
-            .values([{
-                did,
-                inCA: true,
-                createdAt: new Date()
-            }])
-            .onConflict(oc => oc.column("did").doUpdateSet(eb => ({
-                inCA: eb => eb.ref("excluded.inCA")
-            })))
-            .execute()
-    } else {
-        return ctx.kysely.insertInto("User")
-            .values([{
-                did,
-                createdAt: new Date()
-            }])
-            .onConflict(oc => oc.column("did").doNothing())
-            .execute()
-    }
-}
+import {newUser} from "#/services/user/creation.js";
 
 export class EventProcessor {
     ctx: AppContext
@@ -49,7 +26,6 @@ class CommitEventProcessor extends EventProcessor {
 
     constructor(ctx: AppContext){
         super(ctx)
-
     }
 
     async process(events: JetstreamEvent[]) {
@@ -137,4 +113,3 @@ export async function processEventsBatch(ctx: AppContext, events: JetstreamEvent
     await new CommitDeleteEventProcessor(ctx).process(events)
     await new IdentityEventProcessor(ctx).process(events)
 }
-

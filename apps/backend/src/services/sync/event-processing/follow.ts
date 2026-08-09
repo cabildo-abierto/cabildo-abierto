@@ -1,61 +1,59 @@
 import {AppBskyGraphFollow} from "@atproto/api"
 import {
-    addRecordsToDBBatch,
-    createUsersBatch,
-    InsertRecordError,
-    RecordProcessor
+    Processor
 } from "#/services/sync/event-processing/record-processor.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {Effect} from "effect";
 import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor.js";
-import {DBDeleteError} from "#/utils/errors.js";
+import {DBDeleteError, DBInsertError} from "#/utils/errors.js";
 import {
     incrementCaFollowCounters,
     decrementCaFollowCounters
 } from "#/services/user/follows.js";
+import {createUsersBatch} from "#/services/user/creation.js";
 
 
-export const followRecordProcessor: RecordProcessor<AppBskyGraphFollow.Record> = {
+export const followProcessor: Processor<AppBskyGraphFollow.Record> = {
     validator: (ctx, record: AppBskyGraphFollow.Record) => {
         return Effect.succeed(AppBskyGraphFollow.validateRecord(record))
     },
 
-    addRecordsToDB: (ctx, records, reprocess = false) => {
+    addRecordsToDB: (ctx, records, trx, reprocess = false) => Effect.gen(function* () {
         const follows = records.map(r => ({
             uri: r.ref.uri,
             userFollowedId: r.record.subject,
             authorId: getDidFromUri(r.ref.uri)
         }))
 
-        const insertRecords = ctx.kysely.transaction().execute(async (trx) => {
-            await addRecordsToDBBatch(trx, records)
-            await createUsersBatch(trx, records.map(r => r.record.subject))
+        yield* createUsersBatch(trx, records.map(r => r.record.subject))
 
-            const insertedFollows = await trx
+        const insertedFollows = yield* Effect.tryPromise({
+            try: () => trx
                 .insertInto("Follow")
                 .values(follows)
                 .onConflict((oc) => oc.column("uri").doNothing())
                 .returning(["uri", "userFollowedId", "authorId"])
-                .execute()
-
-            await incrementCaFollowCounters(trx, insertedFollows)
-
-            return records.length
+                .execute(),
+            catch: error => new DBInsertError(error)
         })
 
-        const addJobs = !reprocess ? ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
-            follower: getDidFromUri(f.uri),
-            followed: f.userFollowedId
-        }))) : undefined
+        yield* Effect.tryPromise({
+            try: () => incrementCaFollowCounters(trx, insertedFollows),
+            catch: error => new DBInsertError(error)
+        })
 
-        return Effect.tryPromise({
-            try: () => insertRecords,
-            catch: () => new InsertRecordError()
-        }).pipe(
-            Effect.tap(() => addJobs)
-        )
-    }
+        if (!reprocess) {
+            yield* ctx.worker?.addJob("update-following-feed-on-follow-change", follows.map(f => ({
+                follower: getDidFromUri(f.uri),
+                followed: f.userFollowedId
+            })))
+        }
+
+        return records.length
+    })
 }
+
+export const followRecordProcessor = followProcessor
 
 
 export const followDeleteProcessor: DeleteProcessor = (ctx, uris) => Effect.gen(function* () {
