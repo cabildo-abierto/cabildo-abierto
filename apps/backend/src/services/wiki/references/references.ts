@@ -1,6 +1,6 @@
 import {AppContext} from "#/setup.js";
 import {getCAUsersDids} from "#/services/user/users.js";
-import {sql} from "kysely";
+import {type SqlBool, sql} from "kysely";
 import {v4 as uuidv4} from "uuid";
 import {
     getEditedTopics,
@@ -89,7 +89,7 @@ const ftsReferencesQuery = (
             )
             .selectFrom("Content")
             .innerJoin("Synonyms", (join) =>
-                join.on(sql`"Content"."text_tsv" @@ "Synonyms"."query"`)
+                join.on(sql<SqlBool>`"Content"."text_tsv" @@ "Synonyms"."query"`)
             )
             .$if(uris != null, qb => qb.where("Content.uri", "in", uris!))
             .innerJoin("Record", "Record.uri", "Content.uri")
