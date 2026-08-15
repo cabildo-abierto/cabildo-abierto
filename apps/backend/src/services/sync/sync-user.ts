@@ -54,8 +54,8 @@ const maxRepoMBs = env.MAX_REPO_MBS
 export const allCollections = [
     "app.bsky.feed.post",
     "app.bsky.feed.like",
-    "app.bsky.feed.repost",
-    "app.bsky.graph.follow",
+    //"app.bsky.feed.repost",
+    //"app.bsky.graph.follow",
     "app.bsky.actor.profile",
     "ar.cabildoabierto.feed.article",
     "ar.cabildoabierto.wiki.topicVersion",

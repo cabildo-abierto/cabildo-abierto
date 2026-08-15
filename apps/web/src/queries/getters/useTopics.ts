@@ -5,8 +5,11 @@ import {categoriesSearchParam, useAPI} from "@/components/utils/react/queries";
 
 
 
-export function useTopics(categories: string[], sortedBy: "popular" | "recent", time: TimePeriod) {
-    const query = categoriesSearchParam(categories)
+export function useTopics(categories: string[], sortedBy: "popular" | "recent", time: TimePeriod, limit?: number) {
+    let query = categoriesSearchParam(categories)
+    if(limit) {
+        query = (query ? query + "&" : "") + `limit=${limit}`
+    }
     const url = `/topics/${sortedBy}/${time}${query ? `?${query}` : ""}`;
     return useAPI<ArCabildoabiertoWikiTopicVersion.TopicViewBasic[]>(url, ["topic", sortedBy, ...categories, time]);
 }

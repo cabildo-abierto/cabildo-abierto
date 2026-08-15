@@ -271,8 +271,28 @@
               "#stringListProp",
               "#dateProp",
               "#numberProp",
-              "#booleanProp"
+              "#booleanProp",
+              "#topicIdProp",
+              "#topicIdListProp"
             ]
+          }
+        }
+      },
+      "topicIdProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "topicIdListProp": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {
+            "type": "string"
           }
         }
       },

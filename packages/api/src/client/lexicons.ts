@@ -3627,7 +3627,27 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.wiki.topicVersion#dateProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#numberProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#booleanProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicIdProp',
+              'lex:ar.cabildoabierto.wiki.topicVersion#topicIdListProp',
             ],
+          },
+        },
+      },
+      topicIdProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'string',
+          },
+        },
+      },
+      topicIdListProp: {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            type: 'string',
           },
         },
       },

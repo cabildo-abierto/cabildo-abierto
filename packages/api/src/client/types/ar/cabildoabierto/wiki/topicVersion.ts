@@ -184,6 +184,8 @@ export interface TopicProp {
     | $Typed<DateProp>
     | $Typed<NumberProp>
     | $Typed<BooleanProp>
+    | $Typed<TopicIdProp>
+    | $Typed<TopicIdListProp>
     | { $type: string }
 }
 
@@ -195,6 +197,36 @@ export function isTopicProp<V>(v: V) {
 
 export function validateTopicProp<V>(v: V) {
   return validate<TopicProp & V>(v, id, hashTopicProp)
+}
+
+export interface TopicIdProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicIdProp'
+  value: string
+}
+
+const hashTopicIdProp = 'topicIdProp'
+
+export function isTopicIdProp<V>(v: V) {
+  return is$typed(v, id, hashTopicIdProp)
+}
+
+export function validateTopicIdProp<V>(v: V) {
+  return validate<TopicIdProp & V>(v, id, hashTopicIdProp)
+}
+
+export interface TopicIdListProp {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicIdListProp'
+  value: string
+}
+
+const hashTopicIdListProp = 'topicIdListProp'
+
+export function isTopicIdListProp<V>(v: V) {
+  return is$typed(v, id, hashTopicIdListProp)
+}
+
+export function validateTopicIdListProp<V>(v: V) {
+  return validate<TopicIdListProp & V>(v, id, hashTopicIdListProp)
 }
 
 export interface StringProp {
