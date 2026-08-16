@@ -8,6 +8,15 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@cabildo-abierto/api": [
+        "../../packages/api/src/index.ts"
+      ],
+      "@cabildo-abierto/utils": [
+        "../../packages/utils/src/index.ts"
+      ],
+      "@cabildo-abierto/editor-core": [
+        "../../packages/editor-core/src/index.ts"
       ]
     },
     "allowJs": true,
