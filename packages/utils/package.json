@@ -1,7 +1,8 @@
 {
   "name": "@cabildo-abierto/utils",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -12,7 +13,7 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "default": "./dist/index.js"
     }
   }

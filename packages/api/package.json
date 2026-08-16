@@ -2,7 +2,25 @@
   "name": "@cabildo-abierto/api",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./dist": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./dist/types/*": {
+      "types": "./src/types/*.ts",
+      "default": "./dist/types/*.js"
+    },
+    "./dist/client/types/*": {
+      "types": "./src/client/types/*.ts",
+      "default": "./dist/client/types/*.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w"

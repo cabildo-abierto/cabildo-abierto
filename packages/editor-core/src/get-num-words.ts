@@ -1,5 +1,5 @@
-import {getPlainText} from "./get-plain-text"
-import {decompress} from "./compression";
+import {getPlainText} from "./get-plain-text.js"
+import {decompress} from "./compression.js";
 
 
 export function getNumWords(text: string, format: string) {

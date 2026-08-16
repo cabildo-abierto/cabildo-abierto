@@ -7,9 +7,13 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "dev:web": "pnpm --filter cabildo-abierto dev",
-    "dev:backend": "pnpm --filter backend dev",
+    "dev": "turbo run dev",
+    "dev:packages": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev",
+    "dev:web": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev web#dev",
+    "dev:backend": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev backend#dev",
+    "dev:worker": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev backend#dev:worker",
+    "dev:mirror": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev backend#dev:mirror",
+    "dev:worker-mirror": "turbo run @cabildo-abierto/api#dev @cabildo-abierto/utils#dev @cabildo-abierto/editor-core#dev backend#dev:worker-mirror",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",

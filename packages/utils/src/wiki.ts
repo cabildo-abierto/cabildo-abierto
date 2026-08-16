@@ -1,5 +1,5 @@
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
-import {areArraysEqual} from "./arrays";
+import {areArraysEqual} from "./arrays.js";
 
 
 export type PropValue = ArCabildoabiertoWikiTopicVersion.TopicProp["value"]

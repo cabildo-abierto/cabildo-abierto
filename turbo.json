@@ -4,7 +4,18 @@
 
   "tasks": {
     "dev": {
-      "dependsOn": ["^dev"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:worker": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:mirror": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:worker-mirror": {
       "cache": false,
       "persistent": true
     },

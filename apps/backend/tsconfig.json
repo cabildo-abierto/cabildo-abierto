@@ -7,10 +7,7 @@
     "baseUrl": ".",
     "paths": {
       "#/*": ["src/*"],
-      "@atcute/car": ["node_modules/@atcute/car/dist/index.d.ts"],
-      "@cabildo-abierto/api": ["../../packages/api/src/index.ts"],
-      "@cabildo-abierto/utils": ["../../packages/utils/src/index.ts"],
-      "@cabildo-abierto/editor-core": ["../../packages/editor-core/src/index.ts"]
+      "@atcute/car": ["node_modules/@atcute/car/dist/index.d.ts"]
     },
     "outDir": "dist",
     "importsNotUsedAsValues": "remove",
