@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "public"."Reference" ADD COLUMN     "relevance" DOUBLE PRECISION NOT NULL DEFAULT 1,
-ALTER COLUMN "count" DROP NOT NULL;

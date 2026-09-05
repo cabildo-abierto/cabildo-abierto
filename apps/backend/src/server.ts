@@ -5,7 +5,6 @@ import express, {type Express} from 'express'
 import {env} from '#/lib/env.js'
 import {createRouter} from '#/routes/routes.js'
 import cors from 'cors'
-import {MirrorMachine} from "#/services/sync/mirror-machine.js";
 import {AppContext, Role, setupAppContext} from "#/setup.js";
 import morgan from "morgan"
 
@@ -22,11 +21,6 @@ export class Server {
 
         const {ctx} = await setupAppContext(roles)
         ctx.logger.pino.info("app context created")
-
-        if(roles.includes("mirror")){
-            const ingester = new MirrorMachine(ctx)
-            ingester.run()
-        }
 
         app.set('trust proxy', true)
 

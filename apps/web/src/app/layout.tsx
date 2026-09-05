@@ -1,13 +1,9 @@
 import '../styles/globals.css';
-
-import {Metadata} from "next";
-import {mainMetadata} from "@/utils/metadata";
-
 import {ReactNode} from "react";
-import {AppLayout} from "@/components/layout/app-layout";
-import { GeistSans } from "geist/font/sans";
+import { Geist_Mono } from "next/font/google";
+import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = mainMetadata
+const geistMono = Geist_Mono({subsets:['latin'],variable:'--font-mono'});
 
 
 export default function RootLayout({
@@ -15,7 +11,7 @@ export default function RootLayout({
 }: Readonly<{
     children: ReactNode;
 }>) {
-    return <html lang="es" spellCheck="false" className={GeistSans.variable}>
+    return <html lang="es" spellCheck="false" className={cn("font-mono", geistMono.variable)}>
         <head>
             <meta
                 name="viewport"
@@ -24,9 +20,7 @@ export default function RootLayout({
             <script defer src="https://cloud.umami.is/script.js" data-website-id="594aea65-e040-4cbf-8a84-b08df698307a"></script>
         </head>
         <body>
-            <AppLayout>
-                {children}
-            </AppLayout>
+            {children}
         </body>
     </html>
 }

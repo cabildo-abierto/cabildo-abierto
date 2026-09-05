@@ -1,0 +1,29 @@
+import {Query, useQuery} from "@tanstack/react-query";
+import {get} from "@/utils/react/fetch";
+
+
+export type RefetchInterval<T = any> = number | undefined | false | ((q: Query<T>) => number | undefined | false)
+
+
+export function useAPI<T>(
+    route: string,
+    key: readonly unknown[],
+    staleTime: number = Infinity,
+    enabled: boolean = true,
+    refetchInterval: RefetchInterval<T> = false
+) {
+    return useQuery<T, Error>({
+        queryKey: key,
+        queryFn: async () => {
+            const res = await get<T>(route)
+            if(res.success === true) {
+                return res.value
+            } else {
+                throw new Error(res.error)
+            }
+        },
+        staleTime,
+        enabled,
+        refetchInterval
+    })
+}

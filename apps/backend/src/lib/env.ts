@@ -16,10 +16,6 @@ export const env = cleanEnv(process.env, {
     MP_ACCESS_TOKEN: str(),
     MP_WEBHOOK_KEY: str(),
     ADMIN_TOKEN: str(),
-    REDIS_URL: str(),
-    CLOUDFLARE_ACCOUNT_ID: str(),
-    CLOUDFLARE_ACCESS_KEY_ID: str(),
-    CLOUDFLARE_SECRET_ACCESS_KEY: str(),
 
     DATABASE_URL: str(),
     DIRECT_URL: str(),
