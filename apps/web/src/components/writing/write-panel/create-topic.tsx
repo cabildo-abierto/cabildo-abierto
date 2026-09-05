@@ -9,7 +9,7 @@ import {getTopicTitle, validEntityName} from "../../tema/utils";
 import {useSession} from "@/components/auth/use-session";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {LoadingSpinner} from "@/components/utils/base/loading-spinner";
-import {ArCabildoabiertoWikiTopicVersion, CreateTopicVersionProps} from "@cabildo-abierto/api"
+import {ArCabildoabiertoWikiTopicVersion, CreateTopicProps} from "@cabildo-abierto/api"
 import {BaseTextField} from "@/components/utils/base/base-text-field";
 import {queryTopics} from "@/components/writing/query-topics";
 import {post} from "@/components/utils/react/fetch";
@@ -18,24 +18,8 @@ import {useDebounce} from "@/components/utils/react/debounce";
 
 
 export function useCreateTopic() {
-
-    const createTopic = async (id: string) => {
-        id = id.trim()
-        const topic: CreateTopicVersionProps = {
-            id,
-            props: [
-                {
-                    $type: "ar.cabildoabierto.wiki.topicVersion#topicProp",
-                    name: "Sinónimos",
-                    value: {
-                        $type: "ar.cabildoabierto.wiki.topicVersion#stringListProp",
-                        value: [id]
-                    }
-                }
-            ]
-        }
-
-        return await post<CreateTopicVersionProps, {}>(`/topic-version`, topic)
+    const createTopic = async (title: string) => {
+        return await post<CreateTopicProps, {}>(`/topic`, {title})
     }
 
     return {createTopic}
@@ -193,7 +177,7 @@ const CreateTopicInput = ({
 }
 
 
-type CreateTopicProps = {
+type CreateTopicFormProps = {
     onClose: () => void
     onMenu: boolean
 }
@@ -201,7 +185,7 @@ type CreateTopicProps = {
 export const CreateTopic = ({
     onClose,
     onMenu
-                            }: CreateTopicProps) => {
+                            }: CreateTopicFormProps) => {
     const user = useSession();
     const [topicName, setTopicName] = useState("");
     const [goToArticle, setGoToArticle] = useState(true)

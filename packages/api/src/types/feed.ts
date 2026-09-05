@@ -54,9 +54,7 @@ export type CustomFeedConfig = {
 export type FeedConfig = MainFeedConfig | TopicFeedConfig | ProfileFeedConfig | CustomFeedConfig
 
 
-type TopicFeedView = TopicFeedConfig & {
-    synonyms: string[]
-}
+type TopicFeedView = TopicFeedConfig
 
 
 export type FeedView = {

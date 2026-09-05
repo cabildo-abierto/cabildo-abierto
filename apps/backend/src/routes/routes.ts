@@ -51,7 +51,7 @@ import {
 } from "#/services/feed/topic.js";
 import {deleteCAProfile, deleteRecordHandler} from "#/services/delete.js";
 import {getCategoriesGraph, getCategoryGraph} from "#/services/wiki/graph.js";
-import {createTopicVersionHandler} from "#/services/write/topic.js";
+import {createTopicHandler, createTopicVersionHandler} from "#/services/write/topic.js";
 import path from "path";
 import {cancelEditVoteHandler, getTopicVersionVotesHandler, voteEditHandler} from "#/services/wiki/votes.js";
 import {adminRoutes} from './admin-routes.js';
@@ -253,6 +253,11 @@ export const createRouter = (ctx: AppContext): Router => {
     router.post(
         '/topic-version',
         makeEffHandler(ctx, createTopicVersionHandler)
+    )
+
+    router.post(
+        '/topic',
+        makeEffHandler(ctx, createTopicHandler)
     )
 
     router.get(

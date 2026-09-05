@@ -6,11 +6,16 @@ export type CreateTopicVersionProps = {
     id: string
     text?: string
     format?: string,
-    props?: ArCabildoabiertoWikiTopicVersion.TopicProp[]
+    props?: ArCabildoabiertoWikiTopicVersion.Prop[]
     message?: string,
     claimsAuthorship?: boolean
     embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
     embedContexts?: EmbedContext[]
+}
+
+
+export type CreateTopicProps = {
+    title: string
 }
 
 

@@ -22,11 +22,11 @@
               "minLength": 1,
               "maxLength": 50
             },
-            "props": {
+            "propEntries": {
               "type": "array",
               "items": {
                 "type": "ref",
-                "ref": "#topicProp"
+                "ref": "#prop"
               }
             },
             "embeds": {
@@ -46,7 +46,16 @@
               "format": "datetime"
             },
             "claimsAuthorship": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Deprecated."
+            },
+            "props": {
+              "type": "array",
+              "items": {
+                "type": "ref",
+                "ref": "#topicProp"
+              },
+              "description": "Deprecated. Use propEntries instead."
             }
           }
         }
@@ -83,11 +92,11 @@
             "minLength": 1,
             "maxLength": 50
           },
-          "props": {
+          "propEntries": {
             "type": "array",
             "items": {
               "type": "ref",
-              "ref": "#topicProp"
+              "ref": "#propView"
             }
           },
           "lastEdit": {
@@ -191,11 +200,11 @@
             "type": "ref",
             "ref": "#topicVersionContribution"
           },
-          "props": {
+          "propEntries": {
             "type": "array",
             "items": {
               "type": "ref",
-              "ref": "#topicProp"
+              "ref": "#propView"
             }
           },
           "claimsAuthorship": {
@@ -256,9 +265,23 @@
           }
         }
       },
+      "prop": {
+        "type": "object",
+        "required": ["id", "value"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of the topic that describes this property."
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
       "topicProp": {
         "type": "object",
         "required": ["name", "value"],
+        "description": "Deprecated. Use prop instead.",
         "properties": {
           "name": {
             "type": "string",
@@ -271,28 +294,8 @@
               "#stringListProp",
               "#dateProp",
               "#numberProp",
-              "#booleanProp",
-              "#topicIdProp",
-              "#topicIdListProp"
+              "#booleanProp"
             ]
-          }
-        }
-      },
-      "topicIdProp": {
-        "type": "object",
-        "required": ["value"],
-        "properties": {
-          "value": {
-            "type": "string"
-          }
-        }
-      },
-      "topicIdListProp": {
-        "type": "object",
-        "required": ["value"],
-        "properties": {
-          "value": {
-            "type": "string"
           }
         }
       },
@@ -352,11 +355,11 @@
           "id": {
             "type": "string"
           },
-          "props": {
+          "propEntries": {
             "type": "array",
             "items": {
               "type": "ref",
-              "ref": "#topicProp"
+              "ref": "#propView"
             }
           },
           "popularity": {
@@ -391,6 +394,24 @@
           "versionCreatedAt": {
             "type": "string",
             "format": "datetime"
+          }
+        }
+      },
+      "propView": {
+        "type": "object",
+        "required": ["id", "name", "propType"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "propType": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
           }
         }
       },

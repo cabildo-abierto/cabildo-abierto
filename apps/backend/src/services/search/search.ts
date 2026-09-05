@@ -11,7 +11,6 @@ import {
     makeDataPlane
 } from "#/services/hydration/dataplane.js";
 import {Agent} from "#/utils/session-agent.js";
-import {stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js";
 import {$Typed} from "@atproto/api";
 import {sql} from "kysely";
 import {sortByKey, unique} from "@cabildo-abierto/utils";
@@ -124,6 +123,7 @@ export const searchUsers: EffHandlerNoAuth<{
 export function searchTopicsSkeleton(ctx: AppContext, query: string, categories?: string[], limit?: number) {
     const terms = query.trim().split(/\s+/).filter(Boolean);
     const lastTerm = terms.pop()
+    const categoryIds = categories ?? []
 
     let tsQuery;
 
@@ -140,72 +140,31 @@ export function searchTopicsSkeleton(ctx: AppContext, query: string, categories?
         tsQuery = sql`(${baseQuery} && ${prefixQuery})`;
     }
 
-    const tsVector = sql`to_tsvector('public.spanish_simple_unaccent', title)`;
-
-    ctx.kysely
-        .with('topics_with_titles', (eb) =>
-            eb.selectFrom('Topic')
-                .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
-                .select([
-                    'Topic.id',
-                    eb => eb.fn.coalesce(
-                        eb.cast<string>(eb.fn('jsonb_path_query_first', [
-                            eb.ref('TopicVersion.props'),
-                            eb.val('$[*] ? (@.name == "Título").value.value')
-                        ]), "text"),
-                        eb.cast(eb.ref('Topic.id'), 'text')
-                    ).as('title'),
-                    "TopicVersion.uri",
-                    "TopicVersion.props"
-                ])
-        )
-        .selectFrom('topics_with_titles')
-        .select(["id", "title", "uri"])
-        .select(eb => [
-            sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`.as('match_score')
-        ])
-        .$if(categories != null, qb => qb.where(eb => categories!.includes("Sin categoría") ?
-            eb.val(stringListIsEmpty("Categorías")) :
-            eb.and(categories!.map(c => stringListIncludes("Categorías", c)))))
-        .where(eb => sql`${tsVector} @@ ${tsQuery}`)
-        .where(sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`, ">", 0)
-        .orderBy('match_score', 'desc')
-        .limit(limit ?? 20)
-        .execute()
-
-
-
     return Effect.tryPromise({
-        try: () => ctx.kysely
-            .with('topics_with_titles', (eb) =>
-                eb.selectFrom('Topic')
-                    .innerJoin('TopicVersion', 'TopicVersion.uri', 'Topic.currentVersionId')
-                    .select([
-                        'Topic.id',
-                        eb => eb.fn.coalesce(
-                            eb.cast<string>(eb.fn('jsonb_path_query_first', [
-                                eb.ref('TopicVersion.props'),
-                                eb.val('$[*] ? (@.name == "Título").value.value')
-                            ]), "text"),
-                            eb.cast(eb.ref('Topic.id'), 'text')
-                        ).as('title'),
-                        "TopicVersion.uri",
-                        "TopicVersion.props"
-                    ])
-            )
-            .selectFrom('topics_with_titles')
-            .select(["id", "title", "uri"])
-            .select(eb => [
-                sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`.as('match_score')
-            ])
-            .$if(categories != null, qb => qb.where(eb => categories!.includes("Sin categoría") ?
-                eb.val(stringListIsEmpty("Categorías")) :
-                eb.and(categories!.map(c => stringListIncludes("Categorías", c)))))
-            .where(eb => sql`${tsVector} @@ ${tsQuery}`)
-            .where(sql<number>`ts_rank(${tsVector}, ${tsQuery}, 1)`, ">", 0)
-            .orderBy('match_score', 'desc')
-            .limit(limit ?? 20)
-            .execute(),
+        try: () => sql<{id: string; uri: string; title: string; match_score: number}>`
+            SELECT 
+                t.id, 
+                tv.uri, 
+                tpv.value::text as title,
+                ts_rank(to_tsvector('public.spanish_simple_unaccent', tpv.value::text), ${tsQuery}, 1) as match_score
+            FROM "Topic" t
+            INNER JOIN "TopicVersion" tv ON t."currentVersionId" = tv.uri
+            INNER JOIN "TopicPropValue" tpv ON tpv."topicVersionUri" = tv.uri AND tpv."propId" = 'titulo'
+            WHERE 
+                ts_rank(to_tsvector('public.spanish_simple_unaccent', tpv.value::text), ${tsQuery}, 1) > 0 AND
+                to_tsvector('public.spanish_simple_unaccent', tpv.value::text) @@ ${tsQuery} AND
+                (
+                    ${categories == null}
+                    OR EXISTS (
+                        SELECT 1
+                        FROM "TopicVersionCategory" tvc
+                        WHERE tvc."topicVersionUri" = tv.uri
+                          AND tvc."categoryId" = ANY(ARRAY[${sql.join(categoryIds)}])
+                    )
+                )
+            ORDER BY match_score DESC
+            LIMIT ${limit ?? 20}
+        `.execute(ctx.kysely).then(r => r.rows),
         catch: error => new DBSelectError(error)
     })
 }

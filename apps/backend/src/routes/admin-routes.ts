@@ -15,8 +15,7 @@ import {
 import {getUsers} from "#/services/user/users.js";
 import {
     getAllTopics,
-    getTopicsInCategoryForBatchEditing,
-    getTopicsWhereTitleIsNotSetAsSynonym
+    getTopicsInCategoryForBatchEditing
 } from "#/services/wiki/topics.js";
 import {sessionAgent} from "#/utils/session-agent.js";
 import {createAccountInCabildoPDS, finishMigrationToCA, migrateToCA} from "#/services/sync/migration/migration.js";
@@ -84,11 +83,6 @@ export const adminRoutes = (ctx: AppContext): Router => {
     router.get(
         "/category-topics/:cat",
         makeAdminHandlerNoAuth(ctx, getTopicsInCategoryForBatchEditing)
-    )
-
-    router.get(
-        "/topics-not-selfsynonym",
-        makeAdminHandlerNoAuth(ctx, getTopicsWhereTitleIsNotSetAsSynonym)
     )
 
     router.get(

@@ -13,14 +13,14 @@ datasource db {
 }
 
 model AccessRequest {
-  id              String      @id
-  createdAt       DateTime    @default(now()) @db.Timestamptz(3)
-  email           String
-  comment         String
-  sentInviteAt    DateTime?   @db.Timestamptz(3)
-  inviteCodeId    String?     @unique
-  InviteCode      InviteCode? @relation(fields: [inviteCodeId], references: [code])
-  markedIgnored   Boolean     @default(false)
+  id            String      @id
+  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
+  email         String
+  comment       String
+  sentInviteAt  DateTime?   @db.Timestamptz(3)
+  inviteCodeId  String?     @unique
+  InviteCode    InviteCode? @relation(fields: [inviteCodeId], references: [code])
+  markedIgnored Boolean     @default(false)
 
   @@index([inviteCodeId])
 }
@@ -53,15 +53,6 @@ model Blob {
   @@index([authorId])
 }
 
-model CategoryLink {
-  idCategoryA                                           String
-  idCategoryB                                           String
-  TopicCategory_CategoryLink_idCategoryAToTopicCategory TopicCategory @relation("CategoryLink_idCategoryAToTopicCategory", fields: [idCategoryA], references: [id])
-  TopicCategory_CategoryLink_idCategoryBToTopicCategory TopicCategory @relation("CategoryLink_idCategoryBToTopicCategory", fields: [idCategoryB], references: [id])
-
-  @@id([idCategoryA, idCategoryB])
-}
-
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model Content {
   text                    String?
@@ -87,7 +78,6 @@ model Content {
   TopicVersion            TopicVersion?
   Dataset                 Dataset[]
   text_tsv                Unsupported("tsvector")?
-  inDiscoverFeed          DiscoverFeedIndex[]
 
   caModeration ContentModerationStatus @default(Ok)
 
@@ -143,17 +133,17 @@ model Donation {
 }
 
 model Draft {
-  id            String   @id
-  createdAt     DateTime @default(now()) @db.Timestamptz(3)
-  lastUpdate    DateTime @default(now()) @db.Timestamptz(3)
-  authorId      String
-  collection    String
-  embeds        Json?
-  text          String
-  title         String?
-  User          User     @relation(fields: [authorId], references: [did])
-  previewImage  String?
-  description   String?
+  id           String   @id
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  lastUpdate   DateTime @default(now()) @db.Timestamptz(3)
+  authorId     String
+  collection   String
+  embeds       Json?
+  text         String
+  title        String?
+  User         User     @relation(fields: [authorId], references: [did])
+  previewImage String?
+  description  String?
 
   @@index([authorId])
 }
@@ -215,12 +205,12 @@ model InviteCodeUsedBy {
 }
 
 model Meeting {
-  id          String    @id
-  date        DateTime  @db.Timestamptz(3)
+  id          String   @id
+  date        DateTime @db.Timestamptz(3)
   title       String
   url         String
   description String
-  show        Boolean   @default(false)
+  show        Boolean  @default(false)
 
   @@index([show])
 }
@@ -254,14 +244,14 @@ model Notification {
 }
 
 model PaymentPromise {
-  id            String        @id
-  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
-  amount        Float
-  status        PromiseStatus @default(Pending)
-  contentId     String
-  userMonthId   String?
-  Content       Content       @relation(fields: [contentId], references: [uri])
-  UserMonth     UserMonth?    @relation(fields: [userMonthId], references: [id])
+  id          String        @id
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  amount      Float
+  status      PromiseStatus @default(Pending)
+  contentId   String
+  userMonthId String?
+  Content     Content       @relation(fields: [contentId], references: [uri])
+  UserMonth   UserMonth?    @relation(fields: [userMonthId], references: [id])
 
   @@unique([contentId, userMonthId])
   @@index([contentId])
@@ -336,7 +326,7 @@ model Record {
   uniqueRejectsCount Int       @default(0)
   caIndexedAt        DateTime? @default(now()) @db.Timestamptz(3)
 
-  lastUpdatedAt    DateTime? @default(now()) @db.Timestamptz(3)
+  lastUpdatedAt DateTime? @default(now()) @db.Timestamptz(3)
 
   editedAt DateTime? @db.Timestamptz(3)
 
@@ -355,10 +345,6 @@ model Record {
 
   TopicInteraction               TopicInteraction[]
   User_User_CAProfileUriToRecord User?              @relation("User_CAProfileUriToRecord")
-
-  followingFeedEntries    FollowingFeedIndex[]
-  repliesInFollowingFeed  FollowingFeedIndex[] @relation("root")
-  repostedInFollowingFeed FollowingFeedIndex[] @relation("repostInFollowingFeed")
 
   moderationProcesses RecordModerationProcess[]
 
@@ -387,7 +373,7 @@ model Reference {
 
   interactions TopicInteraction[]
 
-  touched    DateTime? @db.Timestamptz(3)
+  touched DateTime? @db.Timestamptz(3)
 
   @@unique([referencingContentId, referencedTopicId])
   @@index([referencingContentId, referencedTopicId])
@@ -397,22 +383,23 @@ model Reference {
 }
 
 model Topic {
-  id                                                String            @id
-  protection                                        EditorStatus      @default(Beginner)
-  currentVersionId                                  String?           @unique
-  popularityScore                                   Int?              @default(1)
-  lastEdit                                          DateTime?         @db.Timestamptz(3)
-  popularityScoreLastDay                            Int               @default(0)
-  popularityScoreLastMonth                          Int               @default(0)
-  popularityScoreLastWeek                           Int               @default(0)
+  id                                                String         @id
+  protection                                        EditorStatus   @default(Beginner)
+  currentVersionId                                  String?        @unique
+  popularityScore                                   Int?           @default(1)
+  lastEdit                                          DateTime?      @db.Timestamptz(3)
+  popularityScoreLastDay                            Int            @default(0)
+  popularityScoreLastMonth                          Int            @default(0)
+  popularityScoreLastWeek                           Int            @default(0)
   ReadSession                                       ReadSession[]
   Reference                                         Reference[]
-  TopicVersion_Topic_currentVersionIdToTopicVersion TopicVersion?     @relation("Topic_currentVersionIdToTopicVersion", fields: [currentVersionId], references: [uri])
-  TopicToCategory                                   TopicToCategory[]
-  TopicVersion_TopicVersion_topicIdToTopic          TopicVersion[]    @relation("TopicVersion_topicIdToTopic")
-  synonyms                                          String[]
+  TopicVersion_Topic_currentVersionIdToTopicVersion TopicVersion?  @relation("Topic_currentVersionIdToTopicVersion", fields: [currentVersionId], references: [uri])
+  TopicVersion_TopicVersion_topicIdToTopic          TopicVersion[] @relation("TopicVersion_topicIdToTopic")
 
   polls Poll[]
+
+  prop     TopicProp?
+  category TopicCategory?
 
   @@index([lastEdit(sort: Desc)])
   @@index([popularityScoreLastDay(sort: Desc), lastEdit(sort: Desc)])
@@ -420,14 +407,54 @@ model Topic {
   @@index([popularityScoreLastWeek(sort: Desc), lastEdit(sort: Desc)])
 }
 
-// categoría de temas, con sus links con otras categorías para el grafo
+model TopicProp {
+  id     String           @id
+  topic  Topic            @relation(fields: [id], references: [id])
+  name   String?
+  type   String?
+  values TopicPropValue[]
+
+  topicCategoryProps TopicCategoryProp[] // All categories that require this prop
+}
+
+model TopicPropValue {
+  topicVersionUri String
+  topicVersion    TopicVersion @relation(fields: [topicVersionUri], references: [uri])
+  propId          String
+  prop            TopicProp    @relation(fields: [propId], references: [id])
+  value           Json
+
+  @@id([topicVersionUri, propId])
+}
+
 model TopicCategory {
-  id                                                   String              @id
-  CategoryLink_CategoryLink_idCategoryAToTopicCategory CategoryLink[]      @relation("CategoryLink_idCategoryAToTopicCategory")
-  CategoryLink_CategoryLink_idCategoryBToTopicCategory CategoryLink[]      @relation("CategoryLink_idCategoryBToTopicCategory")
-  TopicToCategory                                      TopicToCategory[]
-  interestedUsers                                      UserInterest[]      @relation("InterestedUsers")
-  contents                                             DiscoverFeedIndex[]
+  id                     String                 @id
+  topic                  Topic                  @relation(fields: [id], references: [id])
+  name                   String
+  topicCategoryProps     TopicCategoryProp[]
+  topicVersions          TopicVersion[] // the topic versions 
+  topicVersionCategories TopicVersionCategory[]
+}
+
+model TopicVersionCategory {
+  topicVersionUri String
+  topicVersion    TopicVersion @relation(fields: [topicVersionUri], references: [uri])
+
+  categoryId String
+  category   TopicCategory @relation(fields: [categoryId], references: [id])
+
+  @@id([topicVersionUri, categoryId])
+}
+
+// An entry here means that the category requires the prop
+model TopicCategoryProp {
+  categoryId      String
+  category        TopicCategory @relation(fields: [topicCategoryId], references: [id])
+  propId          String
+  prop            TopicProp     @relation(fields: [propId], references: [id])
+  topicCategoryId String
+
+  @@id([categoryId, propId])
 }
 
 model TopicInteraction {
@@ -439,28 +466,17 @@ model TopicInteraction {
   referenceId String
   Reference   Reference @relation(fields: [referenceId], references: [id], onDelete: Cascade)
 
-  touched    DateTime? @db.Timestamptz(3)
+  touched DateTime? @db.Timestamptz(3)
 
   @@unique([recordId, referenceId])
   @@index([referenceId])
   @@index([recordId])
 }
 
-// relación muchos a muchos entre temas y categorías
-model TopicToCategory {
-  topicId       String
-  categoryId    String
-  TopicCategory TopicCategory @relation(fields: [categoryId], references: [id])
-  Topic         Topic         @relation(fields: [topicId], references: [id])
-
-  @@id([topicId, categoryId])
-}
-
 model TopicVersion {
   topicId                                    String
   accCharsAdded                              Int?
   authorship                                 Boolean        @default(true)
-  categories                                 String?
   charsAdded                                 Int?
   charsDeleted                               Int?
   contribution                               String?
@@ -471,7 +487,6 @@ model TopicVersion {
   title                                      String?
   synonyms                                   String?
   uri                                        String         @id
-  props                                      Json?
   prevAcceptedUri                            String?
   Topic_Topic_currentVersionIdToTopicVersion Topic?         @relation("Topic_currentVersionIdToTopicVersion")
   TopicVersion                               TopicVersion?  @relation("TopicVersionToTopicVersion", fields: [prevAcceptedUri], references: [uri])
@@ -480,65 +495,11 @@ model TopicVersion {
   Content                                    Content        @relation(fields: [uri], references: [uri])
   accepted                                   Boolean        @default(false)
 
+  props                  TopicPropValue[]
+  categories             TopicCategory[]
+  topicVersionCategories TopicVersionCategory[]
+
   @@index([topicId])
-}
-
-model UserInterest {
-  id              String        @id
-  userId          String
-  user            User          @relation("UserInterests", fields: [userId], references: [did])
-  topicCategoryId String
-  topicCategory   TopicCategory @relation("InterestedUsers", fields: [topicCategoryId], references: [id])
-
-  @@unique([userId, topicCategoryId])
-  @@index([userId])
-  @@index([topicCategoryId])
-}
-
-model FollowingFeedIndex {
-  contentId String
-  content   Record @relation(fields: [contentId], references: [uri])
-
-  repostedContentId String?
-  repostedContent   Record? @relation("repostInFollowingFeed", fields: [repostedContentId], references: [uri])
-
-  readerId String
-  reader   User   @relation("followingFeed", fields: [readerId], references: [did])
-
-  // autor del post, artículo o repost (en caso de ser un repost, es el autor del repost)
-  authorId String
-  author   User   @relation(fields: [authorId], references: [did])
-
-  // artículo o post (en caso de ser repost es la collection del contenido)
-  collection Collection
-
-  createdAt DateTime @db.Timestamptz(3)
-
-  authorInCA Boolean
-
-  // usado para evitar respuestas repetidas (en caso de no ser una respuesta, coincide con contentId)
-  rootId String
-  root   Record @relation("root", fields: [rootId], references: [uri])
-
-  @@id([readerId, contentId])
-  @@index([readerId, collection, authorInCA, createdAt(sort: Desc)])
-  @@index([rootId])
-  @@index([readerId, rootId, createdAt(sort: Desc)])
-  @@index([authorId])
-  @@index([readerId, createdAt(sort: Desc)])
-  @@index([repostedContentId]) // para borrar records más eficientemente
-  @@index([contentId])
-}
-
-model DiscoverFeedIndex {
-  contentId  String
-  content    Content       @relation(fields: [contentId], references: [uri])
-  categoryId String
-  Category   TopicCategory @relation(fields: [categoryId], references: [id])
-  createdAt  DateTime      @db.Timestamptz(3)
-
-  @@id([contentId, categoryId])
-  @@index([categoryId, createdAt(sort: Desc)])
 }
 
 model User {
@@ -589,10 +550,6 @@ model User {
   Record_User_CAProfileUriToRecord              Record?            @relation("User_CAProfileUriToRecord", fields: [CAProfileUri], references: [uri])
   UserMonth                                     UserMonth[]
   ValidationRequest                             ValidationRequest?
-  interests                                     UserInterest[]     @relation("UserInterests")
-
-  followingFeed                 FollowingFeedIndex[] @relation("followingFeed")
-  contentsInOthersFollowingFeed FollowingFeedIndex[]
 
   moderationActions         ModerationAction[]
   resolvedModerationRecords RecordModerationProcess[]
@@ -653,10 +610,10 @@ model UserMonth {
 }
 
 model AssignedPayment {
-  id         String        @id
-  createdAt  DateTime      @default(now()) @db.Timestamptz(3)
-  amount     Float
-  status     PromiseStatus @default(Pending)
+  id        String        @id
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  amount    Float
+  status    PromiseStatus @default(Pending)
 
   contentId   String
   Content     Content?   @relation(fields: [contentId], references: [uri])
@@ -695,8 +652,8 @@ model VoteReject {
 }
 
 model Timestamps {
-  id      String    @id
-  date    DateTime? @db.Timestamptz(3)
+  id   String    @id
+  date DateTime? @db.Timestamptz(3)
 }
 
 model EventType {
@@ -720,14 +677,14 @@ model Event {
 }
 
 model JobApplication {
-  id         String   @id
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  name       String
-  email      String
-  comment    String
-  cv         String?
-  job        String
-  seen       Boolean  @default(false)
+  id        String   @id
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  name      String
+  email     String
+  comment   String
+  cv        String?
+  job       String
+  seen      Boolean  @default(false)
 }
 
 enum MailingListSubscriptionStatus {

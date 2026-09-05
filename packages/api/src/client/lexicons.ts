@@ -3377,11 +3377,11 @@ export const schemaDict = {
               minLength: 1,
               maxLength: 50,
             },
-            props: {
+            propEntries: {
               type: 'array',
               items: {
                 type: 'ref',
-                ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+                ref: 'lex:ar.cabildoabierto.wiki.topicVersion#prop',
               },
             },
             embeds: {
@@ -3402,6 +3402,15 @@ export const schemaDict = {
             },
             claimsAuthorship: {
               type: 'boolean',
+              description: 'Deprecated.',
+            },
+            props: {
+              type: 'array',
+              items: {
+                type: 'ref',
+                ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+              },
+              description: 'Deprecated. Use propEntries instead.',
             },
           },
         },
@@ -3438,11 +3447,11 @@ export const schemaDict = {
             minLength: 1,
             maxLength: 50,
           },
-          props: {
+          propEntries: {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#propView',
             },
           },
           lastEdit: {
@@ -3546,11 +3555,11 @@ export const schemaDict = {
             type: 'ref',
             ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicVersionContribution',
           },
-          props: {
+          propEntries: {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#propView',
             },
           },
           claimsAuthorship: {
@@ -3611,9 +3620,23 @@ export const schemaDict = {
           },
         },
       },
+      prop: {
+        type: 'object',
+        required: ['id', 'value'],
+        properties: {
+          id: {
+            type: 'string',
+            description: 'The id of the topic that describes this property.',
+          },
+          value: {
+            type: 'string',
+          },
+        },
+      },
       topicProp: {
         type: 'object',
         required: ['name', 'value'],
+        description: 'Deprecated. Use prop instead.',
         properties: {
           name: {
             type: 'string',
@@ -3627,27 +3650,7 @@ export const schemaDict = {
               'lex:ar.cabildoabierto.wiki.topicVersion#dateProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#numberProp',
               'lex:ar.cabildoabierto.wiki.topicVersion#booleanProp',
-              'lex:ar.cabildoabierto.wiki.topicVersion#topicIdProp',
-              'lex:ar.cabildoabierto.wiki.topicVersion#topicIdListProp',
             ],
-          },
-        },
-      },
-      topicIdProp: {
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: {
-            type: 'string',
-          },
-        },
-      },
-      topicIdListProp: {
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: {
-            type: 'string',
           },
         },
       },
@@ -3707,11 +3710,11 @@ export const schemaDict = {
           id: {
             type: 'string',
           },
-          props: {
+          propEntries: {
             type: 'array',
             items: {
               type: 'ref',
-              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#topicProp',
+              ref: 'lex:ar.cabildoabierto.wiki.topicVersion#propView',
             },
           },
           popularity: {
@@ -3747,6 +3750,24 @@ export const schemaDict = {
           versionCreatedAt: {
             type: 'string',
             format: 'datetime',
+          },
+        },
+      },
+      propView: {
+        type: 'object',
+        required: ['id', 'name', 'propType'],
+        properties: {
+          id: {
+            type: 'string',
+          },
+          name: {
+            type: 'string',
+          },
+          propType: {
+            type: 'string',
+          },
+          value: {
+            type: 'string',
           },
         },
       },

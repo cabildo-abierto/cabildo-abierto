@@ -22,11 +22,14 @@ export interface Main {
   id: string
   text?: BlobRef
   format?: string
-  props?: TopicProp[]
+  propEntries?: Prop[]
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbed[]
   message?: string
   createdAt: string
+  /** Deprecated. */
   claimsAuthorship?: boolean
+  /** Deprecated. Use propEntries instead. */
+  props?: TopicProp[]
   [k: string]: unknown
 }
 
@@ -55,7 +58,7 @@ export interface TopicView {
   record?: { [_ in string]: unknown }
   text: string
   format?: string
-  props?: TopicProp[]
+  propEntries?: PropView[]
   lastEdit: string
   createdAt: string
   embeds?: ArCabildoabiertoFeedArticle.ArticleEmbedView[]
@@ -106,7 +109,7 @@ export interface VersionInHistory {
   removedChars?: number
   prevAccepted?: string
   contribution?: TopicVersionContribution
-  props?: TopicProp[]
+  propEntries?: PropView[]
   claimsAuthorship?: boolean
   replyCount?: number
 }
@@ -175,6 +178,24 @@ export function validateCategoryVotes<V>(v: V) {
   return validate<CategoryVotes & V>(v, id, hashCategoryVotes)
 }
 
+export interface Prop {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#prop'
+  /** The id of the topic that describes this property. */
+  id: string
+  value: string
+}
+
+const hashProp = 'prop'
+
+export function isProp<V>(v: V) {
+  return is$typed(v, id, hashProp)
+}
+
+export function validateProp<V>(v: V) {
+  return validate<Prop & V>(v, id, hashProp)
+}
+
+/** Deprecated. Use prop instead. */
 export interface TopicProp {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicProp'
   name: string
@@ -184,8 +205,6 @@ export interface TopicProp {
     | $Typed<DateProp>
     | $Typed<NumberProp>
     | $Typed<BooleanProp>
-    | $Typed<TopicIdProp>
-    | $Typed<TopicIdListProp>
     | { $type: string }
 }
 
@@ -197,36 +216,6 @@ export function isTopicProp<V>(v: V) {
 
 export function validateTopicProp<V>(v: V) {
   return validate<TopicProp & V>(v, id, hashTopicProp)
-}
-
-export interface TopicIdProp {
-  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicIdProp'
-  value: string
-}
-
-const hashTopicIdProp = 'topicIdProp'
-
-export function isTopicIdProp<V>(v: V) {
-  return is$typed(v, id, hashTopicIdProp)
-}
-
-export function validateTopicIdProp<V>(v: V) {
-  return validate<TopicIdProp & V>(v, id, hashTopicIdProp)
-}
-
-export interface TopicIdListProp {
-  $type?: 'ar.cabildoabierto.wiki.topicVersion#topicIdListProp'
-  value: string
-}
-
-const hashTopicIdListProp = 'topicIdListProp'
-
-export function isTopicIdListProp<V>(v: V) {
-  return is$typed(v, id, hashTopicIdListProp)
-}
-
-export function validateTopicIdListProp<V>(v: V) {
-  return validate<TopicIdListProp & V>(v, id, hashTopicIdListProp)
 }
 
 export interface StringProp {
@@ -307,7 +296,7 @@ export function validateNumberProp<V>(v: V) {
 export interface TopicViewBasic {
   $type?: 'ar.cabildoabierto.wiki.topicVersion#topicViewBasic'
   id: string
-  props?: TopicProp[]
+  propEntries?: PropView[]
   popularity?: TopicPopularity
   lastEdit?: string
   currentVersionCreatedAt?: string
@@ -326,6 +315,24 @@ export function isTopicViewBasic<V>(v: V) {
 
 export function validateTopicViewBasic<V>(v: V) {
   return validate<TopicViewBasic & V>(v, id, hashTopicViewBasic)
+}
+
+export interface PropView {
+  $type?: 'ar.cabildoabierto.wiki.topicVersion#propView'
+  id: string
+  name: string
+  propType: string
+  value?: string
+}
+
+const hashPropView = 'propView'
+
+export function isPropView<V>(v: V) {
+  return is$typed(v, id, hashPropView)
+}
+
+export function validatePropView<V>(v: V) {
+  return validate<PropView & V>(v, id, hashPropView)
 }
 
 export interface TopicVersionContribution {

@@ -5,7 +5,7 @@ import {
     ArCabildoabiertoEmbedPoll,
     ArCabildoabiertoEmbedVisualization,
     ArCabildoabiertoFeedArticle,
-    ArCabildoabiertoWikiTopicVersion,
+    ArCabildoabiertoWikiTopicVersion, CreateTopicProps,
     CreateTopicVersionProps,
     EmbedContext
 } from "@cabildo-abierto/api"
@@ -16,7 +16,7 @@ import {
     UploadStringBlobError
 } from "#/services/blob.js";
 import {BlobRef} from "@atproto/lexicon";
-import {topicVersionRecordProcessor} from "#/services/sync/event-processing/topic.js";
+import {topicVersionProcessor} from "#/services/sync/event-processing/topic.js";
 import {processValidatedRecords} from "#/services/sync/event-processing/record-processor.js";
 import {Effect} from "effect";
 import {ATCreateRecordError} from "#/services/wiki/votes.js";
@@ -29,6 +29,7 @@ import {CID} from 'multiformats/cid'
 import {sha256} from 'multiformats/hashes/sha2'
 import * as dagCbor from '@ipld/dag-cbor'
 import {pollViewToMain} from "#/services/polls/polls.js";
+import {stringToId} from "@cabildo-abierto/utils";
 
 
 /***
@@ -202,64 +203,80 @@ export function getEmbedsFromEmbedViews(
 }
 
 
-export class InvalidTopicPropError {
-    readonly _tag = "InvalidTopicPropError"
-    constructor(readonly prop?: string) {}
+export class ValidationError {
+    readonly _tag = "ValidationError"
+    name: string | undefined
+    message: string | undefined
+    constructor(obj?: any) {
+        this.name = "Invalid value"
+        this.message = JSON.stringify(obj)
+    }
 }
 
 
-export function createTopicVersionATProto(agent: SessionAgent, {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps): Effect.Effect<RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>, ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error | InvalidTopicPropError | PollIdMismatchError | CIDEncodeError> {
-
-    return Effect.gen(function* () {
-        let validatedProps: ArCabildoabiertoWikiTopicVersion.TopicProp[] | undefined = undefined
-        if(props){
-            validatedProps = []
-            for(let i = 0; i < props.length; i++){
-                const res = ArCabildoabiertoWikiTopicVersion.validateTopicProp(props[i])
-                if(!res.success){
-                    return yield* Effect.fail(new InvalidTopicPropError(props[i].name))
-                } else {
-                    validatedProps.push(res.value)
-                }
+function validateTopicProps(props: ArCabildoabiertoWikiTopicVersion.Prop[]) {
+    let validatedProps: ArCabildoabiertoWikiTopicVersion.Prop[] = []
+    if(props){
+        validatedProps = []
+        for(let i = 0; i < props.length; i++){
+            const res = ArCabildoabiertoWikiTopicVersion.validateProp(props[i])
+            if(!res.success){
+                return Effect.fail(new ValidationError(props[i]))
+            } else {
+                validatedProps.push(res.value)
             }
         }
-
-        let blob: BlobRef | null = null
-        if(text){
-            blob = yield* uploadStringBlob(agent, text)
-        }
-
-        const embedMains = yield* getEmbedsFromEmbedViews(
-            agent,
-            embeds,
-            embedContexts
-        )
-
-        const record: ArCabildoabiertoWikiTopicVersion.Record = {
-            $type: "ar.cabildoabierto.wiki.topicVersion",
-            text: text && blob ? blob : undefined,
-            format,
-            message,
-            id,
-            props: validatedProps,
-            createdAt: new Date().toISOString(),
-            embeds: embedMains,
-            claimsAuthorship: claimsAuthorship
-        }
-
-        const {data} = yield* Effect.tryPromise({
-            try: () => agent.bsky.com.atproto.repo.createRecord({
-                repo: agent.did,
-                collection: 'ar.cabildoabierto.wiki.topicVersion',
-                record: record,
-            }),
-            catch: () => new ATCreateRecordError()
-        })
-        return {ref: {uri: data.uri, cid: data.cid}, record}
-    }).pipe(
-        Effect.withSpan("createTopicVersionATProto", {attributes: {id, message, claimsAuthorship}})
-    )
+    }
+    return Effect.succeed(validatedProps)
 }
+
+
+export const createTopicVersionATProto = (
+    agent: SessionAgent,
+    {id, text, format, message, props, embeds, embedContexts, claimsAuthorship}: CreateTopicVersionProps
+): Effect.Effect<
+    RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>,
+    ATCreateRecordError | UploadStringBlobError | FetchError |
+    ImageNotFoundError | InvalidValueError | UploadImageFromBase64Error |
+    ValidationError | PollIdMismatchError | CIDEncodeError
+> => Effect.gen(function* () {
+    const validatedProps = yield* validateTopicProps(props ?? [])
+
+    let blob: BlobRef | null = null
+    if(text){
+        blob = yield* uploadStringBlob(agent, text)
+    }
+
+    const embedMains = yield* getEmbedsFromEmbedViews(
+        agent,
+        embeds,
+        embedContexts
+    )
+
+    const record: ArCabildoabiertoWikiTopicVersion.Record = {
+        $type: "ar.cabildoabierto.wiki.topicVersion",
+        text: text && blob ? blob : undefined,
+        format,
+        message,
+        id,
+        propEntries: validatedProps,
+        createdAt: new Date().toISOString(),
+        embeds: embedMains,
+        claimsAuthorship: claimsAuthorship
+    }
+
+    const {data} = yield* Effect.tryPromise({
+        try: () => agent.bsky.com.atproto.repo.createRecord({
+            repo: agent.did,
+            collection: 'ar.cabildoabierto.wiki.topicVersion',
+            record: record,
+        }),
+        catch: () => new ATCreateRecordError()
+    })
+    return {ref: {uri: data.uri, cid: data.cid}, record}
+}).pipe(
+    Effect.withSpan("createTopicVersionATProto", {attributes: {id, message, claimsAuthorship}})
+)
 
 
 export class TopicAlreadyExistsError {
@@ -302,7 +319,34 @@ export const createTopicVersionHandler: EffHandler<CreateTopicVersionProps> = (c
 }
 
 
-export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | InvalidTopicPropError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError | CIDEncodeError | PollIdMismatchError
+export const createTopicHandler: EffHandler<CreateTopicProps> = (ctx, agent, params) => {
+    const id = stringToId(params.title)
+    if(id.length == 0) return Effect.fail("El título del tema debería tener al menos una letra o número.")
+    const topic: CreateTopicVersionProps = {
+        id,
+        props: [
+            {
+                $type: "ar.cabildoabierto.wiki.topicVersion#prop",
+                id: "titulo",
+                value: params.title
+            }
+        ]
+    }
+
+    return createTopicVersion(ctx, agent, topic).pipe(
+        Effect.catchAll(error => {
+            if(error._tag == "TopicAlreadyExistsError") {
+                return Effect.fail("Ya existe un tema con ese nombre.")
+            } else {
+                return Effect.fail("Ocurrió un error al crear el tema.")
+            }
+        }),
+        Effect.map(() => ({}))
+    )
+}
+
+
+export type CreateTopicVersionError = ATCreateRecordError | UploadStringBlobError | FetchError | ImageNotFoundError | UploadImageFromBase64Error | ValidationError | DBSelectError | TopicAlreadyExistsError | ProcessCreateError | CIDEncodeError | PollIdMismatchError
 
 
 export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: CreateTopicVersionProps): Effect.Effect<void, CreateTopicVersionError> => Effect.gen(function* () {
@@ -312,5 +356,5 @@ export const createTopicVersion = (ctx: AppContext, agent: SessionAgent, props: 
 
     const {ref, record} = yield* createTopicVersionATProto(agent, props)
 
-    yield* processValidatedRecords(ctx, [{ref, record}], topicVersionRecordProcessor)
+    yield* processValidatedRecords(ctx, [{ref, record}], topicVersionProcessor)
 })

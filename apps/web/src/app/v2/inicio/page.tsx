@@ -18,6 +18,10 @@ import {SearchBar} from "@/components/utils/base/search-bar";
 import {useDebounce} from "@/components/utils/react/debounce";
 import {get} from "@/components/utils/react/fetch";
 import {ArCabildoabiertoWikiTopicVersion} from "@cabildo-abierto/api";
+import {PlusIcon} from "@phosphor-icons/react";
+import {BaseButton} from "@/components/utils/base/base-button";
+import {createPortal} from "react-dom";
+import CreateTopicModal from "@/components/tema/create-topic-modal";
 
 type TopicViewBasic = ArCabildoabiertoWikiTopicVersion.TopicViewBasic
 
@@ -56,6 +60,7 @@ export default function Page() {
     const activeSearch = searchValue.trim().length > 0
     const searchWaitingForDebounce = searchValue.trim() != debouncedSearchValue
     const showSearchLoading = searchValue.trim().length > 0 && (searchWaitingForDebounce || searchLoading)
+    const [newTopicOpen, setNewTopicOpen] = useState(false)
 
     useEffect(() => {
         let cancelled = false
@@ -125,7 +130,8 @@ export default function Page() {
     }
 
     return <div className={""}>
-        <div className={"p-2"}>
+        <div className={"p-2 flex space-x-2"}>
+            <div>
             <SearchBar
                 autoFocus
                 searchValue={searchValue}
@@ -137,6 +143,19 @@ export default function Page() {
                 inputGroupClassName={"max-w-80 border-none"}
                 inputClassName={"tracking-tighter"}
             />
+            </div>
+            <BaseButton
+                startIcon={<PlusIcon/>}
+                className={"py-2 px-1"}
+                size={"small"}
+                onClick={() => {
+                    setNewTopicOpen(true)
+                }}
+                id={"new-topic-button"}
+            >
+                <span className={"hidden min-[600px]:block"}>Tema</span>
+                <span className={"block min-[600px]:hidden"}>Tema</span>
+            </BaseButton>
         </div>
 
         {activeSearch ? <div key={"search"}>
@@ -166,5 +185,11 @@ export default function Page() {
             onActivate={bringOpenTopicToFront}
             onClose={() => setOpenTopics(openTopics.filter(ot => ot.topicId != t.topicId))}
         />)}
+
+        {newTopicOpen && createPortal(<CreateTopicModal
+            open={newTopicOpen}
+            onClose={() => setNewTopicOpen(false)}
+            onMenu={false}
+        />, document.body)}
     </div>
 }

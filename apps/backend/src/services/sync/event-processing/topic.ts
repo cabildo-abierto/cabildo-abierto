@@ -2,7 +2,7 @@ import {AppContext} from "#/setup.js";
 import {RefAndRecord, SyncContentProps} from "#/services/sync/types.js";
 import {getDidFromUri} from "@cabildo-abierto/utils";
 import {processContentsBatch} from "#/services/sync/event-processing/content.js";
-import {ExpressionBuilder, OnConflictDatabase, OnConflictTables, sql} from "kysely";
+import {sql} from "kysely";
 import {NotificationJobData} from "#/services/notifications/notifications.js";
 import {getCidFromBlobRef} from "#/services/sync/utils.js";
 import {ArCabildoabiertoEmbedPoll, ArCabildoabiertoWikiTopicVersion, ATProtoStrongRef} from "@cabildo-abierto/api"
@@ -16,11 +16,11 @@ import {DeleteProcessor} from "#/services/sync/event-processing/delete-processor
 import {unique} from "@cabildo-abierto/utils";
 import {updateTopicsCurrentVersionBatch} from "#/services/wiki/current-version.js";
 import {Effect, pipe} from "effect";
-import {DB} from "prisma/generated/types.js";
 import {AddJobError, DBDeleteError, DBInsertError, InvalidValueError} from "#/utils/errors.js";
 import {JobToAdd} from "#/jobs/worker.js";
 import {getPollKey} from "#/services/write/topic.js";
 import {ValidationResult} from "@atproto/lexicon";
+import {getTopicCategories, getTopicPropValue} from "#/services/wiki/utils.js";
 
 
 export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.Record> = {
@@ -77,7 +77,6 @@ export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.R
             uri: r.ref.uri,
             topicId: r.record.id,
             message: r.record.message ? r.record.message : undefined,
-            props: r.record.props ? JSON.stringify(r.record.props) : undefined,
             authorship: r.record.claimsAuthorship ?? false
         }))
 
@@ -88,7 +87,6 @@ export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.R
                 contents,
                 topicIds
             )
-
 
             yield* Effect.tryPromise({
                 try: () => trx
@@ -102,6 +100,8 @@ export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.R
             })
 
             if (topicVersions.length > 0) {
+                yield* insertTopicProps(ctx, records)
+
                 const inserted = yield* Effect.tryPromise({
                     try: () => trx
                         .insertInto("TopicVersion")
@@ -109,12 +109,13 @@ export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.R
                         .onConflict(oc => oc.column("uri").doUpdateSet({
                             topicId: eb => eb.ref("excluded.topicId"),
                             message: (eb) => eb.ref("excluded.message"),
-                            props: (eb: ExpressionBuilder<OnConflictDatabase<DB, "TopicVersion">, OnConflictTables<"TopicVersion">>) => eb.ref("excluded.props")
                         }))
                         .returning(["topicId", "TopicVersion.uri"])
                         .execute(),
                     catch: (error) => new DBInsertError(error)
                 })
+
+
 
                 yield* Effect.tryPromise({
                     try: () => updateTopicsCurrentVersionBatch(ctx, trx, inserted.map(t => t.topicId)),
@@ -135,7 +136,84 @@ export const topicVersionProcessor: Processor<ArCabildoabiertoWikiTopicVersion.R
     }
 }
 
-export const topicVersionRecordProcessor = topicVersionProcessor
+
+function isPropDefinition(propEntries: ArCabildoabiertoWikiTopicVersion.Record["propEntries"]) {
+    const categories = getTopicCategories(propEntries)
+    return categories.includes("propiedad")
+}
+
+
+const insertTopicProps = (ctx: AppContext, topicVersions: RefAndRecord<ArCabildoabiertoWikiTopicVersion.Record>[]) => Effect.gen(function* () {
+
+    // insert dirty prop definitions in case they don't exist
+    const props = topicVersions.flatMap(tv => (tv.record.propEntries ?? []).map(p => ({
+        id: p.id
+    })))
+
+    if(props.length > 0) {
+        // Insert topic entries for prop definitions
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("Topic")
+                .values(props)
+                .onConflict(oc => oc.column("id").doNothing())
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("TopicProp")
+                .values(props)
+                .onConflict(oc => oc.column("id").doNothing())
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
+    }
+
+    // insert new props described by this topic
+    const propTopics = topicVersions
+        .filter(tv => isPropDefinition(tv.record.propEntries))
+
+    if(propTopics.length > 0) {
+        const propDefinitions = propTopics.map(pt => ({
+            id: pt.record.id,
+            name: getTopicPropValue<string>("nombre", pt.record.propEntries),
+            type: getTopicPropValue<string>("tipo", pt.record.propEntries)
+        }))
+
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("TopicProp")
+                .values(propDefinitions)
+                .onConflict(oc => oc.column("id").doUpdateSet(eb => ({
+                    name: eb.ref("excluded.name"),
+                    type: eb.ref("excluded.type")
+                })))
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
+    }
+
+    const propValues = topicVersions.flatMap(tv => (tv.record.propEntries ?? []).map(p => ({
+        propId: p.id,
+        value: p.value,
+        topicVersionUri: tv.ref.uri
+    })))
+
+    if(propValues.length > 0) {
+        yield* Effect.tryPromise({
+            try: () => ctx.kysely
+                .insertInto("TopicPropValue")
+                .values(propValues)
+                .onConflict(oc => oc.columns(["propId", "topicVersionUri"]).doUpdateSet(eb => ({
+                    value: eb.ref("excluded.value")
+                })))
+                .execute(),
+            catch: (error) => new DBInsertError(error)
+        })
+    }
+})
 
 
 const createJobs = (
@@ -221,10 +299,6 @@ export const topicVersionDeleteProcessor: DeleteProcessor = (ctx, uris) => Effec
             await trx
                 .deleteFrom("AssignedPayment")
                 .where("AssignedPayment.contentId", "in", uris)
-                .execute()
-
-            await trx.deleteFrom("FollowingFeedIndex") // en realidad no debería estar
-                .where("rootId", "in", uris)
                 .execute()
 
             await trx

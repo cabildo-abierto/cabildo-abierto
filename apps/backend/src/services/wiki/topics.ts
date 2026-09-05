@@ -15,10 +15,9 @@ import {Agent} from "#/utils/session-agent.js";
 import {anyEditorStateToMarkdownOrLexical} from "#/utils/lexical/transforms.js";
 import {DataPlane, makeDataPlane} from "#/services/hydration/dataplane.js";
 import {$Typed} from "@atproto/api";
-import {getTopicSynonyms, getTopicTitle} from "#/services/wiki/utils.js";
+import {getTopicTitle} from "#/services/wiki/utils.js";
 import {getTopicVersionViewer} from "#/services/wiki/history.js";
 import {NotFoundError, stringListIncludes, stringListIsEmpty} from "#/services/dataset/read.js"
-import {cleanText} from "@cabildo-abierto/utils";
 import {getTopicsReferencedInText} from "#/services/wiki/references/references.js";
 import {jsonArrayFrom} from "kysely/helpers/postgres";
 import {getTopicVersionStatusFromReactions} from "#/services/monetization/author-dashboard.js";
@@ -595,27 +594,6 @@ export const getTopicsInCategoryForBatchEditing: CAHandlerNoAuth<{params: {cat: 
             return {error: error.toString()}
         }
     })
-}
-
-
-export const getTopicsWhereTitleIsNotSetAsSynonym: CAHandlerNoAuth<{}, string[]> = async (ctx, agent, {}) => {
-    const topics = await ctx.kysely.selectFrom("Topic")
-        .where("Topic.id", "not like", "%Ley%")
-        .innerJoin("TopicVersion", "TopicVersion.uri", "Topic.currentVersionId")
-        .select(["TopicVersion.props", "Topic.id"])
-        .execute()
-
-    const data = topics.filter(t => {
-        const synonyms = getTopicSynonyms({
-            id: t.id,
-            props: t.props as ArCabildoabiertoWikiTopicVersion.TopicProp[]
-        })
-        return !synonyms.some(s => {
-            return cleanText(t.id).includes(cleanText(s))
-        })
-    })
-
-    return {data: data.map(d => d.id)}
 }
 
 

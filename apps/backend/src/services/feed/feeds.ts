@@ -2,7 +2,7 @@ import {CAHandlerNoAuth, EffHandlerNoAuth} from "#/utils/handler.js";
 import {getTopics} from "#/services/wiki/topics.js";
 import {searchTopics} from "#/services/search/search.js";
 import {FeedView, GetFeedOutput} from "@cabildo-abierto/api";
-import {getTopicSynonyms, getTopicTitle} from "#/services/wiki/utils.js";
+import {getTopicTitle} from "#/services/wiki/utils.js";
 import {Agent} from "#/utils/session-agent.js";
 import {AppBskyFeedDefs} from "@atproto/api";
 import {Effect, pipe} from "effect";
@@ -80,8 +80,7 @@ export const getTopicFeeds: EffHandlerNoAuth<{
                     type: "topic",
                     subtype: "mentions",
                     id: f.id,
-                    title: getTopicTitle(f),
-                    synonyms: getTopicSynonyms(f)
+                    title: getTopicTitle(f)
                 }
             })
             return views
