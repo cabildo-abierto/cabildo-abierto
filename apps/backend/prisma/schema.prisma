@@ -33,7 +33,7 @@ model Session {
 
 model Topic {
   id    String @id @map("id")
-  title String @map("title")
+  title String @unique @map("title")
 
   blocks   Block[]
   comments Comment[]
@@ -46,13 +46,14 @@ model Record {
   id      String @id @map("id")
   topicId String @map("topic_id")
 
-  type String @map("type")
+  typeId String @map("type_id")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   authorId  String   @map("author_id")
 
   author    User       @relation(fields: [authorId], references: [id])
   topic     Topic      @relation(fields: [topicId], references: [id])
+  type      RecordType @relation(fields: [typeId], references: [id])
   blocks    Block[]
   comment   Comment?   @relation("CommentRecord")
   comments  Comment[]  @relation("CommentReplies")
@@ -62,19 +63,38 @@ model Record {
   @@map("record")
 }
 
+model RecordType {
+  id   String @id @map("id")
+  name String @map("name")
+
+  records Record[]
+
+  @@map("record_type")
+}
+
 model Block {
   id          String @id @map("id")
   topicId     String @map("topic_id")
   blockNumber String @map("block_number")
 
-  type    String  @map("type")
+  typeId  String  @map("type_id")
   content String? @map("content")
 
-  topic  Topic  @relation(fields: [topicId], references: [id])
-  record Record @relation(fields: [id], references: [id])
+  topic  Topic     @relation(fields: [topicId], references: [id])
+  record Record    @relation(fields: [id], references: [id])
+  type   BlockType @relation(fields: [typeId], references: [id])
 
   @@unique([topicId, blockNumber])
   @@map("block")
+}
+
+model BlockType {
+  id   String @id @map("id")
+  name String @map("name")
+
+  blocks Block[]
+
+  @@map("block_type")
 }
 
 model Comment {

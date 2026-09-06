@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link";
-import {SignOutIcon, UserCircleIcon} from "@phosphor-icons/react";
+import {usePathname} from "next/navigation";
+import {HouseIcon, PlusIcon, SignOutIcon, UserCircleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -17,10 +18,21 @@ import {useAuth} from "@/components/auth-provider";
 
 export function Topbar() {
     const {user, loading, logout} = useAuth();
+    const pathname = usePathname();
 
-    return <header className="sticky top-0 z-40 flex h-12 w-full items-center justify-end bg-background/95 px-4 backdrop-blur">
+    return <header className="sticky top-0 z-40 flex h-12 w-full items-center justify-between bg-background/95 px-4 backdrop-blur">
+        <div>
+            {pathname !== "/" && <Button nativeButton={false} render={<Link href="/"/>} variant="ghost" size="sm">
+                <HouseIcon/>
+                Inicio
+            </Button>}
+        </div>
         <div className="flex items-center gap-1">
             <ThemePicker/>
+            <Button nativeButton={false} render={<Link href="/nuevo-tema"/>} variant="ghost" size="sm">
+                <PlusIcon/>
+                Nuevo tema
+            </Button>
             {loading ? <div className="h-7 w-24" aria-hidden="true"/> : user ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger render={<Button variant="ghost" size="sm"/>}>

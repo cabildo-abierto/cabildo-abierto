@@ -48,7 +48,7 @@ export default function RegisterPage() {
         router.replace("/");
     };
 
-    return <div className="flex min-h-[calc(100vh-3rem)] items-center justify-center p-4">
+    return <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-sm">
             <CardHeader>
                 <CardTitle>Crear una cuenta</CardTitle>

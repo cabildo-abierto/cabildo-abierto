@@ -26,16 +26,24 @@ export type DB = {
     record: {
         id: string;
         topic_id: string;
-        type: string;
+        type_id: string;
         created_at: Generated<Timestamp>;
         author_id: string;
+    };
+    record_type: {
+        id: string;
+        name: string;
     };
     block: {
         id: string;
         topic_id: string;
         block_number: string;
-        type: string;
+        type_id: string;
         content: string | null;
+    };
+    block_type: {
+        id: string;
+        name: string;
     };
     comment: {
         id: string;

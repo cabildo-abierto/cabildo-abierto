@@ -6,11 +6,11 @@ import {hashPassword, verifyPassword} from "#/auth/password.js";
 import {
     clearSessionCookie,
     createSession,
-    getSessionUser,
     readSessionToken,
     revokeSession,
     setSessionCookie,
 } from "#/auth/session.js";
+import {currentUser, withSession} from "#/auth/middleware.js";
 
 const USERNAME_PATTERN = /^[a-z0-9_-]{3,30}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -119,11 +119,8 @@ export const authRoutes = (ctx: AppContext): Router => {
         return res.json({success: true, value});
     });
 
-    router.get("/auth/session", async (req, res) => {
-        const token = readSessionToken(req);
-        const user = token ? await getSessionUser(ctx, token) : null;
-        if (token && !user) clearSessionCookie(res);
-        const value: SessionOutput = {user};
+    router.get("/auth/session", withSession(ctx), (req, res) => {
+        const value: SessionOutput = {user: currentUser(req)};
         return res.json({success: true, value});
     });
 

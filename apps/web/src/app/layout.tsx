@@ -3,7 +3,6 @@ import {ReactNode} from "react";
 import { Geist_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import {AuthProvider} from "@/components/auth-provider";
-import {Topbar} from "@/components/topbar";
 import {rootMetadata} from "@/utils/metadata";
 
 export const metadata = rootMetadata;
@@ -38,8 +37,7 @@ export default function RootLayout({
         </head>
         <body>
             <AuthProvider>
-                <Topbar/>
-                <main>{children}</main>
+                {children}
             </AuthProvider>
         </body>
     </html>
