@@ -2,38 +2,51 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator kysely {
-  provider = "prisma-kysely"
-}
-
 datasource db {
   provider = "postgresql"
 }
 
 model User {
-  id            String @id @default(uuid())
-  username      String @unique
-  email         String @unique
-  password_hash String
+  id           String @id @default(uuid()) @map("id")
+  username     String @unique @map("username")
+  email        String @unique @map("email")
+  passwordHash String @map("password_hash")
 
-  author  String
-  records Record[]
+  records  Record[]
+  sessions Session[]
+
+  @@map("user")
+}
+
+model Session {
+  tokenHash String   @id @map("token_hash")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("session")
 }
 
 model Topic {
-  id    String @id
-  title String
+  id    String @id @map("id")
+  title String @map("title")
 
   blocks   Block[]
   comments Comment[]
   records  Record[]
+
+  @@map("topic")
 }
 
 model Record {
-  id      String @id
+  id      String @id @map("id")
   topicId String @map("topic_id")
 
-  type String
+  type String @map("type")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   authorId  String   @map("author_id")
@@ -45,29 +58,32 @@ model Record {
   comments  Comment[]  @relation("CommentReplies")
   reaction  Reaction?  @relation("ReactionRecord")
   reactions Reaction[] @relation("ReactionSubject")
+
+  @@map("record")
 }
 
 model Block {
-  id          String @id
+  id          String @id @map("id")
   topicId     String @map("topic_id")
   blockNumber String @map("block_number")
 
-  type    String
-  content String?
+  type    String  @map("type")
+  content String? @map("content")
 
   topic  Topic  @relation(fields: [topicId], references: [id])
   record Record @relation(fields: [id], references: [id])
 
   @@unique([topicId, blockNumber])
+  @@map("block")
 }
 
 model Comment {
-  id            String @id
+  id            String @id @map("id")
   topicId       String @map("topic_id")
   commentNumber String @map("comment_number")
 
   replyToId String @map("reply_to_id")
-  content   String
+  content   String @map("content")
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   replyTo Record @relation("CommentReplies", fields: [replyToId], references: [id])
@@ -76,17 +92,20 @@ model Comment {
   justifiesRejections Reaction[]
 
   @@unique([topicId, commentNumber])
+  @@map("comment")
 }
 
 model Reaction {
-  id   String @id
-  type String
+  id   String @id @map("id")
+  type String @map("type")
 
-  subjectId String
+  subjectId String @map("subject_id")
   subject   Record @relation("ReactionSubject", fields: [subjectId], references: [id])
 
-  reasonId String
+  reasonId String  @map("reason_id")
   reason   Comment @relation(fields: [reasonId], references: [id])
 
   record Record @relation("ReactionRecord", fields: [id], references: [id])
+
+  @@map("reaction")
 }

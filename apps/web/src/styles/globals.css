@@ -123,7 +123,11 @@
   body {
     @apply bg-background text-foreground;
     }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  [role="menuitem"]:not([data-disabled]),
+  [role="menuitemcheckbox"]:not([data-disabled]),
+  [role="menuitemradio"]:not([data-disabled]) {
     cursor: pointer;
     }
   html {

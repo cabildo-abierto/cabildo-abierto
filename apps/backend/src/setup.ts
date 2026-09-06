@@ -1,7 +1,7 @@
 /*setup.ts*/
 import {Kysely, PostgresDialect} from 'kysely'
 import {Pool} from 'pg'
-import {DB} from '#/../prisma/generated/types.js'
+import type {DB} from '#/db/types.js'
 import {Logger} from "#/utils/logger.js";
 import {env} from './lib/env.js';
 import * as dotenv from 'dotenv';

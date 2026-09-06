@@ -2,6 +2,11 @@ import '../styles/globals.css';
 import {ReactNode} from "react";
 import { Geist_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import {AuthProvider} from "@/components/auth-provider";
+import {Topbar} from "@/components/topbar";
+import {rootMetadata} from "@/utils/metadata";
+
+export const metadata = rootMetadata;
 
 const geistMono = Geist_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -32,7 +37,10 @@ export default function RootLayout({
             <script defer src="https://cloud.umami.is/script.js" data-website-id="594aea65-e040-4cbf-8a84-b08df698307a"></script>
         </head>
         <body>
-            {children}
+            <AuthProvider>
+                <Topbar/>
+                <main>{children}</main>
+            </AuthProvider>
         </body>
     </html>
 }

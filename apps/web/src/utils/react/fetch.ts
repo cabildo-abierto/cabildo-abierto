@@ -33,30 +33,30 @@ export const fetchBackend = async ({
 
 
 export async function post<Body, Output={}>(route: string, body?: Body, redirect?: "follow" | "error" | "manual"): PostOutput<Output> {
-    const res = await fetchBackend({
-        route,
-        method: "POST",
-        credentials: "include",
-        body,
-        redirect
-    })
-    if (res.ok) {
+    try {
+        const res = await fetchBackend({
+            route,
+            method: "POST",
+            credentials: "include",
+            body,
+            redirect
+        })
         return await res.json()
-    } else {
+    } catch {
         return {success: false, error: "Error en la conexión."}
     }
 }
 
 
 export async function get<Output>(route: string): PostOutput<Output> {
-    const res = await fetchBackend({
-        route,
-        method: "GET",
-        credentials: "include"
-    })
-    if (res.ok) {
+    try {
+        const res = await fetchBackend({
+            route,
+            method: "GET",
+            credentials: "include"
+        })
         return await res.json()
-    } else {
+    } catch {
         return {success: false, error: "Error en la conexión"}
     }
 }
