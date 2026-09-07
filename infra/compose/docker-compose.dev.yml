@@ -1,0 +1,44 @@
+name: cabildo-dev
+
+services:
+  web:
+    image: ${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is required}/web:dev-latest
+    env_file:
+      - /etc/cabildo/web.dev.env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+    cpus: 0.50
+    mem_limit: 384m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  backend:
+    image: ${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is required}/backend:dev-latest
+    env_file:
+      - /etc/cabildo/backend.dev.env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "8080"
+      SERVICE_NAME: api-dev
+      RUN_CRONS: "false"
+    command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+    cpus: 0.50
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/topics?search="]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

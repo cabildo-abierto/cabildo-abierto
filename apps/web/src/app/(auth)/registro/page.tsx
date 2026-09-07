@@ -36,6 +36,7 @@ export default function RegisterPage() {
             username: String(form.get("username") ?? ""),
             email: String(form.get("email") ?? ""),
             password,
+            registrationPassword: String(form.get("registrationPassword") ?? ""),
         };
         const result = await post<RegisterInput, AuthOutput>("/auth/register", input);
         setSubmitting(false);
@@ -74,6 +75,11 @@ export default function RegisterPage() {
                         <Field>
                             <FieldLabel htmlFor="passwordConfirmation">Repetir contraseña</FieldLabel>
                             <Input id="passwordConfirmation" name="passwordConfirmation" type="password" minLength={8} maxLength={128} autoComplete="new-password" required/>
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="registrationPassword">Contraseña de registro</FieldLabel>
+                            <Input id="registrationPassword" name="registrationPassword" type="password" autoComplete="off" required/>
+                            <FieldDescription>Necesitás esta contraseña para poder crear una cuenta.</FieldDescription>
                         </Field>
                         {error && <FieldError>{error}</FieldError>}
                     </FieldGroup>

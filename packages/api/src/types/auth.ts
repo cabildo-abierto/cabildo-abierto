@@ -7,6 +7,7 @@ export type RegisterInput = {
     username: string
     email: string
     password: string
+    registrationPassword: string
 }
 
 export type LoginInput = {

@@ -3,6 +3,7 @@ import express, {type Router} from "express";
 import type {AuthOutput, LoginInput, PublicUser, RegisterInput, SessionOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {hashPassword, verifyPassword} from "#/auth/password.js";
+import {env} from "#/lib/env.js";
 import {
     clearSessionCookie,
     createSession,
@@ -39,6 +40,11 @@ export const authRoutes = (ctx: AppContext): Router => {
         const username = typeof input.username === "string" ? input.username.trim().toLowerCase() : "";
         const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
         const password = typeof input.password === "string" ? input.password : "";
+        const registrationPassword = typeof input.registrationPassword === "string" ? input.registrationPassword : "";
+
+        if (registrationPassword !== env.REGISTRATION_PASSWORD) {
+            return res.status(403).json({success: false, error: "La contraseña de registro es incorrecta."});
+        }
 
         if (!USERNAME_PATTERN.test(username)) {
             return res.status(400).json({success: false, error: "El usuario debe tener entre 3 y 30 caracteres y usar solo letras, números, guiones o guiones bajos."});
