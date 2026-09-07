@@ -1,10 +1,11 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
-import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SaveBlockReorderInput, SaveBlockReorderOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {requireSession, requiredUser} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
+import {applyReorders, orderBetween, permutationFor} from "#/topics/block-order.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
 
@@ -13,7 +14,65 @@ type StoredTopicBlock = {
     blockNumber: string;
     typeId: BlockType["id"];
     content: string | null;
+    initialOrder: string;
+    createdAt: Date;
 };
+
+async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock[]> {
+    const [blockResult, reorders] = await Promise.all([
+        sql<StoredTopicBlock>`
+            WITH ranked_versions AS (
+                SELECT
+                    block_version.id,
+                    block_version.block_number AS "blockNumber",
+                    block.type_id AS "typeId",
+                    block_version.content,
+                    FIRST_VALUE(block_version.order) OVER (
+                        PARTITION BY block_version.topic_id, block_version.block_number
+                        ORDER BY record.created_at ASC, record.id ASC
+                    ) AS "initialOrder",
+                    MIN(record.created_at) OVER (
+                        PARTITION BY block_version.topic_id, block_version.block_number
+                    ) AS "createdAt",
+                    ROW_NUMBER() OVER (
+                        PARTITION BY block_version.topic_id, block_version.block_number
+                        ORDER BY record.created_at DESC, record.id DESC
+                    ) AS version_rank
+                FROM block_version
+                INNER JOIN block
+                    ON block.topic_id = block_version.topic_id
+                    AND block.block_number = block_version.block_number
+                INNER JOIN record ON record.id = block_version.id
+                WHERE block_version.topic_id = ${topicId}
+            )
+            SELECT id, "blockNumber", "typeId", content, "initialOrder", "createdAt"
+            FROM ranked_versions
+            WHERE version_rank = 1
+        `.execute(ctx.kysely),
+        ctx.kysely.selectFrom("block_reorder")
+            .innerJoin("record", "record.id", "block_reorder.id")
+            .select("block_reorder.permutation")
+            .where("block_reorder.topic_id", "=", topicId)
+            .orderBy("record.created_at", "asc")
+            .orderBy("record.id", "asc")
+            .execute(),
+    ]);
+    const ordered = applyReorders(
+        blockResult.rows.map(block => ({blockNumber: block.blockNumber, order: block.initialOrder, createdAt: block.createdAt})),
+        reorders.map(reorder => reorder.permutation),
+    );
+    const byNumber = new Map(blockResult.rows.map(block => [block.blockNumber, block]));
+    return ordered.map(position => {
+        const block = byNumber.get(position.blockNumber)!;
+        return {
+            id: block.id,
+            blockNumber: block.blockNumber,
+            typeId: block.typeId,
+            content: block.content ?? "",
+            order: position.order,
+        };
+    });
+}
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
@@ -73,33 +132,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
     router.get("/topics/:id/blocks", async (req, res) => {
         try {
-            const [blockResult, blockTypes] = await Promise.all([
-                sql<StoredTopicBlock>`
-                    WITH ranked_versions AS (
-                        SELECT
-                            block_version.id,
-                            block_version.block_number AS "blockNumber",
-                            block.type_id AS "typeId",
-                            block_version.content,
-                            MIN(record.created_at) OVER (
-                                PARTITION BY block_version.topic_id, block_version.block_number
-                            ) AS block_created_at,
-                            ROW_NUMBER() OVER (
-                                PARTITION BY block_version.topic_id, block_version.block_number
-                                ORDER BY record.created_at DESC, record.id DESC
-                            ) AS version_rank
-                        FROM block_version
-                        INNER JOIN block
-                            ON block.topic_id = block_version.topic_id
-                            AND block.block_number = block_version.block_number
-                        INNER JOIN record ON record.id = block_version.id
-                        WHERE block_version.topic_id = ${req.params.id}
-                    )
-                    SELECT id, "blockNumber", "typeId", content
-                    FROM ranked_versions
-                    WHERE version_rank = 1
-                    ORDER BY block_created_at ASC, "blockNumber" ASC
-                `.execute(ctx.kysely),
+            const [blocks, blockTypes] = await Promise.all([
+                topicBlocks(ctx, req.params.id),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -107,7 +141,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     .execute(),
             ]);
             const value: TopicBlocksOutput = {
-                blocks: blockResult.rows.map(block => ({...block, content: block.content ?? ""})),
+                blocks,
                 blockTypes: blockTypes as BlockType[],
             };
             return res.json({success: true, value});
@@ -130,6 +164,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     "block_version.block_number as blockNumber",
                     "block.type_id as typeId",
                     "block_version.content",
+                    "block_version.order",
                     "record.created_at as createdAt",
                     "user.id as authorId",
                     "user.username as authorUsername",
@@ -150,6 +185,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     blockNumber: version.blockNumber,
                     typeId: version.typeId as BlockType["id"],
                     content: version.content ?? "",
+                    order: version.order,
                     createdAt: version.createdAt.toISOString(),
                     author: {id: version.authorId, username: version.authorUsername},
                 })),
@@ -169,6 +205,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
         if (!parsed) return res.status(400).json({success: false, error: "Ingresá contenido válido para el tipo de bloque seleccionado."});
 
         try {
+            const currentBlocks = await topicBlocks(ctx, topicId);
+            const requestedAnchor = (req.body as Partial<SaveBlockInput>).insertAfterBlockNumber;
+            const anchorIndex = requestedAnchor === undefined
+                ? currentBlocks.length - 1
+                : requestedAnchor === null ? -1 : currentBlocks.findIndex(block => block.blockNumber === requestedAnchor);
+            if (requestedAnchor !== undefined && requestedAnchor !== null && anchorIndex === -1) {
+                return res.status(400).json({success: false, error: "No encontramos la posición donde insertar el bloque."});
+            }
+            const order = orderBetween(currentBlocks[anchorIndex]?.order ?? null, currentBlocks[anchorIndex + 1]?.order ?? null);
             const block = await ctx.kysely.transaction().execute(async trx => {
                 const prefix = BLOCK_PREFIXES[parsed.typeId];
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
@@ -194,8 +239,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     topic_id: topicId,
                     block_number: blockNumber,
                     content: parsed.content,
+                    order,
                 }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
-                return {...created, typeId: parsed.typeId, content: created.content ?? ""};
+                return {...created, typeId: parsed.typeId, content: created.content ?? "", order};
             });
             const value: SaveBlockOutput = {block};
             return res.status(201).json({success: true, value});
@@ -222,9 +268,12 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .innerJoin("block", join => join
                     .onRef("block.topic_id", "=", "block_version.topic_id")
                     .onRef("block.block_number", "=", "block_version.block_number"))
-                .select(["block_version.block_number as blockNumber", "block.type_id as typeId"])
+                .innerJoin("record", "record.id", "block_version.id")
+                .select(["block_version.block_number as blockNumber", "block.type_id as typeId", "block_version.order"])
                 .where("block_version.id", "=", blockId)
                 .where("block_version.topic_id", "=", topicId)
+                .orderBy("record.created_at", "asc")
+                .orderBy("record.id", "asc")
                 .executeTakeFirst();
             if (!current) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
             if (current.typeId !== parsed.typeId) {
@@ -239,8 +288,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     topic_id: topicId,
                     block_number: current.blockNumber,
                     content: parsed.content,
+                    order: current.order,
                 }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
-                return {...version, typeId: current.typeId as BlockType["id"], content: version.content ?? ""};
+                return {...version, typeId: current.typeId as BlockType["id"], content: version.content ?? "", order: current.order};
             });
             const value: SaveBlockOutput = {block: created};
             return res.json({success: true, value});
@@ -249,6 +299,39 @@ export const topicRoutes = (ctx: AppContext): Router => {
             if (code === "23503") return res.status(400).json({success: false, error: "El tipo de bloque no es válido."});
             ctx.logger.pino.error({error, databaseCode: code}, "block update failed");
             return res.status(500).json({success: false, error: "No pudimos guardar el bloque."});
+        }
+    });
+
+    router.post("/topics/:id/reorders", requireSession(ctx), async (req, res) => {
+        const user = requiredUser(req);
+        const topicId = req.params.id;
+        if (typeof topicId !== "string") return res.status(400).json({success: false, error: "El tema no es válido."});
+        const input = (req.body ?? {}) as Partial<SaveBlockReorderInput>;
+        if (!Array.isArray(input.blockNumbers) || input.blockNumbers.some(value => typeof value !== "string")) {
+            return res.status(400).json({success: false, error: "El orden no es válido."});
+        }
+        try {
+            const blocks = await topicBlocks(ctx, topicId);
+            const existing = new Set(blocks.map(block => block.blockNumber));
+            if (input.blockNumbers.length !== existing.size || new Set(input.blockNumbers).size !== existing.size || input.blockNumbers.some(number => !existing.has(number))) {
+                return res.status(409).json({success: false, error: "Los bloques cambiaron. Recargá el tema antes de guardar el orden."});
+            }
+            const permutation = permutationFor(input.blockNumbers);
+            await ctx.kysely.transaction().execute(async trx => {
+                const id = randomUUID();
+                await trx.insertInto("record").values({id, type_id: "block_reorder", author_id: user.id}).execute();
+                await trx.insertInto("block_reorder").values({
+                    id,
+                    topic_id: topicId,
+                    permutation: JSON.stringify(permutation),
+                }).execute();
+            });
+            const orderByNumber = new Map(permutation.map(item => [item.blockNumber, item.order]));
+            const value: SaveBlockReorderOutput = {blocks: input.blockNumbers.map(number => ({...blocks.find(block => block.blockNumber === number)!, order: orderByNumber.get(number)!}))};
+            return res.status(201).json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block reorder creation failed");
+            return res.status(500).json({success: false, error: "No pudimos guardar el reordenamiento."});
         }
     });
 

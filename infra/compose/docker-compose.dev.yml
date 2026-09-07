@@ -4,12 +4,12 @@ services:
   web:
     image: ${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is required}/web:dev-latest
     env_file:
-      - /etc/cabildo/web.dev.env
+      - ${REMOTE_STACK_ROOT:-/opt/cabildo-dev}/env/web.dev.env
     environment:
       NODE_ENV: production
       PORT: "3000"
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3002:3000"
     restart: unless-stopped
     cpus: 0.50
     mem_limit: 384m
@@ -23,7 +23,7 @@ services:
   backend:
     image: ${CONTAINER_REGISTRY:?CONTAINER_REGISTRY is required}/backend:dev-latest
     env_file:
-      - /etc/cabildo/backend.dev.env
+      - ${REMOTE_STACK_ROOT:-/opt/cabildo-dev}/env/backend.dev.env
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -32,7 +32,7 @@ services:
       RUN_CRONS: "false"
     command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8082:8080"
     restart: unless-stopped
     cpus: 0.50
     mem_limit: 512m

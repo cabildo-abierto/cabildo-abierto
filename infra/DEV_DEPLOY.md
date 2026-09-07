@@ -6,8 +6,9 @@ réplica de `web` y una de `backend` con Docker Compose. Nginx publica ambos baj
 - Web: `https://dev.cabildoabierto.ar`
 - Backend: `https://dev.cabildoabierto.ar/api`
 
-Los puertos de las aplicaciones quedan ligados a `127.0.0.1`, por lo que no se
-exponen directamente a Internet.
+Los puertos de las aplicaciones quedan ligados a `127.0.0.1:3002` y
+`127.0.0.1:8082`, por lo que no se exponen directamente a Internet ni interfieren
+con el stack mínimo existente, que usa el puerto `3000`.
 
 ## 1. DNS y TLS
 
@@ -28,7 +29,7 @@ El archivo de clave debe tener permisos `600`.
 Copiá el repositorio o, como mínimo, `infra/` al nodo y ejecutá como root:
 
 ```bash
-sudo bash infra/scripts/setup-dev-node.sh
+sudo NODE_PROFILE=dev bash infra/scripts/setup-new-node.sh
 ```
 
 Después de copiar el certificado y la clave, validá y activá Nginx:
@@ -40,12 +41,12 @@ sudo systemctl reload nginx
 ```
 
 El usuario configurado en `DEPLOY_SERVER` debe poder ejecutar Docker y escribir
-en `/opt/cabildo-dev` y `/etc/cabildo`. Una opción es agregarlo al grupo Docker y
-darle propiedad sobre esos directorios:
+en `/opt/cabildo-dev`. Una opción es agregarlo al grupo Docker y darle propiedad
+solamente sobre ese directorio aislado de desarrollo:
 
 ```bash
 sudo usermod -aG docker deploy
-sudo chown -R deploy:deploy /opt/cabildo-dev /etc/cabildo
+sudo chown -R deploy:deploy /opt/cabildo-dev
 ```
 
 Cerrá y volvé a abrir la sesión SSH para aplicar el grupo nuevo.
@@ -78,7 +79,7 @@ backend, se pueden aplicar contra Neon desde el nodo con:
 ```bash
 CONTAINER_REGISTRY=<registry/namespace>
 docker run --rm \
-  --env-file /etc/cabildo/backend.dev.env \
+  --env-file /opt/cabildo-dev/env/backend.dev.env \
   "$CONTAINER_REGISTRY/backend:dev-latest" \
   pnpm --filter backend exec prisma migrate deploy --config prisma.config.ts
 ```
@@ -88,7 +89,7 @@ docker run --rm \
 Ejecutá localmente:
 
 ```bash
-./infra/scripts/deploy-dev.sh
+./infra/scripts/deploy.sh dev all
 ```
 
 El script compila, prueba y publica ambas imágenes, copia solamente los archivos
@@ -97,7 +98,7 @@ del entorno de desarrollo y actualiza el proyecto Compose `cabildo-dev`.
 Para omitir temporalmente los tests durante un diagnóstico:
 
 ```bash
-SKIP_TESTS=1 ./infra/scripts/deploy-dev.sh
+SKIP_TESTS=1 ./infra/scripts/deploy.sh dev all
 ```
 
 ## Diagnóstico

@@ -41,6 +41,16 @@ Volver a deployar la app real:
 ./infra/scripts/deploy.sh prod web min app
 ```
 
+Deploy aislado de desarrollo (`web` + `backend`) en `dev.cabildoabierto.ar`:
+
+```
+./infra/scripts/deploy.sh dev all
+```
+
+Este entorno usa Docker Compose, `127.0.0.1:3002` para web y
+`127.0.0.1:8082` para backend, sin modificar el stack mínimo existente. Ver
+[`DEV_DEPLOY.md`](./DEV_DEPLOY.md) para la preparación inicial del nodo.
+
 1. Crear el nodo y configurar el VPS
 2. Clonar el repositorio
 ```ssh root@YOUR_VPS_IP

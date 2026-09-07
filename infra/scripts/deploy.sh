@@ -53,7 +53,7 @@ fi
 # CONFIG
 #############################################
 
-ENV="${1:-prod}"        # prod | test
+ENV="${1:-prod}"        # prod | test | dev
 TARGET="${2:-all}"      # all | frontend | web | backend
 PROFILE="${3:-full}"    # full | min
 WEB_VIEW="${WEB_VIEW:-${4:-app}}" # app | wip
@@ -69,6 +69,7 @@ CONTAINER_REGISTRY_PASSWORD="${CONTAINER_REGISTRY_PASSWORD:-${VULTR_API_KEY:-}}"
 
 PROD_BACKEND_URL="${PROD_BACKEND_URL:-}"
 TEST_BACKEND_URL="${TEST_BACKEND_URL:-}"
+DEV_BACKEND_URL="${DEV_BACKEND_URL:-https://dev.cabildoabierto.ar/api}"
 
 REGISTRY="$CONTAINER_REGISTRY"
 WEB_IMAGE_REPO="${REGISTRY}/web"
@@ -90,18 +91,18 @@ case "$TARGET" in
     DEPLOY_BACKEND=1
     ;;
   *)
-    echo "Usage: $0 [prod|test] [all|frontend|web|backend] [full|min] [app|wip]"
+    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
     exit 1
     ;;
 esac
 
 if [ "$PROFILE" != "full" ] && [ "$PROFILE" != "min" ]; then
-  echo "Usage: $0 [prod|test] [all|frontend|web|backend] [full|min] [app|wip]"
+  echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
   exit 1
 fi
 
 if [ "$WEB_VIEW" != "app" ] && [ "$WEB_VIEW" != "wip" ]; then
-  echo "Usage: $0 [prod|test] [all|frontend|web|backend] [full|min] [app|wip]"
+  echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
   exit 1
 fi
 
@@ -113,21 +114,34 @@ if [ "$WEB_VIEW" = "wip" ]; then
   DEPLOY_BACKEND=0
 fi
 
-if [ "$ENV" = "prod" ]; then
-  STACK_NAME="cabildo"
-  if [ "$PROFILE" = "min" ]; then
-    STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack.min.yml"
-  else
-    STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack.full.yml"
-  fi
-  NEXT_PUBLIC_BACKEND_URL="$PROD_BACKEND_URL"
-else
-  STACK_NAME="cabildo-test"
-  STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack-test.full.yml"
-  NEXT_PUBLIC_BACKEND_URL="$TEST_BACKEND_URL"
-fi
+case "$ENV" in
+  prod)
+    STACK_NAME="cabildo"
+    if [ "$PROFILE" = "min" ]; then
+      STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack.min.yml"
+    else
+      STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack.full.yml"
+    fi
+    NEXT_PUBLIC_BACKEND_URL="$PROD_BACKEND_URL"
+    ;;
+  test)
+    STACK_NAME="cabildo-test"
+    STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack-test.full.yml"
+    NEXT_PUBLIC_BACKEND_URL="$TEST_BACKEND_URL"
+    ;;
+  dev)
+    STACK_NAME="cabildo-dev"
+    REMOTE_STACK_ROOT="${DEV_REMOTE_STACK_ROOT:-/opt/cabildo-dev}"
+    STACK_FILE="${REMOTE_STACK_ROOT}/infra/compose/docker-compose.dev.yml"
+    NEXT_PUBLIC_BACKEND_URL="$DEV_BACKEND_URL"
+    ;;
+  *)
+    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
+    exit 1
+    ;;
+esac
 
-if [ "$PROFILE" = "min" ] && [ "$DEPLOY_BACKEND" -eq 1 ]; then
+if [ "$ENV" = "prod" ] && [ "$PROFILE" = "min" ] && [ "$DEPLOY_BACKEND" -eq 1 ]; then
   echo "❌ Backend deploy is not available with profile=min."
   exit 1
 fi
@@ -155,6 +169,8 @@ fi
 if [ -z "$NEXT_PUBLIC_BACKEND_URL" ]; then
   if [ "$ENV" = "prod" ]; then
     echo "❌ ERROR: Missing PROD_BACKEND_URL environment variable"
+  elif [ "$ENV" = "dev" ]; then
+    echo "❌ ERROR: Missing DEV_BACKEND_URL environment variable"
   else
     echo "❌ ERROR: Missing TEST_BACKEND_URL environment variable"
   fi
@@ -186,16 +202,20 @@ fi
 # TESTS
 #############################################
 
-if [ "$DEPLOY_WEB" -eq 1 ]; then
-  echo "🧪 Running frontend tests (web)..."
-  pnpm --filter web test
-  echo "✅ Frontend tests passed"
-fi
+if [ "${SKIP_TESTS:-0}" = "1" ]; then
+  echo "⚠️  Skipping tests because SKIP_TESTS=1"
+else
+  if [ "$DEPLOY_WEB" -eq 1 ]; then
+    echo "🧪 Running frontend tests (web)..."
+    pnpm --filter web test
+    echo "✅ Frontend tests passed"
+  fi
 
-if [ "$DEPLOY_BACKEND" -eq 1 ]; then
-  echo "🧪 Running backend tests (backend)..."
-  CI=1 pnpm --filter backend test
-  echo "✅ Backend tests passed"
+  if [ "$DEPLOY_BACKEND" -eq 1 ]; then
+    echo "🧪 Running backend tests (backend)..."
+    CI=1 pnpm --filter backend test
+    echo "✅ Backend tests passed"
+  fi
 fi
 
 #############################################
@@ -278,12 +298,35 @@ rsync -az --delete \
   --exclude 'env/*.env' \
   infra/ "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/infra/"
 
+if [ "$ENV" = "dev" ]; then
+  if [ ! -f infra/env/web.dev.env ] || [ ! -f infra/env/backend.dev.env ]; then
+    echo "❌ Missing infra/env/web.dev.env or infra/env/backend.dev.env"
+    exit 1
+  fi
+  ssh "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/env'"
+  rsync -az infra/env/web.dev.env infra/env/backend.dev.env "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/env/"
+  ssh "$DEPLOY_SERVER" "chmod 600 '${REMOTE_STACK_ROOT}/env/web.dev.env' '${REMOTE_STACK_ROOT}/env/backend.dev.env'"
+fi
+
 ssh "$DEPLOY_SERVER" bash <<EOF
   set -euo pipefail
 
   DEPLOY_WEB=${DEPLOY_WEB}
   DEPLOY_BACKEND=${DEPLOY_BACKEND}
   export CONTAINER_REGISTRY="${CONTAINER_REGISTRY}"
+
+  if [ "${ENV}" = "dev" ]; then
+    echo "📦 Pulling development images on server…"
+    if [ "\$DEPLOY_WEB" -eq 1 ]; then
+      CONTAINER_REGISTRY="${CONTAINER_REGISTRY}" REMOTE_STACK_ROOT="${REMOTE_STACK_ROOT}" docker compose -f "${STACK_FILE}" pull web
+    fi
+    if [ "\$DEPLOY_BACKEND" -eq 1 ]; then
+      CONTAINER_REGISTRY="${CONTAINER_REGISTRY}" REMOTE_STACK_ROOT="${REMOTE_STACK_ROOT}" docker compose -f "${STACK_FILE}" pull backend
+    fi
+    CONTAINER_REGISTRY="${CONTAINER_REGISTRY}" REMOTE_STACK_ROOT="${REMOTE_STACK_ROOT}" docker compose -f "${STACK_FILE}" up -d --remove-orphans
+    echo "✅ Development deployment on server complete."
+    exit 0
+  fi
 
   echo "📦 Pulling latest images on server…"
 

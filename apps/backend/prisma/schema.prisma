@@ -37,6 +37,7 @@ model Topic {
 
   comments Comment[]
   blocks   Block[]
+  reorders BlockReorder[]
 
   @@map("topic")
 }
@@ -56,6 +57,7 @@ model Record {
   comments     Comment[]     @relation("CommentReplies")
   reaction     Reaction?     @relation("ReactionRecord")
   reactions    Reaction[]    @relation("ReactionSubject")
+  blockReorder BlockReorder? @relation("BlockReorderRecord")
 
   @@map("record")
 }
@@ -76,12 +78,27 @@ model BlockVersion {
 
   content String? @map("content")
 
+  order String @map("order")
+
   record Record @relation(fields: [id], references: [id])
 
   block Block @relation(fields: [topicId, blockNumber], references: [topicId, blockNumber])
 
   @@index([topicId, blockNumber])
   @@map("block_version")
+}
+
+model BlockReorder {
+  id      String @id @map("id")
+  topicId String @map("topic_id")
+
+  permutation Json // {blockNumber: string; order: string}[]
+
+  topic  Topic  @relation(fields: [topicId], references: [id])
+  record Record @relation("BlockReorderRecord", fields: [id], references: [id])
+
+  @@map("block_reorder")
+  @@index([topicId])
 }
 
 model Block {

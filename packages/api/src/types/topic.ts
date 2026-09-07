@@ -29,6 +29,7 @@ export type TopicBlock = {
     blockNumber: string
     typeId: BlockType["id"]
     content: string
+    order: string
 }
 
 export type TopicBlocksOutput = {
@@ -51,8 +52,17 @@ export type TopicBlockVersionsOutput = {
 export type SaveBlockInput = {
     typeId: BlockType["id"]
     content: string
+    insertAfterBlockNumber?: string | null
 }
 
 export type SaveBlockOutput = {
     block: TopicBlock
+}
+
+export type SaveBlockReorderInput = {
+    blockNumbers: string[]
+}
+
+export type SaveBlockReorderOutput = {
+    blocks: TopicBlock[]
 }

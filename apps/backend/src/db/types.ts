@@ -38,6 +38,12 @@ export type DB = {
         topic_id: string;
         block_number: string;
         content: string | null;
+        order: string;
+    };
+    block_reorder: {
+        id: string;
+        topic_id: string;
+        permutation: unknown;
     };
     block: {
         topic_id: string;

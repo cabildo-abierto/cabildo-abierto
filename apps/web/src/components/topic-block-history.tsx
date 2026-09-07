@@ -6,13 +6,14 @@ import {GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {get} from "@/utils/react/fetch";
+import {cn} from "@/lib/utils";
 
 const dateFormatter = new Intl.DateTimeFormat("es-AR", {
     dateStyle: "medium",
     timeStyle: "short",
 });
 
-export function TopicBlockHistory({topicId, block}: {topicId: string; block: TopicBlock}) {
+export function TopicBlockHistory({topicId, block, buttonClassName}: {topicId: string; block: TopicBlock; buttonClassName?: string}) {
     const [open, setOpen] = useState(false);
     const [versions, setVersions] = useState<TopicBlockVersion[] | null>(null);
     const [loading, setLoading] = useState(false);
@@ -42,7 +43,10 @@ export function TopicBlockHistory({topicId, block}: {topicId: string; block: Top
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="absolute top-2 left-full ml-3 cursor-pointer text-muted-foreground opacity-0 transition-opacity group-hover/block:opacity-100 group-focus-within/block:opacity-100"
+            className={cn(
+                "absolute top-2 left-full ml-3 cursor-pointer text-muted-foreground opacity-0 transition-opacity group-hover/block:opacity-100 group-focus-within/block:opacity-100",
+                buttonClassName,
+            )}
             aria-label={open ? "Cerrar historial de versiones" : "Ver historial de versiones"}
             aria-expanded={open}
             title="Historial de versiones"
