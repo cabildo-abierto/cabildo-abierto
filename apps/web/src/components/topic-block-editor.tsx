@@ -7,7 +7,8 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {TopicBlockContent} from "@/components/topic-block";
+import {TopicBlockContent} from "@/components/topic-block-content";
+import {TopicBlockHistory} from "@/components/topic-block-history";
 import {patch, post} from "@/utils/react/fetch";
 
 type Draft = {typeId: BlockType["id"]; content: string};
@@ -18,10 +19,13 @@ function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
 }
 
-function BlockForm({draft, blockNumber, types, saving, error, onChange, onSave, onCancel, shaking, onShakeEnd}: {
+function BlockForm({topicId, blockId, draft, blockNumber, types, canChangeType, saving, error, onChange, onSave, onCancel, shaking, onShakeEnd}: {
+    topicId: string
+    blockId?: string
     draft: Draft
     blockNumber?: string
     types: BlockType[]
+    canChangeType: boolean
     saving: boolean
     error: string | null
     onChange: (draft: Draft) => void
@@ -37,7 +41,7 @@ function BlockForm({draft, blockNumber, types, saving, error, onChange, onSave, 
     };
 
     return <div
-        className={`relative -mx-3 space-y-3 px-3 py-2 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
+        className={`group/block relative -mx-3 space-y-3 px-3 py-2 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
         onAnimationEnd={onShakeEnd}
     >
         {draft.typeId === "parrafo" ? <Textarea
@@ -56,19 +60,26 @@ function BlockForm({draft, blockNumber, types, saving, error, onChange, onSave, 
             autoFocus
         />}
         {blockNumber && <span className="absolute top-3 right-full mr-2 text-[10px] whitespace-nowrap text-muted-foreground">{blockNumber}</span>}
+        {blockNumber && blockId && <TopicBlockHistory
+            topicId={topicId}
+            block={{id: blockId, blockNumber, typeId: draft.typeId, content: draft.content}}
+        />}
         {error && <p className="text-xs text-destructive">{error}</p>}
         <div className="flex flex-wrap items-center justify-between gap-3">
-            <Select value={draft.typeId} onValueChange={changeType}>
-                <SelectTrigger className="w-16 cursor-pointer" aria-label={`Tipo de bloque: ${types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}`}>
-                    <SelectValue><BlockTypeIcon typeId={draft.typeId}/></SelectValue>
-                </SelectTrigger>
-                <SelectContent className="w-max min-w-48">
-                    {types.map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
-                        <BlockTypeIcon typeId={type.id}/>
-                        <span>{type.name}</span>
-                    </SelectItem>)}
-                </SelectContent>
-            </Select>
+            {canChangeType ? <Select value={draft.typeId} onValueChange={changeType}>
+                    <SelectTrigger className="w-16 cursor-pointer" aria-label={`Tipo de bloque: ${types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}`}>
+                        <SelectValue><BlockTypeIcon typeId={draft.typeId}/></SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="w-max min-w-48">
+                        {types.map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
+                            <BlockTypeIcon typeId={type.id}/>
+                            <span>{type.name}</span>
+                        </SelectItem>)}
+                    </SelectContent>
+                </Select>
+                : <span className="inline-flex size-6 items-center justify-center text-muted-foreground" aria-label={`Tipo de bloque: ${types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}`}>
+                    <BlockTypeIcon typeId={draft.typeId}/>
+                </span>}
             <div className="flex gap-2">
                 <Button type="button" variant="ghost" onClick={onCancel} disabled={saving}>Cancelar</Button>
                 <Button type="button" onClick={onSave} disabled={saving || !draft.content.trim()}>{saving ? "Guardando…" : "Guardar"}</Button>
@@ -151,29 +162,32 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
 
     return <div className="space-y-2">
         {blocks.map(block => editingId === block.id ? <BlockForm
-            key={block.id} draft={draft} types={blockTypes} saving={saving} error={error}
+            key={block.id} topicId={topicId} blockId={block.id} draft={draft} types={blockTypes} saving={saving} error={error}
+            canChangeType={false}
             blockNumber={block.blockNumber}
             onChange={setDraft} onSave={() => void save()} onCancel={cancel}
             shaking={shaking} onShakeEnd={() => setShaking(false)}
-        /> : <article
-            key={block.id}
-            className="group relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
-            role="button"
-            tabIndex={0}
-            aria-label={`Editar bloque ${block.blockNumber}`}
-            onClick={() => requestEdit(block)}
-            onKeyDown={event => {
-                if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    requestEdit(block);
-                }
-            }}
-        >
-            <TopicBlockContent block={block}/>
-            <span className="absolute top-3 right-full mr-2 text-[10px] whitespace-nowrap text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{block.blockNumber}</span>
-            <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 text-muted-foreground opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"/>
-        </article>)}
-        {newDraft && <BlockForm draft={draft} types={blockTypes} saving={saving} error={error} onChange={setDraft} onSave={() => void save()} onCancel={cancel} shaking={shaking} onShakeEnd={() => setShaking(false)}/>} 
+        /> : <div key={block.id} className="group/block relative">
+            <article
+                className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
+                role="button"
+                tabIndex={0}
+                aria-label={`Editar bloque ${block.blockNumber}`}
+                onClick={() => requestEdit(block)}
+                onKeyDown={event => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        requestEdit(block);
+                    }
+                }}
+            >
+                <TopicBlockContent block={block}/>
+                <span className="absolute top-3 right-full mr-2 text-[10px] whitespace-nowrap text-muted-foreground opacity-0 transition-opacity group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100">{block.blockNumber}</span>
+                <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
+            </article>
+            <TopicBlockHistory topicId={topicId} block={block}/>
+        </div>)}
+        {newDraft && <BlockForm topicId={topicId} draft={draft} types={blockTypes} canChangeType saving={saving} error={error} onChange={setDraft} onSave={() => void save()} onCancel={cancel} shaking={shaking} onShakeEnd={() => setShaking(false)}/>}
         {editingId === null && !newDraft && <Button type="button" variant="outline" className="mt-4" onClick={() => {
             setDraft({typeId: "parrafo", content: ""});
             setNewDraft(true);

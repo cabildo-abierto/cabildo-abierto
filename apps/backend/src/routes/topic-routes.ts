@@ -1,12 +1,19 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
-import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SearchTopicsOutput, TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {requireSession, requiredUser} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
+
+type StoredTopicBlock = {
+    id: string;
+    blockNumber: string;
+    typeId: BlockType["id"];
+    content: string | null;
+};
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
@@ -66,18 +73,33 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
     router.get("/topics/:id/blocks", async (req, res) => {
         try {
-            const [blocks, blockTypes] = await Promise.all([
-                ctx.kysely.selectFrom("block")
-                    .innerJoin("record", "record.id", "block.id")
-                    .select([
-                        "block.id",
-                        "block.block_number as blockNumber",
-                        "block.type_id as typeId",
-                        "block.content",
-                    ])
-                    .where("block.topic_id", "=", req.params.id)
-                    .orderBy("record.created_at", "asc")
-                    .execute(),
+            const [blockResult, blockTypes] = await Promise.all([
+                sql<StoredTopicBlock>`
+                    WITH ranked_versions AS (
+                        SELECT
+                            block_version.id,
+                            block_version.block_number AS "blockNumber",
+                            block.type_id AS "typeId",
+                            block_version.content,
+                            MIN(record.created_at) OVER (
+                                PARTITION BY block_version.topic_id, block_version.block_number
+                            ) AS block_created_at,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY block_version.topic_id, block_version.block_number
+                                ORDER BY record.created_at DESC, record.id DESC
+                            ) AS version_rank
+                        FROM block_version
+                        INNER JOIN block
+                            ON block.topic_id = block_version.topic_id
+                            AND block.block_number = block_version.block_number
+                        INNER JOIN record ON record.id = block_version.id
+                        WHERE block_version.topic_id = ${req.params.id}
+                    )
+                    SELECT id, "blockNumber", "typeId", content
+                    FROM ranked_versions
+                    WHERE version_rank = 1
+                    ORDER BY block_created_at ASC, "blockNumber" ASC
+                `.execute(ctx.kysely),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -85,13 +107,57 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     .execute(),
             ]);
             const value: TopicBlocksOutput = {
-                blocks: blocks.map(block => ({...block, typeId: block.typeId as BlockType["id"], content: block.content ?? ""})),
+                blocks: blockResult.rows.map(block => ({...block, content: block.content ?? ""})),
                 blockTypes: blockTypes as BlockType[],
             };
             return res.json({success: true, value});
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic blocks lookup failed");
             return res.status(500).json({success: false, error: "No pudimos cargar los bloques."});
+        }
+    });
+
+    router.get("/topics/:id/blocks/:blockNumber/versions", async (req, res) => {
+        try {
+            const versions = await ctx.kysely.selectFrom("block_version")
+                .innerJoin("block", join => join
+                    .onRef("block.topic_id", "=", "block_version.topic_id")
+                    .onRef("block.block_number", "=", "block_version.block_number"))
+                .innerJoin("record", "record.id", "block_version.id")
+                .innerJoin("user", "user.id", "record.author_id")
+                .select([
+                    "block_version.id",
+                    "block_version.block_number as blockNumber",
+                    "block.type_id as typeId",
+                    "block_version.content",
+                    "record.created_at as createdAt",
+                    "user.id as authorId",
+                    "user.username as authorUsername",
+                ])
+                .where("block_version.topic_id", "=", req.params.id)
+                .where("block_version.block_number", "=", req.params.blockNumber)
+                .orderBy("record.created_at", "desc")
+                .orderBy("record.id", "desc")
+                .execute();
+
+            if (versions.length === 0) {
+                return res.status(404).json({success: false, error: "No encontramos ese bloque."});
+            }
+
+            const value: TopicBlockVersionsOutput = {
+                versions: versions.map(version => ({
+                    id: version.id,
+                    blockNumber: version.blockNumber,
+                    typeId: version.typeId as BlockType["id"],
+                    content: version.content ?? "",
+                    createdAt: version.createdAt.toISOString(),
+                    author: {id: version.authorId, username: version.authorUsername},
+                })),
+            };
+            return res.json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block versions lookup failed");
+            return res.status(500).json({success: false, error: "No pudimos cargar el historial del bloque."});
         }
     });
 
@@ -116,15 +182,20 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     return Number.isInteger(value) ? Math.max(max, value) : max;
                 }, 0) + 1;
                 const id = randomUUID();
-                await trx.insertInto("record").values({id, topic_id: topicId, type_id: "block", author_id: user.id}).execute();
-                const created = await trx.insertInto("block").values({
+                const blockNumber = `${prefix}-${number}`;
+                await trx.insertInto("block").values({
+                    topic_id: topicId,
+                    block_number: blockNumber,
+                    type_id: parsed.typeId,
+                }).execute();
+                await trx.insertInto("record").values({id, type_id: "block", author_id: user.id}).execute();
+                const created = await trx.insertInto("block_version").values({
                     id,
                     topic_id: topicId,
-                    block_number: `${prefix}-${number}`,
-                    type_id: parsed.typeId,
+                    block_number: blockNumber,
                     content: parsed.content,
-                }).returning(["id", "block_number as blockNumber", "type_id as typeId", "content"]).executeTakeFirstOrThrow();
-                return {...created, typeId: created.typeId as BlockType["id"], content: created.content ?? ""};
+                }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
+                return {...created, typeId: parsed.typeId, content: created.content ?? ""};
             });
             const value: SaveBlockOutput = {block};
             return res.status(201).json({success: true, value});
@@ -137,6 +208,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
     });
 
     router.patch("/topics/:id/blocks/:blockId", requireSession(ctx), async (req, res) => {
+        const user = requiredUser(req);
         const topicId = req.params.id;
         const blockId = req.params.blockId;
         if (typeof topicId !== "string" || typeof blockId !== "string") {
@@ -146,14 +218,31 @@ export const topicRoutes = (ctx: AppContext): Router => {
         if (!parsed) return res.status(400).json({success: false, error: "Ingresá contenido válido para el tipo de bloque seleccionado."});
 
         try {
-            const updated = await ctx.kysely.updateTable("block")
-                .set({type_id: parsed.typeId, content: parsed.content})
-                .where("id", "=", blockId)
-                .where("topic_id", "=", topicId)
-                .returning(["id", "block_number as blockNumber", "type_id as typeId", "content"])
+            const current = await ctx.kysely.selectFrom("block_version")
+                .innerJoin("block", join => join
+                    .onRef("block.topic_id", "=", "block_version.topic_id")
+                    .onRef("block.block_number", "=", "block_version.block_number"))
+                .select(["block_version.block_number as blockNumber", "block.type_id as typeId"])
+                .where("block_version.id", "=", blockId)
+                .where("block_version.topic_id", "=", topicId)
                 .executeTakeFirst();
-            if (!updated) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
-            const value: SaveBlockOutput = {block: {...updated, typeId: updated.typeId as BlockType["id"], content: updated.content ?? ""}};
+            if (!current) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
+            if (current.typeId !== parsed.typeId) {
+                return res.status(400).json({success: false, error: "No se puede cambiar el tipo de un bloque existente."});
+            }
+
+            const created = await ctx.kysely.transaction().execute(async trx => {
+                const id = randomUUID();
+                await trx.insertInto("record").values({id, type_id: "block", author_id: user.id}).execute();
+                const version = await trx.insertInto("block_version").values({
+                    id,
+                    topic_id: topicId,
+                    block_number: current.blockNumber,
+                    content: parsed.content,
+                }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
+                return {...version, typeId: current.typeId as BlockType["id"], content: version.content ?? ""};
+            });
+            const value: SaveBlockOutput = {block: created};
             return res.json({success: true, value});
         } catch (error) {
             const code = databaseCode(error);

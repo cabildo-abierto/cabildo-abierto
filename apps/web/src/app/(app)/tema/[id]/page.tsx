@@ -69,6 +69,6 @@ export default function TopicPage() {
     </AlertDialog>;
 
     return <TopicView topic={topic} action={editButton}>
-        <div className="space-y-2">{blocks.map(block => <TopicBlockView key={block.id} block={block}/>)}</div>
+        <div className="space-y-2">{blocks.map(block => <TopicBlockView key={block.id} topicId={topic.id} block={block}/>)}</div>
     </TopicView>;
 }

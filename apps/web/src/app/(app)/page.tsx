@@ -48,7 +48,7 @@ export default function Page() {
         <div className="flex w-full max-w-md flex-col items-start space-y-3 p-3">
             <h1 className="w-full text-center">Cabildo Abierto</h1>
             <div className="relative w-full">
-                <Input type="text" inputMode="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscá temas..." className="w-full pr-9" aria-label="Buscar temas por título"/>
+                <Input type="text" inputMode="search" autoComplete="off" value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscá temas..." className="w-full pr-9" aria-label="Buscar temas por título"/>
                 {search && <Button
                     type="button"
                     variant="ghost"

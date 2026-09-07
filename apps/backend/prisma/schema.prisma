@@ -35,30 +35,27 @@ model Topic {
   id    String @id @map("id")
   title String @unique @map("title")
 
-  blocks   Block[]
   comments Comment[]
-  records  Record[]
+  blocks   Block[]
 
   @@map("topic")
 }
 
 model Record {
-  id      String @id @map("id")
-  topicId String @map("topic_id")
+  id String @id @map("id")
 
   typeId String @map("type_id")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   authorId  String   @map("author_id")
 
-  author    User       @relation(fields: [authorId], references: [id])
-  topic     Topic      @relation(fields: [topicId], references: [id])
-  type      RecordType @relation(fields: [typeId], references: [id])
-  blocks    Block[]
-  comment   Comment?   @relation("CommentRecord")
-  comments  Comment[]  @relation("CommentReplies")
-  reaction  Reaction?  @relation("ReactionRecord")
-  reactions Reaction[] @relation("ReactionSubject")
+  author       User          @relation(fields: [authorId], references: [id])
+  type         RecordType    @relation(fields: [typeId], references: [id])
+  blockVersion BlockVersion?
+  comment      Comment?      @relation("CommentRecord")
+  comments     Comment[]     @relation("CommentReplies")
+  reaction     Reaction?     @relation("ReactionRecord")
+  reactions    Reaction[]    @relation("ReactionSubject")
 
   @@map("record")
 }
@@ -72,19 +69,33 @@ model RecordType {
   @@map("record_type")
 }
 
-model Block {
+model BlockVersion {
   id          String @id @map("id")
   topicId     String @map("topic_id")
   blockNumber String @map("block_number")
 
-  typeId  String  @map("type_id")
   content String? @map("content")
 
-  topic  Topic     @relation(fields: [topicId], references: [id])
-  record Record    @relation(fields: [id], references: [id])
+  record Record @relation(fields: [id], references: [id])
+
+  block Block @relation(fields: [topicId, blockNumber], references: [topicId, blockNumber])
+
+  @@index([topicId, blockNumber])
+  @@map("block_version")
+}
+
+model Block {
+  topicId     String @map("topic_id")
+  blockNumber String @map("block_number")
+
+  typeId String    @map("type_id")
   type   BlockType @relation(fields: [typeId], references: [id])
 
-  @@unique([topicId, blockNumber])
+  topic Topic @relation(fields: [topicId], references: [id])
+
+  blockVersions BlockVersion[]
+
+  @@id([topicId, blockNumber])
   @@map("block")
 }
 

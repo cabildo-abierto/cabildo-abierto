@@ -36,6 +36,18 @@ export type TopicBlocksOutput = {
     blockTypes: BlockType[]
 }
 
+export type TopicBlockVersion = TopicBlock & {
+    createdAt: string
+    author: {
+        id: string
+        username: string
+    }
+}
+
+export type TopicBlockVersionsOutput = {
+    versions: TopicBlockVersion[]
+}
+
 export type SaveBlockInput = {
     typeId: BlockType["id"]
     content: string

@@ -25,7 +25,6 @@ export type DB = {
     };
     record: {
         id: string;
-        topic_id: string;
         type_id: string;
         created_at: Generated<Timestamp>;
         author_id: string;
@@ -34,12 +33,16 @@ export type DB = {
         id: string;
         name: string;
     };
-    block: {
+    block_version: {
         id: string;
         topic_id: string;
         block_number: string;
-        type_id: string;
         content: string | null;
+    };
+    block: {
+        topic_id: string;
+        block_number: string;
+        type_id: string;
     };
     block_type: {
         id: string;
