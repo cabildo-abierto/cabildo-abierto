@@ -2,6 +2,8 @@
 set -euo pipefail
 
 DEPLOY_STARTED_AT=$SECONDS
+SSH_CONTROL_PATH="${TMPDIR:-/tmp}/cabildo-deploy-%C"
+SSH_OPTS=(-o ControlMaster=auto -o ControlPersist=10m -o "ControlPath=${SSH_CONTROL_PATH}")
 
 print_deploy_duration() {
   local elapsed=$((SECONDS - DEPLOY_STARTED_AT))
@@ -306,9 +308,15 @@ fi
 
 echo "🚀 Deploying (${ENV}/${PROFILE}) target=${TARGET}…"
 
+if ! ssh "${SSH_OPTS[@]}" -O check "$DEPLOY_SERVER" >/dev/null 2>&1; then
+  echo "🔐 Opening SSH connection…"
+  ssh "${SSH_OPTS[@]}" -MNf "$DEPLOY_SERVER"
+fi
+
 echo "📤 Syncing infra files to server…"
-ssh "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/infra'"
+ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/infra'"
 rsync -az --delete \
+  -e "ssh ${SSH_OPTS[*]}" \
   --exclude 'env/deploy.env' \
   --exclude 'env/*.env' \
   infra/ "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/infra/"
@@ -318,12 +326,12 @@ if [ "$ENV" = "dev" ]; then
     echo "❌ Missing infra/env/web.dev.env or infra/env/backend.dev.env"
     exit 1
   fi
-  ssh "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/env'"
-  rsync -az infra/env/web.dev.env infra/env/backend.dev.env "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/env/"
-  ssh "$DEPLOY_SERVER" "chmod 600 '${REMOTE_STACK_ROOT}/env/web.dev.env' '${REMOTE_STACK_ROOT}/env/backend.dev.env'"
+  ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/env'"
+  rsync -az -e "ssh ${SSH_OPTS[*]}" infra/env/web.dev.env infra/env/backend.dev.env "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/env/"
+  ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "chmod 600 '${REMOTE_STACK_ROOT}/env/web.dev.env' '${REMOTE_STACK_ROOT}/env/backend.dev.env'"
 fi
 
-ssh "$DEPLOY_SERVER" bash <<EOF
+ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" bash <<EOF
   set -euo pipefail
 
   DEPLOY_WEB=${DEPLOY_WEB}
@@ -365,6 +373,8 @@ ssh "$DEPLOY_SERVER" bash <<EOF
     docker builder prune -af --filter "until=${DOCKER_PRUNE_UNTIL:-168h}" || true
   fi
 EOF
+
+ssh "${SSH_OPTS[@]}" -O exit "$DEPLOY_SERVER" >/dev/null 2>&1 || true
 
 if [ "${SKIP_REGISTRY_CLEANUP:-0}" = "1" ]; then
   echo "⚠️  Skipping registry cleanup because SKIP_REGISTRY_CLEANUP=1"

@@ -11,3 +11,4 @@ Code instructions:
 - In the frontend we are using shadcn, so try using it instead of writing custom components and styles. If you need to write custom components, preserve our styling.
 - Always ask before adding a new dependency.
 - Don't add tests unless asked explicitly.
+- Always use cn to join class names.

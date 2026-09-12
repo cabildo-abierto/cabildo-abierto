@@ -48,7 +48,12 @@ export default function TopicPage() {
     const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Cargando tema…</div>;
+    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div
+        className="flex items-center flex-col gap-7 justify-center h-screen fixed top-0 left-1/2 -translate-x-1/2 p-6 text-sm text-muted-foreground"
+    >
+        <Spinner className={"size-7"}/>
+        Cargando tema...
+    </div>;
 
     const editButton = user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
         <PencilSimpleIcon/>

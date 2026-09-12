@@ -32,7 +32,8 @@ export function CommentComposer({replyTo, onPublish, onCancel}: {
                 event.preventDefault();
                 if (!publishing && content.trim()) void publish();
             }}
-            maxLength={20_000} className="min-h-[3lh] resize-none pb-8"/>
+            maxLength={20_000}
+            className="min-h-[3lh] resize-none rounded-lg border-[rgb(229_229_229)] pb-8 focus-visible:border-ring focus-visible:ring-0 dark:border-[rgb(38_38_38)] dark:focus-visible:border-ring"/>
         <div className="absolute right-1 bottom-1 flex items-center gap-1">
             {replyTo && <Button type="button" variant="ghost" size="icon-lg" className="size-7 p-0"
                 onClick={() => { setContent(""); onCancel?.(); }} disabled={publishing}

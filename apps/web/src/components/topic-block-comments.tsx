@@ -45,12 +45,19 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, o
         const visibleChildren = children.filter(isRenderable);
         const isReplyEditorOpen = activeReplyId === comment.id;
         const cardClass = depth % 2 === 1 ? "bg-card" : "bg-muted/40";
-        return <li key={comment.id} className={`pl-1 pt-1 pb-0.5 pr-0.5 rounded-lg outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)] ${cardClass}`}>
+        return <li key={comment.id} className={`pl-1 pt-1 pb-0.5 pr-0 rounded-lg outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)] ${cardClass}`}>
 
-        <p className={`break-words p-1 text-sm leading-relaxed whitespace-pre-wrap ${comment.deleted ? "flex items-center gap-1 italic text-xs py-2 text-muted-foreground" : ""}`}>
-            {comment.deleted && <div className={"pb-0.5"}><TrashIcon className="size-3.5 shrink-0"/></div>}
-            {comment.deleted ? "Comentario eliminado" : comment.content}
-        </p>
+        {comment.deleted && <div className={"wrap-break-word p-1 leading-relaxed whitespace-pre-wrap flex items-center gap-1 italic text-xs py-2 text-muted-foreground"}>
+            <div className={"pb-0.5"}>
+                <TrashIcon className="size-3.5 shrink-0"/>
+            </div>
+            <div>
+                Comentario eliminado
+            </div>
+        </div>}
+        {!comment.deleted && <p className={"wrap-break-word p-1 text-xs leading-relaxed whitespace-pre-wrap"}>
+            {comment.content}
+        </p>}
         {!comment.deleted && <div className="flex pl-1 items-center gap-2 text-xs text-muted-foreground pr-1 pb-1">
             <span className="font-medium text-muted-foreground">@{comment.author.username}</span>
             <time dateTime={comment.createdAt} title={formatTopicBlockDate(comment.createdAt)}>{formatRelativeDate(comment.createdAt)}</time>
@@ -72,10 +79,10 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, o
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>}
-        {!comment.deleted && isReplyEditorOpen && <div className={"pb-1"}>
+        {!comment.deleted && isReplyEditorOpen && <div className={"pb-1 pr-1"}>
             <CommentComposer replyTo={comment} onPublish={onPublish} onCancel={() => setActiveReplyId(null)}/>
         </div>}
-        {visibleChildren.length > 0 && <ol className="space-y-2">
+        {visibleChildren.length > 0 && <ol className="space-y-1">
             {visibleChildren.map(child => renderComment(child, depth + 1))}
         </ol>}
     </li>;
