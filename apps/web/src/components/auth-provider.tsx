@@ -1,6 +1,7 @@
 "use client"
 
-import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
+import {createContext, type ReactNode, useContext} from "react";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type {PublicUser, SessionOutput} from "@cabildo-abierto/api";
 import {get, post} from "@/utils/react/fetch";
 
@@ -14,22 +15,24 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({children}: {children: ReactNode}) {
-    const [user, setUserState] = useState<PublicUser | null>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const session = useQuery({
+        queryKey: ["auth", "session"],
+        queryFn: async () => {
+            const result = await get<SessionOutput>("/auth/session");
+            if ("error" in result) throw new Error(result.error);
+            return result.value.user;
+        },
+        retry: false,
+    });
+    const logoutMutation = useMutation({
+        mutationFn: () => post("/auth/logout"),
+        onSuccess: () => { queryClient.setQueryData(["auth", "session"], null); },
+    });
+    const setUser = (user: PublicUser) => queryClient.setQueryData(["auth", "session"], user);
+    const logout = async () => { await logoutMutation.mutateAsync(); };
 
-    useEffect(() => {
-        void get<SessionOutput>("/auth/session")
-            .then(result => setUserState(result.success ? result.value.user : null))
-            .catch(() => setUserState(null))
-            .finally(() => setLoading(false));
-    }, []);
-
-    const logout = async () => {
-        await post("/auth/logout");
-        setUserState(null);
-    };
-
-    return <AuthContext.Provider value={{user, loading, setUser: setUserState, logout}}>
+    return <AuthContext.Provider value={{user: session.data ?? null, loading: session.isLoading, setUser, logout}}>
         {children}
     </AuthContext.Provider>;
 }

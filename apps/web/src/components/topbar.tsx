@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {ThemePicker} from "@/components/theme-picker";
 import {useAuth} from "@/components/auth-provider";
+import {Spinner} from "@/components/ui/spinner";
 
 export function Topbar() {
     const {user, loading, logout} = useAuth();
@@ -33,7 +34,7 @@ export function Topbar() {
                 <PlusIcon/>
                 Nuevo tema
             </Button>
-            {loading ? <div className="h-7 w-24" aria-hidden="true"/> : user ? (
+            {loading ? <Spinner className="mr-2"/> : user ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger render={<Button variant="ghost" size="sm"/>}>
                         <UserCircleIcon/>

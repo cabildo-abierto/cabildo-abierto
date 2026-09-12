@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {type FormEvent, useEffect, useState} from "react";
+import {useMutation} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {AuthOutput, RegisterInput} from "@cabildo-abierto/api";
 import {useAuth} from "@/components/auth-provider";
@@ -10,12 +11,19 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import {Field, FieldDescription, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
 import {post} from "@/utils/react/fetch";
+import {Spinner} from "@/components/ui/spinner";
 
 export default function RegisterPage() {
     const router = useRouter();
     const {user, loading, setUser} = useAuth();
-    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const registerMutation = useMutation({
+        mutationFn: async (input: RegisterInput) => {
+            const result = await post<RegisterInput, AuthOutput>("/auth/register", input);
+            if ("error" in result) throw new Error(result.error);
+            return result.value.user;
+        },
+    });
 
     useEffect(() => {
         if (!loading && user) router.replace("/");
@@ -31,21 +39,17 @@ export default function RegisterPage() {
             return;
         }
 
-        setSubmitting(true);
         const input: RegisterInput = {
             username: String(form.get("username") ?? ""),
             email: String(form.get("email") ?? ""),
             password,
             registrationPassword: String(form.get("registrationPassword") ?? ""),
         };
-        const result = await post<RegisterInput, AuthOutput>("/auth/register", input);
-        setSubmitting(false);
-
-        if ("error" in result) {
-            setError(result.error);
+        try { setUser(await registerMutation.mutateAsync(input)); }
+        catch (mutationError) {
+            setError(mutationError instanceof Error ? mutationError.message : "No pudimos crear la cuenta.");
             return;
         }
-        setUser(result.value.user);
         router.replace("/");
     };
 
@@ -85,8 +89,8 @@ export default function RegisterPage() {
                     </FieldGroup>
                 </CardContent>
                 <CardFooter className="mt-4 flex flex-col gap-3">
-                    <Button type="submit" className="w-full" disabled={submitting}>
-                        {submitting ? "Creando cuenta…" : "Registrarme"}
+                    <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
+                        {registerMutation.isPending ? <><Spinner/>Creando cuenta…</> : "Registrarme"}
                     </Button>
                     <p className="text-muted-foreground">
                         ¿Ya tenés una cuenta? <Link href="/iniciar-sesion" className="text-foreground underline underline-offset-4">Iniciá sesión</Link>

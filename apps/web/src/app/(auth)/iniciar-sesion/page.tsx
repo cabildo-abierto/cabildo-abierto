@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link";
-import {type FormEvent, useEffect, useState} from "react";
+import {type FormEvent, useEffect} from "react";
+import {useMutation} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {AuthOutput, LoginInput} from "@cabildo-abierto/api";
 import {useAuth} from "@/components/auth-provider";
@@ -10,12 +11,18 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import {Field, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
 import {post} from "@/utils/react/fetch";
+import {Spinner} from "@/components/ui/spinner";
 
 export default function LoginPage() {
     const router = useRouter();
     const {user, loading, setUser} = useAuth();
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const loginMutation = useMutation({
+        mutationFn: async (input: LoginInput) => {
+            const result = await post<LoginInput, AuthOutput>("/auth/login", input);
+            if ("error" in result) throw new Error(result.error);
+            return result.value.user;
+        },
+    });
 
     useEffect(() => {
         if (!loading && user) router.replace("/");
@@ -23,21 +30,13 @@ export default function LoginPage() {
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setSubmitting(true);
-        setError(null);
         const form = new FormData(event.currentTarget);
         const input: LoginInput = {
             identifier: String(form.get("identifier") ?? ""),
             password: String(form.get("password") ?? ""),
         };
-        const result = await post<LoginInput, AuthOutput>("/auth/login", input);
-        setSubmitting(false);
-
-        if ("error" in result) {
-            setError(result.error);
-            return;
-        }
-        setUser(result.value.user);
+        try { setUser(await loginMutation.mutateAsync(input)); }
+        catch { return; }
         router.replace("/");
     };
 
@@ -58,12 +57,12 @@ export default function LoginPage() {
                             <FieldLabel htmlFor="password">Contraseña</FieldLabel>
                             <Input id="password" name="password" type="password" autoComplete="current-password" required/>
                         </Field>
-                        {error && <FieldError>{error}</FieldError>}
+                        {loginMutation.error && <FieldError>{loginMutation.error.message}</FieldError>}
                     </FieldGroup>
                 </CardContent>
                 <CardFooter className="mt-4 flex flex-col gap-3">
-                    <Button type="submit" className="w-full" disabled={submitting}>
-                        {submitting ? "Ingresando…" : "Ingresar"}
+                    <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+                        {loginMutation.isPending ? <><Spinner/>Ingresando…</> : "Ingresar"}
                     </Button>
                     <p className="text-muted-foreground">
                         ¿No tenés una cuenta? <Link href="/registro" className="text-foreground underline underline-offset-4">Registrate</Link>

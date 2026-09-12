@@ -9,8 +9,8 @@ export function TopicBlockInsertButton({onClick, fillRemainingSpace = false}: {o
             type="button"
             variant="ghost"
             className={fillRemainingSpace
-                ? "group/insert absolute inset-0 z-10 h-full w-full p-0 hover:bg-transparent"
-                : "group/insert absolute top-1 left-0 z-10 h-4 w-full -translate-y-1/2 p-0 hover:bg-transparent"}
+                ? "group/insert absolute inset-0 z-10 h-full w-full p-0 hover:bg-transparent dark:hover:bg-transparent"
+                : "group/insert absolute top-1 left-0 z-10 h-4 w-full -translate-y-1/2 p-0 hover:bg-transparent dark:hover:bg-transparent"}
             aria-label="Agregar bloque en esta posición"
             onClick={onClick}
         >

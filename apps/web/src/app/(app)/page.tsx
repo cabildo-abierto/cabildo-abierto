@@ -1,48 +1,31 @@
 "use client"
 
 import Link from "next/link";
-import {useEffect, useState} from "react";
-import type {SearchTopicsOutput, TopicSummary} from "@cabildo-abierto/api";
+import {useState} from "react";
+import {useQuery} from "@tanstack/react-query";
+import type {SearchTopicsOutput} from "@cabildo-abierto/api";
 import {XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {get} from "@/utils/react/fetch";
+import {useDebounce} from "@/utils/react/debounce";
+import {Spinner} from "@/components/ui/spinner";
 
 export default function Page() {
     const [search, setSearch] = useState("");
-    const [topics, setTopics] = useState<TopicSummary[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const query = search.trim();
-
-    useEffect(() => {
-        let current = true;
-        if (!query) {
-            setTopics([]);
-            setLoading(false);
-            setError(null);
-            return () => { current = false; };
-        }
-
-        const timeout = window.setTimeout(async () => {
-            setLoading(true);
-            setError(null);
+    const query = useDebounce(search.trim(), 250);
+    const topicsQuery = useQuery({
+        queryKey: ["topics", "search", query],
+        queryFn: async () => {
             const result = await get<SearchTopicsOutput>(`/topics?search=${encodeURIComponent(query)}`);
-            if (!current) return;
-            setLoading(false);
-            if ("error" in result) {
-                setTopics([]);
-                setError(result.error);
-                return;
-            }
-            setTopics(result.value.topics);
-        }, 250);
-
-        return () => {
-            current = false;
-            window.clearTimeout(timeout);
-        };
-    }, [query]);
+            if ("error" in result) throw new Error(result.error);
+            return result.value.topics;
+        },
+        enabled: Boolean(query),
+    });
+    const topics = topicsQuery.data ?? [];
+    const loading = topicsQuery.isFetching;
+    const error = topicsQuery.error instanceof Error ? topicsQuery.error.message : null;
 
     return <div className="flex min-h-[calc(100vh-3rem)] w-full items-center justify-center">
         <div className="flex w-full max-w-md flex-col items-start space-y-3 p-3">
@@ -62,7 +45,7 @@ export default function Page() {
                 </Button>}
             </div>
             <div className="w-full" aria-live="polite">
-                {loading && <p className="px-2 text-xs text-muted-foreground">Buscando…</p>}
+                {loading && <p className="flex items-center gap-2 px-2 text-xs text-muted-foreground"><Spinner/>Buscando…</p>}
                 {error && <p className="px-2 text-xs text-destructive">{error}</p>}
                 {!loading && !error && query && topics.length === 0 && <p className="px-2 text-xs text-muted-foreground">No encontramos temas con ese título.</p>}
                 {!loading && topics.length > 0 && <ul className="overflow-hidden rounded-lg border bg-card">

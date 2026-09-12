@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import {useParams} from "next/navigation";
-import {useEffect, useState} from "react";
-import type {TopicBlock, TopicBlocksOutput, TopicOutput, TopicSummary} from "@cabildo-abierto/api";
+import {useState} from "react";
+import {useQuery} from "@tanstack/react-query";
+import type {TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
@@ -20,33 +21,34 @@ import {TopicView} from "@/components/topic-view";
 import {TopicBlockView} from "@/components/topic-block";
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
+import {Spinner} from "@/components/ui/spinner";
 
 export default function TopicPage() {
     const {id} = useParams<{id: string}>();
     const {user, loading: authLoading} = useAuth();
-    const [topic, setTopic] = useState<TopicSummary | null>(null);
-    const [blocks, setBlocks] = useState<TopicBlock[]>([]);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        let current = true;
-        void Promise.all([
-            get<TopicOutput>(`/topics/${encodeURIComponent(id)}`),
-            get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`),
-        ]).then(([topicResult, blocksResult]) => {
-            if (!current) return;
-            if ("error" in topicResult) setError(topicResult.error);
-            else if ("error" in blocksResult) setError(blocksResult.error);
-            else {
-                setTopic(topicResult.value.topic);
-                setBlocks(blocksResult.value.blocks);
-            }
-        });
-        return () => { current = false; };
-    }, [id]);
+    const [openCommentsBlockId, setOpenCommentsBlockId] = useState<string | null>(null);
+    const topicQuery = useQuery({
+        queryKey: ["topic", id],
+        queryFn: async () => {
+            const result = await get<TopicOutput>(`/topics/${encodeURIComponent(id)}`);
+            if ("error" in result) throw new Error(result.error);
+            return result.value.topic;
+        },
+    });
+    const blocksQuery = useQuery({
+        queryKey: ["topic", id, "blocks"],
+        queryFn: async () => {
+            const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`);
+            if ("error" in result) throw new Error(result.error);
+            return result.value.blocks;
+        },
+    });
+    const topic = topicQuery.data;
+    const blocks = blocksQuery.data ?? [];
+    const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (!topic) return <div className="mx-auto max-w-2xl p-6 text-sm text-muted-foreground">Cargando tema…</div>;
+    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Cargando tema…</div>;
 
     const editButton = user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
         <PencilSimpleIcon/>
@@ -69,6 +71,12 @@ export default function TopicPage() {
     </AlertDialog>;
 
     return <TopicView topic={topic} action={editButton}>
-        <div className="space-y-2">{blocks.map(block => <TopicBlockView key={block.id} topicId={topic.id} block={block}/>)}</div>
+        <div className="space-y-2">{blocks.map(block => <TopicBlockView
+            key={block.id}
+            topicId={topic.id}
+            block={block}
+            commentsOpen={openCommentsBlockId === block.id}
+            onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
+        />)}</div>
     </TopicView>;
 }

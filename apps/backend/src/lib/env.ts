@@ -14,13 +14,9 @@ export const env = cleanEnv(process.env, {
     COOKIE_SECRET: str(),
     REGISTRATION_PASSWORD: str(),
     FRONTEND_URL: str({devDefault: 'http://127.0.0.1:3000'}),
-    MP_ACCESS_TOKEN: str(),
-    MP_WEBHOOK_KEY: str(),
     ADMIN_TOKEN: str(),
 
     DATABASE_URL: str(),
-    DIRECT_URL: str(),
-    MAX_REPO_MBS: num({devDefault: 300}),
     MAX_CONNECTIONS: num({devDefault: 2}),
     RUN_CRONS: bool({devDefault: false}),
     MIRROR_EXTENDED_USERS: bool({devDefault: false}),
@@ -28,6 +24,4 @@ export const env = cleanEnv(process.env, {
     WORKER_CONCURRENCY: num({devDefault: 1}),
     DEV_NAME: str(),
     SERVICE_NAME: str(),
-
-    PDS_PASSWORD: str(),
 })

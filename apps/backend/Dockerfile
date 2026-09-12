@@ -10,7 +10,7 @@ WORKDIR /repo
 # 1. Prepare (Turbo Prune)
 # ============================
 FROM base AS prepare
-RUN npm install -g turbo@^2
+RUN npm install -g turbo@2.10.12
 COPY . .
 
 RUN turbo prune backend --docker
@@ -20,19 +20,19 @@ RUN turbo prune backend --docker
 # ============================
 FROM base AS builder
 
-RUN npm install -g pnpm@^10
+RUN npm install -g pnpm@10.22.0
 
 COPY --from=prepare /repo/out/json/ .
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-backend-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && pnpm install --frozen-lockfile
 
 COPY --from=prepare /repo/out/full/ .
 COPY tsconfig.base.json /repo/.
 
-RUN pnpm -F utils build
 RUN pnpm -F api build
-RUN pnpm -F editor-core build
 RUN pnpm -F backend build
+RUN pnpm --filter backend --prod deploy /runtime
 
 # ============================
 # 3. Runtime
@@ -41,16 +41,11 @@ FROM base AS runner
 
 RUN apk add --no-cache curl
 
-COPY --from=builder /repo ./
+WORKDIR /app
 
-RUN mkdir -p /repo/public
-
-ARG DEPLOY_ENV=prod
-RUN if [ "$DEPLOY_ENV" = "prod" ]; then \
-      cp apps/backend/public/client-metadata.prod.json public/client-metadata.json ; \
-    else \
-      cp apps/backend/public/client-metadata.test.json public/client-metadata.json ; \
-    fi
+COPY --from=builder /runtime/node_modules ./node_modules
+COPY --from=builder /runtime/package.json ./package.json
+COPY --from=builder /runtime/dist ./dist
 
 EXPOSE 8080
-CMD ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
+CMD ["node", "dist/index.js"]

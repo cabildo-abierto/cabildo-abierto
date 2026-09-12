@@ -30,7 +30,7 @@ services:
       PORT: "8080"
       SERVICE_NAME: api-dev
       RUN_CRONS: "false"
-    command: ["node", "--import", "./apps/backend/dist/instrumentation.js", "apps/backend/dist/index.js"]
+    command: ["node", "dist/index.js"]
     ports:
       - "127.0.0.1:8082:8080"
     restart: unless-stopped

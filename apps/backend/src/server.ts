@@ -37,6 +37,7 @@ export class Server {
             'https://www.cabildoabierto.ar',
             'https://www.cabildoabierto.com.ar',
             'https://dev.cabildoabierto.ar',
+            'https://test.cabildoabierto.ar',
             'https://ca-withered-wind.fly.dev',
             'https://api.cabildoabierto.ar',
             'https://dev0.cabildoabierto.ar',

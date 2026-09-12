@@ -140,6 +140,7 @@ model Comment {
   justifiesRejections Reaction[]
 
   @@unique([topicId, commentNumber])
+  @@index([replyToId])
   @@map("comment")
 }
 

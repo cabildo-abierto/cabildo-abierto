@@ -23,6 +23,23 @@ TEST_BACKEND_URL="https://test-api.cabildoabierto.ar"
 
 `CONTAINER_REGISTRY_PASSWORD` puede omitirse si `VULTR_API_KEY` ya tiene el token del registry.
 
+Para que cada deploy exitoso elimine artifacts antiguos del Container Registry,
+configurá `VULTR_ACCOUNT_API_KEY` con una API key de la cuenta de Vultr. Esta key
+es distinta del token usado por `docker login`. Por defecto se conservan cinco
+artifacts SHA por ambiente y repositorio, además de cualquier artifact con un tag
+`*-latest` o no reconocido. Se puede cambiar con `REGISTRY_KEEP_ARTIFACTS` o
+desactivar con `SKIP_REGISTRY_CLEANUP=1`. La limpieza requiere `curl` y `jq` en
+la computadora desde la que se ejecuta el deploy.
+
+Para vaciar por completo el registry, incluidos todos los tags `latest` y
+manuales, ejecutá `infra/scripts/cleanup-vultr-registry.sh --all`. El comando
+exige escribir el nombre del registry como confirmación y no se ejecuta como
+parte de un deploy normal.
+
+El deploy también limpia del nodo las imágenes y el caché Docker sin uso de más
+de siete días. Se desactiva con `SKIP_NODE_CLEANUP=1` o se cambia el período con
+`DOCKER_PRUNE_UNTIL`.
+
 Deploy de producción con el stack mínimo:
 
 ```
@@ -41,7 +58,8 @@ Volver a deployar la app real:
 ./infra/scripts/deploy.sh prod web min app
 ```
 
-Deploy aislado de desarrollo (`web` + `backend`) en `dev.cabildoabierto.ar`:
+Deploy aislado de test (`web` + `backend`) en `test.cabildoabierto.ar`, con la
+API publicada bajo `/api`:
 
 ```
 ./infra/scripts/deploy.sh dev all

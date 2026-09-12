@@ -28,16 +28,10 @@ export default defineConfig({
         "cors",
         "morgan",
         "dotenv",
-        "ioredis",
         "pg",
         "kysely",
         "pino",
         "jsonwebtoken",
-        "jsdom",
-        "immer",
-        "uuid",
-        "ws",
-        "remove-markdown",
-        "bullmq"
+        "jsdom"
     ]
 });

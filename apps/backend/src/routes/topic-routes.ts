@@ -1,7 +1,7 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
-import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SaveBlockReorderInput, SaveBlockReorderOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SaveBlockReorderInput, SaveBlockReorderOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {requireSession, requiredUser} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
@@ -16,6 +16,7 @@ type StoredTopicBlock = {
     content: string | null;
     initialOrder: string;
     createdAt: Date;
+    commentCount: number;
 };
 
 async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock[]> {
@@ -37,7 +38,14 @@ async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock
                     ROW_NUMBER() OVER (
                         PARTITION BY block_version.topic_id, block_version.block_number
                         ORDER BY record.created_at DESC, record.id DESC
-                    ) AS version_rank
+                    ) AS version_rank,
+                    (
+                        SELECT COUNT(*)::int
+                        FROM comment
+                        INNER JOIN block_version AS commented_version ON commented_version.id = comment.reply_to_id
+                        WHERE commented_version.topic_id = block_version.topic_id
+                          AND commented_version.block_number = block_version.block_number
+                    ) AS "commentCount"
                 FROM block_version
                 INNER JOIN block
                     ON block.topic_id = block_version.topic_id
@@ -45,7 +53,7 @@ async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock
                 INNER JOIN record ON record.id = block_version.id
                 WHERE block_version.topic_id = ${topicId}
             )
-            SELECT id, "blockNumber", "typeId", content, "initialOrder", "createdAt"
+            SELECT id, "blockNumber", "typeId", content, "initialOrder", "createdAt", "commentCount"
             FROM ranked_versions
             WHERE version_rank = 1
         `.execute(ctx.kysely),
@@ -70,6 +78,7 @@ async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock
             typeId: block.typeId,
             content: block.content ?? "",
             order: position.order,
+            commentCount: block.commentCount,
         };
     });
 }
@@ -168,6 +177,11 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     "record.created_at as createdAt",
                     "user.id as authorId",
                     "user.username as authorUsername",
+                    sql<number>`(
+                        SELECT COUNT(*)::int
+                        FROM comment
+                        WHERE comment.reply_to_id = block_version.id
+                    )`.as("commentCount"),
                 ])
                 .where("block_version.topic_id", "=", req.params.id)
                 .where("block_version.block_number", "=", req.params.blockNumber)
@@ -188,12 +202,108 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     order: version.order,
                     createdAt: version.createdAt.toISOString(),
                     author: {id: version.authorId, username: version.authorUsername},
+                    commentCount: Number(version.commentCount),
                 })),
             };
             return res.json({success: true, value});
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block versions lookup failed");
             return res.status(500).json({success: false, error: "No pudimos cargar el historial del bloque."});
+        }
+    });
+
+    router.get("/topics/:id/blocks/:blockNumber/comments", async (req, res) => {
+        try {
+            const blockExists = await ctx.kysely.selectFrom("block")
+                .select("block_number")
+                .where("topic_id", "=", req.params.id)
+                .where("block_number", "=", req.params.blockNumber)
+                .executeTakeFirst();
+            if (!blockExists) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
+
+            const comments = await ctx.kysely.selectFrom("comment")
+                .innerJoin("block_version", "block_version.id", "comment.reply_to_id")
+                .innerJoin("record", "record.id", "comment.id")
+                .innerJoin("user", "user.id", "record.author_id")
+                .select([
+                    "comment.id",
+                    "comment.comment_number as commentNumber",
+                    "comment.reply_to_id as blockVersionId",
+                    "comment.content",
+                    "record.created_at as createdAt",
+                    "user.id as authorId",
+                    "user.username as authorUsername",
+                ])
+                .where("comment.topic_id", "=", req.params.id)
+                .where("block_version.topic_id", "=", req.params.id)
+                .where("block_version.block_number", "=", req.params.blockNumber)
+                .orderBy("record.created_at", "desc")
+                .orderBy("record.id", "desc")
+                .execute();
+            const value: BlockCommentsOutput = {comments: comments.map(comment => ({
+                id: comment.id,
+                commentNumber: comment.commentNumber,
+                blockVersionId: comment.blockVersionId,
+                content: comment.content,
+                createdAt: comment.createdAt.toISOString(),
+                author: {id: comment.authorId, username: comment.authorUsername},
+            }))};
+            return res.json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comments lookup failed");
+            return res.status(500).json({success: false, error: "No pudimos cargar los comentarios."});
+        }
+    });
+
+    router.post("/topics/:id/blocks/:blockNumber/comments", requireSession(ctx), async (req, res) => {
+        const user = requiredUser(req);
+        const topicId = req.params.id;
+        const blockNumber = req.params.blockNumber;
+        if (typeof topicId !== "string" || typeof blockNumber !== "string") {
+            return res.status(400).json({success: false, error: "El tema o bloque no es válido."});
+        }
+        const input = (req.body ?? {}) as Partial<CreateBlockCommentInput>;
+        const content = typeof input.content === "string" ? input.content.trim() : "";
+        if (typeof input.blockVersionId !== "string" || !content || content.length > 20_000) {
+            return res.status(400).json({success: false, error: "Ingresá un comentario válido."});
+        }
+        try {
+            const version = await ctx.kysely.selectFrom("block_version")
+                .select("id")
+                .where("id", "=", input.blockVersionId)
+                .where("topic_id", "=", topicId)
+                .where("block_number", "=", blockNumber)
+                .executeTakeFirst();
+            if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
+
+            const created = await ctx.kysely.transaction().execute(async trx => {
+                await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:comment`}))`.execute(trx);
+                const existing = await trx.selectFrom("comment")
+                    .select("comment_number")
+                    .where("topic_id", "=", topicId)
+                    .where("comment_number", "like", "c-%")
+                    .execute();
+                const number = existing.reduce((max, item) => {
+                    const value = Number(item.comment_number.slice(2));
+                    return Number.isInteger(value) ? Math.max(max, value) : max;
+                }, 0) + 1;
+                const id = randomUUID();
+                await trx.insertInto("record").values({id, type_id: "comment", author_id: user.id}).execute();
+                await trx.insertInto("comment").values({
+                    id,
+                    topic_id: topicId,
+                    comment_number: `c-${number}`,
+                    reply_to_id: version.id,
+                    content,
+                }).execute();
+                const record = await trx.selectFrom("record").select("created_at").where("id", "=", id).executeTakeFirstOrThrow();
+                return {id, commentNumber: `c-${number}`, blockVersionId: version.id, content, createdAt: record.created_at.toISOString(), author: user};
+            });
+            const value: CreateBlockCommentOutput = {comment: created};
+            return res.status(201).json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comment creation failed");
+            return res.status(500).json({success: false, error: "No pudimos publicar el comentario."});
         }
     });
 
@@ -241,7 +351,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     content: parsed.content,
                     order,
                 }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
-                return {...created, typeId: parsed.typeId, content: created.content ?? "", order};
+                return {...created, typeId: parsed.typeId, content: created.content ?? "", order, commentCount: 0};
             });
             const value: SaveBlockOutput = {block};
             return res.status(201).json({success: true, value});
@@ -292,7 +402,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
                 return {...version, typeId: current.typeId as BlockType["id"], content: version.content ?? "", order: current.order};
             });
-            const value: SaveBlockOutput = {block: created};
+            const updatedBlocks = await topicBlocks(ctx, topicId);
+            const updatedBlock = updatedBlocks.find(block => block.blockNumber === created.blockNumber);
+            if (!updatedBlock) throw new Error("Updated block was not found");
+            const value: SaveBlockOutput = {block: updatedBlock};
             return res.json({success: true, value});
         } catch (error) {
             const code = databaseCode(error);

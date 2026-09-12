@@ -1,10 +1,10 @@
-# Deploy de desarrollo en un nodo Vultr
+# Deploy de test en un nodo Vultr
 
 Este despliegue es independiente de los stacks existentes. Ejecuta únicamente una
 réplica de `web` y una de `backend` con Docker Compose. Nginx publica ambos bajo:
 
-- Web: `https://dev.cabildoabierto.ar`
-- Backend: `https://dev.cabildoabierto.ar/api`
+- Web: `https://test.cabildoabierto.ar`
+- Backend: `https://test.cabildoabierto.ar/api`
 
 Los puertos de las aplicaciones quedan ligados a `127.0.0.1:3002` y
 `127.0.0.1:8082`, por lo que no se exponen directamente a Internet ni interfieren
@@ -12,29 +12,29 @@ con el stack mínimo existente, que usa el puerto `3000`.
 
 ## 1. DNS y TLS
 
-Creá un registro `A` para `dev.cabildoabierto.ar` apuntando a la IP del nodo.
-
-Generá un certificado de origen que cubra `dev.cabildoabierto.ar` y copiá sus
-archivos al servidor:
+El registro DNS de `test.cabildoabierto.ar` debe apuntar al nodo. La configuración
+reutiliza el certificado de origen existente de Cabildo:
 
 ```text
-/etc/ssl/certs/cabildo-dev-origin.pem
-/etc/ssl/private/cabildo-dev-origin.key
+/etc/ssl/certs/cabildo-origin.pem
+/etc/ssl/private/cabildo-origin.key
 ```
 
-El archivo de clave debe tener permisos `600`.
+## 2. Preparar el nodo existente
 
-## 2. Preparar el nodo
-
-Copiá el repositorio o, como mínimo, `infra/` al nodo y ejecutá como root:
+Creá el directorio aislado para Compose. No vuelvas a ejecutar la preparación
+general del nodo ni deshabilites la configuración de producción:
 
 ```bash
-sudo NODE_PROFILE=dev bash infra/scripts/setup-new-node.sh
+sudo mkdir -p /opt/cabildo-dev/env
+sudo chown -R deploy:deploy /opt/cabildo-dev
 ```
 
-Después de copiar el certificado y la clave, validá y activá Nginx:
+Después del primer deploy, instalá la configuración Nginx sincronizada, validala
+y recargá el servicio:
 
 ```bash
+sudo cp /opt/cabildo-dev/infra/nginx/sites-available/cabildo /etc/nginx/sites-available/cabildo
 sudo nginx -t
 sudo systemctl enable --now nginx
 sudo systemctl reload nginx
@@ -56,7 +56,7 @@ Cerrá y volvé a abrir la sesión SSH para aplicar el grupo nuevo.
 Desde la raíz del repositorio:
 
 ```bash
-cp infra/env/deploy.dev.env.example infra/env/deploy.dev.env
+cp infra/env/deploy.env.example infra/env/deploy.env
 cp infra/env/web.dev.env.example infra/env/web.dev.env
 cp infra/env/backend.dev.env.example infra/env/backend.dev.env
 ```
@@ -73,15 +73,15 @@ echo "$CONTAINER_REGISTRY_PASSWORD" | docker login "$CONTAINER_REGISTRY" -u "$CO
 
 ## 4. Aplicar migraciones
 
-Las migraciones no se ejecutan automáticamente. Una vez publicada la imagen del
-backend, se pueden aplicar contra Neon desde el nodo con:
+Las migraciones no se ejecutan automáticamente y Prisma CLI no forma parte de la
+imagen de runtime. Cuando haya migraciones nuevas, aplicalas desde el checkout
+local antes de desplegar el backend:
 
 ```bash
-CONTAINER_REGISTRY=<registry/namespace>
-docker run --rm \
-  --env-file /opt/cabildo-dev/env/backend.dev.env \
-  "$CONTAINER_REGISTRY/backend:dev-latest" \
-  pnpm --filter backend exec prisma migrate deploy --config prisma.config.ts
+read -rsp 'Neon DIRECT_URL: ' DIRECT_URL; echo
+export DIRECT_URL
+pnpm --filter backend exec prisma migrate deploy --config prisma.config.ts
+unset DIRECT_URL
 ```
 
 ## 5. Desplegar
@@ -116,6 +116,6 @@ CONTAINER_REGISTRY=<registry/namespace> docker compose \
 Desde cualquier equipo:
 
 ```bash
-curl -fsS https://dev.cabildoabierto.ar/
-curl -fsS 'https://dev.cabildoabierto.ar/api/topics?search='
+curl -fsS https://test.cabildoabierto.ar/
+curl -fsS 'https://test.cabildoabierto.ar/api/topics?search='
 ```

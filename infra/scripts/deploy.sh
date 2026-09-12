@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DEPLOY_STARTED_AT=$SECONDS
+
+print_deploy_duration() {
+  local elapsed=$((SECONDS - DEPLOY_STARTED_AT))
+  printf '\n⏱  Total deploy time: %dm %ds\n' "$((elapsed / 60))" "$((elapsed % 60))"
+}
+
+trap print_deploy_duration EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "$REPO_ROOT"
@@ -69,7 +78,10 @@ CONTAINER_REGISTRY_PASSWORD="${CONTAINER_REGISTRY_PASSWORD:-${VULTR_API_KEY:-}}"
 
 PROD_BACKEND_URL="${PROD_BACKEND_URL:-}"
 TEST_BACKEND_URL="${TEST_BACKEND_URL:-}"
-DEV_BACKEND_URL="${DEV_BACKEND_URL:-https://dev.cabildoabierto.ar/api}"
+DEV_BACKEND_URL="${DEV_BACKEND_URL:-https://test.cabildoabierto.ar/api}"
+PROD_FRONTEND_URL="${PROD_FRONTEND_URL:-https://cabildoabierto.ar}"
+TEST_FRONTEND_URL="${TEST_FRONTEND_URL:-https://test.cabildoabierto.ar}"
+DEV_FRONTEND_URL="${DEV_FRONTEND_URL:-https://test.cabildoabierto.ar}"
 
 REGISTRY="$CONTAINER_REGISTRY"
 WEB_IMAGE_REPO="${REGISTRY}/web"
@@ -123,17 +135,20 @@ case "$ENV" in
       STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack.full.yml"
     fi
     NEXT_PUBLIC_BACKEND_URL="$PROD_BACKEND_URL"
+    NEXT_PUBLIC_FRONTEND_URL="$PROD_FRONTEND_URL"
     ;;
   test)
     STACK_NAME="cabildo-test"
     STACK_FILE="${REMOTE_STACK_ROOT}/infra/stack/docker-stack-test.full.yml"
     NEXT_PUBLIC_BACKEND_URL="$TEST_BACKEND_URL"
+    NEXT_PUBLIC_FRONTEND_URL="$TEST_FRONTEND_URL"
     ;;
   dev)
     STACK_NAME="cabildo-dev"
     REMOTE_STACK_ROOT="${DEV_REMOTE_STACK_ROOT:-/opt/cabildo-dev}"
     STACK_FILE="${REMOTE_STACK_ROOT}/infra/compose/docker-compose.dev.yml"
     NEXT_PUBLIC_BACKEND_URL="$DEV_BACKEND_URL"
+    NEXT_PUBLIC_FRONTEND_URL="$DEV_FRONTEND_URL"
     ;;
   *)
     echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
@@ -233,6 +248,7 @@ if [ "$DEPLOY_WEB" -eq 1 ]; then
   docker build \
     -f apps/web/Dockerfile \
     --build-arg NEXT_PUBLIC_BACKEND_URL="$NEXT_PUBLIC_BACKEND_URL" \
+    --build-arg NEXT_PUBLIC_FRONTEND_URL="$NEXT_PUBLIC_FRONTEND_URL" \
     --build-arg NEXT_PUBLIC_WEB_VIEW="$WEB_VIEW" \
     -t "${WEB_IMAGE_REPO}:${WEB_TAG}" \
     -t "${WEB_IMAGE_REPO}:${WEB_LATEST}" \
@@ -243,7 +259,6 @@ if [ "$DEPLOY_BACKEND" -eq 1 ]; then
   echo "🏗  Building image for backend…"
   docker build \
     -f apps/backend/Dockerfile \
-    --build-arg DEPLOY_ENV="$ENV" \
     -t "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" \
     -t "${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}" \
     .
@@ -325,26 +340,37 @@ ssh "$DEPLOY_SERVER" bash <<EOF
     fi
     CONTAINER_REGISTRY="${CONTAINER_REGISTRY}" REMOTE_STACK_ROOT="${REMOTE_STACK_ROOT}" docker compose -f "${STACK_FILE}" up -d --remove-orphans
     echo "✅ Development deployment on server complete."
-    exit 0
+  else
+    echo "📦 Pulling latest images on server…"
+
+    if [ "\$DEPLOY_WEB" -eq 1 ]; then
+      docker pull "${WEB_IMAGE_REPO}:${ENV}-latest"
+    fi
+
+    if [ "\$DEPLOY_BACKEND" -eq 1 ]; then
+      docker pull "${BACKEND_IMAGE_REPO}:${ENV}-latest"
+    fi
+
+    if [ "\$DEPLOY_WEB" -eq 1 ] || [ "\$DEPLOY_BACKEND" -eq 1 ]; then
+      echo "🔄 Re-deploying stack: ${STACK_NAME}"
+      docker stack deploy --with-registry-auth -c "${STACK_FILE}" "${STACK_NAME}"
+    fi
+
+    echo "✅ Deployment on server complete."
   fi
 
-  echo "📦 Pulling latest images on server…"
-
-  if [ "\$DEPLOY_WEB" -eq 1 ]; then
-    docker pull "${WEB_IMAGE_REPO}:${ENV}-latest"
+  if [ "${SKIP_NODE_CLEANUP:-0}" != "1" ]; then
+    echo "🧹 Removing unused Docker data older than ${DOCKER_PRUNE_UNTIL:-168h} from the node…"
+    docker image prune -af --filter "until=${DOCKER_PRUNE_UNTIL:-168h}" || true
+    docker builder prune -af --filter "until=${DOCKER_PRUNE_UNTIL:-168h}" || true
   fi
-
-  if [ "\$DEPLOY_BACKEND" -eq 1 ]; then
-    docker pull "${BACKEND_IMAGE_REPO}:${ENV}-latest"
-  fi
-
-  if [ "\$DEPLOY_WEB" -eq 1 ] || [ "\$DEPLOY_BACKEND" -eq 1 ]; then
-    echo "🔄 Re-deploying stack: ${STACK_NAME}"
-    docker stack deploy --with-registry-auth -c "${STACK_FILE}" "${STACK_NAME}"
-  fi
-
-  echo "✅ Deployment on server complete."
 EOF
+
+if [ "${SKIP_REGISTRY_CLEANUP:-0}" = "1" ]; then
+  echo "⚠️  Skipping registry cleanup because SKIP_REGISTRY_CLEANUP=1"
+elif ! "${SCRIPT_DIR}/cleanup-vultr-registry.sh"; then
+  echo "⚠️  Registry cleanup failed; the deployment itself succeeded."
+fi
 
 echo ""
 echo "🎉 Full deployment finished successfully!"

@@ -8,7 +8,7 @@ import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {TopicBlockContent} from "@/components/topic-block-content";
-import {TopicBlockHistory} from "@/components/topic-block-history";
+import {TopicBlockTools} from "@/components/topic-block-tools";
 import {TopicBlockInsertButton} from "@/components/topic-block-insert-button";
 import {patch, post} from "@/utils/react/fetch";
 
@@ -20,9 +20,10 @@ function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
 }
 
-function BlockForm({topicId, blockId, draft, blockNumber, order, types, canChangeType, saving, error, onChange, onSave, onCancel, shaking, onShakeEnd}: {
+function BlockForm({topicId, blockId, commentCount, draft, blockNumber, order, types, canChangeType, saving, error, onChange, onSave, onCancel, shaking, onShakeEnd}: {
     topicId: string
     blockId?: string
+    commentCount?: number
     draft: Draft
     blockNumber?: string
     order?: string
@@ -62,9 +63,9 @@ function BlockForm({topicId, blockId, draft, blockNumber, order, types, canChang
             autoFocus
         />}
         {blockNumber && <span className="absolute top-3 right-full mr-2 text-[10px] whitespace-nowrap text-muted-foreground">{blockNumber}</span>}
-        {blockNumber && blockId && <TopicBlockHistory
+        {blockNumber && blockId && <TopicBlockTools
             topicId={topicId}
-            block={{id: blockId, blockNumber, typeId: draft.typeId, content: draft.content, order: order ?? "n"}}
+            block={{id: blockId, blockNumber, typeId: draft.typeId, content: draft.content, order: order ?? "n", commentCount: commentCount ?? 0}}
             buttonClassName="-translate-x-3"
         />}
         {error && <p className="text-xs text-destructive">{error}</p>}
@@ -227,7 +228,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             onDragEnd={() => setDraggedBlock(null)}
             className={draggedBlock === block.blockNumber ? "opacity-50" : ""}
         >{editingId === block.id ? <BlockForm
-            key={block.id} topicId={topicId} blockId={block.id} draft={draft} types={blockTypes} saving={saving} error={error}
+            key={block.id} topicId={topicId} blockId={block.id} commentCount={block.commentCount} draft={draft} types={blockTypes} saving={saving} error={error}
             canChangeType={false}
             blockNumber={block.blockNumber}
             order={block.order}
@@ -254,7 +255,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 </span>
                 <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
             </article>
-            <TopicBlockHistory topicId={topicId} block={block}/>
+            <TopicBlockTools topicId={topicId} block={block}/>
         </div>}
         {newDraft && insertAfter === block.blockNumber && <BlockForm topicId={topicId} draft={draft} types={blockTypes} canChangeType saving={saving} error={error} onChange={setDraft} onSave={() => void save()} onCancel={cancel} shaking={shaking} onShakeEnd={() => setShaking(false)}/>}
         {index < blocks.length - 1 && (editingId === null && !newDraft && !reordered

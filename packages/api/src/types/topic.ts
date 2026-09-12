@@ -30,6 +30,7 @@ export type TopicBlock = {
     typeId: BlockType["id"]
     content: string
     order: string
+    commentCount: number
 }
 
 export type TopicBlocksOutput = {
@@ -43,6 +44,31 @@ export type TopicBlockVersion = TopicBlock & {
         id: string
         username: string
     }
+}
+
+export type BlockComment = {
+    id: string
+    commentNumber: string
+    blockVersionId: string
+    content: string
+    createdAt: string
+    author: {
+        id: string
+        username: string
+    }
+}
+
+export type BlockCommentsOutput = {
+    comments: BlockComment[]
+}
+
+export type CreateBlockCommentInput = {
+    blockVersionId: string
+    content: string
+}
+
+export type CreateBlockCommentOutput = {
+    comment: BlockComment
 }
 
 export type TopicBlockVersionsOutput = {
