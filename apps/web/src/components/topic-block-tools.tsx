@@ -2,13 +2,14 @@
 
 import {useState, type MouseEvent} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput} from "@cabildo-abierto/api";
+import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput} from "@cabildo-abierto/api";
 import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
 import {TopicBlockHistory} from "@/components/topic-block-history";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
+import {useToast} from "@/components/ui/toast";
 
 export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
     ["topic", topicId, "block", blockNumber, "versions"] as const;
@@ -29,6 +30,8 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
     const [historyOpen, setHistoryOpen] = useState(false);
     const [selectedVersion, setSelectedVersion] = useState<TopicBlockVersion | null>(null);
     const [previewVersion, setPreviewVersion] = useState<TopicBlockVersion | null>(null);
+    const [rejectionVersion, setRejectionVersion] = useState<TopicBlockVersion | null>(null);
+    const {toast} = useToast();
     const [addedCommentCounts, setAddedCommentCounts] = useState<ReadonlyMap<string, number>>(new Map());
     const [addedCommentTotal, setAddedCommentTotal] = useState(0);
     const queryClient = useQueryClient();
@@ -71,11 +74,41 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
                 setAddedCommentTotal(current => current + 1);
                 setAddedCommentCounts(current => {
                     const next = new Map(current);
-                    next.set(block.id, (next.get(block.id) ?? 0) + 1);
+                    next.set(input.blockVersionId, (next.get(input.blockVersionId) ?? 0) + 1);
                     return next;
                 });
             }
+            if (input.reject) {
+                setRejectionVersion(null);
+                void queryClient.invalidateQueries({queryKey: versionsKey});
+            }
         },
+    });
+    const reactionMutation = useMutation({
+        mutationFn: async ({version, input}: {version: TopicBlockVersion; input: CreateBlockReactionInput}) => {
+            const result = await post<CreateBlockReactionInput, unknown>(
+                `/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/versions/${encodeURIComponent(version.id)}/reactions`, input,
+            );
+            if ("error" in result) throw new Error(result.error);
+        },
+        onSuccess: () => {
+            void queryClient.invalidateQueries({queryKey: versionsKey});
+        },
+        onError: error => toast({title: "No pudimos registrar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
+    });
+    const cancelReactionMutation = useMutation({
+        mutationFn: async ({version, deleteReason}: {version: TopicBlockVersion; deleteReason: boolean}) => {
+            const result = await del<unknown>(
+                `/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/versions/${encodeURIComponent(version.id)}/reactions`,
+                {deleteReason},
+            );
+            if ("error" in result) throw new Error(result.error);
+        },
+        onSuccess: () => {
+            void queryClient.invalidateQueries({queryKey: versionsKey});
+            void queryClient.invalidateQueries({queryKey: commentsKey});
+        },
+        onError: error => toast({title: "No pudimos cancelar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
     });
     const deleteMutation = useMutation({
         mutationFn: async (commentId: string) => {
@@ -86,12 +119,15 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
         onSuccess: commentId => {
             queryClient.setQueryData<BlockComment[]>(commentsKey, current => current?.map(comment =>
                 comment.id === commentId ? {...comment, deleted: true} : comment));
+            void queryClient.invalidateQueries({queryKey: commentsKey});
+            void queryClient.invalidateQueries({queryKey: versionsKey});
         },
     });
     const toggleComments = (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         const nextOpen = !commentsOpen;
         setCommentsOpen(nextOpen);
+        if (!nextOpen) setRejectionVersion(null);
         setSelectedVersion(null);
         setPreviewVersion(null);
     };
@@ -101,16 +137,26 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
         setHistoryOpen(nextOpen);
     };
     const selectVersion = (version: TopicBlockVersion) => {
+        setRejectionVersion(null);
         setCommentsOpen(true);
         setPreviewVersion(null);
         setSelectedVersion(current => current?.id === version.id ? null : version);
     };
-    const publish = async (content: string, replyToId?: string): Promise<boolean> => {
-        const input: CreateBlockCommentInput = {blockVersionId: block.id, replyToId, content};
+    const publish = async (content: string, replyToId?: string, blockVersionId = block.id, reject = false): Promise<boolean> => {
+        const input: CreateBlockCommentInput = {blockVersionId, replyToId, content, reject};
         try { await publishMutation.mutateAsync(input); } catch { return false; }
         setSelectedVersion(null);
         setPreviewVersion(null);
         return true;
+    };
+    const acceptVersion = (version: TopicBlockVersion) => {
+        reactionMutation.mutate({version, input: {type: "accept"}});
+    };
+    const rejectVersion = (version: TopicBlockVersion) => {
+        setRejectionVersion(version);
+        setSelectedVersion(version);
+        setPreviewVersion(null);
+        setCommentsOpen(true);
     };
 
     const comments = commentsQuery.data ?? null;
@@ -139,10 +185,13 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
             </Button>
         </div>
         {commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
-            filteredVersion={filteredVersion} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
+            filteredVersion={filteredVersion} rejectionVersion={rejectionVersion} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
+            onCancelRejection={() => setRejectionVersion(null)}
             onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>} 
         {historyOpen && <TopicBlockHistory block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
             selectedVersionId={selectedVersion?.id ?? null} addedCommentCounts={addedCommentCounts}
-            onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}/>}
+            onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
+            onAccept={acceptVersion} onReject={rejectVersion}
+            onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>}
     </div>;
 }

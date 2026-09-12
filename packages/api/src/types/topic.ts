@@ -39,8 +39,14 @@ export type TopicBlocksOutput = {
 }
 
 export type TopicBlockVersion = TopicBlock & {
+    editId: string
     createdAt: string
     message: string | null
+    rejected: boolean
+    current: boolean
+    acceptCount: number
+    rejectCount: number
+    userReaction: "accept" | "reject" | null
     author: {
         id: string
         username: string
@@ -54,6 +60,7 @@ export type BlockComment = {
     rootId: string
     replyToId: string
     directReplyCount: number
+    rejection: boolean
     deleted: boolean
     content: string
     createdAt: string
@@ -71,6 +78,15 @@ export type CreateBlockCommentInput = {
     blockVersionId: string
     replyToId?: string
     content: string
+    reject?: boolean
+}
+
+export type CreateBlockReactionInput = {
+    type: "accept"
+}
+
+export type DeleteBlockReactionInput = {
+    deleteReason?: boolean
 }
 
 export type CreateBlockCommentOutput = {

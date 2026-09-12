@@ -70,6 +70,6 @@ export type DB = {
         id: string;
         type: string;
         subject_id: string;
-        reason_id: string;
+        reason_id: string | null;
     };
 };

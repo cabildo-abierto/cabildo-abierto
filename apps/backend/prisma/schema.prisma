@@ -168,8 +168,8 @@ model Reaction {
   subjectId String @map("subject_id")
   subject   Record @relation("ReactionSubject", fields: [subjectId], references: [id])
 
-  reasonId String  @map("reason_id")
-  reason   Comment @relation(fields: [reasonId], references: [id])
+  reasonId String?  @map("reason_id")
+  reason   Comment? @relation(fields: [reasonId], references: [id])
 
   record Record @relation("ReactionRecord", fields: [id], references: [id])
 

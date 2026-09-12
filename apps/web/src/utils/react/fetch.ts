@@ -70,9 +70,9 @@ export async function patch<Body, Output={}>(route: string, body: Body): PostOut
     }
 }
 
-export async function del<Output={}>(route: string): PostOutput<Output> {
+export async function del<Output={}>(route: string, body?: unknown): PostOutput<Output> {
     try {
-        const res = await fetchBackend({route, method: "DELETE", credentials: "include"});
+        const res = await fetchBackend({route, method: "DELETE", credentials: "include", body});
         return await res.json();
     } catch {
         return {success: false, error: "Error en la conexión."};

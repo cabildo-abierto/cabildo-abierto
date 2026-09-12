@@ -23,6 +23,7 @@
     "start:worker-mirror": "SERVICE_NAME=worker-mirror node  dist/worker-mirror.js",
     "script": "tsx watch --clear-screen=false src/scripts/script.ts | pino-pretty",
     "script:once": "tsx src/scripts/script.ts | pino-pretty",
+    "script:create-test-users": "tsx src/scripts/create-test-users.ts",
     "script:sync-ca-users": "tsx src/scripts/sync-ca-users.ts | pino-pretty",
     "build": "tsup src/index.ts",
     "typecheck": "tsc --noEmit",

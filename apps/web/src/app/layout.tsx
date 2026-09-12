@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import {AuthProvider} from "@/components/auth-provider";
 import {QueryProvider} from "@/components/query-provider";
 import {rootMetadata} from "@/utils/metadata";
+import {ToastProvider} from "@/components/ui/toast";
 
 export const metadata = rootMetadata;
 
@@ -38,7 +39,7 @@ export default function RootLayout({
         </head>
         <body>
             <QueryProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <ToastProvider><AuthProvider>{children}</AuthProvider></ToastProvider>
             </QueryProvider>
         </body>
     </html>

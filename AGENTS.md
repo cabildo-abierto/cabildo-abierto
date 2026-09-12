@@ -12,3 +12,4 @@ Code instructions:
 - Always ask before adding a new dependency.
 - Don't add tests unless asked explicitly.
 - Always use cn to join class names.
+- Never create or edit migrations unless explicitly asked.
