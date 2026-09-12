@@ -10,6 +10,9 @@ import {TopicBlockHistory} from "@/components/topic-block-history";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 
+export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
+    ["topic", topicId, "block", blockNumber, "versions"] as const;
+
 export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: controlledCommentsOpen, onCommentsOpenChange}: {
     topicId: string;
     block: TopicBlock;
@@ -30,7 +33,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
     const [addedCommentTotal, setAddedCommentTotal] = useState(0);
     const queryClient = useQueryClient();
     const commentsKey = ["topic", topicId, "block", block.blockNumber, "comments"] as const;
-    const versionsKey = ["topic", topicId, "block", block.blockNumber, "versions"] as const;
+    const versionsKey = topicBlockVersionsKey(topicId, block.blockNumber);
     const commentsQuery = useQuery({
         queryKey: commentsKey,
         queryFn: async () => {

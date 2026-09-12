@@ -76,12 +76,12 @@ export default function TopicPage() {
     </AlertDialog>;
 
     return <TopicView topic={topic} action={editButton}>
-        <div className="space-y-2">{blocks.map(block => <TopicBlockView
-            key={block.id}
-            topicId={topic.id}
-            block={block}
-            commentsOpen={openCommentsBlockId === block.id}
-            onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
-        />)}</div>
+        {blocks.length === 0 ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p> : <div>{blocks.map(block => <TopicBlockView
+                key={block.id}
+                topicId={topic.id}
+                block={block}
+                commentsOpen={openCommentsBlockId === block.id}
+                onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
+            />)}</div>}
     </TopicView>;
 }

@@ -46,6 +46,7 @@ export function TopicBlockHistory({block, versions, loading, error, selectedVers
                             <ChatCircleIcon className="size-3"/><span>{commentCount}</span>
                         </Button>
                     </div>
+                    {version.message && <p className="text-sm text-foreground">{version.message}</p>}
                     <TopicBlockContent block={version}/>
                 </li>;
             })}

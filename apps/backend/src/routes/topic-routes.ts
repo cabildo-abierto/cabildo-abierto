@@ -1,11 +1,12 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
-import {sql} from "kysely";
-import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateTopicInput, CreateTopicOutput, SaveBlockInput, SaveBlockOutput, SaveBlockReorderInput, SaveBlockReorderOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
+import {sql, type Kysely, type Transaction} from "kysely";
+import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
+import {isOrder} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
+import type {DB} from "#/db/types.js";
 import {requireSession, requiredUser} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
-import {applyReorders, orderBetween, permutationFor} from "#/topics/block-order.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
 
@@ -13,74 +14,46 @@ type StoredTopicBlock = {
     id: string;
     blockNumber: string;
     typeId: BlockType["id"];
-    content: string | null;
-    initialOrder: string;
-    createdAt: Date;
+    content: string;
+    order: string;
     commentCount: number;
 };
 
-async function topicBlocks(ctx: AppContext, topicId: string): Promise<TopicBlock[]> {
-    const [blockResult, reorders] = await Promise.all([
-        sql<StoredTopicBlock>`
-            WITH ranked_versions AS (
-                SELECT
-                    block_version.id,
-                    block_version.block_number AS "blockNumber",
-                    block.type_id AS "typeId",
-                    block_version.content,
-                    FIRST_VALUE(block_version.order) OVER (
-                        PARTITION BY block_version.topic_id, block_version.block_number
-                        ORDER BY record.created_at ASC, record.id ASC
-                    ) AS "initialOrder",
-                    MIN(record.created_at) OVER (
-                        PARTITION BY block_version.topic_id, block_version.block_number
-                    ) AS "createdAt",
-                    ROW_NUMBER() OVER (
-                        PARTITION BY block_version.topic_id, block_version.block_number
-                        ORDER BY record.created_at DESC, record.id DESC
-                    ) AS version_rank,
-                    (
-                        SELECT COUNT(*)::int
-                        FROM comment
-                        INNER JOIN block_version AS commented_version ON commented_version.id = comment.reply_to_id
-                        WHERE commented_version.topic_id = block_version.topic_id
-                          AND commented_version.block_number = block_version.block_number
-                    ) AS "commentCount"
-                FROM block_version
-                INNER JOIN block
-                    ON block.topic_id = block_version.topic_id
-                    AND block.block_number = block_version.block_number
-                INNER JOIN record ON record.id = block_version.id
-                WHERE block_version.topic_id = ${topicId}
-            )
-            SELECT id, "blockNumber", "typeId", content, "initialOrder", "createdAt", "commentCount"
-            FROM ranked_versions
-            WHERE version_rank = 1
-        `.execute(ctx.kysely),
-        ctx.kysely.selectFrom("block_reorder")
-            .innerJoin("record", "record.id", "block_reorder.id")
-            .select("block_reorder.permutation")
-            .where("block_reorder.topic_id", "=", topicId)
-            .orderBy("record.created_at", "asc")
-            .orderBy("record.id", "asc")
-            .execute(),
-    ]);
-    const ordered = applyReorders(
-        blockResult.rows.map(block => ({blockNumber: block.blockNumber, order: block.initialOrder, createdAt: block.createdAt})),
-        reorders.map(reorder => reorder.permutation),
-    );
-    const byNumber = new Map(blockResult.rows.map(block => [block.blockNumber, block]));
-    return ordered.map(position => {
-        const block = byNumber.get(position.blockNumber)!;
-        return {
-            id: block.id,
-            blockNumber: block.blockNumber,
-            typeId: block.typeId,
-            content: block.content ?? "",
-            order: position.order,
-            commentCount: block.commentCount,
-        };
-    });
+async function topicBlocks(database: Kysely<DB> | Transaction<DB>, topicId: string): Promise<TopicBlock[]> {
+    const blockResult = await sql<StoredTopicBlock>`
+        WITH ranked_versions AS (
+            SELECT
+                block_version.id,
+                block_version.block_number AS "blockNumber",
+                block.type_id AS "typeId",
+                block_version.content,
+                block_version.order,
+                block_version.deleted,
+                ROW_NUMBER() OVER (
+                    PARTITION BY block_version.topic_id, block_version.block_number
+                    ORDER BY record.created_at DESC, record.id DESC
+                ) AS version_rank,
+                (
+                    SELECT COUNT(*)::int
+                    FROM comment
+                    WHERE comment.topic_id = block_version.topic_id
+                      AND comment.block_number = block_version.block_number
+                      AND comment.reply_to_id = comment.root_id
+                ) AS "commentCount"
+            FROM block_version
+            INNER JOIN block
+                ON block.topic_id = block_version.topic_id
+                AND block.block_number = block_version.block_number
+            INNER JOIN edit ON edit.id = block_version.edit_id
+            INNER JOIN record ON record.id = edit.id
+            WHERE block_version.topic_id = ${topicId}
+        )
+        SELECT id, "blockNumber", "typeId", content, "order", "commentCount"
+        FROM ranked_versions
+        WHERE version_rank = 1 AND deleted = false
+        ORDER BY "order", "blockNumber"
+    `.execute(database);
+    return blockResult.rows;
 }
 
 function databaseCode(error: unknown): string | undefined {
@@ -88,7 +61,13 @@ function databaseCode(error: unknown): string | undefined {
     return typeof error.code === "string" ? error.code : undefined;
 }
 
-function blockContent(input: Partial<SaveBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+class TopicEditError extends Error {
+    constructor(readonly status: 400 | 409, message: string) {
+        super(message);
+    }
+}
+
+function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
     if (input.typeId !== "parrafo" && input.typeId !== "h1" && input.typeId !== "h2") return null;
     if (typeof input.content !== "string") return null;
     const content = input.typeId === "parrafo" ? input.content : input.content.trim();
@@ -142,7 +121,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
     router.get("/topics/:id/blocks", async (req, res) => {
         try {
             const [blocks, blockTypes] = await Promise.all([
-                topicBlocks(ctx, req.params.id),
+                topicBlocks(ctx.kysely, req.params.id),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -166,7 +145,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .innerJoin("block", join => join
                     .onRef("block.topic_id", "=", "block_version.topic_id")
                     .onRef("block.block_number", "=", "block_version.block_number"))
-                .innerJoin("record", "record.id", "block_version.id")
+                .innerJoin("edit", "edit.id", "block_version.edit_id")
+                .innerJoin("record", "record.id", "edit.id")
                 .innerJoin("user", "user.id", "record.author_id")
                 .select([
                     "block_version.id",
@@ -174,13 +154,16 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     "block.type_id as typeId",
                     "block_version.content",
                     "block_version.order",
+                    "edit.message",
                     "record.created_at as createdAt",
                     "user.id as authorId",
                     "user.username as authorUsername",
                     sql<number>`(
                         SELECT COUNT(*)::int
                         FROM comment
-                        WHERE comment.reply_to_id = block_version.id
+                        WHERE comment.root_id = block_version.edit_id
+                          AND comment.block_number = block_version.block_number
+                          AND comment.reply_to_id = comment.root_id
                     )`.as("commentCount"),
                 ])
                 .where("block_version.topic_id", "=", req.params.id)
@@ -200,6 +183,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     typeId: version.typeId as BlockType["id"],
                     content: version.content ?? "",
                     order: version.order,
+                    message: version.message,
                     createdAt: version.createdAt.toISOString(),
                     author: {id: version.authorId, username: version.authorUsername},
                     commentCount: Number(version.commentCount),
@@ -222,15 +206,21 @@ export const topicRoutes = (ctx: AppContext): Router => {
             if (!blockExists) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
 
             const comments = await ctx.kysely.selectFrom("comment")
-                .innerJoin("block_version", "block_version.id", "comment.root_id")
+                .innerJoin("block_version", join => join
+                    .onRef("block_version.edit_id", "=", "comment.root_id")
+                    .onRef("block_version.topic_id", "=", "comment.topic_id")
+                    .onRef("block_version.block_number", "=", "comment.block_number"))
                 .innerJoin("record", "record.id", "comment.id")
                 .innerJoin("user", "user.id", "record.author_id")
                 .select([
                     "comment.id",
                     "comment.comment_number as commentNumber",
-                    "comment.root_id as blockVersionId",
-                    "comment.root_id as rootId",
-                    "comment.reply_to_id as replyToId",
+                    "block_version.id as blockVersionId",
+                    "block_version.id as rootId",
+                    sql<string>`CASE
+                        WHEN comment.reply_to_id = comment.root_id THEN block_version.id
+                        ELSE comment.reply_to_id
+                    END`.as("replyToId"),
                     "record.deleted",
                     "comment.content",
                     "record.created_at as createdAt",
@@ -242,8 +232,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     )`.as("directReplyCount"),
                 ])
                 .where("comment.topic_id", "=", req.params.id)
-                .where("block_version.topic_id", "=", req.params.id)
-                .where("block_version.block_number", "=", req.params.blockNumber)
+                .where("comment.block_number", "=", req.params.blockNumber)
                 .orderBy("record.created_at", "desc")
                 .orderBy("record.id", "desc")
                 .execute();
@@ -271,12 +260,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const comment = await ctx.kysely.selectFrom("comment")
                 .innerJoin("record", "record.id", "comment.id")
-                .innerJoin("block_version", "block_version.id", "comment.root_id")
                 .select(["comment.id", "record.author_id"])
                 .where("comment.id", "=", req.params.commentId)
                 .where("comment.topic_id", "=", req.params.id)
-                .where("block_version.topic_id", "=", req.params.id)
-                .where("block_version.block_number", "=", req.params.blockNumber)
+                .where("comment.block_number", "=", req.params.blockNumber)
                 .executeTakeFirst();
             if (!comment) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
             if (comment.author_id !== user.id) return res.status(403).json({success: false, error: "Solo el autor puede eliminar este comentario."});
@@ -305,21 +292,23 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
         try {
             const version = await ctx.kysely.selectFrom("block_version")
-                .select("id")
+                .select(["id", "edit_id as editId"])
                 .where("id", "=", input.blockVersionId)
                 .where("topic_id", "=", topicId)
                 .where("block_number", "=", blockNumber)
                 .executeTakeFirst();
             if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
 
-            let replyToId = version.id;
-            let rootId = version.id;
+            let replyToId = version.editId;
             if (input.replyToId) {
                 const parentDepth = await sql<{depth: number}>`
                     WITH RECURSIVE ancestors AS (
                         SELECT id, reply_to_id, 1::int AS depth
                         FROM comment
-                        WHERE id = ${input.replyToId} AND topic_id = ${topicId} AND root_id = ${version.id}
+                        WHERE id = ${input.replyToId}
+                          AND topic_id = ${topicId}
+                          AND root_id = ${version.editId}
+                          AND block_number = ${blockNumber}
                         UNION ALL
                         SELECT comment.id, comment.reply_to_id, ancestors.depth + 1
                         FROM comment
@@ -350,17 +339,18 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     id,
                     topic_id: topicId,
                     comment_number: `c-${number}`,
-                    root_id: rootId,
+                    root_id: version.editId,
                     reply_to_id: replyToId,
                     content,
+                    block_number: blockNumber,
                 }).execute();
                 const record = await trx.selectFrom("record").select("created_at").where("id", "=", id).executeTakeFirstOrThrow();
                 return {
                     id,
                     commentNumber: `c-${number}`,
                     blockVersionId: version.id,
-                    rootId,
-                    replyToId,
+                    rootId: version.id,
+                    replyToId: input.replyToId ?? version.id,
                     directReplyCount: 0,
                     deleted: false,
                     content,
@@ -376,144 +366,135 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
     });
 
-    router.post("/topics/:id/blocks", requireSession(ctx), async (req, res) => {
+    router.post("/topics/:id/edits", requireSession(ctx), async (req, res) => {
         const user = requiredUser(req);
         const topicId = req.params.id;
-        if (typeof topicId !== "string") return res.status(400).json({success: false, error: "El tema no es válido."});
-        const parsed = blockContent((req.body ?? {}) as Partial<SaveBlockInput>);
-        if (!parsed) return res.status(400).json({success: false, error: "Ingresá contenido válido para el tipo de bloque seleccionado."});
+        const input = (req.body ?? {}) as Partial<SaveTopicEditInput>;
+        if (typeof topicId !== "string" || !Array.isArray(input.blocks) || input.blocks.length === 0) {
+            return res.status(400).json({success: false, error: "La edición no es válida."});
+        }
+        const parsedBlocks = input.blocks.map(block => {
+            if (!block || typeof block !== "object") return null;
+            const parsed = blockContent(block);
+            const existing = typeof block.id === "string" && typeof block.blockNumber === "string";
+            const newBlock = block.id === null && block.blockNumber === null;
+            if (!parsed || (!existing && !newBlock) || !isOrder(block.order)
+                || typeof block.deleted !== "boolean" || (newBlock && block.deleted)) return null;
+            return {...block, ...parsed};
+        });
+        if (parsedBlocks.some(block => block === null)) {
+            return res.status(400).json({success: false, error: "La edición contiene bloques inválidos."});
+        }
+        const requestedBlocks = parsedBlocks as SaveTopicEditInput["blocks"];
+        const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted);
+        if (visibleRequestedBlocks.some((block, index) => index > 0 && visibleRequestedBlocks[index - 1].order >= block.order)) {
+            return res.status(400).json({success: false, error: "El orden de los bloques no es válido."});
+        }
 
         try {
-            const currentBlocks = await topicBlocks(ctx, topicId);
-            const requestedAnchor = (req.body as Partial<SaveBlockInput>).insertAfterBlockNumber;
-            const anchorIndex = requestedAnchor === undefined
-                ? currentBlocks.length - 1
-                : requestedAnchor === null ? -1 : currentBlocks.findIndex(block => block.blockNumber === requestedAnchor);
-            if (requestedAnchor !== undefined && requestedAnchor !== null && anchorIndex === -1) {
-                return res.status(400).json({success: false, error: "No encontramos la posición donde insertar el bloque."});
-            }
-            const order = orderBetween(currentBlocks[anchorIndex]?.order ?? null, currentBlocks[anchorIndex + 1]?.order ?? null);
-            const block = await ctx.kysely.transaction().execute(async trx => {
-                const prefix = BLOCK_PREFIXES[parsed.typeId];
-                await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
-                const existing = await trx.selectFrom("block")
-                    .select("block_number")
-                    .where("topic_id", "=", topicId)
-                    .where("block_number", "like", `${prefix}-%`)
-                    .execute();
-                const number = existing.reduce((max, item) => {
-                    const value = Number(item.block_number.slice(prefix.length + 1));
-                    return Number.isInteger(value) ? Math.max(max, value) : max;
-                }, 0) + 1;
-                const id = randomUUID();
-                const blockNumber = `${prefix}-${number}`;
-                await trx.insertInto("block").values({
-                    topic_id: topicId,
-                    block_number: blockNumber,
-                    type_id: parsed.typeId,
-                }).execute();
-                await trx.insertInto("record").values({id, type_id: "block", author_id: user.id}).execute();
-                const created = await trx.insertInto("block_version").values({
-                    id,
-                    topic_id: topicId,
-                    block_number: blockNumber,
-                    content: parsed.content,
-                    order,
-                }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
-                return {...created, typeId: parsed.typeId, content: created.content ?? "", order, commentCount: 0};
+            const blocks = await ctx.kysely.transaction().execute(async trx => {
+                await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
+                const currentBlocks = await topicBlocks(trx, topicId);
+                const currentByNumber = new Map(currentBlocks.map(block => [block.blockNumber, block]));
+                const existingInputs = requestedBlocks.filter(block => block.blockNumber !== null);
+                const submittedNumbers = existingInputs.map(block => block.blockNumber!);
+                if (submittedNumbers.length !== currentBlocks.length
+                    || new Set(submittedNumbers).size !== submittedNumbers.length
+                    || submittedNumbers.some(blockNumber => !currentByNumber.has(blockNumber))) {
+                    throw new TopicEditError(409, "Los bloques cambiaron. Recargá el tema antes de guardar.");
+                }
+                for (const block of existingInputs) {
+                    const current = currentByNumber.get(block.blockNumber!)!;
+                    if (block.id !== current.id) {
+                        throw new TopicEditError(409, "Los bloques cambiaron. Recargá el tema antes de guardar.");
+                    }
+                    if (block.typeId !== current.typeId) {
+                        throw new TopicEditError(400, "No se puede cambiar el tipo de un bloque existente.");
+                    }
+                }
+
+                const changedExisting = existingInputs.filter(block => {
+                    const current = currentByNumber.get(block.blockNumber!)!;
+                    return block.deleted || block.content !== current.content || block.order !== current.order;
+                });
+                const newInputs = requestedBlocks.filter(block => block.blockNumber === null);
+                if (changedExisting.length === 0 && newInputs.length === 0) {
+                    throw new TopicEditError(400, "La edición no contiene cambios.");
+                }
+                const changedBlockCount = changedExisting.length + newInputs.length;
+                const message = typeof input.message === "string" ? input.message.trim() : null;
+                if (changedBlockCount > 1 && !message) {
+                    throw new TopicEditError(400, "Ingresá un mensaje para la edición multibloque.");
+                }
+                if (message && message.length > 500) {
+                    throw new TopicEditError(400, "El mensaje de edición no puede superar los 500 caracteres.");
+                }
+
+                const editId = randomUUID();
+                await trx.insertInto("record").values({id: editId, type_id: "edit", author_id: user.id}).execute();
+                await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
+
+                const nextNumberByType = new Map<BlockType["id"], number>();
+                for (const typeId of ["parrafo", "h1", "h2"] as const) {
+                    if (!newInputs.some(block => block.typeId === typeId)) continue;
+                    const prefix = BLOCK_PREFIXES[typeId];
+                    await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
+                    const existing = await trx.selectFrom("block")
+                        .select("block_number")
+                        .where("topic_id", "=", topicId)
+                        .where("block_number", "like", `${prefix}-%`)
+                        .execute();
+                    const max = existing.reduce((currentMax, item) => {
+                        const value = Number(item.block_number.slice(prefix.length + 1));
+                        return Number.isInteger(value) ? Math.max(currentMax, value) : currentMax;
+                    }, 0);
+                    nextNumberByType.set(typeId, max + 1);
+                }
+
+                const versions: Array<{
+                    id: string
+                    topic_id: string
+                    block_number: string
+                    content: string
+                    order: string
+                    edit_id: string
+                    deleted: boolean
+                }> = [];
+                for (const block of requestedBlocks) {
+                    let blockNumber = block.blockNumber;
+                    if (blockNumber === null) {
+                        const nextNumber = nextNumberByType.get(block.typeId)!;
+                        nextNumberByType.set(block.typeId, nextNumber + 1);
+                        blockNumber = `${BLOCK_PREFIXES[block.typeId]}-${nextNumber}`;
+                        await trx.insertInto("block").values({
+                            topic_id: topicId,
+                            block_number: blockNumber,
+                            type_id: block.typeId,
+                        }).execute();
+                    } else if (!changedExisting.some(changed => changed.blockNumber === blockNumber)) {
+                        continue;
+                    }
+                    versions.push({
+                        id: randomUUID(),
+                        topic_id: topicId,
+                        block_number: blockNumber,
+                        content: block.content,
+                        order: block.order,
+                        edit_id: editId,
+                        deleted: block.deleted,
+                    });
+                }
+                await trx.insertInto("block_version").values(versions).execute();
+                return topicBlocks(trx, topicId);
             });
-            const value: SaveBlockOutput = {block};
+            const value: SaveTopicEditOutput = {blocks};
             return res.status(201).json({success: true, value});
         } catch (error) {
-            const code = databaseCode(error);
-            if (code === "23503") return res.status(404).json({success: false, error: "No encontramos el tema o tipo de bloque."});
-            ctx.logger.pino.error({error, databaseCode: code}, "block creation failed");
-            return res.status(500).json({success: false, error: "No pudimos guardar el bloque."});
-        }
-    });
-
-    router.patch("/topics/:id/blocks/:blockId", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        const topicId = req.params.id;
-        const blockId = req.params.blockId;
-        if (typeof topicId !== "string" || typeof blockId !== "string") {
-            return res.status(400).json({success: false, error: "El tema o bloque no es válido."});
-        }
-        const parsed = blockContent((req.body ?? {}) as Partial<SaveBlockInput>);
-        if (!parsed) return res.status(400).json({success: false, error: "Ingresá contenido válido para el tipo de bloque seleccionado."});
-
-        try {
-            const current = await ctx.kysely.selectFrom("block_version")
-                .innerJoin("block", join => join
-                    .onRef("block.topic_id", "=", "block_version.topic_id")
-                    .onRef("block.block_number", "=", "block_version.block_number"))
-                .innerJoin("record", "record.id", "block_version.id")
-                .select(["block_version.block_number as blockNumber", "block.type_id as typeId", "block_version.order"])
-                .where("block_version.id", "=", blockId)
-                .where("block_version.topic_id", "=", topicId)
-                .orderBy("record.created_at", "asc")
-                .orderBy("record.id", "asc")
-                .executeTakeFirst();
-            if (!current) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
-            if (current.typeId !== parsed.typeId) {
-                return res.status(400).json({success: false, error: "No se puede cambiar el tipo de un bloque existente."});
+            if (error instanceof TopicEditError) {
+                return res.status(error.status).json({success: false, error: error.message});
             }
-
-            const created = await ctx.kysely.transaction().execute(async trx => {
-                const id = randomUUID();
-                await trx.insertInto("record").values({id, type_id: "block", author_id: user.id}).execute();
-                const version = await trx.insertInto("block_version").values({
-                    id,
-                    topic_id: topicId,
-                    block_number: current.blockNumber,
-                    content: parsed.content,
-                    order: current.order,
-                }).returning(["id", "block_number as blockNumber", "content"]).executeTakeFirstOrThrow();
-                return {...version, typeId: current.typeId as BlockType["id"], content: version.content ?? "", order: current.order};
-            });
-            const updatedBlocks = await topicBlocks(ctx, topicId);
-            const updatedBlock = updatedBlocks.find(block => block.blockNumber === created.blockNumber);
-            if (!updatedBlock) throw new Error("Updated block was not found");
-            const value: SaveBlockOutput = {block: updatedBlock};
-            return res.json({success: true, value});
-        } catch (error) {
-            const code = databaseCode(error);
-            if (code === "23503") return res.status(400).json({success: false, error: "El tipo de bloque no es válido."});
-            ctx.logger.pino.error({error, databaseCode: code}, "block update failed");
-            return res.status(500).json({success: false, error: "No pudimos guardar el bloque."});
-        }
-    });
-
-    router.post("/topics/:id/reorders", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        const topicId = req.params.id;
-        if (typeof topicId !== "string") return res.status(400).json({success: false, error: "El tema no es válido."});
-        const input = (req.body ?? {}) as Partial<SaveBlockReorderInput>;
-        if (!Array.isArray(input.blockNumbers) || input.blockNumbers.some(value => typeof value !== "string")) {
-            return res.status(400).json({success: false, error: "El orden no es válido."});
-        }
-        try {
-            const blocks = await topicBlocks(ctx, topicId);
-            const existing = new Set(blocks.map(block => block.blockNumber));
-            if (input.blockNumbers.length !== existing.size || new Set(input.blockNumbers).size !== existing.size || input.blockNumbers.some(number => !existing.has(number))) {
-                return res.status(409).json({success: false, error: "Los bloques cambiaron. Recargá el tema antes de guardar el orden."});
-            }
-            const permutation = permutationFor(input.blockNumbers);
-            await ctx.kysely.transaction().execute(async trx => {
-                const id = randomUUID();
-                await trx.insertInto("record").values({id, type_id: "block_reorder", author_id: user.id}).execute();
-                await trx.insertInto("block_reorder").values({
-                    id,
-                    topic_id: topicId,
-                    permutation: JSON.stringify(permutation),
-                }).execute();
-            });
-            const orderByNumber = new Map(permutation.map(item => [item.blockNumber, item.order]));
-            const value: SaveBlockReorderOutput = {blocks: input.blockNumbers.map(number => ({...blocks.find(block => block.blockNumber === number)!, order: orderByNumber.get(number)!}))};
-            return res.status(201).json({success: true, value});
-        } catch (error) {
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block reorder creation failed");
-            return res.status(500).json({success: false, error: "No pudimos guardar el reordenamiento."});
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic edit creation failed");
+            return res.status(500).json({success: false, error: "No pudimos guardar la edición."});
         }
     });
 

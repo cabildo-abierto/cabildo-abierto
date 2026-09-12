@@ -40,6 +40,7 @@ export type TopicBlocksOutput = {
 
 export type TopicBlockVersion = TopicBlock & {
     createdAt: string
+    message: string | null
     author: {
         id: string
         username: string
@@ -80,20 +81,20 @@ export type TopicBlockVersionsOutput = {
     versions: TopicBlockVersion[]
 }
 
-export type SaveBlockInput = {
+export type SaveTopicEditBlockInput = {
+    id: string | null
+    blockNumber: string | null
     typeId: BlockType["id"]
     content: string
-    insertAfterBlockNumber?: string | null
+    order: string
+    deleted: boolean
 }
 
-export type SaveBlockOutput = {
-    block: TopicBlock
+export type SaveTopicEditInput = {
+    blocks: SaveTopicEditBlockInput[]
+    message?: string | null
 }
 
-export type SaveBlockReorderInput = {
-    blockNumbers: string[]
-}
-
-export type SaveBlockReorderOutput = {
+export type SaveTopicEditOutput = {
     blocks: TopicBlock[]
 }

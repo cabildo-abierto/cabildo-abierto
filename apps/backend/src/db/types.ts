@@ -28,7 +28,7 @@ export type DB = {
         type_id: string;
         created_at: Generated<Timestamp>;
         author_id: string;
-        deleted: boolean;
+        deleted: Generated<boolean>;
     };
     record_type: {
         id: string;
@@ -38,13 +38,15 @@ export type DB = {
         id: string;
         topic_id: string;
         block_number: string;
-        content: string | null;
+        content: string;
         order: string;
+        edit_id: string;
+        deleted: Generated<boolean>;
     };
-    block_reorder: {
+    edit: {
         id: string;
         topic_id: string;
-        permutation: unknown;
+        message: string | null;
     };
     block: {
         topic_id: string;
@@ -62,6 +64,7 @@ export type DB = {
         root_id: string;
         reply_to_id: string;
         content: string;
+        block_number: string;
     };
     reaction: {
         id: string;

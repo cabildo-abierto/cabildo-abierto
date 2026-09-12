@@ -94,8 +94,8 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, o
         </p>}
         <div className="mt-4">
             {filteredVersion && <div className="mb-3 text-[10px] text-muted-foreground">
-                Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} por @{filteredVersion.author.username}{" "}
-                <Button type="button" variant="link" size="xs" className="inline-flex h-auto px-0 align-baseline text-[inherit]" onClick={onShowAll}>Ver todos</Button>
+                Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} de @{filteredVersion.author.username}.{" "}
+                <Button type="button" variant="link" size="xs" className="text-[10px] font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline" onClick={onShowAll}>Ver todos</Button>
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}

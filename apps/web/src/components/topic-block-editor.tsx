@@ -1,96 +1,67 @@
 "use client"
 
 import {forwardRef, useImperativeHandle, useState} from "react";
-import type {BlockType, SaveBlockInput, SaveBlockOutput, SaveBlockReorderInput, SaveBlockReorderOutput, TopicBlock} from "@cabildo-abierto/api";
-import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
+import {useQueryClient} from "@tanstack/react-query";
+import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock} from "@cabildo-abierto/api";
+import {orderBetween, permutationFor} from "@cabildo-abierto/utils";
+import {ArrowCounterClockwiseIcon, DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {TopicBlockContent} from "@/components/topic-block-content";
-import {TopicBlockTools} from "@/components/topic-block-tools";
+import {TopicBlockTools, topicBlockVersionsKey} from "@/components/topic-block-tools";
 import {TopicBlockInsertButton} from "@/components/topic-block-insert-button";
-import {patch, post} from "@/utils/react/fetch";
+import {TopicBlockEditForm} from "@/components/topic-block-edit-form";
+import {TopicEditActionsCard} from "@/components/topic-edit-actions-card";
+import {TopicEditActionButtons} from "@/components/topic-edit-action-buttons";
+import {post} from "@/utils/react/fetch";
 
-type Draft = {typeId: BlockType["id"]; content: string};
+type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
+type TopicEditState = {
+    savedBlocks: WorkingBlock[]
+    blocks: WorkingBlock[]
+    activeBlockNumber: string | null
+    showDeleted: boolean
+    message: string
+};
+type ChangeKind = "new" | "content" | "order" | null;
 
-function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
-    if (typeId === "h1") return <span className="inline-flex h-4 min-w-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">T1</span>;
-    if (typeId === "h2") return <span className="inline-flex h-4 min-w-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">T2</span>;
-    return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
+function persistedBlocks(blocks: TopicBlock[]): WorkingBlock[] {
+    return blocks.map(block => ({...block, isNew: false, deleted: false}));
 }
 
-function BlockForm({topicId, blockId, commentCount, draft, blockNumber, order, types, canChangeType, saving, error, onChange, onSave, onCancel, shaking, onShakeEnd}: {
-    topicId: string
-    blockId?: string
-    commentCount?: number
-    draft: Draft
-    blockNumber?: string
-    order?: string
-    types: BlockType[]
-    canChangeType: boolean
-    saving: boolean
-    error: string | null
-    onChange: (draft: Draft) => void
-    onSave: () => void
-    onCancel: () => void
-    shaking?: boolean
-    onShakeEnd?: () => void
-}) {
-    const changeType = (typeId: BlockType["id"] | null) => {
-        if (!typeId) return;
-        const content = typeId === "parrafo" ? draft.content : draft.content.replace(/[\r\n]+/g, " ");
-        onChange({typeId, content});
-    };
+function changeKind(block: WorkingBlock, savedByNumber: ReadonlyMap<string, WorkingBlock>): ChangeKind {
+    if (block.deleted) return null;
+    if (block.isNew) return block.content === "" ? null : "new";
+    const saved = savedByNumber.get(block.blockNumber);
+    if (!saved) return null;
+    if (block.content !== saved.content) return "content";
+    if (block.order !== saved.order) return "order";
+    return null;
+}
 
-    return <div
-        className={`group/block relative -mx-3 space-y-3 px-3 py-2 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
-        onAnimationEnd={onShakeEnd}
-    >
-        {draft.typeId === "parrafo" ? <Textarea
-            value={draft.content}
-            onChange={event => onChange({...draft, content: event.target.value})}
-            placeholder="Escribí un párrafo..."
-            className="min-h-[1lh] resize-none rounded-none border-0 bg-transparent p-0 text-sm leading-relaxed shadow-none focus-visible:border-transparent focus-visible:ring-0 md:text-sm dark:bg-transparent"
-            maxLength={20_000}
-            autoFocus
-        /> : <Input
-            value={draft.content}
-            onChange={event => onChange({...draft, content: event.target.value})}
-            placeholder={draft.typeId === "h1" ? "Título de sección" : "Título de subsección"}
-            className={`h-auto rounded-none border-0 bg-transparent px-0 py-0 font-semibold shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent ${draft.typeId === "h1" ? "text-xl md:text-xl" : "text-base md:text-base"}`}
-            maxLength={20_000}
-            autoFocus
-        />}
-        {blockNumber && <span className="absolute top-3 right-full mr-2 text-[10px] whitespace-nowrap text-muted-foreground">{blockNumber}</span>}
-        {blockNumber && blockId && <TopicBlockTools
-            topicId={topicId}
-            block={{id: blockId, blockNumber, typeId: draft.typeId, content: draft.content, order: order ?? "n", commentCount: commentCount ?? 0}}
-            buttonClassName="-translate-x-3"
-        />}
-        {error && <p className="text-xs text-destructive">{error}</p>}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-            {canChangeType ? <Select value={draft.typeId} onValueChange={changeType}>
-                    <SelectTrigger className="w-16 cursor-pointer" aria-label={`Tipo de bloque: ${types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}`}>
-                        <SelectValue><BlockTypeIcon typeId={draft.typeId}/></SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="w-max min-w-48">
-                        {types.map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
-                            <BlockTypeIcon typeId={type.id}/>
-                            <span>{type.name}</span>
-                        </SelectItem>)}
-                    </SelectContent>
-                </Select>
-                : <span className="inline-flex h-6 items-center gap-1.5 text-xs text-muted-foreground" aria-label={`Tipo de bloque: ${types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}`}>
-                    <BlockTypeIcon typeId={draft.typeId}/>
-                    <span>{types.find(type => type.id === draft.typeId)?.name ?? draft.typeId}</span>
-                </span>}
-            <div className="flex gap-2">
-                <Button type="button" variant="ghost" onClick={onCancel} disabled={saving}>Cancelar</Button>
-                <Button type="button" onClick={onSave} disabled={saving || !draft.content.trim()}>{saving ? "Guardando…" : "Guardar"}</Button>
-            </div>
-        </div>
-    </div>;
+function changeBarClass(kind: Exclude<ChangeKind, null>): string {
+    if (kind === "new") return "bg-green-500";
+    if (kind === "content") return "bg-yellow-500";
+    return "bg-blue-500";
+}
+
+function deactivateBlock(state: TopicEditState, nextActiveBlockNumber: string | null): TopicEditState {
+    const activeBlock = state.blocks.find(block => block.blockNumber === state.activeBlockNumber);
+    if (!activeBlock || activeBlock.blockNumber === nextActiveBlockNumber || activeBlock.content !== "") {
+        return {...state, activeBlockNumber: nextActiveBlockNumber};
+    }
+    if (activeBlock.isNew) {
+        return {
+            ...state,
+            blocks: state.blocks.filter(block => block.blockNumber !== activeBlock.blockNumber),
+            activeBlockNumber: nextActiveBlockNumber,
+        };
+    }
+    const saved = state.savedBlocks.find(block => block.blockNumber === activeBlock.blockNumber)!;
+    return {
+        ...state,
+        blocks: state.blocks.map(block => block.blockNumber === activeBlock.blockNumber ? {...saved, deleted: true} : block),
+        activeBlockNumber: nextActiveBlockNumber,
+    };
 }
 
 export type TopicBlockEditorHandle = {
@@ -98,176 +69,258 @@ export type TopicBlockEditorHandle = {
 };
 
 export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
-    const [blocks, setBlocks] = useState(initialBlocks);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [newDraft, setNewDraft] = useState(false);
-    const [insertAfter, setInsertAfter] = useState<string | null>(null);
-    const [savedOrder, setSavedOrder] = useState(() => initialBlocks.map(block => block.blockNumber));
+    const queryClient = useQueryClient();
+    const [edit, setEdit] = useState<TopicEditState>(() => {
+        const blocks = persistedBlocks(initialBlocks);
+        if (blocks.length === 0) {
+            const emptyParagraph: WorkingBlock = {
+                id: "new-empty-paragraph",
+                blockNumber: "new-empty-paragraph",
+                typeId: "parrafo",
+                content: "",
+                order: "n",
+                commentCount: 0,
+                isNew: true,
+                deleted: false,
+            };
+            return {savedBlocks: [], blocks: [emptyParagraph], activeBlockNumber: emptyParagraph.blockNumber, showDeleted: false, message: ""};
+        }
+        return {savedBlocks: blocks, blocks, activeBlockNumber: null, showDeleted: false, message: ""};
+    });
     const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
-    const [savingReorder, setSavingReorder] = useState(false);
-    const [reorderError, setReorderError] = useState<string | null>(null);
-    const [draft, setDraft] = useState<Draft>({typeId: "parrafo", content: ""});
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [shaking, setShaking] = useState(false);
 
-    const hasUnsavedChanges = () => {
-        if (newDraft) return draft.typeId !== "parrafo" || draft.content !== "";
-        const original = blocks.find(block => block.id === editingId);
-        return original ? original.typeId !== draft.typeId || original.content !== draft.content : false;
-    };
-    const reordered = blocks.some((block, index) => block.blockNumber !== savedOrder[index]);
-    const shakeActiveBlock = () => {
+    const savedByNumber = new Map(edit.savedBlocks.map(block => [block.blockNumber, block]));
+    const changedBlocks = edit.blocks.filter(block => changeKind(block, savedByNumber) !== null);
+    const newBlocks = edit.blocks.filter(block => block.isNew && !block.deleted);
+    const modifiedBlockCount = changedBlocks.length + newBlocks.filter(block => changeKind(block, savedByNumber) === null).length;
+    const deletedBlocks = edit.blocks.filter(block => block.deleted);
+    const hasChanges = changedBlocks.length > 0 || deletedBlocks.length > 0;
+    const affectedBlockCount = modifiedBlockCount + deletedBlocks.length;
+    const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
+    const requiresMessage = affectedBlockCount > 1;
+    const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
+    const hasInvalidBlock = edit.blocks.some(block => !block.deleted && (!block.content.trim()
+        || (block.typeId !== "parrafo" && /[\r\n]/.test(block.content))));
+
+    const shakeActions = () => {
         setShaking(false);
         requestAnimationFrame(() => setShaking(true));
     };
 
     useImperativeHandle(ref, () => ({
         canFinishEditing: () => {
-            if (!hasUnsavedChanges() && !reordered) return true;
-            shakeActiveBlock();
+            if (!hasChanges) return true;
+            shakeActions();
             return false;
         },
     }));
 
-    const edit = (block: TopicBlock) => {
-        setEditingId(block.id);
-        setNewDraft(false);
-        setInsertAfter(null);
-        setDraft({typeId: block.typeId, content: block.content});
+    const updateBlock = (updated: TopicBlock) => {
+        setEdit(current => ({
+            ...current,
+            blocks: current.blocks.map(block => block.blockNumber === updated.blockNumber
+                ? {...block, ...updated}
+                : block),
+        }));
         setError(null);
     };
+
+    const activateBlock = (blockNumber: string) => {
+        setEdit(current => deactivateBlock(current, blockNumber));
+        setError(null);
+    };
+
+    const startNewBlock = (after: string | null) => {
+        setEdit(current => {
+            const visibleBlocks = current.blocks.filter(block => !block.deleted);
+            const onlyEmptyParagraph = visibleBlocks.length === 1
+                && after === null
+                && visibleBlocks[0].isNew
+                && visibleBlocks[0].content === "";
+            const existingEmptyBlock = visibleBlocks.find(block => block.blockNumber === after && block.isNew && block.content === "");
+            if (onlyEmptyParagraph || existingEmptyBlock) {
+                return {...current, activeBlockNumber: (existingEmptyBlock ?? visibleBlocks[0]).blockNumber};
+            }
+            const previousActive = current.blocks.find(block => block.blockNumber === current.activeBlockNumber);
+            const visibleBeforeDeactivation = visibleBlocks;
+            const previousActiveIndex = previousActive && previousActive.content === ""
+                ? visibleBeforeDeactivation.findIndex(block => block.blockNumber === previousActive.blockNumber)
+                : -1;
+            const insertionAnchor = after === previousActive?.blockNumber && previousActiveIndex >= 0
+                ? visibleBeforeDeactivation[previousActiveIndex - 1]?.blockNumber ?? null
+                : after;
+            const deactivated = deactivateBlock(current, null);
+            const deactivatedVisibleBlocks = deactivated.blocks.filter(block => !block.deleted);
+            const anchorIndex = insertionAnchor === null ? -1 : deactivatedVisibleBlocks.findIndex(block => block.blockNumber === insertionAnchor);
+            const previousBlock = deactivatedVisibleBlocks[anchorIndex];
+            const nextBlock = deactivatedVisibleBlocks[anchorIndex + 1];
+            const localNumber = `new-${crypto.randomUUID()}`;
+            const block: WorkingBlock = {
+                id: localNumber,
+                blockNumber: localNumber,
+                typeId: "parrafo",
+                content: "",
+                order: orderBetween(previousBlock?.order ?? null, nextBlock?.order ?? null),
+                commentCount: 0,
+                isNew: true,
+                deleted: false,
+            };
+            const blocks = [...deactivated.blocks, block].sort((left, right) => left.order.localeCompare(right.order));
+            return {...deactivated, blocks, activeBlockNumber: localNumber};
+        });
+        setError(null);
+    };
+
+    const removeEmptyBlock = (blockNumber: string) => {
+        setEdit(current => {
+            const block = current.blocks.find(candidate => candidate.blockNumber === blockNumber);
+            if (!block || block.content !== "") return current;
+            return deactivateBlock({...current, activeBlockNumber: blockNumber}, null);
+        });
+    };
+
+    const restoreBlock = (blockNumber: string) => {
+        setEdit(current => {
+            const saved = current.savedBlocks.find(block => block.blockNumber === blockNumber);
+            if (!saved) return current;
+            const blocks = current.blocks.map(block => block.blockNumber === blockNumber ? saved : block)
+                .sort((left, right) => left.order.localeCompare(right.order));
+            return {...current, blocks};
+        });
+    };
+
+    const moveDraggedBlock = (target: string) => {
+        if (!draggedBlock || draggedBlock === target) return;
+        setEdit(current => {
+            const visibleBlocks = current.blocks.filter(block => !block.deleted);
+            const from = visibleBlocks.findIndex(block => block.blockNumber === draggedBlock);
+            const to = visibleBlocks.findIndex(block => block.blockNumber === target);
+            if (from === -1 || to === -1) return current;
+            const reordered = [...visibleBlocks];
+            const [moved] = reordered.splice(from, 1);
+            reordered.splice(to, 0, moved);
+            const orderByNumber = new Map(permutationFor(reordered.map(block => block.blockNumber))
+                .map(item => [item.blockNumber, item.order]));
+            const blocks = current.blocks.map(block => block.deleted ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
+                .sort((left, right) => left.order.localeCompare(right.order));
+            return {...current, blocks};
+        });
+    };
+
     const cancel = () => {
-        setEditingId(null);
-        setNewDraft(false);
+        setEdit(current => ({savedBlocks: current.savedBlocks, blocks: current.savedBlocks, activeBlockNumber: null, showDeleted: false, message: ""}));
         setError(null);
         setShaking(false);
     };
-    const requestEdit = (block: TopicBlock) => {
-        if (editingId === null && !newDraft) {
-            edit(block);
-            return;
-        }
-        if (hasUnsavedChanges()) {
-            shakeActiveBlock();
-            return;
-        }
-        edit(block);
-    };
+
     const save = async () => {
         setSaving(true);
         setError(null);
-        const input: SaveBlockInput = editingId ? draft : {...draft, insertAfterBlockNumber: insertAfter};
-        const result = editingId
-            ? await patch<SaveBlockInput, SaveBlockOutput>(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(editingId)}`, input)
-            : await post<SaveBlockInput, SaveBlockOutput>(`/topics/${encodeURIComponent(topicId)}/blocks`, input);
+        const input: SaveTopicEditInput = {
+            message: requiresMessage ? edit.message.trim() : null,
+            blocks: edit.blocks.map(block => ({
+                id: block.isNew ? null : block.id,
+                blockNumber: block.isNew ? null : block.blockNumber,
+                typeId: block.typeId,
+                content: block.content,
+                order: block.order,
+                deleted: block.deleted,
+            })),
+        };
+        const result = await post<SaveTopicEditInput, SaveTopicEditOutput>(`/topics/${encodeURIComponent(topicId)}/edits`, input);
         setSaving(false);
         if ("error" in result) {
             setError(result.error);
             return;
         }
-        setBlocks(current => {
-            if (editingId) return current.map(block => block.id === editingId ? result.value.block : block);
-            const anchorIndex = insertAfter === null ? -1 : current.findIndex(block => block.blockNumber === insertAfter);
-            const next = [...current];
-            next.splice(anchorIndex + 1, 0, result.value.block);
-            setSavedOrder(next.map(block => block.blockNumber));
-            return next;
-        });
-        cancel();
-    };
-
-    const startNewBlock = (after: string | null) => {
-        setDraft({typeId: "parrafo", content: ""});
-        setInsertAfter(after);
-        setNewDraft(true);
-        setError(null);
-    };
-
-    const moveDraggedBlock = (target: string) => {
-        if (!draggedBlock || draggedBlock === target) return;
-        setBlocks(current => {
-            const from = current.findIndex(block => block.blockNumber === draggedBlock);
-            const to = current.findIndex(block => block.blockNumber === target);
-            if (from === -1 || to === -1) return current;
-            const next = [...current];
-            const [moved] = next.splice(from, 1);
-            next.splice(to, 0, moved);
-            return next;
-        });
-    };
-
-    const saveReorder = async () => {
-        setSavingReorder(true);
-        setReorderError(null);
-        const input: SaveBlockReorderInput = {blockNumbers: blocks.map(block => block.blockNumber)};
-        const result = await post<SaveBlockReorderInput, SaveBlockReorderOutput>(`/topics/${encodeURIComponent(topicId)}/reorders`, input);
-        setSavingReorder(false);
-        if ("error" in result) {
-            setReorderError(result.error);
-            return;
+        for (const block of [...changedBlocks, ...deletedBlocks]) {
+            if (!block.isNew) void queryClient.invalidateQueries({queryKey: topicBlockVersionsKey(topicId, block.blockNumber)});
         }
-        setBlocks(result.value.blocks);
-        setSavedOrder(result.value.blocks.map(block => block.blockNumber));
+        const blocks = persistedBlocks(result.value.blocks);
+        setEdit({savedBlocks: blocks, blocks, activeBlockNumber: null, showDeleted: false, message: ""});
     };
 
-    return <div className="relative flex flex-1 flex-col gap-2">
-        {editingId === null && !newDraft && !reordered
-            ? <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2"><TopicBlockInsertButton onClick={() => startNewBlock(null)}/></div>
-            : null}
-        {newDraft && insertAfter === null && <BlockForm topicId={topicId} draft={draft} types={blockTypes} canChangeType saving={saving} error={error} onChange={setDraft} onSave={() => void save()} onCancel={cancel} shaking={shaking} onShakeEnd={() => setShaking(false)}/>}
-        {blocks.map((block, index) => <div
-            key={block.blockNumber}
-            draggable={editingId === null && !newDraft}
-            onDragStart={event => {
-                setDraggedBlock(block.blockNumber);
-                event.dataTransfer.effectAllowed = "move";
-            }}
-            onDragEnter={() => moveDraggedBlock(block.blockNumber)}
-            onDragOver={event => event.preventDefault()}
-            onDragEnd={() => setDraggedBlock(null)}
-            className={draggedBlock === block.blockNumber ? "opacity-50" : ""}
-        >{editingId === block.id ? <BlockForm
-            key={block.id} topicId={topicId} blockId={block.id} commentCount={block.commentCount} draft={draft} types={blockTypes} saving={saving} error={error}
-            canChangeType={false}
-            blockNumber={block.blockNumber}
-            order={block.order}
-            onChange={setDraft} onSave={() => void save()} onCancel={cancel}
-            shaking={shaking} onShakeEnd={() => setShaking(false)}
-        /> : <div className="group/block relative">
-            <article
-                className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
-                role="button"
-                tabIndex={0}
-                aria-label={`Editar bloque ${block.blockNumber}`}
-                onClick={() => { if (!reordered) requestEdit(block); }}
-                onKeyDown={event => {
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        if (!reordered) requestEdit(block);
-                    }
-                }}
-            >
-                <TopicBlockContent block={block}/>
-                <span className="pointer-events-none absolute top-3 right-full mr-2 inline-flex items-center gap-1 text-[10px] whitespace-nowrap text-muted-foreground opacity-0 transition-opacity group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100">
-                    <DotsSixVerticalIcon className="size-4" aria-hidden="true"/>
-                    {block.blockNumber}
-                </span>
-                <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
-            </article>
-            <TopicBlockTools topicId={topicId} block={block}/>
+    const visibleBlocks = edit.blocks.filter(block => !block.deleted || edit.showDeleted);
+    return <div className={`relative flex flex-1 flex-col ${edit.activeBlockNumber === null ? "gap-0" : "gap-2"}`}
+        onClick={event => {
+            if (event.target === event.currentTarget) startNewBlock(visibleBlocks.at(-1)?.blockNumber ?? null);
+        }}>
+        {!saving && (visibleBlocks.length === 0 || visibleBlocks[0].content !== "") && <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2">
+            <TopicBlockInsertButton onClick={() => startNewBlock(null)}/>
         </div>}
-        {newDraft && insertAfter === block.blockNumber && <BlockForm topicId={topicId} draft={draft} types={blockTypes} canChangeType saving={saving} error={error} onChange={setDraft} onSave={() => void save()} onCancel={cancel} shaking={shaking} onShakeEnd={() => setShaking(false)}/>}
-        {index < blocks.length - 1 && (editingId === null && !newDraft && !reordered
-            ? <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
-            : !newDraft || insertAfter !== block.blockNumber ? <div className="h-0" aria-hidden="true"/> : null)}</div>)}
-        {editingId === null && !newDraft && !reordered && <TopicBlockInsertButton
-            fillRemainingSpace
-            onClick={() => startNewBlock(blocks.at(-1)?.blockNumber ?? null)}
-        />}
-        {reorderError && <p className="text-xs text-destructive">{reorderError}</p>}
-        {reordered && <div className="sticky bottom-4 flex justify-end"><Button type="button" onClick={() => void saveReorder()} disabled={savingReorder}>
-            {savingReorder ? "Guardando…" : "Guardar reordenamiento"}
-        </Button></div>}
+        {visibleBlocks.map((block, index) => {
+            const kind = changeKind(block, savedByNumber);
+            const active = edit.activeBlockNumber === block.blockNumber;
+            return <div key={block.blockNumber} className="contents">
+                <div className="group/block relative">
+                    <div
+                        className={`relative ${draggedBlock === block.blockNumber ? "opacity-50" : ""}`}
+                        draggable={!saving && !block.deleted}
+                        onDragStart={event => {
+                            event.dataTransfer.setData("text/plain", block.blockNumber);
+                            event.dataTransfer.effectAllowed = "move";
+                            setDraggedBlock(block.blockNumber);
+                        }}
+                        onDragEnter={() => { if (!block.deleted) moveDraggedBlock(block.blockNumber); }}
+                        onDragOver={event => event.preventDefault()}
+                        onDragEnd={() => setDraggedBlock(null)}>
+                        {kind && <span className={`absolute top-2 bottom-2 -left-3 w-1 rounded-full ${changeBarClass(kind)}`} aria-hidden="true"/>}
+                        {block.deleted ? <div className="-mx-3 flex items-start gap-3 rounded-lg bg-muted/40 px-3 py-2 text-muted-foreground">
+                            <div className="min-w-0 flex-1 opacity-60"><TopicBlockContent block={block}/></div>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => restoreBlock(block.blockNumber)}>
+                                <ArrowCounterClockwiseIcon/>Restaurar
+                            </Button>
+                        </div>
+                        : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                        : <article
+                            className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Editar bloque ${block.blockNumber}`}
+                            onClick={() => activateBlock(block.blockNumber)}
+                            onKeyDown={event => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    activateBlock(block.blockNumber);
+                                }
+                            }}>
+                            <TopicBlockContent block={block}/>
+                            <span className="pointer-events-none absolute top-3 right-full mr-2 inline-flex items-center gap-1 text-[10px] whitespace-nowrap text-muted-foreground opacity-0 transition-opacity group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100">
+                                <DotsSixVerticalIcon className="size-4" aria-hidden="true"/>{!block.isNew && block.blockNumber}
+                            </span>
+                            <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
+                        </article>}
+                    </div>
+                    {active && singleChangedBlockNumber === block.blockNumber && <div
+                        className={`space-y-2 pt-2 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
+                        draggable={false} onDragStart={event => event.stopPropagation()} onAnimationEnd={() => setShaking(false)}>
+                        {error && <p className="text-xs text-destructive">{error}</p>}
+                        <TopicEditActionButtons saving={saving} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
+                    </div>}
+                    {!block.isNew && !block.deleted && <TopicBlockTools topicId={topicId} block={block} buttonClassName={active ? "-translate-x-3" : undefined}/>}
+                </div>
+                {!saving && !block.deleted && block.content !== "" && (index < visibleBlocks.length - 1
+                    ? visibleBlocks[index + 1].content !== "" && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
+                    : <TopicBlockInsertButton fillRemainingSpace onClick={() => startNewBlock(block.blockNumber)}/>)}
+            </div>;
+        })}
+        {showActionsCard && <TopicEditActionsCard
+            modifiedCount={modifiedBlockCount}
+            deletedBlockNumbers={deletedBlocks.map(block => block.blockNumber)}
+            showDeleted={edit.showDeleted}
+            message={edit.message}
+            requiresMessage={requiresMessage}
+            saving={saving}
+            saveDisabled={hasInvalidBlock || (requiresMessage && !edit.message.trim())}
+            error={error}
+            shaking={shaking}
+            onMessageChange={message => setEdit(current => ({...current, message}))}
+            onToggleDeleted={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}
+            onCancel={cancel}
+            onSave={() => void save()}
+            onShakeEnd={() => setShaking(false)}/>}
     </div>;
 });

@@ -37,7 +37,7 @@ model Topic {
 
   comments Comment[]
   blocks   Block[]
-  reorders BlockReorder[]
+  edits    Edit[]
 
   @@map("topic")
 }
@@ -50,15 +50,14 @@ model Record {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   authorId  String   @map("author_id")
 
-  author         User          @relation(fields: [authorId], references: [id])
-  type           RecordType    @relation(fields: [typeId], references: [id])
-  blockVersion   BlockVersion?
-  comment        Comment?      @relation("CommentRecord")
-  comments       Comment[]     @relation("CommentReplies")
-  rootOfComments Comment[]     @relation("CommentRoot")
-  reaction       Reaction?     @relation("ReactionRecord")
-  reactions      Reaction[]    @relation("ReactionSubject")
-  blockReorder   BlockReorder? @relation("BlockReorderRecord")
+  author         User       @relation(fields: [authorId], references: [id])
+  type           RecordType @relation(fields: [typeId], references: [id])
+  comment        Comment?   @relation("CommentRecord")
+  comments       Comment[]  @relation("CommentReplies")
+  rootOfComments Comment[]  @relation("CommentRoot")
+  reaction       Reaction?  @relation("ReactionRecord")
+  reactions      Reaction[] @relation("ReactionSubject")
+  edit           Edit?      @relation("EditRecord")
 
   deleted Boolean @default(false)
 
@@ -75,33 +74,41 @@ model RecordType {
 }
 
 model BlockVersion {
-  id          String @id @map("id")
+  id          String @id @default(uuid())
   topicId     String @map("topic_id")
   blockNumber String @map("block_number")
 
-  content String? @map("content")
+  content String @map("content")
 
   order String @map("order")
 
-  record Record @relation(fields: [id], references: [id])
+  editId String @map("edit_id")
 
+  edit  Edit  @relation(fields: [editId, topicId], references: [id, topicId])
   block Block @relation(fields: [topicId, blockNumber], references: [topicId, blockNumber])
 
+  deleted Boolean @default(false)
+
+  @@unique([editId, blockNumber])
   @@index([topicId, blockNumber])
   @@map("block_version")
 }
 
-model BlockReorder {
+model Edit {
   id      String @id @map("id")
   topicId String @map("topic_id")
 
-  permutation Json // {blockNumber: string; order: string}[]
+  blockVersions BlockVersion[]
+  comments      Comment[]
+
+  message String?
 
   topic  Topic  @relation(fields: [topicId], references: [id])
-  record Record @relation("BlockReorderRecord", fields: [id], references: [id])
+  record Record @relation("EditRecord", fields: [id], references: [id])
 
+  @@unique([id, topicId])
   @@index([topicId])
-  @@map("block_reorder")
+  @@map("edit")
 }
 
 model Block {
@@ -114,6 +121,7 @@ model Block {
   topic Topic @relation(fields: [topicId], references: [id])
 
   blockVersions BlockVersion[]
+  comments      Comment[]
 
   @@id([topicId, blockNumber])
   @@map("block")
@@ -141,6 +149,10 @@ model Comment {
   replyTo Record @relation("CommentReplies", fields: [replyToId], references: [id])
   record  Record @relation("CommentRecord", fields: [id], references: [id])
   root    Record @relation("CommentRoot", fields: [rootId], references: [id])
+  edit    Edit   @relation(fields: [rootId, topicId], references: [id, topicId])
+
+  blockNumber String @map("block_number")
+  block       Block  @relation(fields: [blockNumber, topicId], references: [blockNumber, topicId])
 
   justifiesRejections Reaction[]
 
