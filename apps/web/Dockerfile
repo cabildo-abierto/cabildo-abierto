@@ -33,6 +33,7 @@ RUN --mount=type=cache,id=pnpm-web-store-v2,target=/pnpm/store,uid=1001,gid=1001
     pnpm config set store-dir /pnpm/store && pnpm install --frozen-lockfile
 
 COPY --from=prepare --chown=cabildo:cabildo /repo/out/full/ ./
+COPY --from=prepare --chown=cabildo:cabildo /repo/tsconfig.base.json ./tsconfig.base.json
 
 ENV NODE_ENV=production
 
@@ -48,6 +49,7 @@ ENV NEXT_PUBLIC_WEB_VIEW=$NEXT_PUBLIC_WEB_VIEW
 RUN mkdir -p apps/web/.next/cache
 
 RUN --mount=type=cache,id=next-web-cache,target=/repo/apps/web/.next/cache,uid=1001,gid=1001 \
+    pnpm --filter @cabildo-abierto/utils build && \
     pnpm --filter web build
 
 

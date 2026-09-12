@@ -31,6 +31,7 @@ COPY --from=prepare /repo/out/full/ .
 COPY tsconfig.base.json /repo/.
 
 RUN pnpm -F api build
+RUN pnpm -F utils build
 RUN pnpm -F backend build
 RUN pnpm --filter backend --prod deploy /runtime
 

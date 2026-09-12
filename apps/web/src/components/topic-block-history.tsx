@@ -41,10 +41,11 @@ export function TopicBlockHistory({block, versions, loading, error, selectedVers
             {versions.map((version, index) => {
                 const commentCount = version.commentCount + (addedCommentCounts.get(version.id) ?? 0);
                 const selected = selectedVersionId === version.id;
-                return <li key={version.id} className="relative space-y-2"
+                return <li key={version.id} className="relative"
                     onMouseEnter={() => onPreview(version)} onMouseLeave={() => onPreview(null)}
                     onFocus={() => onPreview(version)}
-                    onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) onPreview(null); }}>
+                    onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) onPreview(null); }}
+                >
                     <span className={`absolute top-1.5 -left-[1.2rem] size-2 rounded-full ${version.rejected ? "bg-red-500" : "bg-green-500"}`} aria-label={version.rejected ? "Edición rechazada" : "Edición aceptada"}/>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                         <span className="font-medium text-muted-foreground">@{version.author.username}</span>
@@ -72,7 +73,11 @@ export function TopicBlockHistory({block, versions, loading, error, selectedVers
                             </Button>
                         </span>
                     </div>
-                    {version.message && <p className="text-sm text-foreground">{version.message}</p>}
+                    {version.message && <div className="flex justify-start pb-1">
+                        <div className={"rounded-md bg-muted px-2 py-0 text-[10px] font-medium leading-relaxed text-foreground whitespace-pre-wrap break-words"}>
+                            {version.message}
+                        </div>
+                    </div>}
                     <TopicBlockContent block={version}/>
                 </li>;
             })}
