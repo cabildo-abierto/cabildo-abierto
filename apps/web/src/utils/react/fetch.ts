@@ -4,7 +4,7 @@ import {APIResult} from "@cabildo-abierto/api";
 
 type FetchBackendProps = {
     route: string
-    method?: "GET" | "POST" | "PATCH"
+    method?: "GET" | "POST" | "PATCH" | "DELETE"
     credentials?: "include" | "omit"
     body?: any
     redirect?: "follow" | "error" | "manual"
@@ -64,6 +64,15 @@ export async function get<Output>(route: string): PostOutput<Output> {
 export async function patch<Body, Output={}>(route: string, body: Body): PostOutput<Output> {
     try {
         const res = await fetchBackend({route, method: "PATCH", credentials: "include", body});
+        return await res.json();
+    } catch {
+        return {success: false, error: "Error en la conexión."};
+    }
+}
+
+export async function del<Output={}>(route: string): PostOutput<Output> {
+    try {
+        const res = await fetchBackend({route, method: "DELETE", credentials: "include"});
         return await res.json();
     } catch {
         return {success: false, error: "Error en la conexión."};

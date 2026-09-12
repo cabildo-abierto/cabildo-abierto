@@ -50,6 +50,10 @@ export type BlockComment = {
     id: string
     commentNumber: string
     blockVersionId: string
+    rootId: string
+    replyToId: string
+    directReplyCount: number
+    deleted: boolean
     content: string
     createdAt: string
     author: {
@@ -64,6 +68,7 @@ export type BlockCommentsOutput = {
 
 export type CreateBlockCommentInput = {
     blockVersionId: string
+    replyToId?: string
     content: string
 }
 

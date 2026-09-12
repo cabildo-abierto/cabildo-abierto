@@ -28,6 +28,7 @@ export type DB = {
         type_id: string;
         created_at: Generated<Timestamp>;
         author_id: string;
+        deleted: boolean;
     };
     record_type: {
         id: string;
@@ -58,6 +59,7 @@ export type DB = {
         id: string;
         topic_id: string;
         comment_number: string;
+        root_id: string;
         reply_to_id: string;
         content: string;
     };

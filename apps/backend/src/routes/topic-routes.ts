@@ -222,17 +222,24 @@ export const topicRoutes = (ctx: AppContext): Router => {
             if (!blockExists) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
 
             const comments = await ctx.kysely.selectFrom("comment")
-                .innerJoin("block_version", "block_version.id", "comment.reply_to_id")
+                .innerJoin("block_version", "block_version.id", "comment.root_id")
                 .innerJoin("record", "record.id", "comment.id")
                 .innerJoin("user", "user.id", "record.author_id")
                 .select([
                     "comment.id",
                     "comment.comment_number as commentNumber",
-                    "comment.reply_to_id as blockVersionId",
+                    "comment.root_id as blockVersionId",
+                    "comment.root_id as rootId",
+                    "comment.reply_to_id as replyToId",
+                    "record.deleted",
                     "comment.content",
                     "record.created_at as createdAt",
                     "user.id as authorId",
                     "user.username as authorUsername",
+                    sql<number>`(
+                        SELECT count(*)::int FROM comment AS reply
+                        WHERE reply.reply_to_id = comment.id
+                    )`.as("directReplyCount"),
                 ])
                 .where("comment.topic_id", "=", req.params.id)
                 .where("block_version.topic_id", "=", req.params.id)
@@ -244,6 +251,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 id: comment.id,
                 commentNumber: comment.commentNumber,
                 blockVersionId: comment.blockVersionId,
+                rootId: comment.rootId,
+                replyToId: comment.replyToId,
+                directReplyCount: comment.directReplyCount,
+                deleted: comment.deleted,
                 content: comment.content,
                 createdAt: comment.createdAt.toISOString(),
                 author: {id: comment.authorId, username: comment.authorUsername},
@@ -252,6 +263,31 @@ export const topicRoutes = (ctx: AppContext): Router => {
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comments lookup failed");
             return res.status(500).json({success: false, error: "No pudimos cargar los comentarios."});
+        }
+    });
+
+    router.delete("/topics/:id/blocks/:blockNumber/comments/:commentId", requireSession(ctx), async (req, res) => {
+        const user = requiredUser(req);
+        try {
+            const comment = await ctx.kysely.selectFrom("comment")
+                .innerJoin("record", "record.id", "comment.id")
+                .innerJoin("block_version", "block_version.id", "comment.root_id")
+                .select(["comment.id", "record.author_id"])
+                .where("comment.id", "=", req.params.commentId)
+                .where("comment.topic_id", "=", req.params.id)
+                .where("block_version.topic_id", "=", req.params.id)
+                .where("block_version.block_number", "=", req.params.blockNumber)
+                .executeTakeFirst();
+            if (!comment) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
+            if (comment.author_id !== user.id) return res.status(403).json({success: false, error: "Solo el autor puede eliminar este comentario."});
+            await ctx.kysely.updateTable("record")
+                .set({deleted: true})
+                .where("id", "=", comment.id)
+                .execute();
+            return res.json({success: true});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comment deletion failed");
+            return res.status(500).json({success: false, error: "No pudimos eliminar el comentario."});
         }
     });
 
@@ -276,6 +312,27 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .executeTakeFirst();
             if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
 
+            let replyToId = version.id;
+            let rootId = version.id;
+            if (input.replyToId) {
+                const parentDepth = await sql<{depth: number}>`
+                    WITH RECURSIVE ancestors AS (
+                        SELECT id, reply_to_id, 1::int AS depth
+                        FROM comment
+                        WHERE id = ${input.replyToId} AND topic_id = ${topicId} AND root_id = ${version.id}
+                        UNION ALL
+                        SELECT comment.id, comment.reply_to_id, ancestors.depth + 1
+                        FROM comment
+                        INNER JOIN ancestors ON ancestors.reply_to_id = comment.id
+                    )
+                    SELECT max(depth)::int AS depth FROM ancestors
+                `.execute(ctx.kysely);
+                const depth = parentDepth.rows[0]?.depth;
+                if (!depth) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
+                if (depth >= 5) return res.status(400).json({success: false, error: "Los comentarios no pueden superar cinco niveles de profundidad."});
+                replyToId = input.replyToId;
+            }
+
             const created = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:comment`}))`.execute(trx);
                 const existing = await trx.selectFrom("comment")
@@ -293,11 +350,23 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     id,
                     topic_id: topicId,
                     comment_number: `c-${number}`,
-                    reply_to_id: version.id,
+                    root_id: rootId,
+                    reply_to_id: replyToId,
                     content,
                 }).execute();
                 const record = await trx.selectFrom("record").select("created_at").where("id", "=", id).executeTakeFirstOrThrow();
-                return {id, commentNumber: `c-${number}`, blockVersionId: version.id, content, createdAt: record.created_at.toISOString(), author: user};
+                return {
+                    id,
+                    commentNumber: `c-${number}`,
+                    blockVersionId: version.id,
+                    rootId,
+                    replyToId,
+                    directReplyCount: 0,
+                    deleted: false,
+                    content,
+                    createdAt: record.created_at.toISOString(),
+                    author: user,
+                };
             });
             const value: CreateBlockCommentOutput = {comment: created};
             return res.status(201).json({success: true, value});

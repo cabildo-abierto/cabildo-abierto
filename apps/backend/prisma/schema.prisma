@@ -50,14 +50,17 @@ model Record {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   authorId  String   @map("author_id")
 
-  author       User          @relation(fields: [authorId], references: [id])
-  type         RecordType    @relation(fields: [typeId], references: [id])
-  blockVersion BlockVersion?
-  comment      Comment?      @relation("CommentRecord")
-  comments     Comment[]     @relation("CommentReplies")
-  reaction     Reaction?     @relation("ReactionRecord")
-  reactions    Reaction[]    @relation("ReactionSubject")
-  blockReorder BlockReorder? @relation("BlockReorderRecord")
+  author         User          @relation(fields: [authorId], references: [id])
+  type           RecordType    @relation(fields: [typeId], references: [id])
+  blockVersion   BlockVersion?
+  comment        Comment?      @relation("CommentRecord")
+  comments       Comment[]     @relation("CommentReplies")
+  rootOfComments Comment[]     @relation("CommentRoot")
+  reaction       Reaction?     @relation("ReactionRecord")
+  reactions      Reaction[]    @relation("ReactionSubject")
+  blockReorder   BlockReorder? @relation("BlockReorderRecord")
+
+  deleted Boolean @default(false)
 
   @@map("record")
 }
@@ -97,8 +100,8 @@ model BlockReorder {
   topic  Topic  @relation(fields: [topicId], references: [id])
   record Record @relation("BlockReorderRecord", fields: [id], references: [id])
 
-  @@map("block_reorder")
   @@index([topicId])
+  @@map("block_reorder")
 }
 
 model Block {
@@ -130,12 +133,14 @@ model Comment {
   topicId       String @map("topic_id")
   commentNumber String @map("comment_number")
 
+  rootId    String @map("root_id")
   replyToId String @map("reply_to_id")
   content   String @map("content")
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   replyTo Record @relation("CommentReplies", fields: [replyToId], references: [id])
   record  Record @relation("CommentRecord", fields: [id], references: [id])
+  root    Record @relation("CommentRoot", fields: [rootId], references: [id])
 
   justifiesRejections Reaction[]
 

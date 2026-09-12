@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import type {BlockComment, TopicBlockVersion} from "@cabildo-abierto/api";
-import {useState} from "react";
-import {DotsThreeVerticalIcon, FlagIcon, KeyReturnIcon, ShareNetworkIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
+import {useState, type ReactNode} from "react";
+import {ChatCircleIcon, DotsThreeIcon, FlagIcon, ShareNetworkIcon, TrashIcon} from "@phosphor-icons/react";
 import {useAuth} from "@/components/auth-provider";
 import {Button} from "@/components/ui/button";
 import {
@@ -12,52 +12,77 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {Textarea} from "@/components/ui/textarea";
-import {formatTopicBlockDate} from "@/components/topic-block-date";
+import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block-date";
 import {Spinner} from "@/components/ui/spinner";
+import {CommentComposer} from "@/components/comment-composer";
 
-export function TopicBlockComments({comments, loading, error, filteredVersion, onShowAll, onPublish}: {
+export function TopicBlockComments({comments, loading, error, filteredVersion, onShowAll, onPublish, onDelete}: {
     comments: BlockComment[] | null
     loading: boolean
     error: string | null
     filteredVersion: TopicBlockVersion | null
     onShowAll: () => void
-    onPublish: (content: string) => Promise<boolean>
+    onPublish: (content: string, replyToId?: string) => Promise<boolean>
+    onDelete: (commentId: string) => Promise<boolean>
 }) {
     const {user, loading: authLoading} = useAuth();
-    const [content, setContent] = useState("");
-    const [publishing, setPublishing] = useState(false);
-    const publish = async () => {
-        setPublishing(true);
-        const published = await onPublish(content);
-        setPublishing(false);
-        if (published) setContent("");
-    };
+    const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const visibleComments = filteredVersion ? comments?.filter(comment => comment.blockVersionId === filteredVersion.id) : comments;
+    const commentsByParent = new Map<string, BlockComment[]>();
+    for (const comment of visibleComments ?? []) {
+        if (comment.replyToId === comment.blockVersionId) continue;
+        const children = commentsByParent.get(comment.replyToId) ?? [];
+        children.push(comment);
+        commentsByParent.set(comment.replyToId, children);
+    }
+    const rootComments = (visibleComments ?? []).filter(comment => comment.replyToId === comment.blockVersionId);
+    const hasVisibleDescendant = (commentId: string): boolean =>
+        (commentsByParent.get(commentId) ?? []).some(child => !child.deleted || hasVisibleDescendant(child.id));
+    const isRenderable = (comment: BlockComment) => !comment.deleted || hasVisibleDescendant(comment.id);
 
-    return <section className="mt-4 xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72" aria-label="Comentarios del bloque">
-        {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <div className="relative">
-            <Textarea value={content} onChange={event => setContent(event.target.value)} placeholder="Escribí un comentario…"
-                onKeyDown={event => {
-                    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
-                    event.preventDefault();
-                    if (!publishing && content.trim()) void publish();
-                }}
-                maxLength={20_000} className="min-h-[3lh] resize-none pb-8"/>
-            <div className="absolute right-1 bottom-1 flex items-center gap-1">
-                <Button type="button" variant="ghost" size="icon-lg" className="size-7 p-0"
-                    onClick={() => setContent("")} disabled={publishing || !content}
-                    aria-label="Cancelar comentario" title="Cancelar">
-                    <XIcon className="size-3"/>
-                </Button>
-                <Button type="button" variant="ghost" size="icon-lg"
-                    className="size-7 rounded-md p-0 hover:bg-muted dark:hover:bg-muted/50 [&_svg]:size-5"
-                    onClick={() => void publish()} disabled={publishing || !content.trim()}
-                    aria-label={publishing ? "Publicando comentario" : "Publicar comentario"} title="Publicar">
-                    <KeyReturnIcon/>
-                </Button>
-            </div>
-        </div> : <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+    const renderComment = (comment: BlockComment, depth: number): ReactNode => {
+        const children = commentsByParent.get(comment.id) ?? [];
+        const visibleChildren = children.filter(isRenderable);
+        const isReplyEditorOpen = activeReplyId === comment.id;
+        const cardClass = depth % 2 === 1 ? "bg-card" : "bg-muted/40";
+        return <li key={comment.id} className={`pl-1 pt-1 pb-0.5 pr-0.5 rounded-lg outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)] ${cardClass}`}>
+
+        <p className={`break-words p-1 text-sm leading-relaxed whitespace-pre-wrap ${comment.deleted ? "flex items-center gap-1 italic text-xs py-2 text-muted-foreground" : ""}`}>
+            {comment.deleted && <div className={"pb-0.5"}><TrashIcon className="size-3.5 shrink-0"/></div>}
+            {comment.deleted ? "Comentario eliminado" : comment.content}
+        </p>
+        {!comment.deleted && <div className="flex pl-1 items-center gap-2 text-xs text-muted-foreground pr-1 pb-1">
+            <span className="font-medium text-muted-foreground">@{comment.author.username}</span>
+            <time dateTime={comment.createdAt} title={formatTopicBlockDate(comment.createdAt)}>{formatRelativeDate(comment.createdAt)}</time>
+            {user && depth < 5 && <Button type="button" variant="ghost" size="sm" className="px-1 gap-0.5 text-muted-foreground"
+                                          onClick={() => {activeReplyId == null ? setActiveReplyId(comment.id) : setActiveReplyId(null)}}
+                                          aria-label={`Responder al comentario de @${comment.author.username} (${comment.directReplyCount} respuestas)`}
+                                          title="Responder">
+                <ChatCircleIcon className="size-3.5"/><span className="text-[10px] leading-none">{comment.directReplyCount}</span>
+            </Button>}
+            <DropdownMenu>
+                <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" className="ml-auto"/>}>
+                    <DotsThreeIcon/>
+                    <span className="sr-only">Acciones del comentario</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-max min-w-32">
+                    <DropdownMenuItem className="whitespace-nowrap"><ShareNetworkIcon/>Compartir</DropdownMenuItem>
+                    {user?.id !== comment.author.id && <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem>}
+                    {user?.id === comment.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap" onClick={() => void onDelete(comment.id)}><TrashIcon/>Eliminar</DropdownMenuItem>}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>}
+        {!comment.deleted && isReplyEditorOpen && <div className={"pb-1"}>
+            <CommentComposer replyTo={comment} onPublish={onPublish} onCancel={() => setActiveReplyId(null)}/>
+        </div>}
+        {visibleChildren.length > 0 && <ol className="space-y-2">
+            {visibleChildren.map(child => renderComment(child, depth + 1))}
+        </ol>}
+    </li>;
+    };
+
+    return <section className="mt-4 box-border min-w-0 max-w-full xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72" aria-label="Comentarios del bloque">
+        {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer onPublish={onPublish}/> : <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
         <div className="mt-4">
@@ -67,35 +92,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, o
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
-            {visibleComments && visibleComments.length > 0 && <ol className="space-y-4">
-                {visibleComments.map(comment => <li key={comment.id} className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-medium text-muted-foreground">@{comment.author.username}</span>
-                        <time dateTime={comment.createdAt}>{formatTopicBlockDate(comment.createdAt)}</time>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" className="ml-auto"/>}>
-                                <DotsThreeVerticalIcon/>
-                                <span className="sr-only">Acciones del comentario</span>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-max min-w-32">
-                                <DropdownMenuItem className="whitespace-nowrap">
-                                    <ShareNetworkIcon/>
-                                    Compartir
-                                </DropdownMenuItem>
-                                {user?.id !== comment.author.id && <DropdownMenuItem className="whitespace-nowrap">
-                                    <FlagIcon/>
-                                    Reportar
-                                </DropdownMenuItem>}
-                                {user?.id === comment.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap">
-                                    <TrashIcon/>
-                                    Eliminar
-                                </DropdownMenuItem>}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
-                </li>)}
-            </ol>}
+            {rootComments.some(isRenderable) && <ol className="space-y-4">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>}
         </div>
     </section>;
 }

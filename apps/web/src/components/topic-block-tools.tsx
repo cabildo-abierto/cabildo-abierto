@@ -7,7 +7,7 @@ import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
 import {TopicBlockHistory} from "@/components/topic-block-history";
-import {get, post} from "@/utils/react/fetch";
+import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 
 export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: controlledCommentsOpen, onCommentsOpenChange}: {
@@ -57,14 +57,32 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
             if ("error" in result) throw new Error(result.error);
             return result.value.comment;
         },
-        onSuccess: comment => {
-            queryClient.setQueryData<BlockComment[]>(commentsKey, current => [comment, ...(current ?? [])]);
-            setAddedCommentTotal(current => current + 1);
-            setAddedCommentCounts(current => {
-                const next = new Map(current);
-                next.set(block.id, (next.get(block.id) ?? 0) + 1);
-                return next;
+        onSuccess: (comment, input) => {
+            queryClient.setQueryData<BlockComment[]>(commentsKey, current => {
+                const next = (current ?? []).map(existing => existing.id === input.replyToId
+                    ? {...existing, directReplyCount: existing.directReplyCount + 1}
+                    : existing);
+                return [comment, ...next];
             });
+            if (!input.replyToId) {
+                setAddedCommentTotal(current => current + 1);
+                setAddedCommentCounts(current => {
+                    const next = new Map(current);
+                    next.set(block.id, (next.get(block.id) ?? 0) + 1);
+                    return next;
+                });
+            }
+        },
+    });
+    const deleteMutation = useMutation({
+        mutationFn: async (commentId: string) => {
+            const result = await del(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/comments/${encodeURIComponent(commentId)}`);
+            if ("error" in result) throw new Error(result.error);
+            return commentId;
+        },
+        onSuccess: commentId => {
+            queryClient.setQueryData<BlockComment[]>(commentsKey, current => current?.map(comment =>
+                comment.id === commentId ? {...comment, deleted: true} : comment));
         },
     });
     const toggleComments = (event: MouseEvent<HTMLButtonElement>) => {
@@ -84,8 +102,8 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
         setPreviewVersion(null);
         setSelectedVersion(current => current?.id === version.id ? null : version);
     };
-    const publish = async (content: string): Promise<boolean> => {
-        const input: CreateBlockCommentInput = {blockVersionId: block.id, content};
+    const publish = async (content: string, replyToId?: string): Promise<boolean> => {
+        const input: CreateBlockCommentInput = {blockVersionId: block.id, replyToId, content};
         try { await publishMutation.mutateAsync(input); } catch { return false; }
         setSelectedVersion(null);
         setPreviewVersion(null);
@@ -94,7 +112,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
 
     const comments = commentsQuery.data ?? null;
     const versions = versionsQuery.data ?? null;
-    const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : publishMutation.error instanceof Error ? publishMutation.error.message : null;
+    const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : publishMutation.error instanceof Error ? publishMutation.error.message : deleteMutation.error instanceof Error ? deleteMutation.error.message : null;
     const commentCount = block.commentCount + addedCommentTotal;
     const filteredVersion = previewVersion ?? selectedVersion;
     return <div draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
@@ -118,7 +136,8 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
             </Button>
         </div>
         {commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
-            filteredVersion={filteredVersion} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}/>}
+            filteredVersion={filteredVersion} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
+            onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>} 
         {historyOpen && <TopicBlockHistory block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
             selectedVersionId={selectedVersion?.id ?? null} addedCommentCounts={addedCommentCounts}
             onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}/>}
