@@ -19,6 +19,19 @@ export type TopicOutput = {
     topic: TopicSummary
 }
 
+export type TopicConnectionMode = "reading" | "editing"
+
+export type TopicConnectionCounts = {
+    reading: number
+    editing: number
+}
+
+export type TopicConnectionsChangedEvent = {
+    type: "connections.changed"
+    topicId: string
+    connections: TopicConnectionCounts
+}
+
 export type BlockType = {
     id: "parrafo" | "h1" | "h2"
     name: string

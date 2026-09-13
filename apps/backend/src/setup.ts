@@ -5,11 +5,13 @@ import type {DB} from '#/db/types.js'
 import {Logger} from "#/utils/logger.js";
 import {env} from './lib/env.js';
 import * as dotenv from 'dotenv';
+import {TopicConnections} from "#/services/topic-connections.js";
 dotenv.config();
 
 export type AppContext = {
     logger: Logger
     kysely: Kysely<DB>
+    topicConnections: TopicConnections | null
 }
 
 export type Role = "worker" | "web" | "mirror"
@@ -36,10 +38,15 @@ export async function setupAppContext(roles: Role[]) {
     const kysely = setupKysely()
     logger.pino.info("kysely client created")
 
+    const topicConnections = roles.includes("web") ? new TopicConnections(kysely, env.DATABASE_URL, logger) : null;
+
     const ctx: AppContext = {
         logger,
-        kysely
+        kysely,
+        topicConnections,
     }
+
+    if (topicConnections) await topicConnections.start();
 
     return {ctx, logger}
 }

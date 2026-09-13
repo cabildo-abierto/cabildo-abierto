@@ -56,7 +56,7 @@ export default function EditTopicPage() {
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
     if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Cargando tema…</div>;
 
-    return <TopicView topic={topic} action={
+    return <TopicView topic={topic} connectionMode="editing" action={
         <div className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 py-0.5 pr-1 pl-2.5 text-xs font-medium text-amber-700 dark:text-amber-300">
             <span>Modo edición</span>
             <Button type="button" variant="ghost" size="icon-xs"

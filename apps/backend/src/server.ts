@@ -91,9 +91,10 @@ export class Server {
 
     async close() {
         this.ctx.logger.pino.info('sigint received, shutting down')
+        await this.ctx.topicConnections?.close()
         return new Promise<void>((resolve) => {
-            this.server.close(() => {
-                this.ctx.kysely.destroy()
+            this.server.close(async () => {
+                await this.ctx.kysely.destroy()
                 this.ctx.logger.pino.info('server closed')
                 resolve()
             })

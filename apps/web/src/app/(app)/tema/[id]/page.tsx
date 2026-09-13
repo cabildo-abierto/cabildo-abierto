@@ -78,7 +78,7 @@ export default function TopicPage() {
         </AlertDialogContent>
     </AlertDialog>);
 
-    return <TopicView topic={topic} action={editButton}>
+    return <TopicView topic={topic} connectionMode="reading" action={editButton}>
         {blocks.length === 0 ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p> : <div>{blocks.map(block => <TopicBlockView
                 key={block.id}
                 topicId={topic.id}

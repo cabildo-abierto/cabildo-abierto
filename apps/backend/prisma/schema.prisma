@@ -35,11 +35,27 @@ model Topic {
   id    String @id @map("id")
   title String @unique @map("title")
 
-  comments Comment[]
-  blocks   Block[]
-  edits    Edit[]
+  comments    Comment[]
+  blocks      Block[]
+  edits       Edit[]
+  connections TopicConnection[]
 
   @@map("topic")
+}
+
+model TopicConnection {
+  connectionId String   @id @default(uuid()) @map("connection_id")
+  topicId      String   @map("topic_id")
+  viewerId     String   @map("viewer_id")
+  mode         String   @map("mode")
+  expiresAt    DateTime @map("expires_at") @db.Timestamptz()
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId, expiresAt])
+  @@index([topicId, mode, expiresAt])
+  @@index([viewerId])
+  @@map("topic_connection")
 }
 
 model Record {

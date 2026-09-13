@@ -12,7 +12,7 @@ export function hashSessionToken(token: string): string {
     return createHash("sha256").update(token).digest("hex");
 }
 
-export function readSessionToken(req: Request): string | null {
+export function readCookie(req: Request, cookieName: string): string | null {
     const cookieHeader = req.headers.cookie;
     if (!cookieHeader) return null;
 
@@ -20,7 +20,7 @@ export function readSessionToken(req: Request): string | null {
         const separator = cookie.indexOf("=");
         if (separator === -1) continue;
         const name = cookie.slice(0, separator).trim();
-        if (name !== SESSION_COOKIE) continue;
+        if (name !== cookieName) continue;
 
         try {
             return decodeURIComponent(cookie.slice(separator + 1));
@@ -30,6 +30,10 @@ export function readSessionToken(req: Request): string | null {
     }
 
     return null;
+}
+
+export function readSessionToken(req: Request): string | null {
+    return readCookie(req, SESSION_COOKIE);
 }
 
 export function setSessionCookie(res: Response, token: string): void {

@@ -23,6 +23,13 @@ export type DB = {
         id: string;
         title: string;
     };
+    topic_connection: {
+        connection_id: string;
+        topic_id: string;
+        viewer_id: string;
+        mode: string;
+        expires_at: Timestamp;
+    };
     record: {
         id: string;
         type_id: string;

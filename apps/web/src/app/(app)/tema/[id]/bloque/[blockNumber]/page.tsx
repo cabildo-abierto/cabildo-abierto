@@ -10,6 +10,7 @@ import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
 import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
+import {TopicConnectionCount} from "@/components/topic-connection-count";
 
 export default function TopicBlockPage() {
     const {id, blockNumber} = useParams<{id: string; blockNumber: string}>();
@@ -40,9 +41,12 @@ export default function TopicBlockPage() {
 
     return <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-[682px] flex-col gap-4 p-6">
         <header className="flex items-center justify-between gap-4">
-            <p className="min-w-0 truncate text-sm font-medium text-muted-foreground" title={`${topic.title} · ${block.blockNumber}`}>
-                <span className="text-foreground">{topic.title}</span><span className="px-1.5" aria-hidden="true">·</span>{block.blockNumber}
-            </p>
+            <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-muted-foreground" title={`${topic.title} · ${block.blockNumber}`}>
+                    <span className="text-foreground">{topic.title}</span><span className="px-1.5" aria-hidden="true">·</span>{block.blockNumber}
+                </p>
+                <TopicConnectionCount topicId={topic.id} mode="reading"/>
+            </div>
             <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}`}/>} variant="ghost" size="sm"><ArrowLeftIcon/>Volver</Button>
         </header>
         <div className="min-w-0">
