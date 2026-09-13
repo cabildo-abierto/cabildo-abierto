@@ -29,6 +29,7 @@ export default function TopicPage() {
     const {user, loading: authLoading} = useAuth();
     const isMobile = useIsMobile();
     const [openCommentsBlockId, setOpenCommentsBlockId] = useState<string | null>(null);
+    const [openHistoryBlockId, setOpenHistoryBlockId] = useState<string | null>(null);
     const topicQuery = useQuery({
         queryKey: ["topic", id],
         queryFn: async () => {
@@ -85,6 +86,12 @@ export default function TopicPage() {
                 openInPage={isMobile === true}
                 commentsOpen={openCommentsBlockId === block.id}
                 onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
+                historyOpen={openHistoryBlockId === block.id}
+                onHistoryOpenChange={open => setOpenHistoryBlockId(open ? block.id : null)}
+                onSectionOpen={section => {
+                    if (section === "comments") setOpenHistoryBlockId(null);
+                    else setOpenCommentsBlockId(null);
+                }}
             />)}</div>}
     </TopicView>;
 }

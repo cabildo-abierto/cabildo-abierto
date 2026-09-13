@@ -15,7 +15,7 @@ import {useToast} from "@/components/ui/toast";
 export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
     ["topic", topicId, "block", blockNumber, "versions"] as const;
 
-export function TopicBlockTools({topicId, block, buttonClassName, openInPage = false, pageLayout = false, initialHistoryOpen = false, commentsOpen: controlledCommentsOpen, onCommentsOpenChange}: {
+export function TopicBlockTools({topicId, block, buttonClassName, openInPage = false, pageLayout = false, initialHistoryOpen = false, commentsOpen: controlledCommentsOpen, onCommentsOpenChange, historyOpen: controlledHistoryOpen, onHistoryOpenChange, onSectionOpen}: {
     topicId: string;
     block: TopicBlock;
     buttonClassName?: string;
@@ -24,6 +24,9 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     initialHistoryOpen?: boolean;
     commentsOpen?: boolean;
     onCommentsOpenChange?: (open: boolean) => void;
+    historyOpen?: boolean;
+    onHistoryOpenChange?: (open: boolean) => void;
+    onSectionOpen?: (section: "comments" | "history") => void;
 }) {
     const [localCommentsOpen, setLocalCommentsOpen] = useState(pageLayout);
     const commentsOpen = controlledCommentsOpen ?? localCommentsOpen;
@@ -31,7 +34,12 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         if (controlledCommentsOpen === undefined) setLocalCommentsOpen(open);
         onCommentsOpenChange?.(open);
     };
-    const [historyOpen, setHistoryOpen] = useState(initialHistoryOpen);
+    const [localHistoryOpen, setLocalHistoryOpen] = useState(initialHistoryOpen);
+    const historyOpen = controlledHistoryOpen ?? localHistoryOpen;
+    const setHistoryOpen = (open: boolean) => {
+        if (controlledHistoryOpen === undefined) setLocalHistoryOpen(open);
+        onHistoryOpenChange?.(open);
+    };
     const [selectedVersion, setSelectedVersion] = useState<TopicBlockVersion | null>(null);
     const [previewVersion, setPreviewVersion] = useState<TopicBlockVersion | null>(null);
     const [rejectionVersion, setRejectionVersion] = useState<TopicBlockVersion | null>(null);
@@ -41,6 +49,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const queryClient = useQueryClient();
     const commentsKey = ["topic", topicId, "block", block.blockNumber, "comments"] as const;
     const versionsKey = topicBlockVersionsKey(topicId, block.blockNumber);
+    const blocksKey = ["topic", topicId, "blocks"] as const;
     const commentsQuery = useQuery({
         queryKey: commentsKey,
         queryFn: async () => {
@@ -82,11 +91,22 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
                     return next;
                 });
             }
-            if (input.reject) {
+            if (input.reject || input.replica) {
                 setRejectionVersion(null);
                 void queryClient.invalidateQueries({queryKey: versionsKey});
+                void queryClient.invalidateQueries({queryKey: commentsKey});
+                void queryClient.invalidateQueries({queryKey: blocksKey});
             }
         },
+        onError: (error, input) => toast({
+            title: input.replica
+                ? "No pudimos publicar la réplica"
+                : input.reject
+                    ? "No pudimos publicar el rechazo"
+                    : "No pudimos publicar el comentario",
+            description: error instanceof Error ? error.message : undefined,
+            variant: "destructive",
+        }),
     });
     const reactionMutation = useMutation({
         mutationFn: async ({version, input}: {version: TopicBlockVersion; input: CreateBlockReactionInput}) => {
@@ -97,6 +117,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         },
         onSuccess: () => {
             void queryClient.invalidateQueries({queryKey: versionsKey});
+            void queryClient.invalidateQueries({queryKey: blocksKey});
         },
         onError: error => toast({title: "No pudimos registrar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
     });
@@ -111,6 +132,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         onSuccess: () => {
             void queryClient.invalidateQueries({queryKey: versionsKey});
             void queryClient.invalidateQueries({queryKey: commentsKey});
+            void queryClient.invalidateQueries({queryKey: blocksKey});
         },
         onError: error => toast({title: "No pudimos cancelar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
     });
@@ -125,11 +147,18 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
                 comment.id === commentId ? {...comment, deleted: true} : comment));
             void queryClient.invalidateQueries({queryKey: commentsKey});
             void queryClient.invalidateQueries({queryKey: versionsKey});
+            void queryClient.invalidateQueries({queryKey: blocksKey});
         },
+        onError: error => toast({
+            title: "No pudimos eliminar el comentario",
+            description: error instanceof Error ? error.message : undefined,
+            variant: "destructive",
+        }),
     });
     const toggleComments = (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         const nextOpen = !commentsOpen;
+        if (nextOpen) onSectionOpen?.("comments");
         setCommentsOpen(nextOpen);
         if (!nextOpen) setRejectionVersion(null);
         setSelectedVersion(null);
@@ -138,6 +167,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const toggleHistory = (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         const nextOpen = !historyOpen;
+        if (nextOpen) onSectionOpen?.("history");
         setHistoryOpen(nextOpen);
     };
     const selectVersion = (version: TopicBlockVersion) => {
@@ -146,8 +176,8 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         setPreviewVersion(null);
         setSelectedVersion(current => current?.id === version.id ? null : version);
     };
-    const publish = async (content: string, replyToId?: string, blockVersionId = block.id, reject = false): Promise<boolean> => {
-        const input: CreateBlockCommentInput = {blockVersionId, replyToId, content, reject};
+    const publish = async (content: string, replyToId?: string, blockVersionId = block.id, reject = false, replica = false): Promise<boolean> => {
+        const input: CreateBlockCommentInput = {blockVersionId, replyToId, content, reject, replica};
         try { await publishMutation.mutateAsync(input); } catch { return false; }
         setSelectedVersion(null);
         setPreviewVersion(null);
@@ -165,11 +195,13 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
 
     const comments = commentsQuery.data ?? null;
     const versions = versionsQuery.data ?? null;
-    const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : publishMutation.error instanceof Error ? publishMutation.error.message : deleteMutation.error instanceof Error ? deleteMutation.error.message : null;
+    const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : null;
     const commentCount = block.commentCount + addedCommentTotal;
     const filteredVersion = previewVersion ?? selectedVersion;
     const commentsSection = commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
-        filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion} pageLayout={pageLayout} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
+        filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion}
+        conversationHref={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}
+        pageLayout={pageLayout} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
         onCancelRejection={() => setRejectionVersion(null)}
         onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>;
     const historySection = historyOpen && <TopicBlockHistory topicId={topicId} block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}

@@ -46,6 +46,7 @@ export type TopicBlockVersion = TopicBlock & {
     current: boolean
     acceptCount: number
     rejectCount: number
+    replicatedRejectCount: number
     userReaction: "accept" | "reject" | null
     author: {
         id: string
@@ -61,6 +62,8 @@ export type BlockComment = {
     replyToId: string
     directReplyCount: number
     rejection: boolean
+    suggestedVote: "accept" | "reject" | null
+    replicaDepth: number | null
     deleted: boolean
     content: string
     createdAt: string
@@ -79,6 +82,7 @@ export type CreateBlockCommentInput = {
     replyToId?: string
     content: string
     reject?: boolean
+    replica?: boolean
 }
 
 export type CreateBlockReactionInput = {

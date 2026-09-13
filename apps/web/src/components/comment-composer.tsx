@@ -7,9 +7,10 @@ import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
 
-export function CommentComposer({replyTo, rejectionLabel, onPublish, onCancel}: {
+export function CommentComposer({replyTo, rejectionLabel, replicaVote, onPublish, onCancel}: {
     replyTo?: BlockComment;
     rejectionLabel?: string;
+    replicaVote?: "accept" | "reject";
     onPublish: (content: string, replyToId?: string) => Promise<boolean>;
     onCancel?: () => void;
 }) {
@@ -26,35 +27,44 @@ export function CommentComposer({replyTo, rejectionLabel, onPublish, onCancel}: 
         }
     };
 
-    const rejection = Boolean(rejectionLabel);
+    const suggestedVote = rejectionLabel ? "reject" : replicaVote ?? null;
+    const voting = suggestedVote !== null;
+    const rejection = suggestedVote === "reject";
+    const acceptance = suggestedVote === "accept";
     return <div className="relative">
         {rejectionLabel && <p className="mb-2 text-xs font-medium text-red-600 dark:text-red-400">Rechazando {rejectionLabel}</p>}
+        {replicaVote && <p className={cn("mb-1 text-xs text-[11px] font-medium text-muted-foreground")}>
+            Replicando para {acceptance ? "invalidar" : "mantener"} el rechazo.
+        </p>}
         <div className="relative">
             <Textarea value={content} onChange={event => setContent(event.target.value)}
-            placeholder={rejection ? "Explicá por qué rechazás esta edición…" : replyTo ? `Respondé a @${replyTo.author.username}…` : "Escribí un comentario…"}
+            placeholder={replicaVote ? "Justificá tu réplica…" : rejection ? "Explicá por qué rechazás esta edición…" : replyTo ? "Escribí una respuesta…" : "Escribí un comentario…"}
             onKeyDown={event => {
                 if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
                 event.preventDefault();
                 if (!publishing && content.trim()) void publish();
             }}
             maxLength={20_000}
-            autoFocus={rejection}
-            className={rejection
-                ? "min-h-[3lh] resize-none rounded-lg border-red-500/60 bg-red-500/5 pb-8 text-red-950 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 dark:border-red-400/60 dark:bg-red-500/10 dark:text-red-100 dark:focus-visible:border-red-400"
-                : "min-h-[3lh] resize-none rounded-lg border-[rgb(229_229_229)] pb-8 focus-visible:border-ring focus-visible:ring-0 dark:border-[rgb(38_38_38)] dark:focus-visible:border-ring"}/>
+            autoFocus={voting}
+            className={cn(
+                "min-h-[3lh] resize-none rounded-lg pb-8",
+                rejection && "border-red-500/60 bg-red-500/5 text-red-950 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 dark:border-red-400/60 dark:bg-red-500/10 dark:text-red-100 dark:focus-visible:border-red-400",
+                acceptance && "border-green-500/60 bg-green-500/5 text-green-950 focus-visible:border-green-500 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:border-green-400/60 dark:bg-green-500/10 dark:text-green-100 dark:focus-visible:border-green-400",
+                !voting && "border-[rgb(229_229_229)] focus-visible:border-ring focus-visible:ring-0 dark:border-[rgb(38_38_38)] dark:focus-visible:border-ring",
+            )}/>
             <div className="absolute right-1 bottom-1 flex items-center gap-1">
-            {replyTo && <Button type="button" variant="ghost" size="icon-lg" className={cn("size-7 p-0", rejection && "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300")}
+            {replyTo && <Button type="button" variant="ghost" size="icon-lg" className={cn("size-7 p-0", rejection && "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300", acceptance && "text-green-700 hover:bg-green-500/10 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300")}
                 onClick={() => { setContent(""); onCancel?.(); }} disabled={publishing}
                 aria-label="Cancelar respuesta" title="Cancelar respuesta">
                 <XIcon className="size-3"/>
             </Button>}
-            {!replyTo && <Button type="button" variant="ghost" size="icon-lg" className={cn("size-7 p-0", rejection && "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300")}
+            {!replyTo && <Button type="button" variant="ghost" size="icon-lg" className={cn("size-7 p-0", rejection && "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300", acceptance && "text-green-700 hover:bg-green-500/10 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300")}
                 onClick={() => setContent("")} disabled={publishing || !content}
                 aria-label="Cancelar comentario" title="Cancelar">
                 <XIcon className="size-3"/>
             </Button>}
             <Button type="button" variant="ghost" size="icon-lg"
-                className={cn("size-7 rounded-md p-0 [&_svg]:size-5", rejection ? "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" : "hover:bg-muted dark:hover:bg-muted/50")}
+                className={cn("size-7 rounded-md p-0 [&_svg]:size-5", rejection && "text-red-600 hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300", acceptance && "text-green-700 hover:bg-green-500/10 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300", !voting && "hover:bg-muted dark:hover:bg-muted/50")}
                 onClick={() => void publish()} disabled={publishing || !content.trim()}
                 aria-label={publishing ? "Publicando comentario" : "Publicar comentario"} title="Publicar">
                 <KeyReturnIcon/>
