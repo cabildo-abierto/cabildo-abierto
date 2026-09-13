@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {useParams} from "next/navigation";
 import {useQuery} from "@tanstack/react-query";
-import {useState} from "react";
 import type {TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
@@ -18,18 +17,16 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {TopicView} from "@/components/topic-view";
-import {TopicBlockView} from "@/components/topic-block";
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
 import {useIsMobile} from "@/hooks/use-is-mobile";
+import {TopicReadingContent} from "@/components/topic-reading-content";
 
 export default function TopicPage() {
     const {id} = useParams<{id: string}>();
     const {user, loading: authLoading} = useAuth();
     const isMobile = useIsMobile();
-    const [openCommentsBlockId, setOpenCommentsBlockId] = useState<string | null>(null);
-    const [openHistoryBlockId, setOpenHistoryBlockId] = useState<string | null>(null);
     const topicQuery = useQuery({
         queryKey: ["topic", id],
         queryFn: async () => {
@@ -43,11 +40,12 @@ export default function TopicPage() {
         queryFn: async () => {
             const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`);
             if ("error" in result) throw new Error(result.error);
-            return result.value.blocks;
+            return result.value;
         },
     });
     const topic = topicQuery.data;
-    const blocks = blocksQuery.data ?? [];
+    const blocks = blocksQuery.data?.blocks ?? [];
+    const deletedBlocks = blocksQuery.data?.deletedBlocks ?? [];
     const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
@@ -79,19 +77,6 @@ export default function TopicPage() {
     </AlertDialog>);
 
     return <TopicView topic={topic} connectionMode="reading" action={editButton}>
-        {blocks.length === 0 ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p> : <div>{blocks.map(block => <TopicBlockView
-                key={block.id}
-                topicId={topic.id}
-                block={block}
-                openInPage={isMobile === true}
-                commentsOpen={openCommentsBlockId === block.id}
-                onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
-                historyOpen={openHistoryBlockId === block.id}
-                onHistoryOpenChange={open => setOpenHistoryBlockId(open ? block.id : null)}
-                onSectionOpen={section => {
-                    if (section === "comments") setOpenHistoryBlockId(null);
-                    else setOpenCommentsBlockId(null);
-                }}
-            />)}</div>}
+        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} openToolsInPage={isMobile === true}/>
     </TopicView>;
 }

@@ -2,7 +2,7 @@
 
 import type {TopicBlock, TopicBlockVersion} from "@cabildo-abierto/api";
 import Link from "next/link";
-import {ChatCircleIcon, CheckIcon, GitDiffIcon, XIcon} from "@phosphor-icons/react";
+import {ChatCircleIcon, CheckIcon, DotsThreeIcon, FlagIcon, GitDiffIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
 import {useState} from "react";
 import {useAuth} from "@/components/auth-provider";
 import {
@@ -21,6 +21,7 @@ import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block
 import {Spinner} from "@/components/ui/spinner";
 import {cn} from "@/lib/utils";
 import {topicAuthorName} from "@/components/topic-author-name";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 export function TopicBlockHistory({
                                       topicId,
@@ -29,11 +30,11 @@ export function TopicBlockHistory({
                                       loading,
                                       error,
                                       selectedVersionId,
-                                      addedCommentCounts,
                                       onPreview,
                                       onSelect,
                                       onAccept,
                                       onReject,
+                                      onDelete,
                                       onCancelReaction
                                   }: {
     topicId: string
@@ -42,15 +43,16 @@ export function TopicBlockHistory({
     loading: boolean
     error: string | null
     selectedVersionId: string | null
-    addedCommentCounts: ReadonlyMap<string, number>
     onPreview: (version: TopicBlockVersion | null) => void
     onSelect: (version: TopicBlockVersion) => void
     onAccept: (version: TopicBlockVersion) => void
     onReject: (version: TopicBlockVersion) => void
+    onDelete: (version: TopicBlockVersion) => Promise<boolean>
     onCancelReaction: (version: TopicBlockVersion, deleteReason: boolean) => void
 }) {
     const {user} = useAuth();
     const [cancelVersion, setCancelVersion] = useState<TopicBlockVersion | null>(null);
+    const [deleteVersion, setDeleteVersion] = useState<TopicBlockVersion | null>(null);
     const requestCancel = (version: TopicBlockVersion) => {
         if (version.userReaction === "reject") setCancelVersion(version);
         else onCancelReaction(version, false);
@@ -69,7 +71,7 @@ export function TopicBlockHistory({
         {versions &&
             <ol className="relative space-y-4 pl-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-0.5 before:rounded-full before:bg-border">
                 {versions.map(version => {
-                    const commentCount = version.commentCount + (addedCommentCounts.get(version.id) ?? 0);
+                    const commentCount = version.commentCount;
                     const selected = selectedVersionId === version.id;
                     return <li key={version.id} className="group/version relative"
                                onMouseEnter={() => onPreview(version)} onMouseLeave={() => onPreview(null)}
@@ -107,6 +109,16 @@ export function TopicBlockHistory({
                                     onClick={() => onSelect(version)}>
                                 <ChatCircleIcon className="size-3"/><span>{commentCount}</span>
                             </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-xs" aria-label="Acciones de la edición"/>}>
+                                    <DotsThreeIcon/>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-max min-w-32">
+                                    <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem>
+                                    {user?.id === version.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap"
+                                        onClick={() => setDeleteVersion(version)}><TrashIcon/>Eliminar</DropdownMenuItem>}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                             <div className="ml-auto flex flex-col items-end gap-1">
                             <span className="inline-flex items-center gap-1">
                             <Button type="button" variant="ghost" size="sm"
@@ -164,6 +176,22 @@ export function TopicBlockHistory({
                         if (cancelVersion) onCancelReaction(cancelVersion, true);
                         setCancelVersion(null);
                     }}>Borrar justificación</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog open={Boolean(deleteVersion)} onOpenChange={open => {
+            if (!open) setDeleteVersion(null);
+        }}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminar edición</AlertDialogTitle>
+                    <AlertDialogDescription>Esta acción elimina la edición completa. Si modificó otros bloques, sus versiones también dejarán de aparecer.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={async () => {
+                        if (deleteVersion && await onDelete(deleteVersion)) setDeleteVersion(null);
+                    }}>Eliminar</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

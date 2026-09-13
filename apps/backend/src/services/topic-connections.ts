@@ -1,12 +1,12 @@
 import {randomUUID} from "node:crypto";
 import type {Response} from "express";
 import {Client} from "pg";
-import {sql, type Kysely} from "kysely";
-import type {TopicConnectionCounts, TopicConnectionMode, TopicConnectionsChangedEvent} from "@cabildo-abierto/api";
+import {sql, type Kysely, type Transaction} from "kysely";
+import type {TopicChangedEvent, TopicConnectionCounts, TopicConnectionMode, TopicConnectionOpenedEvent, TopicConnectionsChangedEvent} from "@cabildo-abierto/api";
 import type {DB} from "#/db/types.js";
 import type {Logger} from "#/utils/logger.js";
 
-const NOTIFICATION_CHANNEL = "topic_connections";
+const NOTIFICATION_CHANNEL = "topic_realtime";
 const HEARTBEAT_INTERVAL_MS = 15_000;
 const LEASE_REFRESH_INTERVAL_MS = 20_000;
 const LEASE_DURATION_MS = 60_000;
@@ -14,8 +14,24 @@ const LISTENER_RECONNECT_DELAY_MS = 2_000;
 
 type LocalConnection = {
     topicId: string;
+    viewerId: string;
     response: Response;
 };
+
+type InternalNotification = {
+    type: "connections.changed" | "topic.changed";
+    topicId: string;
+    source?: TopicChangedEvent["source"];
+};
+
+export async function notifyTopicChanged(database: Kysely<DB> | Transaction<DB>, topicId: string, source: TopicChangedEvent["source"], logger?: Logger): Promise<void> {
+    const notification: InternalNotification = {type: "topic.changed", topicId, source};
+    try {
+        await sql`select pg_notify(${NOTIFICATION_CHANNEL}, ${JSON.stringify(notification)})`.execute(database);
+    } catch (error) {
+        logger?.pino.error({error, topicId, channel: NOTIFICATION_CHANNEL}, "could not send postgres topic.changed notification");
+    }
+}
 
 export class TopicConnections {
     private readonly connections = new Map<string, LocalConnection>();
@@ -50,16 +66,33 @@ export class TopicConnections {
             expires_at: this.leaseExpiration(),
         }).execute();
 
-        this.connections.set(connectionId, {topicId, response});
+        this.connections.set(connectionId, {topicId, viewerId, response});
         await this.sendTopicSnapshot(topicId, response);
+        this.writeEvent(response, {type: "connection.opened", topicId, connectionId});
         await this.notifyTopic(topicId);
 
         let disconnected = false;
-        return () => {
+        const disconnect = () => {
             if (disconnected) return;
             disconnected = true;
             void this.remove(connectionId);
         };
+        response.once("error", disconnect);
+        return disconnect;
+    }
+
+    async disconnect(connectionId: string, topicId: string, viewerId: string): Promise<void> {
+        const connection = this.connections.get(connectionId);
+        if (connection && connection.topicId === topicId && connection.viewerId === viewerId) {
+            await this.remove(connectionId);
+            return;
+        }
+        const deleted = await this.database.deleteFrom("topic_connection")
+            .where("connection_id", "=", connectionId)
+            .where("topic_id", "=", topicId)
+            .where("viewer_id", "=", viewerId)
+            .executeTakeFirst();
+        if (Number(deleted.numDeletedRows) > 0) await this.notifyTopic(topicId);
     }
 
     async close(): Promise<void> {
@@ -86,11 +119,13 @@ export class TopicConnections {
         listener.on("notification", notification => {
             if (!notification.payload) return;
             try {
-                const payload = JSON.parse(notification.payload) as {topicId?: unknown};
-                if (typeof payload.topicId === "string") {
-                    void this.broadcastTopic(payload.topicId).catch(error => {
+                const payload = JSON.parse(notification.payload) as Partial<InternalNotification>;
+                if (typeof payload.topicId === "string" && payload.type === "connections.changed") {
+                    void this.broadcastConnections(payload.topicId).catch(error => {
                         this.logger.pino.error({error, topicId: payload.topicId}, "could not broadcast topic connections");
                     });
+                } else if (typeof payload.topicId === "string" && payload.type === "topic.changed" && payload.source) {
+                    this.broadcastTopicChange(payload.topicId, payload.source);
                 }
             } catch (error) {
                 this.logger.pino.warn({error}, "invalid topic connection notification");
@@ -160,14 +195,21 @@ export class TopicConnections {
     }
 
     private async notifyTopic(topicId: string): Promise<void> {
-        await sql`select pg_notify(${NOTIFICATION_CHANNEL}, ${JSON.stringify({topicId})})`.execute(this.database);
+        const notification: InternalNotification = {type: "connections.changed", topicId};
+        await sql`select pg_notify(${NOTIFICATION_CHANNEL}, ${JSON.stringify(notification)})`.execute(this.database);
     }
 
-    private async broadcastTopic(topicId: string): Promise<void> {
+    private async broadcastConnections(topicId: string): Promise<void> {
         const topicConnections = [...this.connections.values()].filter(connection => connection.topicId === topicId);
         if (topicConnections.length === 0) return;
         const counts = await this.getCounts(topicId);
         for (const connection of topicConnections) this.sendEvent(connection.response, topicId, counts);
+    }
+
+    private broadcastTopicChange(topicId: string, source: TopicChangedEvent["source"]): void {
+        const event: TopicChangedEvent = {type: "topic.changed", topicId, source};
+        const recipients = [...this.connections.values()].filter(connection => connection.topicId === topicId);
+        for (const connection of recipients) this.writeEvent(connection.response, event);
     }
 
     private async sendTopicSnapshot(topicId: string, response: Response): Promise<void> {
@@ -197,11 +239,21 @@ export class TopicConnections {
 
     private sendEvent(response: Response, topicId: string, connections: TopicConnectionCounts): void {
         const event: TopicConnectionsChangedEvent = {type: "connections.changed", topicId, connections};
-        response.write(`event: connections.changed\ndata: ${JSON.stringify(event)}\n\n`);
+        this.writeEvent(response, event);
+    }
+
+    private writeEvent(response: Response, event: TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent): void {
+        response.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
     }
 
     private sendHeartbeats(): void {
-        for (const connection of this.connections.values()) connection.response.write(": heartbeat\n\n");
+        for (const [connectionId, connection] of this.connections) {
+            if (connection.response.destroyed || connection.response.writableEnded || connection.response.socket?.destroyed) {
+                void this.remove(connectionId);
+                continue;
+            }
+            connection.response.write(": heartbeat\n\n");
+        }
     }
 
     private leaseExpiration(): Date {

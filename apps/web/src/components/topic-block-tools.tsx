@@ -44,8 +44,6 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const [previewVersion, setPreviewVersion] = useState<TopicBlockVersion | null>(null);
     const [rejectionVersion, setRejectionVersion] = useState<TopicBlockVersion | null>(null);
     const {toast} = useToast();
-    const [addedCommentCounts, setAddedCommentCounts] = useState<ReadonlyMap<string, number>>(new Map());
-    const [addedCommentTotal, setAddedCommentTotal] = useState(0);
     const queryClient = useQueryClient();
     const commentsKey = ["topic", topicId, "block", block.blockNumber, "comments"] as const;
     const versionsKey = topicBlockVersionsKey(topicId, block.blockNumber);
@@ -83,14 +81,8 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
                     : existing);
                 return [comment, ...next];
             });
-            if (!input.replyToId) {
-                setAddedCommentTotal(current => current + 1);
-                setAddedCommentCounts(current => {
-                    const next = new Map(current);
-                    next.set(input.blockVersionId, (next.get(input.blockVersionId) ?? 0) + 1);
-                    return next;
-                });
-            }
+            void queryClient.invalidateQueries({queryKey: versionsKey});
+            void queryClient.invalidateQueries({queryKey: blocksKey});
             if (input.reject || input.replica) {
                 setRejectionVersion(null);
                 void queryClient.invalidateQueries({queryKey: versionsKey});
@@ -155,6 +147,22 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
             variant: "destructive",
         }),
     });
+    const deleteVersionMutation = useMutation({
+        mutationFn: async (version: TopicBlockVersion) => {
+            const result = await del(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/versions/${encodeURIComponent(version.id)}`);
+            if ("error" in result) throw new Error(result.error);
+        },
+        onSuccess: () => {
+            setSelectedVersion(null);
+            setPreviewVersion(null);
+            void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
+        },
+        onError: error => toast({
+            title: "No pudimos eliminar la edición",
+            description: error instanceof Error ? error.message : undefined,
+            variant: "destructive",
+        }),
+    });
     const toggleComments = (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         const nextOpen = !commentsOpen;
@@ -196,7 +204,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const comments = commentsQuery.data ?? null;
     const versions = versionsQuery.data ?? null;
     const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : null;
-    const commentCount = block.commentCount + addedCommentTotal;
+    const commentCount = block.commentCount;
     const filteredVersion = previewVersion ?? selectedVersion;
     const commentsSection = commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
         filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion}
@@ -205,9 +213,10 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         onCancelRejection={() => setRejectionVersion(null)}
         onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>;
     const historySection = historyOpen && <TopicBlockHistory topicId={topicId} block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
-        selectedVersionId={selectedVersion?.id ?? null} addedCommentCounts={addedCommentCounts}
+        selectedVersionId={selectedVersion?.id ?? null}
         onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
         onAccept={acceptVersion} onReject={rejectVersion}
+        onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
         onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
     if (openInPage) return <div className={cn("flex items-center justify-end gap-1 md:absolute md:top-2 md:left-full md:ml-5", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"

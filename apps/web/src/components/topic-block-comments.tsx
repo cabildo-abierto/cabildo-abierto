@@ -17,6 +17,16 @@ import {Spinner} from "@/components/ui/spinner";
 import {CommentComposer} from "@/components/comment-composer";
 import {cn} from "@/lib/utils";
 import {topicAuthorName} from "@/components/topic-author-name";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const MAX_INLINE_COMMENT_DEPTH = 5;
 
@@ -37,6 +47,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
     const {user, loading: authLoading} = useAuth();
     const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [activeReplicaId, setActiveReplicaId] = useState<string | null>(null);
+    const [deleteComment, setDeleteComment] = useState<BlockComment | null>(null);
     const visibleComments = filteredVersion ? comments?.filter(comment => comment.blockVersionId === filteredVersion.id) : comments;
     const commentsByParent = new Map<string, BlockComment[]>();
     for (const comment of visibleComments ?? []) {
@@ -104,7 +115,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
                 <DropdownMenuContent align="end" className="w-max min-w-32">
                     <DropdownMenuItem className="whitespace-nowrap"><ShareNetworkIcon/>Compartir</DropdownMenuItem>
                     {user?.id !== comment.author.id && <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem>}
-                    {user?.id === comment.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap" onClick={() => void onDelete(comment.id)}><TrashIcon/>Eliminar</DropdownMenuItem>}
+                    {user?.id === comment.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap" onClick={() => setDeleteComment(comment)}><TrashIcon/>Eliminar</DropdownMenuItem>}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>}
@@ -128,7 +139,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
     </li>;
     };
 
-    return <section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72")} aria-label="Comentarios del bloque">
+    return <><section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72")} aria-label="Comentarios del bloque">
         {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `la edición «${rejectionVersion.message}» de ${topicAuthorName(rejectionVersion.author, user?.id)}`
@@ -137,17 +148,34 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
             onCancel={rejectionVersion ? onCancelRejection : undefined}/>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
-        <div className="mt-4">
+        <div className="mt-2">
             {filteredVersion && <div className={cn("mb-3 text-muted-foreground", pageLayout ? "text-xs" : "text-[10px]")}>
                 Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} de {topicAuthorName(filteredVersion.author, user?.id)}.{" "}
                 {pinnedVersionId === filteredVersion.id && <Button type="button" variant="link" size="xs" className={cn("font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline", pageLayout ? "text-xs" : "text-[10px]")} onClick={onShowAll}>Ver todos</Button>}
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
-            {rootComments.some(isRenderable) && <ol className="space-y-4">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>}
+            {rootComments.some(isRenderable) && <ol className="space-y-2">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>}
             {!loading && !error && !rootComments.some(isRenderable) && <p className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
                 {filteredVersion ? "Esta versión del bloque no recibió comentarios." : "El bloque todavía no recibió comentarios."}
             </p>}
         </div>
-    </section>;
+    </section>
+        <AlertDialog open={Boolean(deleteComment)} onOpenChange={open => {
+            if (!open) setDeleteComment(null);
+        }}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminar comentario</AlertDialogTitle>
+                    <AlertDialogDescription>El comentario aparecerá como eliminado. Esta acción no se puede deshacer.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={async () => {
+                        if (deleteComment && await onDelete(deleteComment.id)) setDeleteComment(null);
+                    }}>Eliminar</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </>;
 }

@@ -8,9 +8,12 @@ export function TopicView({topic, connectionMode, action, children}: {topic: Top
             <div>
                 <h1 className="text-2xl font-semibold">{topic.title}</h1>
                 <p className="mt-1 text-xs text-muted-foreground">{topic.id}</p>
-                <TopicConnectionCount topicId={topic.id} mode={connectionMode}/>
             </div>
             {action}
+        </div>
+        <div className="flex min-h-8 items-center justify-between gap-3">
+            <TopicConnectionCount topicId={topic.id} mode={connectionMode} className="mt-0"/>
+            <div id={`topic-status-actions-${topic.id}`} className="flex items-center justify-end"/>
         </div>
         {children}
     </div>;

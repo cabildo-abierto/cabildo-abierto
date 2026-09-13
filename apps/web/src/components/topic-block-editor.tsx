@@ -1,11 +1,10 @@
 "use client"
 
-import {forwardRef, useImperativeHandle, useState} from "react";
+import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock} from "@cabildo-abierto/api";
+import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock} from "@cabildo-abierto/api";
 import {orderBetween, permutationFor} from "@cabildo-abierto/utils";
-import {ArrowCounterClockwiseIcon, DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
-import {Button} from "@/components/ui/button";
+import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools, topicBlockVersionsKey} from "@/components/topic-block-tools";
 import {TopicBlockInsertButton} from "@/components/topic-block-insert-button";
@@ -14,6 +13,9 @@ import {TopicEditActionsCard} from "@/components/topic-edit-actions-card";
 import {TopicEditActionButtons} from "@/components/topic-edit-action-buttons";
 import {post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
+import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
+import {sameConvergence} from "@/components/topic-convergence";
+import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
 
 type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
 type TopicEditState = {
@@ -25,18 +27,77 @@ type TopicEditState = {
 };
 type ChangeKind = "new" | "content" | "order" | null;
 
-function persistedBlocks(blocks: TopicBlock[]): WorkingBlock[] {
-    return blocks.map(block => ({...block, isNew: false, deleted: false}));
+function persistedBlocks(blocks: TopicEditableBlock[]): WorkingBlock[] {
+    return blocks.map(block => ({...block, isNew: false}));
+}
+
+function emptyParagraph(): WorkingBlock {
+    const localNumber = `new-${crypto.randomUUID()}`;
+    return {
+        id: localNumber,
+        blockNumber: localNumber,
+        typeId: "parrafo",
+        content: "",
+        order: "n",
+        commentCount: 0,
+        isNew: true,
+        deleted: false,
+    };
+}
+
+function stateFromSaved(savedBlocks: WorkingBlock[], activeBlockNumber: string | null = null): Pick<TopicEditState, "savedBlocks" | "blocks" | "activeBlockNumber"> {
+    const blocks = [...savedBlocks];
+    if (blocks.some(block => !block.deleted)) return {savedBlocks, blocks, activeBlockNumber};
+    const paragraph = emptyParagraph();
+    return {savedBlocks, blocks: [...blocks, paragraph], activeBlockNumber: paragraph.blockNumber};
 }
 
 function changeKind(block: WorkingBlock, savedByNumber: ReadonlyMap<string, WorkingBlock>): ChangeKind {
-    if (block.deleted) return null;
     if (block.isNew) return block.content === "" ? null : "new";
     const saved = savedByNumber.get(block.blockNumber);
     if (!saved) return null;
+    if (block.deleted) return null;
+    if (saved.deleted !== block.deleted) return "content";
     if (block.content !== saved.content) return "content";
     if (block.order !== saved.order) return "order";
     return null;
+}
+
+function mergeConvergence(state: TopicEditState, latestBlocks: TopicEditableBlock[]): TopicEditState {
+    const previousSavedByNumber = new Map(state.savedBlocks.map(block => [block.blockNumber, block]));
+    const workingByNumber = new Map(state.blocks.filter(block => !block.isNew).map(block => [block.blockNumber, block]));
+    const latest = persistedBlocks(latestBlocks).map(block => {
+        const saved = previousSavedByNumber.get(block.blockNumber);
+        const working = workingByNumber.get(block.blockNumber);
+        if (!saved || !working) return block;
+        const contentChanged = working.content !== saved.content;
+        const orderChanged = working.order !== saved.order;
+        const deletionChanged = working.deleted !== saved.deleted;
+        return {
+            ...block,
+            content: contentChanged ? working.content : block.content,
+            order: orderChanged ? working.order : block.order,
+            deleted: deletionChanged ? working.deleted : contentChanged || orderChanged ? false : block.deleted,
+        };
+    });
+    const localBlocks = state.blocks.filter(block => block.isNew);
+    let blocks = [...latest, ...localBlocks]
+        .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber));
+    const visibleBlocks = blocks.filter(block => !block.deleted);
+    const hasDuplicateOrder = visibleBlocks.some((block, index) => index > 0 && visibleBlocks[index - 1].order >= block.order);
+    if (hasDuplicateOrder) {
+        const orderByNumber = new Map(permutationFor(visibleBlocks.map(block => block.blockNumber))
+            .map(item => [item.blockNumber, item.order]));
+        blocks = blocks.map(block => block.deleted ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
+            .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber));
+    }
+    const savedBlocks = persistedBlocks(latestBlocks);
+    const activeBlockNumber = blocks.some(block => !block.deleted && block.blockNumber === state.activeBlockNumber)
+        ? state.activeBlockNumber
+        : null;
+    if (blocks.some(block => !block.deleted)) return {...state, savedBlocks, blocks, activeBlockNumber};
+    const paragraph = emptyParagraph();
+    return {...state, savedBlocks, blocks: [...blocks, paragraph], activeBlockNumber: paragraph.blockNumber};
 }
 
 function changeBarClass(kind: Exclude<ChangeKind, null>): string {
@@ -69,24 +130,11 @@ export type TopicBlockEditorHandle = {
     canFinishEditing: () => boolean
 };
 
-export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
+export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicEditableBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
     const queryClient = useQueryClient();
     const [edit, setEdit] = useState<TopicEditState>(() => {
         const blocks = persistedBlocks(initialBlocks);
-        if (blocks.length === 0) {
-            const emptyParagraph: WorkingBlock = {
-                id: "new-empty-paragraph",
-                blockNumber: "new-empty-paragraph",
-                typeId: "parrafo",
-                content: "",
-                order: "n",
-                commentCount: 0,
-                isNew: true,
-                deleted: false,
-            };
-            return {savedBlocks: [], blocks: [emptyParagraph], activeBlockNumber: emptyParagraph.blockNumber, showDeleted: false, message: ""};
-        }
-        return {savedBlocks: blocks, blocks, activeBlockNumber: null, showDeleted: false, message: ""};
+        return {...stateFromSaved(blocks), showDeleted: false, message: ""};
     });
     const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
@@ -97,7 +145,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const changedBlocks = edit.blocks.filter(block => changeKind(block, savedByNumber) !== null);
     const newBlocks = edit.blocks.filter(block => block.isNew && !block.deleted);
     const modifiedBlockCount = changedBlocks.length + newBlocks.filter(block => changeKind(block, savedByNumber) === null).length;
-    const deletedBlocks = edit.blocks.filter(block => block.deleted);
+    const deletedBlocks = edit.blocks.filter(block => block.deleted && !block.isNew && !savedByNumber.get(block.blockNumber)?.deleted);
+    const deletedBlocksForDisplay = edit.blocks.filter(block => block.deleted && !block.isNew);
     const hasChanges = changedBlocks.length > 0 || deletedBlocks.length > 0;
     const affectedBlockCount = modifiedBlockCount + deletedBlocks.length;
     const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
@@ -105,6 +154,22 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
     const hasInvalidBlock = edit.blocks.some(block => !block.deleted && (!block.content.trim()
         || (block.typeId !== "parrafo" && /[\r\n]/.test(block.content))));
+    const convergenceChanged = !sameConvergence(edit.savedBlocks, initialBlocks);
+
+    useEffect(() => {
+        const countsByNumber = new Map(initialBlocks.map(block => [block.blockNumber, block.commentCount]));
+        setEdit(current => ({
+            ...current,
+            savedBlocks: current.savedBlocks.map(block => ({
+                ...block,
+                commentCount: countsByNumber.get(block.blockNumber) ?? block.commentCount,
+            })),
+            blocks: current.blocks.map(block => ({
+                ...block,
+                commentCount: countsByNumber.get(block.blockNumber) ?? block.commentCount,
+            })),
+        }));
+    }, [initialBlocks]);
 
     const shakeActions = () => {
         setShaking(false);
@@ -187,9 +252,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         setEdit(current => {
             const saved = current.savedBlocks.find(block => block.blockNumber === blockNumber);
             if (!saved) return current;
-            const blocks = current.blocks.map(block => block.blockNumber === blockNumber ? saved : block)
+            const blocks = current.blocks.map(block => block.blockNumber === blockNumber ? {...saved, deleted: false} : block)
                 .sort((left, right) => left.order.localeCompare(right.order));
-            return {...current, blocks};
+            return {...current, blocks, activeBlockNumber: blockNumber};
         });
     };
 
@@ -212,7 +277,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     };
 
     const cancel = () => {
-        setEdit(current => ({savedBlocks: current.savedBlocks, blocks: current.savedBlocks, activeBlockNumber: null, showDeleted: false, message: ""}));
+        setEdit(current => ({...stateFromSaved(current.savedBlocks), showDeleted: false, message: ""}));
         setError(null);
         setShaking(false);
     };
@@ -222,6 +287,14 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         setError(null);
         const input: SaveTopicEditInput = {
             message: requiresMessage ? edit.message.trim() : null,
+            baseBlocks: edit.savedBlocks.map(block => ({
+                id: block.id,
+                blockNumber: block.blockNumber,
+                typeId: block.typeId,
+                content: block.content,
+                order: block.order,
+                deleted: block.deleted,
+            })),
             blocks: edit.blocks.map(block => ({
                 id: block.isNew ? null : block.id,
                 blockNumber: block.isNew ? null : block.blockNumber,
@@ -235,17 +308,28 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         setSaving(false);
         if ("error" in result) {
             setError(result.error);
+            if (result.error.includes("convergencia")) {
+                void queryClient.invalidateQueries({queryKey: ["topic", topicId, "editor-data"]});
+            }
             return;
         }
         for (const block of [...changedBlocks, ...deletedBlocks]) {
             if (!block.isNew) void queryClient.invalidateQueries({queryKey: topicBlockVersionsKey(topicId, block.blockNumber)});
         }
         const blocks = persistedBlocks(result.value.blocks);
-        setEdit({savedBlocks: blocks, blocks, activeBlockNumber: null, showDeleted: false, message: ""});
+        setEdit({...stateFromSaved(blocks), showDeleted: false, message: ""});
     };
 
-    const visibleBlocks = edit.blocks.filter(block => !block.deleted || edit.showDeleted);
-    return <div className={cn("relative flex flex-1 flex-col", edit.activeBlockNumber === null ? "gap-0" : "gap-2")}
+    const visibleBlocks = edit.blocks.filter(block => !block.deleted || (edit.showDeleted && !block.isNew));
+    return <div className="flex flex-1 flex-col gap-3">
+        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
+            setEdit(current => mergeConvergence(current, initialBlocks));
+            setError(null);
+        }}/>}
+        <TopicDeletedBlocks topicId={topicId} count={deletedBlocksForDisplay.length} open={edit.showDeleted}
+            onToggle={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}/>
+        {edit.showDeleted && deletedBlocksForDisplay.length === 0 && <p className="text-xs text-muted-foreground">No hay bloques eliminados.</p>}
+        <div className={cn("relative flex flex-1 flex-col", edit.activeBlockNumber === null ? "gap-0" : "gap-2")}
         onClick={event => {
             if (event.target === event.currentTarget) startNewBlock(visibleBlocks.at(-1)?.blockNumber ?? null);
         }}>
@@ -269,12 +353,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         onDragOver={event => event.preventDefault()}
                         onDragEnd={() => setDraggedBlock(null)}>
                         {kind && <span className={cn("absolute top-2 bottom-2 -left-3 w-1 rounded-full", changeBarClass(kind))} aria-hidden="true"/>}
-                        {block.deleted ? <div className="-mx-3 flex items-start gap-3 rounded-lg bg-muted/40 px-3 py-2 text-muted-foreground">
-                            <div className="min-w-0 flex-1 opacity-60"><TopicBlockContent block={block}/></div>
-                            <Button type="button" variant="ghost" size="sm" onClick={() => restoreBlock(block.blockNumber)}>
-                                <ArrowCounterClockwiseIcon/>Restaurar
-                            </Button>
-                        </div>
+                        {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={false}
+                            newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
+                            onRestore={() => restoreBlock(block.blockNumber)}/>
                         : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
@@ -310,8 +391,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         })}
         {showActionsCard && <TopicEditActionsCard
             modifiedCount={modifiedBlockCount}
-            deletedBlockNumbers={deletedBlocks.map(block => block.blockNumber)}
-            showDeleted={edit.showDeleted}
+            deletedCount={deletedBlocks.length}
+            deletedBlockNumber={deletedBlocks[0]?.blockNumber}
             message={edit.message}
             requiresMessage={requiresMessage}
             saving={saving}
@@ -319,9 +400,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             error={error}
             shaking={shaking}
             onMessageChange={message => setEdit(current => ({...current, message}))}
-            onToggleDeleted={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}
             onCancel={cancel}
             onSave={() => void save()}
             onShakeEnd={() => setShaking(false)}/>}
+        </div>
     </div>;
 });

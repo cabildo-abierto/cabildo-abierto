@@ -1,12 +1,13 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql, type Kysely, type Transaction} from "kysely";
-import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, CreateTopicInput, CreateTopicOutput, DeleteBlockReactionInput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, CreateTopicInput, CreateTopicOutput, DeleteBlockReactionInput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
 import {isOrder} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
+import {notifyTopicChanged} from "#/services/topic-connections.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
 
@@ -21,7 +22,7 @@ type StoredTopicBlock = {
     deleted: boolean;
 };
 
-async function topicBlocks(database: Kysely<DB> | Transaction<DB>, topicId: string): Promise<TopicBlock[]> {
+async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId: string): Promise<TopicEditableBlock[]> {
     const blockResult = await sql<StoredTopicBlock>`
         SELECT block_version.id,
                block_version.edit_id AS "editId",
@@ -44,21 +45,43 @@ async function topicBlocks(database: Kysely<DB> | Transaction<DB>, topicId: stri
         INNER JOIN edit ON edit.id = block_version.edit_id
         INNER JOIN record ON record.id = edit.id
         WHERE block_version.topic_id = ${topicId}
+          AND record.deleted = false
         ORDER BY block_version.block_number, record.created_at DESC, record.id DESC
     `.execute(database);
     const rejectCounts = activeRejectCounts(await rejectTree(database, blockResult.rows.map(block => block.editId)));
     const selected = new Map<string, StoredTopicBlock>();
+    const latest = new Map<string, StoredTopicBlock>();
     for (const block of blockResult.rows) {
+        if (!latest.has(block.blockNumber)) latest.set(block.blockNumber, block);
         if (!selected.has(block.blockNumber) && (rejectCounts.get(block.editId) ?? 0) === 0) selected.set(block.blockNumber, block);
     }
-    return [...selected.values()].filter(block => !block.deleted)
+    for (const [blockNumber, block] of latest) {
+        if (!selected.has(blockNumber)) selected.set(blockNumber, {...block, deleted: true});
+    }
+    return [...selected.values()]
         .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber))
-        .map(({editId: _editId, deleted: _deleted, ...block}) => block);
+        .map(({editId: _editId, ...block}) => block);
 }
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
     return typeof error.code === "string" ? error.code : undefined;
+}
+
+function sameConvergenceBlocks(left: SaveTopicEditBlockInput[], right: TopicEditableBlock[]): boolean {
+    if (left.length !== right.length) return false;
+    const rightByNumber = new Map(right.map(block => [block.blockNumber, block]));
+    const seen = new Set<string>();
+    for (const block of left) {
+        if (!block.blockNumber || !block.id || seen.has(block.blockNumber)) return false;
+        const current = rightByNumber.get(block.blockNumber);
+        if (!current || current.id !== block.id || current.typeId !== block.typeId
+            || current.content !== block.content || current.order !== block.order || current.deleted !== block.deleted) {
+            return false;
+        }
+        seen.add(block.blockNumber);
+    }
+    return seen.size === rightByNumber.size;
 }
 
 class TopicEditError extends Error {
@@ -220,8 +243,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
     router.get("/topics/:id/blocks", async (req, res) => {
         try {
-            const [blocks, blockTypes] = await Promise.all([
-                topicBlocks(ctx.kysely, req.params.id),
+            const [convergence, blockTypes] = await Promise.all([
+                topicConvergence(ctx.kysely, req.params.id),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -229,13 +252,32 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     .execute(),
             ]);
             const value: TopicBlocksOutput = {
-                blocks,
+                blocks: convergence.filter(block => !block.deleted).map(({deleted: _deleted, ...block}) => block),
+                deletedBlocks: convergence.filter(block => block.deleted).map(({deleted: _deleted, ...block}) => block),
                 blockTypes: blockTypes as BlockType[],
             };
             return res.json({success: true, value});
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic blocks lookup failed");
             return res.status(500).json({success: false, error: "No pudimos cargar los bloques."});
+        }
+    });
+
+    router.get("/topics/:id/editor-data", requireSession(ctx), async (req, res) => {
+        try {
+            const [blocks, blockTypes] = await Promise.all([
+                topicConvergence(ctx.kysely, req.params.id),
+                ctx.kysely.selectFrom("block_type")
+                    .select(["id", "name"])
+                    .where("id", "in", ["parrafo", "h1", "h2"])
+                    .orderBy("id", "asc")
+                    .execute(),
+            ]);
+            const value: TopicEditorDataOutput = {blocks, blockTypes: blockTypes as BlockType[]};
+            return res.json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic editor data lookup failed");
+            return res.status(500).json({success: false, error: "No pudimos cargar los bloques para editar."});
         }
     });
 
@@ -281,6 +323,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 ])
                 .where("block_version.topic_id", "=", req.params.id)
                 .where("block_version.block_number", "=", req.params.blockNumber)
+                .where("record.deleted", "=", false)
                 .orderBy("record.created_at", "desc")
                 .orderBy("record.id", "desc")
                 .execute();
@@ -334,6 +377,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     .onRef("block_version.edit_id", "=", "comment.root_id")
                     .onRef("block_version.topic_id", "=", "comment.topic_id")
                     .onRef("block_version.block_number", "=", "comment.block_number"))
+                .innerJoin("edit as root_edit", "root_edit.id", "block_version.edit_id")
+                .innerJoin("record as root_record", "root_record.id", "root_edit.id")
                 .innerJoin("record", "record.id", "comment.id")
                 .innerJoin("user", "user.id", "record.author_id")
                 .select([
@@ -365,6 +410,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 ])
                 .where("comment.topic_id", "=", req.params.id)
                 .where("comment.block_number", "=", req.params.blockNumber)
+                .where("root_record.deleted", "=", false)
                 .orderBy("record.created_at", "desc")
                 .orderBy("record.id", "desc")
                 .execute();
@@ -407,6 +453,33 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
     });
 
+    router.delete("/topics/:id/blocks/:blockNumber/versions/:versionId", requireSession(ctx), async (req, res) => {
+        const user = requiredUser(req);
+        try {
+            await ctx.kysely.transaction().execute(async trx => {
+                await sql`select pg_advisory_xact_lock(hashtext(${`${req.params.id}:edit`}))`.execute(trx);
+                const version = await trx.selectFrom("block_version")
+                    .innerJoin("edit", "edit.id", "block_version.edit_id")
+                    .innerJoin("record", "record.id", "edit.id")
+                    .select(["edit.id as editId", "record.author_id as authorId", "record.deleted"])
+                    .where("block_version.id", "=", req.params.versionId)
+                    .where("block_version.topic_id", "=", req.params.id)
+                    .where("block_version.block_number", "=", req.params.blockNumber)
+                    .where("record.deleted", "=", false)
+                    .executeTakeFirst();
+                if (!version || version.deleted) throw new TopicEditError(404, "No encontramos esa versión.");
+                if (version.authorId !== user.id) throw new TopicEditError(403, "Solo el autor puede eliminar esta edición.");
+                await trx.updateTable("record").set({deleted: true}).where("id", "=", version.editId).execute();
+            });
+            await notifyTopicChanged(ctx.kysely, req.params.id, "edit", ctx.logger);
+            return res.json({success: true});
+        } catch (error) {
+            if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
+            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic edit deletion failed");
+            return res.status(500).json({success: false, error: "No pudimos eliminar la edición."});
+        }
+    });
+
     router.post("/topics/:id/blocks/:blockNumber/versions/:versionId/reactions", requireSession(ctx), async (req, res) => {
         const user = requiredUser(req);
         const input = (req.body ?? {}) as Partial<CreateBlockReactionInput>;
@@ -419,6 +492,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .where("block_version.id", "=", req.params.versionId)
                 .where("block_version.topic_id", "=", req.params.id)
                 .where("block_version.block_number", "=", req.params.blockNumber)
+                .where("record.deleted", "=", false)
                 .executeTakeFirst();
             if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
             if (version.authorId === user.id) return res.status(403).json({success: false, error: "No podés votar tu propia edición."});
@@ -435,6 +509,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("record").values({id: reactionId, type_id: "reaction", author_id: user.id}).execute();
                 await trx.insertInto("reaction").values({id: reactionId, type: "accept", subject_id: version.editId, reason_id: null}).execute();
             });
+            await notifyTopicChanged(ctx.kysely, req.params.id, "vote", ctx.logger);
             return res.status(201).json({success: true});
         } catch (error) {
             if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
@@ -468,6 +543,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 }
                 await deleteReactionTree(trx, reaction.id);
             });
+            await notifyTopicChanged(ctx.kysely, req.params.id, "vote", ctx.logger);
             return res.json({success: true});
         } catch (error) {
             if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
@@ -488,7 +564,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .executeTakeFirst();
             if (!comment) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
             if (comment.author_id !== user.id) return res.status(403).json({success: false, error: "Solo el autor puede eliminar este comentario."});
-            await ctx.kysely.transaction().execute(async trx => {
+            const removedVote = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${comment.rootId}:reaction`}))`.execute(trx);
                 const rejection = await trx.selectFrom("reaction")
                     .select("id")
@@ -502,7 +578,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     .set({deleted: true})
                     .where("id", "=", comment.id)
                     .execute();
+                return Boolean(rejection);
             });
+            await notifyTopicChanged(ctx.kysely, req.params.id, removedVote ? "vote" : "comment", ctx.logger);
             return res.json({success: true});
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comment deletion failed");
@@ -536,6 +614,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 .where("block_version.id", "=", input.blockVersionId)
                 .where("block_version.topic_id", "=", topicId)
                 .where("block_version.block_number", "=", blockNumber)
+                .where("record.deleted", "=", false)
                 .executeTakeFirst();
             if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
             if (reject && version.authorId === user.id) return res.status(403).json({success: false, error: "No podés rechazar tu propia edición."});
@@ -655,6 +734,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     author: user,
                 };
             });
+            await notifyTopicChanged(ctx.kysely, topicId, reject || replica ? "vote" : "comment", ctx.logger);
             const value: CreateBlockCommentOutput = {comment: created};
             return res.status(201).json({success: true, value});
         } catch (error) {
@@ -684,6 +764,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
             return res.status(400).json({success: false, error: "La edición contiene bloques inválidos."});
         }
         const requestedBlocks = parsedBlocks as SaveTopicEditInput["blocks"];
+        const baseBlocks = input.baseBlocks;
+        if (baseBlocks !== undefined && (!Array.isArray(baseBlocks) || baseBlocks.some(block => {
+            if (!block || typeof block !== "object") return true;
+            const parsed = blockContent(block);
+            return !parsed || typeof block.id !== "string" || typeof block.blockNumber !== "string"
+                || !isOrder(block.order) || typeof block.deleted !== "boolean";
+        }))) {
+            return res.status(400).json({success: false, error: "La convergencia base no es válida."});
+        }
         const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted);
         if (visibleRequestedBlocks.some((block, index) => index > 0 && visibleRequestedBlocks[index - 1].order >= block.order)) {
             return res.status(400).json({success: false, error: "El orden de los bloques no es válido."});
@@ -692,19 +781,22 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
-                const currentBlocks = await topicBlocks(trx, topicId);
+                const currentBlocks = await topicConvergence(trx, topicId);
+                if (baseBlocks && !sameConvergenceBlocks(baseBlocks, currentBlocks)) {
+                    throw new TopicEditError(409, "La convergencia cambió. Actualizala antes de guardar.");
+                }
                 const currentByNumber = new Map(currentBlocks.map(block => [block.blockNumber, block]));
                 const existingInputs = requestedBlocks.filter(block => block.blockNumber !== null);
                 const submittedNumbers = existingInputs.map(block => block.blockNumber!);
                 if (submittedNumbers.length !== currentBlocks.length
                     || new Set(submittedNumbers).size !== submittedNumbers.length
                     || submittedNumbers.some(blockNumber => !currentByNumber.has(blockNumber))) {
-                    throw new TopicEditError(409, "Los bloques cambiaron. Recargá el tema antes de guardar.");
+                    throw new TopicEditError(409, "La convergencia cambió. Actualizala antes de guardar.");
                 }
                 for (const block of existingInputs) {
                     const current = currentByNumber.get(block.blockNumber!)!;
                     if (block.id !== current.id) {
-                        throw new TopicEditError(409, "Los bloques cambiaron. Recargá el tema antes de guardar.");
+                        throw new TopicEditError(409, "La convergencia cambió. Actualizala antes de guardar.");
                     }
                     if (block.typeId !== current.typeId) {
                         throw new TopicEditError(400, "No se puede cambiar el tipo de un bloque existente.");
@@ -713,7 +805,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
                 const changedExisting = existingInputs.filter(block => {
                     const current = currentByNumber.get(block.blockNumber!)!;
-                    return block.deleted || block.content !== current.content || block.order !== current.order;
+                    return block.deleted !== current.deleted || block.content !== current.content || block.order !== current.order;
                 });
                 const newInputs = requestedBlocks.filter(block => block.blockNumber === null);
                 if (changedExisting.length === 0 && newInputs.length === 0) {
@@ -783,8 +875,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
-                return topicBlocks(trx, topicId);
+                return topicConvergence(trx, topicId);
             });
+            await notifyTopicChanged(ctx.kysely, topicId, "edit", ctx.logger);
             const value: SaveTopicEditOutput = {blocks};
             return res.status(201).json({success: true, value});
         } catch (error) {

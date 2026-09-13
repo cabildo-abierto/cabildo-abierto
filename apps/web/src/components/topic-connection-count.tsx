@@ -3,12 +3,13 @@
 import type {TopicConnectionMode} from "@cabildo-abierto/api";
 import {EyeIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {useTopicConnections} from "@/hooks/use-topic-connections";
+import {cn} from "@/lib/utils";
 
-export function TopicConnectionCount({topicId, mode}: {topicId: string; mode: TopicConnectionMode}) {
+export function TopicConnectionCount({topicId, mode, className}: {topicId: string; mode: TopicConnectionMode; className?: string}) {
     const connections = useTopicConnections(topicId, mode);
     if (!connections) return null;
 
-    return <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
+    return <div className={cn("mt-3 flex items-center gap-2 text-xs text-muted-foreground", className)} aria-live="polite">
         <span className="inline-flex items-center gap-1" title={`${connections.reading} leyendo`}>
             <EyeIcon className="size-3.5"/>{connections.reading} leyendo
         </span>

@@ -3,7 +3,7 @@
 import {useParams, useRouter} from "next/navigation";
 import {useEffect, useRef} from "react";
 import {useQuery} from "@tanstack/react-query";
-import type {TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
 import {XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicView} from "@/components/topic-view";
@@ -36,7 +36,7 @@ export default function EditTopicPage() {
     const blocksQuery = useQuery({
         queryKey: ["topic", id, "editor-data"],
         queryFn: async () => {
-            const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`);
+            const result = await get<TopicEditorDataOutput>(`/topics/${encodeURIComponent(id)}/editor-data`);
             if ("error" in result) throw new Error(result.error);
             return result.value;
         },

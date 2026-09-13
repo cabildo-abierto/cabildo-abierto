@@ -32,6 +32,20 @@ export type TopicConnectionsChangedEvent = {
     connections: TopicConnectionCounts
 }
 
+export type TopicConnectionOpenedEvent = {
+    type: "connection.opened"
+    topicId: string
+    connectionId: string
+}
+
+export type TopicChangedEvent = {
+    type: "topic.changed"
+    topicId: string
+    source: "edit" | "comment" | "vote"
+}
+
+export type TopicRealtimeEvent = TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent
+
 export type BlockType = {
     id: "parrafo" | "h1" | "h2"
     name: string
@@ -48,6 +62,16 @@ export type TopicBlock = {
 
 export type TopicBlocksOutput = {
     blocks: TopicBlock[]
+    deletedBlocks: TopicBlock[]
+    blockTypes: BlockType[]
+}
+
+export type TopicEditableBlock = TopicBlock & {
+    deleted: boolean
+}
+
+export type TopicEditorDataOutput = {
+    blocks: TopicEditableBlock[]
     blockTypes: BlockType[]
 }
 
@@ -125,9 +149,10 @@ export type SaveTopicEditBlockInput = {
 
 export type SaveTopicEditInput = {
     blocks: SaveTopicEditBlockInput[]
+    baseBlocks?: SaveTopicEditBlockInput[]
     message?: string | null
 }
 
 export type SaveTopicEditOutput = {
-    blocks: TopicBlock[]
+    blocks: TopicEditableBlock[]
 }

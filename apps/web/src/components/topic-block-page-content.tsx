@@ -1,0 +1,42 @@
+"use client";
+
+import {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import type {TopicBlock} from "@cabildo-abierto/api";
+import {TopicBlockContent} from "@/components/topic-block-content";
+import {TopicBlockTools} from "@/components/topic-block-tools";
+import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
+import {useTopicRealtimeChange} from "@/hooks/use-topic-realtime-change";
+
+export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initialHistoryOpen}: {
+    topicId: string;
+    initialBlock: TopicBlock;
+    latestBlock: TopicBlock | undefined;
+    initialHistoryOpen: boolean;
+}) {
+    const router = useRouter();
+    const [displayedBlock, setDisplayedBlock] = useState(initialBlock);
+    const realtimeChange = useTopicRealtimeChange(topicId);
+
+    useEffect(() => {
+        if (latestBlock && realtimeChange?.source === "vote") {
+            setDisplayedBlock(latestBlock);
+            return;
+        }
+        if (latestBlock && latestBlock.commentCount !== displayedBlock.commentCount) {
+            setDisplayedBlock(current => ({...current, commentCount: latestBlock.commentCount}));
+        }
+    }, [displayedBlock.commentCount, latestBlock, realtimeChange]);
+
+    const convergenceChanged = !latestBlock || latestBlock.id !== displayedBlock.id;
+    return <div className="min-w-0 space-y-3">
+        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
+            if (!latestBlock) router.push(`/tema/${encodeURIComponent(topicId)}`);
+            else setDisplayedBlock(latestBlock);
+        }}/>} 
+        <div>
+            <article className="rounded-lg border bg-card px-4 py-3"><TopicBlockContent block={displayedBlock}/></article>
+            <TopicBlockTools topicId={topicId} block={displayedBlock} pageLayout initialHistoryOpen={initialHistoryOpen}/>
+        </div>
+    </div>;
+}

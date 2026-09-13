@@ -38,7 +38,9 @@ export async function setupAppContext(roles: Role[]) {
     const kysely = setupKysely()
     logger.pino.info("kysely client created")
 
-    const topicConnections = roles.includes("web") ? new TopicConnections(kysely, env.DATABASE_URL, logger) : null;
+    const topicConnections = roles.includes("web")
+        ? new TopicConnections(kysely, env.DIRECT_URL || env.DATABASE_URL, logger)
+        : null;
 
     const ctx: AppContext = {
         logger,

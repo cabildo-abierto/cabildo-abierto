@@ -72,5 +72,17 @@ export function topicConnectionRoutes(ctx: AppContext): Router {
         }
     });
 
+    const disconnect = async (req: express.Request, res: express.Response) => {
+        if (!ctx.topicConnections) return res.status(503).json({success: false, error: "Las conexiones en tiempo real no están disponibles."});
+        const topicId = req.params.id;
+        const connectionId = req.params.connectionId;
+        if (!topicId || !connectionId) return res.status(400).json({success: false, error: "La conexión no es válida."});
+        const viewerId = getViewerId(req, res);
+        await ctx.topicConnections.disconnect(connectionId, topicId, viewerId);
+        return res.json({success: true});
+    };
+    router.delete("/topics/:id/connections/:connectionId", withSession(ctx), disconnect);
+    router.post("/topics/:id/connections/:connectionId/disconnect", withSession(ctx), disconnect);
+
     return router;
 }
