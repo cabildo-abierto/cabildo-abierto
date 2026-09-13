@@ -204,19 +204,43 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
     router.get("/topics", async (req, res) => {
         const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
-        if (!search) {
-            const value: SearchTopicsOutput = {topics: []};
-            return res.json({success: true, value});
-        }
 
         try {
-            const topics = await ctx.kysely
-                .selectFrom("topic")
-                .select(["id", "title"])
-                .where("title", "ilike", `%${search}%`)
-                .orderBy("title", "asc")
-                .limit(20)
-                .execute();
+            const result = await sql<{id: string; title: string}>`
+                WITH topic_activity AS (
+                    SELECT edit.topic_id, record.author_id, record.created_at
+                    FROM edit
+                    INNER JOIN record ON record.id = edit.id
+
+                    UNION ALL
+
+                    SELECT comment.topic_id, record.author_id, record.created_at
+                    FROM comment
+                    INNER JOIN record ON record.id = comment.id
+
+                    UNION ALL
+
+                    SELECT COALESCE(reason.topic_id, subject_edit.topic_id) AS topic_id,
+                           record.author_id,
+                           record.created_at
+                    FROM reaction
+                    INNER JOIN record ON record.id = reaction.id
+                    LEFT JOIN comment AS reason ON reason.id = reaction.reason_id
+                    LEFT JOIN edit AS subject_edit ON subject_edit.id = reaction.subject_id
+                    WHERE reason.topic_id IS NOT NULL OR subject_edit.topic_id IS NOT NULL
+                )
+                SELECT topic.id, topic.title
+                FROM topic
+                LEFT JOIN topic_activity ON topic_activity.topic_id = topic.id
+                WHERE (${search} = '' OR topic.title ILIKE ${`%${search}%`})
+                GROUP BY topic.id, topic.title
+                ORDER BY COUNT(DISTINCT topic_activity.author_id)
+                             FILTER (WHERE topic_activity.created_at >= NOW() - INTERVAL '7 days') DESC,
+                         COUNT(topic_activity.author_id) DESC,
+                         MIN(topic_activity.created_at) DESC NULLS FIRST,
+                         topic.title ASC
+            `.execute(ctx.kysely);
+            const topics = result.rows;
             const value: SearchTopicsOutput = {topics};
             return res.json({success: true, value});
         } catch (error) {

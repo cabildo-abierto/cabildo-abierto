@@ -27,6 +27,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {ScrollArea} from "@/components/ui/scroll-area";
 
 const MAX_INLINE_COMMENT_DEPTH = 5;
 
@@ -130,7 +131,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
                              onPublish={(content, replyToId) => onPublish(content, replyToId, comment.blockVersionId, false, true)}
                              onCancel={() => setActiveReplicaId(null)}/>
         </div>}
-        {!comment.deleted && hasHiddenReplies && <Button nativeButton={false} render={<Link href={conversationHref}/>} variant="outline" size="xs" className="mx-1 mb-1 bg-muted/50">
+        {!comment.deleted && hasHiddenReplies && <Button nativeButton={false} render={<Link href={conversationHref}/>} variant="outline" size="xs" className="mx-1 mb-1 text-muted-foreground">
             Ver conversación completa
         </Button>}
         {displayedChildren.length > 0 && <ol className="space-y-1">
@@ -139,24 +140,26 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
     </li>;
     };
 
-    return <><section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72")} aria-label="Comentarios del bloque">
-        {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
+    return <><section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "2xl:absolute 2xl:top-0 2xl:left-full 2xl:ml-32 2xl:mt-0 2xl:w-72")} aria-label="Comentarios del bloque">
+        {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <div className="pr-3"><CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `la edición «${rejectionVersion.message}» de ${topicAuthorName(rejectionVersion.author, user?.id)}`
                 : `la edición de ${topicAuthorName(rejectionVersion.author, user?.id)} del ${formatTopicBlockDate(rejectionVersion.createdAt)}` : undefined}
             onPublish={(content, replyToId) => onPublish(content, replyToId, rejectionVersion?.id, Boolean(rejectionVersion))}
-            onCancel={rejectionVersion ? onCancelRejection : undefined}/>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+            onCancel={rejectionVersion ? onCancelRejection : undefined}/></div>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
-        <div className="mt-2">
+        <div className="mt-2 mb-16">
             {filteredVersion && <div className={cn("mb-3 text-muted-foreground", pageLayout ? "text-xs" : "text-[10px]")}>
                 Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} de {topicAuthorName(filteredVersion.author, user?.id)}.{" "}
                 {pinnedVersionId === filteredVersion.id && <Button type="button" variant="link" size="xs" className={cn("font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline", pageLayout ? "text-xs" : "text-[10px]")} onClick={onShowAll}>Ver todos</Button>}
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
-            {rootComments.some(isRenderable) && <ol className="space-y-2">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>}
-            {!loading && !error && !rootComments.some(isRenderable) && <p className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+            {rootComments.some(isRenderable) && <ScrollArea className="max-h-[600px]">
+                <ol className="space-y-2 pr-3">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
+            </ScrollArea>}
+            {pageLayout && !loading && !error && !rootComments.some(isRenderable) && <p className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
                 {filteredVersion ? "Esta versión del bloque no recibió comentarios." : "El bloque todavía no recibió comentarios."}
             </p>}
         </div>

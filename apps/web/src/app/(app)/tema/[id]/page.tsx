@@ -22,11 +22,13 @@ import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 import {TopicReadingContent} from "@/components/topic-reading-content";
+import {useMediaQuery} from "@/hooks/use-media-query";
 
 export default function TopicPage() {
     const {id} = useParams<{id: string}>();
     const {user, loading: authLoading} = useAuth();
     const isMobile = useIsMobile();
+    const openToolsInPage = useMediaQuery("(max-width: 1535px)");
     const topicQuery = useQuery({
         queryKey: ["topic", id],
         queryFn: async () => {
@@ -77,6 +79,6 @@ export default function TopicPage() {
     </AlertDialog>);
 
     return <TopicView topic={topic} connectionMode="reading" action={editButton}>
-        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} openToolsInPage={isMobile === true}/>
+        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} openToolsInPage={openToolsInPage !== false}/>
     </TopicView>;
 }

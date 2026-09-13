@@ -218,7 +218,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         onAccept={acceptVersion} onReject={rejectVersion}
         onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
         onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
-    if (openInPage) return <div className={cn("flex items-center justify-end gap-1 md:absolute md:top-2 md:left-full md:ml-5", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    if (openInPage) return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}

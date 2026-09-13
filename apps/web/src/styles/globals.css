@@ -132,6 +132,7 @@
     }
   html {
     @apply font-mono;
+    overflow-y: scroll;
     }
 }
 

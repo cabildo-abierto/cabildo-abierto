@@ -1,7 +1,7 @@
 "use client"
 
 import {type FormEvent, useState} from "react";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {CreateTopicInput, CreateTopicOutput} from "@cabildo-abierto/api";
 import {Button} from "@/components/ui/button";
@@ -18,6 +18,7 @@ function canonicalizeTopicId(title: string): string {
 
 export default function NewTopicPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [title, setTitle] = useState("");
     const [error, setError] = useState<string | null>(null);
     const createTopicMutation = useMutation({
@@ -26,6 +27,7 @@ export default function NewTopicPage() {
             if ("error" in result) throw new Error(result.error);
             return result.value.topic;
         },
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["topics", "search"]}),
     });
     const topicId = canonicalizeTopicId(title);
 

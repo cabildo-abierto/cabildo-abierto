@@ -7,6 +7,7 @@ import {orderBetween, permutationFor} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools, topicBlockVersionsKey} from "@/components/topic-block-tools";
+import {useMediaQuery} from "@/hooks/use-media-query";
 import {TopicBlockInsertButton} from "@/components/topic-block-insert-button";
 import {TopicBlockEditForm} from "@/components/topic-block-edit-form";
 import {TopicEditActionsCard} from "@/components/topic-edit-actions-card";
@@ -131,6 +132,7 @@ export type TopicBlockEditorHandle = {
 };
 
 export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicEditableBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
+    const openToolsInPage = useMediaQuery("(max-width: 1535px)") !== false;
     const queryClient = useQueryClient();
     const [edit, setEdit] = useState<TopicEditState>(() => {
         const blocks = persistedBlocks(initialBlocks);
@@ -353,7 +355,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         onDragOver={event => event.preventDefault()}
                         onDragEnd={() => setDraggedBlock(null)}>
                         {kind && <span className={cn("absolute top-2 bottom-2 -left-3 w-1 rounded-full", changeBarClass(kind))} aria-hidden="true"/>}
-                        {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={false}
+                        {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={openToolsInPage}
                             newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
                             onRestore={() => restoreBlock(block.blockNumber)}/>
                         : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
@@ -382,7 +384,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         {error && <p className="text-xs text-destructive">{error}</p>}
                         <TopicEditActionButtons saving={saving} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
                     </div>}
-                    {!block.isNew && !block.deleted && <TopicBlockTools topicId={topicId} block={block} buttonClassName={active ? "-translate-x-3" : undefined}/>}
+                    {!block.isNew && !block.deleted && <TopicBlockTools topicId={topicId} block={block} openInPage={openToolsInPage} buttonClassName={active ? "-translate-x-3" : undefined}/>}
                 </div>
                 {!saving && !block.deleted && block.content !== "" && (index < visibleBlocks.length - 1
                     ? visibleBlocks[index + 1].content !== "" && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
