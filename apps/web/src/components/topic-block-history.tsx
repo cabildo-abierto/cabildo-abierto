@@ -10,6 +10,7 @@ import {Button} from "@/components/ui/button";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {formatTopicBlockDate} from "@/components/topic-block-date";
 import {Spinner} from "@/components/ui/spinner";
+import {cn} from "@/lib/utils";
 
 export function TopicBlockHistory({topicId, block, versions, loading, error, selectedVersionId, addedCommentCounts, onPreview, onSelect, onAccept, onReject, onCancelReaction}: {
     topicId: string
@@ -48,7 +49,7 @@ export function TopicBlockHistory({topicId, block, versions, loading, error, sel
                     onFocus={() => onPreview(version)}
                     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) onPreview(null); }}
                 >
-                    <span className={`absolute top-1.5 -left-[1.2rem] size-2 rounded-full transition-transform duration-150 group-hover/version:scale-120 ${version.rejected ? "bg-red-500" : "bg-green-500"}`} aria-label={version.rejected ? "Edición rechazada" : "Edición aceptada"}/>
+                    <span className={cn("absolute top-1.5 -left-[1.2rem] size-2 rounded-full transition-transform duration-150 group-hover/version:scale-120", version.rejected ? "bg-red-500" : "bg-green-500")} aria-label={version.rejected ? "Edición rechazada" : "Edición aceptada"}/>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                         <span className="font-medium text-muted-foreground">@{version.author.username}</span>
                         <time dateTime={version.createdAt}>{formatTopicBlockDate(version.createdAt)}</time>
@@ -62,13 +63,13 @@ export function TopicBlockHistory({topicId, block, versions, loading, error, sel
                         </Button>
                         <span className="ml-auto inline-flex items-center gap-1">
                             <Button type="button" variant="ghost" size="sm" disabled={!user || user.id === version.author.id}
-                                className={`h-6 gap-1 px-1 text-green-600 hover:bg-green-500/10 hover:text-green-700 disabled:opacity-50 dark:text-green-400 dark:hover:text-green-300 ${version.userReaction === "accept" ? "bg-green-500/15" : ""}`}
+                                className={cn("h-6 gap-1 px-1 text-green-600 hover:bg-green-500/10 hover:text-green-700 disabled:opacity-50 dark:text-green-400 dark:hover:text-green-300", version.userReaction === "accept" && "bg-green-500/15")}
                                 aria-pressed={version.userReaction === "accept"} aria-label={version.userReaction === "accept" ? `Cancelar voto de aceptación (${version.acceptCount})` : `Votar aceptación (${version.acceptCount})`} title={version.userReaction === "accept" ? "Cancelar voto de aceptación" : "Votar aceptación"}
                                 onClick={() => version.userReaction === "accept" ? requestCancel(version) : onAccept(version)}>
                                 <CheckIcon className="size-3"/><span>{version.acceptCount}</span>
                             </Button>
                             <Button type="button" variant="ghost" size="sm" disabled={!user || user.id === version.author.id}
-                                className={`h-6 gap-1 px-1 text-red-600 hover:bg-red-500/10 hover:text-red-700 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 ${version.userReaction === "reject" ? "bg-red-500/15" : ""}`}
+                                className={cn("h-6 gap-1 px-1 text-red-600 hover:bg-red-500/10 hover:text-red-700 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300", version.userReaction === "reject" && "bg-red-500/15")}
                                 aria-pressed={version.userReaction === "reject"} aria-label={version.userReaction === "reject" ? `Cancelar voto de rechazo (${version.rejectCount})` : `Votar rechazo (${version.rejectCount})`} title={version.userReaction === "reject" ? "Cancelar voto de rechazo" : "Votar rechazo"}
                                 onClick={() => version.userReaction === "reject" ? requestCancel(version) : onReject(version)}>
                                 <XIcon className="size-3"/><span>{version.rejectCount}</span>

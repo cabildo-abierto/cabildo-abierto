@@ -3,6 +3,7 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardTitle} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {TopicEditActionButtons} from "@/components/topic-edit-action-buttons";
+import {cn} from "@/lib/utils";
 
 export function TopicEditActionsCard({modifiedCount, deletedBlockNumbers, showDeleted, message, requiresMessage, saving, saveDisabled, error, shaking, onMessageChange, onToggleDeleted, onCancel, onSave, onShakeEnd}: {
     modifiedCount: number
@@ -24,7 +25,7 @@ export function TopicEditActionsCard({modifiedCount, deletedBlockNumbers, showDe
     const onlyDeletion = modifiedCount === 0 && deletedCount === 1;
 
     return <Card size="sm"
-        className={`fixed right-4 bottom-4 z-50 w-[min(22rem,calc(100vw-2rem))] shadow-lg sm:right-6 sm:bottom-6 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
+        className={cn("fixed right-4 bottom-4 z-50 w-[min(22rem,calc(100vw-2rem))] shadow-lg sm:right-6 sm:bottom-6", shaking && "animate-[block-shake_180ms_ease-in-out]")}
         onAnimationEnd={onShakeEnd}>
         <CardContent className="space-y-2">
             <div className="flex items-center justify-between gap-3">

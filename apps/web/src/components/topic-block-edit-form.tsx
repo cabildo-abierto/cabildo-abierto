@@ -3,6 +3,7 @@ import {DotsSixVerticalIcon} from "@phosphor-icons/react";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {cn} from "@/lib/utils";
 
 function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     if (typeId === "h1") return <span className="inline-flex h-4 min-w-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">T1</span>;
@@ -38,7 +39,7 @@ export function TopicBlockEditForm({block, isNew, blockTypes, onChange, onDelete
             onChange={event => onChange({...block, content: event.target.value})}
             onKeyDown={event => { if (event.key === "Backspace" && block.content === "") onDeleteEmpty(); }}
             placeholder={block.typeId === "h1" ? "Título de sección" : "Título de subsección"}
-            className={`h-auto rounded-none border-0 bg-transparent mb-0 px-0 py-0 font-semibold shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent ${block.typeId === "h1" ? "text-xl md:text-xl" : "text-base md:text-base"}`}
+            className={cn("h-auto rounded-none border-0 bg-transparent mb-0 px-0 py-0 font-semibold shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent", block.typeId === "h1" ? "text-xl md:text-xl" : "text-base md:text-base")}
             maxLength={20_000}
             draggable={false}
             autoFocus

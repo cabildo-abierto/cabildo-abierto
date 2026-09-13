@@ -13,6 +13,7 @@ import {TopicBlockEditForm} from "@/components/topic-block-edit-form";
 import {TopicEditActionsCard} from "@/components/topic-edit-actions-card";
 import {TopicEditActionButtons} from "@/components/topic-edit-action-buttons";
 import {post} from "@/utils/react/fetch";
+import {cn} from "@/lib/utils";
 
 type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
 type TopicEditState = {
@@ -244,7 +245,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     };
 
     const visibleBlocks = edit.blocks.filter(block => !block.deleted || edit.showDeleted);
-    return <div className={`relative flex flex-1 flex-col ${edit.activeBlockNumber === null ? "gap-0" : "gap-2"}`}
+    return <div className={cn("relative flex flex-1 flex-col", edit.activeBlockNumber === null ? "gap-0" : "gap-2")}
         onClick={event => {
             if (event.target === event.currentTarget) startNewBlock(visibleBlocks.at(-1)?.blockNumber ?? null);
         }}>
@@ -257,7 +258,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             return <div key={block.blockNumber} className="contents">
                 <div className="group/block relative">
                     <div
-                        className={`relative ${draggedBlock === block.blockNumber ? "opacity-50" : ""}`}
+                        className={cn("relative", draggedBlock === block.blockNumber && "opacity-50")}
                         draggable={!saving && !block.deleted}
                         onDragStart={event => {
                             event.dataTransfer.setData("text/plain", block.blockNumber);
@@ -267,7 +268,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         onDragEnter={() => { if (!block.deleted) moveDraggedBlock(block.blockNumber); }}
                         onDragOver={event => event.preventDefault()}
                         onDragEnd={() => setDraggedBlock(null)}>
-                        {kind && <span className={`absolute top-2 bottom-2 -left-3 w-1 rounded-full ${changeBarClass(kind)}`} aria-hidden="true"/>}
+                        {kind && <span className={cn("absolute top-2 bottom-2 -left-3 w-1 rounded-full", changeBarClass(kind))} aria-hidden="true"/>}
                         {block.deleted ? <div className="-mx-3 flex items-start gap-3 rounded-lg bg-muted/40 px-3 py-2 text-muted-foreground">
                             <div className="min-w-0 flex-1 opacity-60"><TopicBlockContent block={block}/></div>
                             <Button type="button" variant="ghost" size="sm" onClick={() => restoreBlock(block.blockNumber)}>
@@ -295,7 +296,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         </article>}
                     </div>
                     {active && singleChangedBlockNumber === block.blockNumber && <div
-                        className={`space-y-2 pt-2 ${shaking ? "animate-[block-shake_180ms_ease-in-out]" : ""}`}
+                        className={cn("space-y-2 pt-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                         draggable={false} onDragStart={event => event.stopPropagation()} onAnimationEnd={() => setShaking(false)}>
                         {error && <p className="text-xs text-destructive">{error}</p>}
                         <TopicEditActionButtons saving={saving} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>

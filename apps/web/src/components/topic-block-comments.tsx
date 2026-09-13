@@ -15,6 +15,7 @@ import {
 import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block-date";
 import {Spinner} from "@/components/ui/spinner";
 import {CommentComposer} from "@/components/comment-composer";
+import {cn} from "@/lib/utils";
 
 export function TopicBlockComments({comments, loading, error, filteredVersion, pinnedVersionId, rejectionVersion, pageLayout = false, onShowAll, onPublish, onCancelRejection, onDelete}: {
     comments: BlockComment[] | null
@@ -48,10 +49,13 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
         const children = commentsByParent.get(comment.id) ?? [];
         const visibleChildren = children.filter(isRenderable);
         const isReplyEditorOpen = activeReplyId === comment.id;
-        const cardClass = comment.rejection
-            ? "border border-red-500/50 bg-red-500/5 dark:border-red-400/50 dark:bg-red-500/10"
-            : `outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)] ${depth % 2 === 1 ? "bg-card" : "bg-muted/40"}`;
-        return <li key={comment.id} className={`pl-1 pt-1 pb-0.5 pr-0 rounded-lg ${cardClass}`}>
+        const cardClass = cn(
+            comment.rejection
+                ? "border border-red-500/50 bg-red-500/5 dark:border-red-400/50 dark:bg-red-500/10"
+                : "outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)]",
+            !comment.rejection && (depth % 2 === 1 ? "bg-card" : "bg-muted/40"),
+        );
+        return <li key={comment.id} className={cn("pl-1 pt-1 pb-0.5 pr-0 rounded-lg", cardClass)}>
 
         {comment.deleted && <div className={"wrap-break-word p-1 leading-relaxed whitespace-pre-wrap flex items-center gap-1 italic text-xs py-2 text-muted-foreground"}>
             <div className={"pb-0.5"}>
@@ -97,7 +101,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
     </li>;
     };
 
-    return <section className={pageLayout ? "mt-4 box-border min-w-0 max-w-full" : "mt-4 box-border min-w-0 max-w-full xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72"} aria-label="Comentarios del bloque">
+    return <section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72")} aria-label="Comentarios del bloque">
         {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `la edición «${rejectionVersion.message}» de @${rejectionVersion.author.username}`
@@ -107,9 +111,9 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, p
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
         <div className="mt-4">
-            {filteredVersion && <div className={`mb-3 ${pageLayout ? "text-xs" : "text-[10px]"} text-muted-foreground`}>
+            {filteredVersion && <div className={cn("mb-3 text-muted-foreground", pageLayout ? "text-xs" : "text-[10px]")}>
                 Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} de @{filteredVersion.author.username}.{" "}
-                {pinnedVersionId === filteredVersion.id && <Button type="button" variant="link" size="xs" className={pageLayout ? "text-xs font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline" : "text-[10px] font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline"} onClick={onShowAll}>Ver todos</Button>}
+                {pinnedVersionId === filteredVersion.id && <Button type="button" variant="link" size="xs" className={cn("font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline", pageLayout ? "text-xs" : "text-[10px]")} onClick={onShowAll}>Ver todos</Button>}
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
