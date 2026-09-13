@@ -16,12 +16,14 @@ import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block
 import {Spinner} from "@/components/ui/spinner";
 import {CommentComposer} from "@/components/comment-composer";
 
-export function TopicBlockComments({comments, loading, error, filteredVersion, rejectionVersion, onShowAll, onPublish, onCancelRejection, onDelete}: {
+export function TopicBlockComments({comments, loading, error, filteredVersion, pinnedVersionId, rejectionVersion, pageLayout = false, onShowAll, onPublish, onCancelRejection, onDelete}: {
     comments: BlockComment[] | null
     loading: boolean
     error: string | null
     filteredVersion: TopicBlockVersion | null
+    pinnedVersionId?: string | null
     rejectionVersion: TopicBlockVersion | null
+    pageLayout?: boolean
     onShowAll: () => void
     onPublish: (content: string, replyToId?: string, blockVersionId?: string, reject?: boolean) => Promise<boolean>
     onCancelRejection: () => void
@@ -95,7 +97,7 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, r
     </li>;
     };
 
-    return <section className="mt-4 box-border min-w-0 max-w-full xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72" aria-label="Comentarios del bloque">
+    return <section className={pageLayout ? "mt-4 box-border min-w-0 max-w-full" : "mt-4 box-border min-w-0 max-w-full xl:absolute xl:top-0 xl:left-full xl:ml-32 xl:mt-0 xl:w-72"} aria-label="Comentarios del bloque">
         {authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `la edición «${rejectionVersion.message}» de @${rejectionVersion.author.username}`
@@ -105,13 +107,16 @@ export function TopicBlockComments({comments, loading, error, filteredVersion, r
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
         <div className="mt-4">
-            {filteredVersion && <div className="mb-3 text-[10px] text-muted-foreground">
+            {filteredVersion && <div className={`mb-3 ${pageLayout ? "text-xs" : "text-[10px]"} text-muted-foreground`}>
                 Viendo comentarios de la versión del {formatTopicBlockDate(filteredVersion.createdAt)} de @{filteredVersion.author.username}.{" "}
-                <Button type="button" variant="link" size="xs" className="text-[10px] font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline" onClick={onShowAll}>Ver todos</Button>
+                {pinnedVersionId === filteredVersion.id && <Button type="button" variant="link" size="xs" className={pageLayout ? "text-xs font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline" : "text-[10px] font-bold text-muted-foreground inline-flex h-auto px-0 align-baseline"} onClick={onShowAll}>Ver todos</Button>}
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
             {rootComments.some(isRenderable) && <ol className="space-y-4">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>}
+            {!loading && !error && !rootComments.some(isRenderable) && <p className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+                {filteredVersion ? "Esta versión del bloque no recibió comentarios." : "El bloque todavía no recibió comentarios."}
+            </p>}
         </div>
     </section>;
 }

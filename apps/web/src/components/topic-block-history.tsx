@@ -1,6 +1,7 @@
 "use client"
 
 import type {TopicBlock, TopicBlockVersion} from "@cabildo-abierto/api";
+import Link from "next/link";
 import {ChatCircleIcon, CheckIcon, GitDiffIcon, XIcon} from "@phosphor-icons/react";
 import {useState} from "react";
 import {useAuth} from "@/components/auth-provider";
@@ -10,7 +11,8 @@ import {TopicBlockContent} from "@/components/topic-block-content";
 import {formatTopicBlockDate} from "@/components/topic-block-date";
 import {Spinner} from "@/components/ui/spinner";
 
-export function TopicBlockHistory({block, versions, loading, error, selectedVersionId, addedCommentCounts, onPreview, onSelect, onAccept, onReject, onCancelReaction}: {
+export function TopicBlockHistory({topicId, block, versions, loading, error, selectedVersionId, addedCommentCounts, onPreview, onSelect, onAccept, onReject, onCancelReaction}: {
+    topicId: string
     block: TopicBlock
     versions: TopicBlockVersion[] | null
     loading: boolean
@@ -33,7 +35,7 @@ export function TopicBlockHistory({block, versions, loading, error, selectedVers
         <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <GitDiffIcon/>
             <span>Versiones de</span>
-            <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{block.blockNumber}</span>
+            <Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}`} className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground underline-offset-2 hover:underline">{block.blockNumber}</Link>
         </div>
         {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando historial…</p>}
         {error && <p className="text-xs text-destructive">{error}</p>}
@@ -41,12 +43,12 @@ export function TopicBlockHistory({block, versions, loading, error, selectedVers
             {versions.map((version, index) => {
                 const commentCount = version.commentCount + (addedCommentCounts.get(version.id) ?? 0);
                 const selected = selectedVersionId === version.id;
-                return <li key={version.id} className="relative"
+                return <li key={version.id} className="group/version relative"
                     onMouseEnter={() => onPreview(version)} onMouseLeave={() => onPreview(null)}
                     onFocus={() => onPreview(version)}
                     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) onPreview(null); }}
                 >
-                    <span className={`absolute top-1.5 -left-[1.2rem] size-2 rounded-full ${version.rejected ? "bg-red-500" : "bg-green-500"}`} aria-label={version.rejected ? "Edición rechazada" : "Edición aceptada"}/>
+                    <span className={`absolute top-1.5 -left-[1.2rem] size-2 rounded-full transition-transform duration-150 group-hover/version:scale-120 ${version.rejected ? "bg-red-500" : "bg-green-500"}`} aria-label={version.rejected ? "Edición rechazada" : "Edición aceptada"}/>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                         <span className="font-medium text-muted-foreground">@{version.author.username}</span>
                         <time dateTime={version.createdAt}>{formatTopicBlockDate(version.createdAt)}</time>

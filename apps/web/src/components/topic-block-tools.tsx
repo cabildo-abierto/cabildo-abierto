@@ -1,6 +1,7 @@
 "use client"
 
 import {useState, type MouseEvent} from "react";
+import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput} from "@cabildo-abierto/api";
 import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
@@ -14,20 +15,23 @@ import {useToast} from "@/components/ui/toast";
 export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
     ["topic", topicId, "block", blockNumber, "versions"] as const;
 
-export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: controlledCommentsOpen, onCommentsOpenChange}: {
+export function TopicBlockTools({topicId, block, buttonClassName, openInPage = false, pageLayout = false, initialHistoryOpen = false, commentsOpen: controlledCommentsOpen, onCommentsOpenChange}: {
     topicId: string;
     block: TopicBlock;
     buttonClassName?: string;
+    openInPage?: boolean;
+    pageLayout?: boolean;
+    initialHistoryOpen?: boolean;
     commentsOpen?: boolean;
     onCommentsOpenChange?: (open: boolean) => void;
 }) {
-    const [localCommentsOpen, setLocalCommentsOpen] = useState(false);
+    const [localCommentsOpen, setLocalCommentsOpen] = useState(pageLayout);
     const commentsOpen = controlledCommentsOpen ?? localCommentsOpen;
     const setCommentsOpen = (open: boolean) => {
         if (controlledCommentsOpen === undefined) setLocalCommentsOpen(open);
         onCommentsOpenChange?.(open);
     };
-    const [historyOpen, setHistoryOpen] = useState(false);
+    const [historyOpen, setHistoryOpen] = useState(initialHistoryOpen);
     const [selectedVersion, setSelectedVersion] = useState<TopicBlockVersion | null>(null);
     const [previewVersion, setPreviewVersion] = useState<TopicBlockVersion | null>(null);
     const [rejectionVersion, setRejectionVersion] = useState<TopicBlockVersion | null>(null);
@@ -164,12 +168,31 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
     const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : publishMutation.error instanceof Error ? publishMutation.error.message : deleteMutation.error instanceof Error ? deleteMutation.error.message : null;
     const commentCount = block.commentCount + addedCommentTotal;
     const filteredVersion = previewVersion ?? selectedVersion;
-    return <div draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-        <div className={cn("absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
+    const commentsSection = commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
+        filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion} pageLayout={pageLayout} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
+        onCancelRejection={() => setRejectionVersion(null)}
+        onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>;
+    const historySection = historyOpen && <TopicBlockHistory topicId={topicId} block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
+        selectedVersionId={selectedVersion?.id ?? null} addedCommentCounts={addedCommentCounts}
+        onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
+        onAccept={acceptVersion} onReject={rejectVersion}
+        onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
+    if (openInPage) return <div className={cn("flex items-center justify-end gap-1 md:absolute md:top-2 md:left-full md:ml-5", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
+            className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
+            <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
+        </Button>
+        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=historial`}/>} type="button" variant="ghost" size="sm"
+            className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label="Ver historial de versiones" title="Historial de versiones">
+            <GitDiffIcon className="size-3.5"/>
+        </Button>
+    </div>;
+    return <div className={cn(pageLayout ? "relative mt-4" : "")} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+        <div className={cn(pageLayout ? "flex items-center gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
             <Button type="button" variant="ghost" size="sm"
                 className={cn(
                     "text-muted-foreground transition-opacity",
-                    commentCount > 0
+                    pageLayout || commentCount > 0
                         ? "opacity-100"
                         : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100",
                 )}
@@ -178,20 +201,12 @@ export function TopicBlockTools({topicId, block, buttonClassName, commentsOpen: 
                 <ChatCircleIcon className="size-4"/>{commentCount > 0 && <span>{commentCount}</span>}
             </Button>
             <Button type="button" variant="ghost" size="sm"
-                className="text-muted-foreground opacity-0 transition-opacity group-hover/block:opacity-100 group-focus-within/block:opacity-100"
+                className={cn("text-muted-foreground transition-opacity", pageLayout ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
                 aria-label={historyOpen ? "Cerrar historial de versiones" : "Ver historial de versiones"}
                 aria-expanded={historyOpen} title="Historial de versiones" onClick={toggleHistory}>
                 <GitDiffIcon className="size-4"/>
             </Button>
         </div>
-        {commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
-            filteredVersion={filteredVersion} rejectionVersion={rejectionVersion} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
-            onCancelRejection={() => setRejectionVersion(null)}
-            onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>} 
-        {historyOpen && <TopicBlockHistory block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
-            selectedVersionId={selectedVersion?.id ?? null} addedCommentCounts={addedCommentCounts}
-            onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
-            onAccept={acceptVersion} onReject={rejectVersion}
-            onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>}
+        {pageLayout ? <>{historySection}{commentsSection}</> : <>{commentsSection}{historySection}</>}
     </div>;
 }

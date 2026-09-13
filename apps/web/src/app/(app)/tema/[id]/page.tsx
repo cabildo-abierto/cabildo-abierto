@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import {useParams} from "next/navigation";
-import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
+import {useState} from "react";
 import type {TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
@@ -22,10 +22,12 @@ import {TopicBlockView} from "@/components/topic-block";
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
+import {useIsMobile} from "@/hooks/use-is-mobile";
 
 export default function TopicPage() {
     const {id} = useParams<{id: string}>();
     const {user, loading: authLoading} = useAuth();
+    const isMobile = useIsMobile();
     const [openCommentsBlockId, setOpenCommentsBlockId] = useState<string | null>(null);
     const topicQuery = useQuery({
         queryKey: ["topic", id],
@@ -55,7 +57,7 @@ export default function TopicPage() {
         Cargando tema...
     </div>;
 
-    const editButton = user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
+    const editButton = isMobile === false && (user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
         <PencilSimpleIcon/>
         Editar
     </Button> : <AlertDialog>
@@ -73,13 +75,14 @@ export default function TopicPage() {
                 <Button nativeButton={false} render={<Link href="/iniciar-sesion"/>}>Iniciar sesión</Button>
             </AlertDialogFooter>
         </AlertDialogContent>
-    </AlertDialog>;
+    </AlertDialog>);
 
     return <TopicView topic={topic} action={editButton}>
         {blocks.length === 0 ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p> : <div>{blocks.map(block => <TopicBlockView
                 key={block.id}
                 topicId={topic.id}
                 block={block}
+                openInPage={isMobile === true}
                 commentsOpen={openCommentsBlockId === block.id}
                 onCommentsOpenChange={open => setOpenCommentsBlockId(open ? block.id : null)}
             />)}</div>}

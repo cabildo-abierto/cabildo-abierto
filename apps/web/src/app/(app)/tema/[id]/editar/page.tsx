@@ -11,11 +11,13 @@ import {TopicBlockEditor, type TopicBlockEditorHandle} from "@/components/topic-
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
+import {useIsMobile} from "@/hooks/use-is-mobile";
 
 export default function EditTopicPage() {
     const {id} = useParams<{id: string}>();
     const router = useRouter();
     const {user, loading: authLoading} = useAuth();
+    const isMobile = useIsMobile();
     const editorRef = useRef<TopicBlockEditorHandle>(null);
 
     useEffect(() => {
@@ -45,7 +47,12 @@ export default function EditTopicPage() {
     const blockTypes = blocksQuery.data?.blockTypes ?? [];
     const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
-    if (authLoading || !user) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Comprobando sesión…</div>;
+    if (authLoading || !user || isMobile === null) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Comprobando sesión…</div>;
+    if (isMobile) return <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-2xl flex-col items-start justify-center gap-4 p-6">
+        <h1 className="text-xl font-semibold">La edición está disponible solo en computadora</h1>
+        <p className="text-sm text-muted-foreground">Podés seguir consultando el tema desde este dispositivo.</p>
+        <Button type="button" variant="outline" onClick={() => router.replace(`/tema/${encodeURIComponent(id)}`)}>Volver al tema</Button>
+    </div>;
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
     if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Cargando tema…</div>;
 
