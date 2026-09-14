@@ -3,7 +3,7 @@
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock} from "@cabildo-abierto/api";
-import {orderBetween, permutationFor} from "@cabildo-abierto/utils";
+import {isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools, topicBlockVersionsKey} from "@/components/topic-block-tools";
@@ -17,6 +17,9 @@ import {cn} from "@/lib/utils";
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {sameConvergence} from "@/components/topic-convergence";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
+import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
+import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
+import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
 type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
 type TopicEditState = {
@@ -27,6 +30,10 @@ type TopicEditState = {
     message: string
 };
 type ChangeKind = "new" | "content" | "order" | null;
+
+function blockIsEmpty(block: Pick<TopicBlock, "typeId" | "content">): boolean {
+    return block.typeId === "parrafo" ? isRichTextEmpty(block.content) : !block.content.trim();
+}
 
 function persistedBlocks(blocks: TopicEditableBlock[]): WorkingBlock[] {
     return blocks.map(block => ({...block, isNew: false}));
@@ -54,7 +61,7 @@ function stateFromSaved(savedBlocks: WorkingBlock[], activeBlockNumber: string |
 }
 
 function changeKind(block: WorkingBlock, savedByNumber: ReadonlyMap<string, WorkingBlock>): ChangeKind {
-    if (block.isNew) return block.content === "" ? null : "new";
+    if (block.isNew) return blockIsEmpty(block) ? null : "new";
     const saved = savedByNumber.get(block.blockNumber);
     if (!saved) return null;
     if (block.deleted) return null;
@@ -109,7 +116,7 @@ function changeBarClass(kind: Exclude<ChangeKind, null>): string {
 
 function deactivateBlock(state: TopicEditState, nextActiveBlockNumber: string | null): TopicEditState {
     const activeBlock = state.blocks.find(block => block.blockNumber === state.activeBlockNumber);
-    if (!activeBlock || activeBlock.blockNumber === nextActiveBlockNumber || activeBlock.content !== "") {
+    if (!activeBlock || activeBlock.blockNumber === nextActiveBlockNumber || !blockIsEmpty(activeBlock)) {
         return {...state, activeBlockNumber: nextActiveBlockNumber};
     }
     if (activeBlock.isNew) {
@@ -142,6 +149,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [shaking, setShaking] = useState(false);
+    const [toolbarContainer, setToolbarContainer] = useState<HTMLDivElement | null>(null);
+    const blockSectionProps = useTopicBlockSection();
 
     const savedByNumber = new Map(edit.savedBlocks.map(block => [block.blockNumber, block]));
     const changedBlocks = edit.blocks.filter(block => changeKind(block, savedByNumber) !== null);
@@ -154,7 +163,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
     const requiresMessage = affectedBlockCount > 1;
     const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
-    const hasInvalidBlock = edit.blocks.some(block => !block.deleted && (!block.content.trim()
+    const hasInvalidBlock = edit.blocks.some(block => !block.deleted && (blockIsEmpty(block)
+        || (block.typeId === "parrafo" && (richTextPlainText(block.content).length > 20_000 || block.content.length > 100_000))
         || (block.typeId !== "parrafo" && /[\r\n]/.test(block.content))));
     const convergenceChanged = !sameConvergence(edit.savedBlocks, initialBlocks);
 
@@ -172,6 +182,23 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             })),
         }));
     }, [initialBlocks]);
+
+    useEffect(() => {
+        const deactivateParagraphOnOutsidePointer = (event: PointerEvent) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            if (target.closest('[data-slot="select-content"]')) return;
+            setEdit(current => {
+                const activeBlock = current.blocks.find(block => block.blockNumber === current.activeBlockNumber);
+                if (!activeBlock || activeBlock.typeId !== "parrafo") return current;
+                const clickedBlock = target.closest<HTMLElement>("[data-topic-editor-block]");
+                if (clickedBlock?.dataset.topicEditorBlock === activeBlock.blockNumber) return current;
+                return deactivateBlock(current, null);
+            });
+        };
+        document.addEventListener("pointerdown", deactivateParagraphOnOutsidePointer);
+        return () => document.removeEventListener("pointerdown", deactivateParagraphOnOutsidePointer);
+    }, []);
 
     const shakeActions = () => {
         setShaking(false);
@@ -207,14 +234,14 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             const onlyEmptyParagraph = visibleBlocks.length === 1
                 && after === null
                 && visibleBlocks[0].isNew
-                && visibleBlocks[0].content === "";
-            const existingEmptyBlock = visibleBlocks.find(block => block.blockNumber === after && block.isNew && block.content === "");
+                && blockIsEmpty(visibleBlocks[0]);
+            const existingEmptyBlock = visibleBlocks.find(block => block.blockNumber === after && block.isNew && blockIsEmpty(block));
             if (onlyEmptyParagraph || existingEmptyBlock) {
                 return {...current, activeBlockNumber: (existingEmptyBlock ?? visibleBlocks[0]).blockNumber};
             }
             const previousActive = current.blocks.find(block => block.blockNumber === current.activeBlockNumber);
             const visibleBeforeDeactivation = visibleBlocks;
-            const previousActiveIndex = previousActive && previousActive.content === ""
+            const previousActiveIndex = previousActive && blockIsEmpty(previousActive)
                 ? visibleBeforeDeactivation.findIndex(block => block.blockNumber === previousActive.blockNumber)
                 : -1;
             const insertionAnchor = after === previousActive?.blockNumber && previousActiveIndex >= 0
@@ -245,7 +272,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const removeEmptyBlock = (blockNumber: string) => {
         setEdit(current => {
             const block = current.blocks.find(candidate => candidate.blockNumber === blockNumber);
-            if (!block || block.content !== "") return current;
+            if (!block || !blockIsEmpty(block)) return current;
             return deactivateBlock({...current, activeBlockNumber: blockNumber}, null);
         });
     };
@@ -323,6 +350,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     };
 
     const visibleBlocks = edit.blocks.filter(block => !block.deleted || (edit.showDeleted && !block.isNew));
+    const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
     return <div className="flex flex-1 flex-col gap-3">
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setEdit(current => mergeConvergence(current, initialBlocks));
@@ -331,11 +359,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         <TopicDeletedBlocks topicId={topicId} count={deletedBlocksForDisplay.length} open={edit.showDeleted}
             onToggle={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}/>
         {edit.showDeleted && deletedBlocksForDisplay.length === 0 && <p className="text-xs text-muted-foreground">No hay bloques eliminados.</p>}
-        <div className={cn("relative flex flex-1 flex-col", edit.activeBlockNumber === null ? "gap-0" : "gap-2")}
-        onClick={event => {
-            if (event.target === event.currentTarget) startNewBlock(visibleBlocks.at(-1)?.blockNumber ?? null);
-        }}>
-        {!saving && (visibleBlocks.length === 0 || visibleBlocks[0].content !== "") && <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2">
+        <div className="relative flex flex-1 flex-col gap-0">
+        {!saving && (visibleBlocks.length === 0 || !blockIsEmpty(visibleBlocks[0])) && <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2">
             <TopicBlockInsertButton onClick={() => startNewBlock(null)}/>
         </div>}
         {visibleBlocks.map((block, index) => {
@@ -345,6 +370,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 <div className="group/block relative">
                     <div
                         className={cn("relative", draggedBlock === block.blockNumber && "opacity-50")}
+                        data-topic-editor-block={block.blockNumber}
                         draggable={!saving && !block.deleted}
                         onDragStart={event => {
                             event.dataTransfer.setData("text/plain", block.blockNumber);
@@ -357,8 +383,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         {kind && <span className={cn("absolute top-2 bottom-2 -left-3 w-1 rounded-full", changeBarClass(kind))} aria-hidden="true"/>}
                         {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={openToolsInPage}
                             newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
-                            onRestore={() => restoreBlock(block.blockNumber)}/>
-                        : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                            onRestore={() => restoreBlock(block.blockNumber)} toolsProps={blockSectionProps(block.blockNumber)}/>
+                        : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
+                            onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
                             role="button"
@@ -371,26 +398,38 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                                     activateBlock(block.blockNumber);
                                 }
                             }}>
-                            <TopicBlockContent block={block}/>
+                            <TopicBlockContent block={block} linksEnabled={false} showExternalLinkIcon footnoteNumbers={numberById}/>
                             <span className="pointer-events-none absolute top-3 right-full mr-2 inline-flex items-center gap-1 text-[10px] whitespace-nowrap text-muted-foreground opacity-0 transition-opacity group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100">
                                 <DotsSixVerticalIcon className="size-4" aria-hidden="true"/>{!block.isNew && block.blockNumber}
                             </span>
                             <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
                         </article>}
                     </div>
-                    {active && singleChangedBlockNumber === block.blockNumber && <div
-                        className={cn("space-y-2 pt-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
-                        draggable={false} onDragStart={event => event.stopPropagation()} onAnimationEnd={() => setShaking(false)}>
-                        {error && <p className="text-xs text-destructive">{error}</p>}
-                        <TopicEditActionButtons saving={saving} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
+                    {active && (block.typeId === "parrafo" || singleChangedBlockNumber === block.blockNumber) && <div
+                        className="flex items-start justify-between gap-2 pt-2 pb-2" draggable={false}
+                        data-topic-editor-block={block.blockNumber}
+                        onDragStart={event => event.stopPropagation()}>
+                        <div ref={setToolbarContainer} className="min-w-0"/>
+                        {singleChangedBlockNumber === block.blockNumber && <div
+                            className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
+                            onAnimationEnd={() => setShaking(false)}>
+                            {error && <p className="text-xs text-destructive">{error}</p>}
+                            <TopicEditActionButtons saving={saving} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
+                        </div>}
                     </div>}
-                    {!block.isNew && !block.deleted && <TopicBlockTools topicId={topicId} block={block} openInPage={openToolsInPage} buttonClassName={active ? "-translate-x-3" : undefined}/>}
+                    {!block.isNew && !block.deleted && <TopicBlockTools
+                        topicId={topicId}
+                        block={block}
+                        openInPage={openToolsInPage}
+                        {...blockSectionProps(block.blockNumber)}
+                    />}
                 </div>
-                {!saving && !block.deleted && block.content !== "" && (index < visibleBlocks.length - 1
-                    ? visibleBlocks[index + 1].content !== "" && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
-                    : <TopicBlockInsertButton fillRemainingSpace onClick={() => startNewBlock(block.blockNumber)}/>)}
+                {!saving && !block.deleted && !blockIsEmpty(block) && (index < visibleBlocks.length - 1
+                    ? !blockIsEmpty(visibleBlocks[index + 1]) && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
+                    : <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>)}
             </div>;
         })}
+        <TopicFootnoteList footnotes={footnotes}/>
         {showActionsCard && <TopicEditActionsCard
             modifiedCount={modifiedBlockCount}
             deletedCount={deletedBlocks.length}

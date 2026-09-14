@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql, type Kysely, type Transaction} from "kysely";
 import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, CreateTopicInput, CreateTopicOutput, DeleteBlockReactionInput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {isOrder} from "@cabildo-abierto/utils";
+import {claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
@@ -194,7 +194,10 @@ function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockTy
     if (input.typeId !== "parrafo" && input.typeId !== "h1" && input.typeId !== "h2") return null;
     if (typeof input.content !== "string") return null;
     const content = input.typeId === "parrafo" ? input.content : input.content.trim();
-    if (!content.trim() || content.length > 20_000) return null;
+    if (input.typeId === "parrafo") {
+        if (claimsRichTextFormat(content) && !parseRichTextContent(content)) return null;
+        if (isRichTextEmpty(content) || richTextPlainText(content).length > 20_000 || content.length > 100_000) return null;
+    } else if (!content || content.length > 20_000) return null;
     if (input.typeId !== "parrafo" && /[\r\n]/.test(content)) return null;
     return {typeId: input.typeId, content};
 }
@@ -805,6 +808,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
+                const linkedTopicIds = [...new Set(visibleRequestedBlocks.flatMap(block => block.typeId === "parrafo"
+                    ? richTextInternalTopicIds(block.content)
+                    : []))];
+                if (linkedTopicIds.length > 0) {
+                    const existingTopics = await trx.selectFrom("topic").select("id").where("id", "in", linkedTopicIds).execute();
+                    if (existingTopics.length !== linkedTopicIds.length) {
+                        throw new TopicEditError(400, "La edición contiene links a temas inexistentes.");
+                    }
+                }
                 const currentBlocks = await topicConvergence(trx, topicId);
                 if (baseBlocks && !sameConvergenceBlocks(baseBlocks, currentBlocks)) {
                     throw new TopicEditError(409, "La convergencia cambió. Actualizala antes de guardar.");

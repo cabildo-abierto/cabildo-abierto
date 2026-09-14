@@ -7,6 +7,8 @@ import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {useTopicRealtimeChange} from "@/hooks/use-topic-realtime-change";
+import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
+import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
 export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initialHistoryOpen}: {
     topicId: string;
@@ -29,13 +31,17 @@ export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initi
     }, [displayedBlock.commentCount, latestBlock, realtimeChange]);
 
     const convergenceChanged = !latestBlock || latestBlock.id !== displayedBlock.id;
+    const {footnotes, numberById} = topicFootnotes([displayedBlock]);
     return <div className="min-w-0 space-y-3">
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             if (!latestBlock) router.push(`/tema/${encodeURIComponent(topicId)}`);
             else setDisplayedBlock(latestBlock);
         }}/>} 
         <div>
-            <article className="rounded-lg border bg-card px-4 py-3"><TopicBlockContent block={displayedBlock}/></article>
+            <article className="rounded-lg border bg-card px-4 py-3">
+                <TopicBlockContent block={displayedBlock} footnoteNumbers={numberById}/>
+                <TopicFootnoteList footnotes={footnotes}/>
+            </article>
             <TopicBlockTools topicId={topicId} block={displayedBlock} pageLayout initialHistoryOpen={initialHistoryOpen}/>
         </div>
     </div>;

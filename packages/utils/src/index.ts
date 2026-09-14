@@ -50,3 +50,5 @@ export function evenlySpacedOrder(index: number): string {
 export function permutationFor(blockNumbers: string[]): BlockPermutationEntry[] {
     return blockNumbers.map((blockNumber, index) => ({blockNumber, order: evenlySpacedOrder(index)}));
 }
+
+export * from "./rich-text.js";

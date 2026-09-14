@@ -7,6 +7,7 @@ import type {TopicBlock} from "@cabildo-abierto/api";
 import {Button} from "@/components/ui/button";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
+import type {TopicBlockSectionProps} from "@/hooks/use-topic-block-section";
 
 export function TopicDeletedBlocks({topicId, count, open, onToggle}: {
     topicId: string;
@@ -24,12 +25,13 @@ export function TopicDeletedBlocks({topicId, count, open, onToggle}: {
     </Button>, container);
 }
 
-export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted = false, onRestore}: {
+export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted = false, onRestore, toolsProps}: {
     topicId: string;
     block: TopicBlock;
     openInPage: boolean;
     newlyDeleted?: boolean;
     onRestore?: () => void;
+    toolsProps?: TopicBlockSectionProps;
 }) {
     return <article className="group/block relative -mx-3 rounded-lg border border-dashed px-3 py-2">
         {newlyDeleted && <span className="absolute top-2 bottom-2 -left-3 w-1 rounded-full bg-red-500" aria-hidden="true"/>}
@@ -38,6 +40,6 @@ export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted 
             {onRestore && <Button type="button" variant="outline" size="xs" onClick={onRestore}>Restaurar</Button>}
         </div>
         <TopicBlockContent block={block}/>
-        <TopicBlockTools topicId={topicId} block={block} openInPage={openInPage}/>
+        <TopicBlockTools topicId={topicId} block={block} openInPage={openInPage} {...toolsProps}/>
     </article>;
 }

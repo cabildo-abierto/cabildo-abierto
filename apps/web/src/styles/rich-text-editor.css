@@ -1,0 +1,4 @@
+.ProseMirror [data-footnote-id] + br.ProseMirror-trailingBreak,
+.ProseMirror [data-footnote-id] + img.ProseMirror-separator + br.ProseMirror-trailingBreak {
+  display: none;
+}
