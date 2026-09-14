@@ -12,7 +12,6 @@ export const env = cleanEnv(process.env, {
     PORT: port({devDefault: testOnly(8080)}),
     PUBLIC_URL: str(),
     COOKIE_SECRET: str(),
-    REGISTRATION_PASSWORD: str(),
     FRONTEND_URL: str({devDefault: 'http://127.0.0.1:3000'}),
     DIRECT_URL: str({default: ''}),
     ADMIN_TOKEN: str(),
