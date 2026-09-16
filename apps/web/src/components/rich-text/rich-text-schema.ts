@@ -18,7 +18,7 @@ export const richTextSchema = new Schema({
                 class: "cursor-pointer font-medium text-primary underline underline-offset-2",
                 title: node.attrs.content,
             }, "*"],
-            parseDOM: [{tag: "sup[data-footnote-id]", getAttrs: element => ({
+            parseDOM: [{tag: "[data-footnote-id]", getAttrs: element => ({
                 id: (element as HTMLElement).dataset.footnoteId,
                 content: (element as HTMLElement).dataset.footnoteContent,
             })}],

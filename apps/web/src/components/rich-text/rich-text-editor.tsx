@@ -82,7 +82,8 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
 
     useEffect(() => {
         mountRef.current?.querySelectorAll<HTMLElement>("[data-footnote-id]").forEach(element => {
-            element.textContent = String(footnoteNumbers?.get(element.dataset.footnoteId ?? "") ?? "*");
+            const label = element.querySelector("sup");
+            if (label) label.textContent = String(footnoteNumbers?.get(element.dataset.footnoteId ?? "") ?? "*");
         });
     }, [content, footnoteNumbers, view]);
 
@@ -120,13 +121,17 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
             },
             nodeViews: {
                 footnote: node => {
-                    const dom = document.createElement("sup");
+                    // Keep the atom on the text baseline; only its label is superscript.
+                    const dom = document.createElement("span");
+                    dom.className = "ml-0.5 inline-block cursor-pointer align-baseline font-medium leading-none";
+                    dom.contentEditable = "false";
+                    const label = document.createElement("sup");
+                    dom.appendChild(label);
                     const render = (id: string, noteContent: string) => {
                         dom.dataset.footnoteId = id;
                         dom.dataset.footnoteContent = noteContent;
                         dom.title = noteContent;
-                        dom.className = "ml-0.5 cursor-pointer font-medium";
-                        dom.textContent = String(footnoteNumbersRef.current?.get(id) ?? "*");
+                        label.textContent = String(footnoteNumbersRef.current?.get(id) ?? "*");
                     };
                     render(node.attrs.id as string, node.attrs.content as string);
                     return {

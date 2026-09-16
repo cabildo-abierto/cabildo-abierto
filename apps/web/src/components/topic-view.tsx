@@ -13,7 +13,7 @@ export function TopicView({topic, connectionMode, action, children}: {topic: Top
         </div>
         <div className="flex min-h-8 items-center justify-between gap-3">
             <TopicConnectionCount topicId={topic.id} mode={connectionMode} className="mt-0"/>
-            <div id={`topic-status-actions-${topic.id}`} className="flex items-center justify-end"/>
+            <div id={`topic-status-actions-${topic.id}`} className="ml-auto flex shrink-0 items-center justify-end"/>
         </div>
         {children}
     </div>;

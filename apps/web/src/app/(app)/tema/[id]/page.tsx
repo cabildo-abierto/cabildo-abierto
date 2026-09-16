@@ -19,7 +19,7 @@ import {
 import {TopicView} from "@/components/topic-view";
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
-import {Spinner} from "@/components/ui/spinner";
+import {TopicLoading} from "@/components/topic-loading";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 import {TopicReadingContent} from "@/components/topic-reading-content";
 import {useMediaQuery} from "@/hooks/use-media-query";
@@ -51,12 +51,7 @@ export default function TopicPage() {
     const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div
-        className="flex items-center flex-col gap-7 justify-center h-screen fixed top-0 left-1/2 -translate-x-1/2 p-6 text-sm text-muted-foreground"
-    >
-        <Spinner className={"size-7"}/>
-        Cargando tema...
-    </div>;
+    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <TopicLoading/>;
 
     const editButton = isMobile === false && (user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
         <PencilSimpleIcon/>

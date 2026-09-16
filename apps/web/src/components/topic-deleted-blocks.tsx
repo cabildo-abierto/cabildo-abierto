@@ -33,7 +33,7 @@ export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted 
     onRestore?: () => void;
     toolsProps?: TopicBlockSectionProps;
 }) {
-    return <article className="group/block relative -mx-3 rounded-lg border border-dashed px-3 py-2">
+    return <article className="group/block relative -mx-3 my-2 rounded-lg border border-dashed px-3 py-2">
         {newlyDeleted && <span className="absolute top-2 bottom-2 -left-3 w-1 rounded-full bg-red-500" aria-hidden="true"/>}
         <div className="mb-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
             <span>Bloque eliminado ({block.blockNumber})</span>

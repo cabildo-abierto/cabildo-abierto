@@ -10,7 +10,7 @@ import {TopicView} from "@/components/topic-view";
 import {TopicBlockEditor, type TopicBlockEditorHandle} from "@/components/topic-block-editor";
 import {useAuth} from "@/components/auth-provider";
 import {get} from "@/utils/react/fetch";
-import {Spinner} from "@/components/ui/spinner";
+import {TopicLoading} from "@/components/topic-loading";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 
 export default function EditTopicPage() {
@@ -47,14 +47,14 @@ export default function EditTopicPage() {
     const blockTypes = blocksQuery.data?.blockTypes ?? [];
     const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
-    if (authLoading || !user || isMobile === null) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Comprobando sesión…</div>;
+    if (authLoading || !user || isMobile === null) return <TopicLoading/>;
     if (isMobile) return <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-2xl flex-col items-start justify-center gap-4 p-6">
         <h1 className="text-xl font-semibold">La edición está disponible solo en computadora</h1>
         <p className="text-sm text-muted-foreground">Podés seguir consultando el tema desde este dispositivo.</p>
         <Button type="button" variant="outline" onClick={() => router.replace(`/tema/${encodeURIComponent(id)}`)}>Volver al tema</Button>
     </div>;
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <div className="mx-auto flex max-w-2xl items-center gap-2 p-6 text-sm text-muted-foreground"><Spinner/>Cargando tema…</div>;
+    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <TopicLoading/>;
 
     return <TopicView topic={topic} connectionMode="editing" action={
         <div className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 py-0.5 pr-1 pl-2.5 text-xs font-medium text-amber-700 dark:text-amber-300">
