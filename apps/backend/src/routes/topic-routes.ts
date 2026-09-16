@@ -194,6 +194,7 @@ function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockTy
     if (input.typeId !== "parrafo" && input.typeId !== "h1" && input.typeId !== "h2") return null;
     if (typeof input.content !== "string") return null;
     const content = input.typeId === "parrafo" ? input.content : input.content.trim();
+    if (input.deleted === true && content === "") return {typeId: input.typeId, content};
     if (input.typeId === "parrafo") {
         if (claimsRichTextFormat(content) && !parseRichTextContent(content)) return null;
         if (isRichTextEmpty(content) || richTextPlainText(content).length > 20_000 || content.length > 100_000) return null;
@@ -322,6 +323,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     "block_version.block_number as blockNumber",
                     "block.type_id as typeId",
                     "block_version.content",
+                    "block_version.deleted",
                     "block_version.order",
                     "edit.id as editId",
                     "edit.message",
@@ -371,6 +373,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     content: version.content ?? "",
                     order: version.order,
                     editId: version.editId,
+                    deleted: version.deleted,
                     message: version.message,
                     rejected: (activeRejections.get(version.editId) ?? 0) > 0,
                     current: index === currentIndex,
@@ -904,7 +907,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         id: randomUUID(),
                         topic_id: topicId,
                         block_number: blockNumber,
-                        content: block.content,
+                        content: block.deleted ? "" : block.content,
                         order: block.order,
                         edit_id: editId,
                         deleted: block.deleted,

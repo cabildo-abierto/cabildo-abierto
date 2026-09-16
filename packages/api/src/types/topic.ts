@@ -77,6 +77,7 @@ export type TopicEditorDataOutput = {
 
 export type TopicBlockVersion = TopicBlock & {
     editId: string
+    deleted: boolean
     createdAt: string
     message: string | null
     rejected: boolean

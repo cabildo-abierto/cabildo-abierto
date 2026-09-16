@@ -7,6 +7,7 @@ import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {useTopicRealtimeChange} from "@/hooks/use-topic-realtime-change";
+import {useTopicLocalConvergence} from "@/hooks/use-topic-local-convergence";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
@@ -19,6 +20,11 @@ export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initi
     const router = useRouter();
     const [displayedBlock, setDisplayedBlock] = useState(initialBlock);
     const realtimeChange = useTopicRealtimeChange(topicId);
+    const deletingVersion = useTopicLocalConvergence(topicId, blocks => {
+        const block = blocks.find(block => block.blockNumber === displayedBlock.blockNumber);
+        if (block) setDisplayedBlock(block);
+        else router.replace(`/tema/${encodeURIComponent(topicId)}`);
+    });
 
     useEffect(() => {
         if (latestBlock && realtimeChange?.source === "vote") {
@@ -33,7 +39,7 @@ export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initi
     const convergenceChanged = !latestBlock || latestBlock.id !== displayedBlock.id;
     const {footnotes, numberById} = topicFootnotes([displayedBlock]);
     return <div className="min-w-0 space-y-3">
-        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
+        {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             if (!latestBlock) router.push(`/tema/${encodeURIComponent(topicId)}`);
             else setDisplayedBlock(latestBlock);
         }}/>} 

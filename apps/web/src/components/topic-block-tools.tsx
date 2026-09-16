@@ -3,7 +3,7 @@
 import {useState, type MouseEvent} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput} from "@cabildo-abierto/api";
+import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
@@ -11,6 +11,7 @@ import {TopicBlockHistory} from "@/components/topic-block-history";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 import {useToast} from "@/components/ui/toast";
+import {notifyTopicLocalConvergence, topicDeleteVersionKey} from "@/hooks/use-topic-local-convergence";
 
 export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
     ["topic", topicId, "block", blockNumber, "versions"] as const;
@@ -148,13 +149,31 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         }),
     });
     const deleteVersionMutation = useMutation({
+        mutationKey: topicDeleteVersionKey(topicId),
         mutationFn: async (version: TopicBlockVersion) => {
             const result = await del(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/versions/${encodeURIComponent(version.id)}`);
             if ("error" in result) throw new Error(result.error);
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             setSelectedVersion(null);
             setPreviewVersion(null);
+            const result = await get<TopicEditorDataOutput>(`/topics/${encodeURIComponent(topicId)}/editor-data`);
+            if ("error" in result) {
+                toast({title: "La edición se eliminó, pero no pudimos actualizar el tema", description: result.error, variant: "destructive"});
+            } else {
+                await Promise.all([
+                    queryClient.cancelQueries({queryKey: blocksKey, exact: true}),
+                    queryClient.cancelQueries({queryKey: ["topic", topicId, "editor-data"], exact: true}),
+                ]);
+                const data = result.value;
+                queryClient.setQueryData<TopicEditorDataOutput>(["topic", topicId, "editor-data"], data);
+                queryClient.setQueryData<TopicBlocksOutput>(blocksKey, {
+                    blocks: data.blocks.filter(block => !block.deleted),
+                    deletedBlocks: data.blocks.filter(block => block.deleted),
+                    blockTypes: data.blockTypes,
+                });
+                notifyTopicLocalConvergence(topicId, data.blocks);
+            }
             void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
         },
         onError: error => toast({

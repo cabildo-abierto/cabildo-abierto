@@ -152,7 +152,9 @@ export function TopicBlockHistory({
                                 {version.message}
                             </div>
                         </div>}
-                        <TopicBlockContent block={version}/>
+                        {version.deleted
+                            ? <p className="flex space-x-1 items-center text-xs italic text-muted-foreground"><TrashIcon/>Bloque eliminado.</p>
+                            : <TopicBlockContent block={version}/>}
                     </li>;
                 })}
             </ol>}
@@ -185,7 +187,11 @@ export function TopicBlockHistory({
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Eliminar edición</AlertDialogTitle>
-                    <AlertDialogDescription>Esta acción elimina la edición completa. Si modificó otros bloques, sus versiones también dejarán de aparecer.</AlertDialogDescription>
+                    <AlertDialogDescription>
+                        {deleteVersion?.message
+                            ? "Esta edición modificó varios bloques. Al eliminarla, dejarán de aparecer todas las versiones creadas por esta edición."
+                            : "Esta versión del bloque va a dejar de aparecer."}
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>

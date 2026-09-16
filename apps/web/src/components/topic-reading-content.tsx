@@ -7,6 +7,7 @@ import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-dele
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {sameConvergence, updateCommentCounts} from "@/components/topic-convergence";
 import {useTopicRealtimeChange} from "@/hooks/use-topic-realtime-change";
+import {useTopicLocalConvergence} from "@/hooks/use-topic-local-convergence";
 import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
@@ -22,6 +23,10 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const [showDeleted, setShowDeleted] = useState(false);
     const realtimeChange = useTopicRealtimeChange(topicId);
     const blockSectionProps = useTopicBlockSection();
+    const deletingVersion = useTopicLocalConvergence(topicId, blocks => {
+        setDisplayedBlocks(blocks.filter(block => !block.deleted));
+        setDisplayedDeletedBlocks(blocks.filter(block => block.deleted));
+    });
 
     useEffect(() => {
         if (realtimeChange?.source === "vote") {
@@ -42,7 +47,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
         .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber));
     const {footnotes, numberById} = topicFootnotes(displayedBlocks);
     return <>
-        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
+        {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setDisplayedBlocks(latestBlocks);
             setDisplayedDeletedBlocks(latestDeletedBlocks);
         }}/>}

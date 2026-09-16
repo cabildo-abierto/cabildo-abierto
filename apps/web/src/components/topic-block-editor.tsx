@@ -2,7 +2,7 @@
 
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock} from "@cabildo-abierto/api";
+import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicBlockContent} from "@/components/topic-block-content";
@@ -18,6 +18,7 @@ import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {sameConvergence} from "@/components/topic-convergence";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
 import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
+import {useTopicLocalConvergence} from "@/hooks/use-topic-local-convergence";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
@@ -151,6 +152,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const [shaking, setShaking] = useState(false);
     const [toolbarContainer, setToolbarContainer] = useState<HTMLDivElement | null>(null);
     const blockSectionProps = useTopicBlockSection();
+    const deletingVersion = useTopicLocalConvergence(topicId, blocks => {
+        setEdit(current => mergeConvergence(current, blocks));
+    });
 
     const savedByNumber = new Map(edit.savedBlocks.map(block => [block.blockNumber, block]));
     const changedBlocks = edit.blocks.filter(block => changeKind(block, savedByNumber) !== null);
@@ -166,7 +170,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const hasInvalidBlock = edit.blocks.some(block => !block.deleted && (blockIsEmpty(block)
         || (block.typeId === "parrafo" && (richTextPlainText(block.content).length > 20_000 || block.content.length > 100_000))
         || (block.typeId !== "parrafo" && /[\r\n]/.test(block.content))));
-    const convergenceChanged = !sameConvergence(edit.savedBlocks, initialBlocks);
+    const convergenceChanged = !saving && !deletingVersion && !sameConvergence(edit.savedBlocks, initialBlocks);
 
     useEffect(() => {
         const countsByNumber = new Map(initialBlocks.map(block => [block.blockNumber, block.commentCount]));
@@ -334,19 +338,27 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             })),
         };
         const result = await post<SaveTopicEditInput, SaveTopicEditOutput>(`/topics/${encodeURIComponent(topicId)}/edits`, input);
-        setSaving(false);
         if ("error" in result) {
+            setSaving(false);
             setError(result.error);
             if (result.error.includes("convergencia")) {
                 void queryClient.invalidateQueries({queryKey: ["topic", topicId, "editor-data"]});
             }
             return;
         }
+        const editorDataKey = ["topic", topicId, "editor-data"];
+        // Prevent an older in-flight snapshot from replacing the saved convergence.
+        await queryClient.cancelQueries({queryKey: editorDataKey, exact: true});
+        queryClient.setQueryData<TopicEditorDataOutput>(editorDataKey, current => current
+            ? {...current, blocks: result.value.blocks}
+            : {blocks: result.value.blocks, blockTypes});
         for (const block of [...changedBlocks, ...deletedBlocks]) {
             if (!block.isNew) void queryClient.invalidateQueries({queryKey: topicBlockVersionsKey(topicId, block.blockNumber)});
         }
         const blocks = persistedBlocks(result.value.blocks);
         setEdit({...stateFromSaved(blocks), showDeleted: false, message: ""});
+        setSaving(false);
+        void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
     };
 
     const visibleBlocks = edit.blocks.filter(block => !block.deleted || (edit.showDeleted && !block.isNew));
