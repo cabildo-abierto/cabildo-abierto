@@ -1,4 +1,5 @@
 import type {ReactNode} from "react";
+import {TopicRouteProvider} from "@/components/topic-route-provider";
 import {createMetadata} from "@/utils/metadata";
 
 export const metadata = createMetadata({
@@ -7,5 +8,5 @@ export const metadata = createMetadata({
 });
 
 export default function TopicLayout({children}: {children: ReactNode}) {
-    return children;
+    return <TopicRouteProvider>{children}</TopicRouteProvider>;
 }

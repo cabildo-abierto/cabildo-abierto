@@ -9,14 +9,13 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import {Field, FieldDescription, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
 import {post} from "@/utils/react/fetch";
+import {canonicalizeTopicId} from "@cabildo-abierto/utils";
+import {useAuth} from "@/components/auth-provider";
+import Link from "next/link";
 import {Spinner} from "@/components/ui/spinner";
 
-function canonicalizeTopicId(title: string): string {
-    return title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
-        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
 export default function NewTopicPage() {
+    const {user, loading} = useAuth();
     const router = useRouter();
     const queryClient = useQueryClient();
     const [title, setTitle] = useState("");
@@ -36,12 +35,15 @@ export default function NewTopicPage() {
         setError(null);
         try {
             const topic = await createTopicMutation.mutateAsync({title});
-            router.push(`/tema/${encodeURIComponent(topic.id)}`);
+            router.push(`/tema/${encodeURIComponent(topic.slug)}`);
         } catch (mutationError) {
             setError(mutationError instanceof Error ? mutationError.message : "No pudimos crear el tema.");
             return;
         }
     };
+
+    if (loading) return <p className="p-6 text-sm text-muted-foreground">Comprobando sesión…</p>;
+    if (!user) return <p className="p-6 text-sm">Para crear un tema, <Link href="/iniciar-sesion" className="underline">iniciá sesión</Link>.</p>;
 
     return <div className="flex min-h-[calc(100vh-3rem)] items-center justify-center p-4">
         <Card className="w-full max-w-lg">
@@ -56,7 +58,7 @@ export default function NewTopicPage() {
                             <FieldLabel htmlFor="title">Título</FieldLabel>
                             <Input id="title" name="title" value={title} onChange={event => setTitle(event.target.value)} minLength={3} maxLength={120} required autoFocus/>
                             {topicId && <FieldDescription>
-                                El identificador del tema va a ser <code className="text-foreground">{topicId}</code>.
+                                La URL del tema va a ser <code className="text-foreground">/tema/{topicId}</code>.
                             </FieldDescription>}
                         </Field>
                         {error && <FieldError>{error}</FieldError>}

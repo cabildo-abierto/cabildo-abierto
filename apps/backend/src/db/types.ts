@@ -22,6 +22,12 @@ export type DB = {
     topic: {
         id: string;
         title: string;
+        slug: string;
+    };
+    topic_redirect: {
+        slug: string;
+        topic_id: string;
+        edit_id: string;
     };
     topic_connection: {
         connection_id: string;
@@ -51,6 +57,7 @@ export type DB = {
         deleted: Generated<boolean>;
     };
     edit: {
+        title: Generated<string | null>;
         id: string;
         topic_id: string;
         message: string | null;
@@ -71,7 +78,8 @@ export type DB = {
         root_id: string;
         reply_to_id: string;
         content: string;
-        block_number: string;
+        block_number: string | null;
+        edit_id: string | null;
     };
     reaction: {
         id: string;

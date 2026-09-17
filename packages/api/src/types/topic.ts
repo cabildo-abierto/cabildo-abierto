@@ -1,4 +1,5 @@
 export type TopicSummary = {
+    slug: string
     id: string
     title: string
 }
@@ -41,7 +42,7 @@ export type TopicConnectionOpenedEvent = {
 export type TopicChangedEvent = {
     type: "topic.changed"
     topicId: string
-    source: "edit" | "comment" | "vote"
+    source: "edit" | "comment" | "vote" | "title"
 }
 
 export type TopicRealtimeEvent = TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent

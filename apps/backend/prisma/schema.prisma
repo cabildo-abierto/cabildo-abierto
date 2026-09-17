@@ -34,11 +34,13 @@ model Session {
 model Topic {
   id    String @id @map("id")
   title String @unique @map("title")
+  slug  String @unique @map("slug")
 
   comments    Comment[]
   blocks      Block[]
   edits       Edit[]
   connections TopicConnection[]
+  redirects   TopicRedirect[]
 
   @@map("topic")
 }
@@ -116,8 +118,10 @@ model Edit {
 
   blockVersions BlockVersion[]
   comments      Comment[]
+  redirects     TopicRedirect[]
 
   message String?
+  title   String? @map("title")
 
   topic  Topic  @relation(fields: [topicId], references: [id])
   record Record @relation("EditRecord", fields: [id], references: [id])
@@ -125,6 +129,19 @@ model Edit {
   @@unique([id, topicId])
   @@index([topicId])
   @@map("edit")
+}
+
+model TopicRedirect {
+  slug    String @id @map("slug")
+  topicId String @map("topic_id")
+  editId  String @map("edit_id")
+
+  topic Topic @relation(fields: [topicId], references: [id])
+  edit  Edit  @relation(fields: [editId, topicId], references: [id, topicId], onDelete: Restrict)
+
+  @@index([topicId])
+  @@index([editId, topicId])
+  @@map("topic_redirect")
 }
 
 model Block {
@@ -157,23 +174,25 @@ model Comment {
   topicId       String @map("topic_id")
   commentNumber String @map("comment_number")
 
-  rootId    String @map("root_id")
-  replyToId String @map("reply_to_id")
-  content   String @map("content")
+  rootId    String  @map("root_id")
+  replyToId String  @map("reply_to_id")
+  content   String  @map("content")
+  editId    String? @map("edit_id")
 
   topic   Topic  @relation(fields: [topicId], references: [id])
   replyTo Record @relation("CommentReplies", fields: [replyToId], references: [id])
   record  Record @relation("CommentRecord", fields: [id], references: [id])
   root    Record @relation("CommentRoot", fields: [rootId], references: [id])
-  edit    Edit   @relation(fields: [rootId, topicId], references: [id, topicId])
+  edit    Edit?  @relation(fields: [editId, topicId], references: [id, topicId], onDelete: Restrict)
 
-  blockNumber String @map("block_number")
-  block       Block  @relation(fields: [blockNumber, topicId], references: [blockNumber, topicId])
+  blockNumber String? @map("block_number")
+  block       Block?  @relation(fields: [blockNumber, topicId], references: [blockNumber, topicId], onDelete: Restrict)
 
   justifiesRejections Reaction[]
 
   @@unique([topicId, commentNumber])
   @@index([replyToId])
+  @@index([editId, topicId])
   @@map("comment")
 }
 

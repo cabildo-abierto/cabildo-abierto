@@ -1,5 +1,7 @@
 "use client"
 
+import {useTopicRoute} from "@/components/topic-route-provider";
+
 import type {TopicBlock, TopicBlockVersion} from "@cabildo-abierto/api";
 import Link from "next/link";
 import {ChatCircleIcon, CheckIcon, DotsThreeIcon, FlagIcon, GitDiffIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
@@ -24,7 +26,6 @@ import {topicAuthorName} from "@/components/topic-author-name";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 export function TopicBlockHistory({
-                                      topicId,
                                       block,
                                       versions,
                                       loading,
@@ -37,7 +38,6 @@ export function TopicBlockHistory({
                                       onDelete,
                                       onCancelReaction
                                   }: {
-    topicId: string
     block: TopicBlock
     versions: TopicBlockVersion[] | null
     loading: boolean
@@ -50,6 +50,7 @@ export function TopicBlockHistory({
     onDelete: (version: TopicBlockVersion) => Promise<boolean>
     onCancelReaction: (version: TopicBlockVersion, deleteReason: boolean) => void
 }) {
+    const {slug: topicSlug} = useTopicRoute();
     const {user} = useAuth();
     const [cancelVersion, setCancelVersion] = useState<TopicBlockVersion | null>(null);
     const [deleteVersion, setDeleteVersion] = useState<TopicBlockVersion | null>(null);
@@ -62,7 +63,7 @@ export function TopicBlockHistory({
         <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <GitDiffIcon/>
             <span>Versiones de</span>
-            <Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}`}
+            <Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}`}
                   className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground underline-offset-2 hover:underline">{block.blockNumber}</Link>
         </div>
         {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando

@@ -1,14 +1,14 @@
 "use client";
 
 import {useState} from "react";
-import type {BlockComment} from "@cabildo-abierto/api";
+import type {DiscussionComment} from "@cabildo-abierto/api";
 import {KeyReturnIcon, XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
 
 export function CommentComposer({replyTo, rejectionLabel, replicaVote, onPublish, onCancel}: {
-    replyTo?: BlockComment;
+    replyTo?: DiscussionComment;
     rejectionLabel?: string;
     replicaVote?: "accept" | "reject";
     onPublish: (content: string, replyToId?: string) => Promise<boolean>;
@@ -38,7 +38,7 @@ export function CommentComposer({replyTo, rejectionLabel, replicaVote, onPublish
         </p>}
         <div className="relative">
             <Textarea value={content} onChange={event => setContent(event.target.value)}
-            placeholder={replicaVote ? "Justificá tu réplica…" : rejection ? "Explicá por qué rechazás esta edición…" : replyTo ? "Escribí una respuesta…" : "Escribí un comentario…"}
+            placeholder={replicaVote ? "Justificá tu réplica…" : rejection ? "Explicá el motivo del rechazo…" : replyTo ? "Escribí una respuesta…" : "Escribí un comentario…"}
             onKeyDown={event => {
                 if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
                 event.preventDefault();

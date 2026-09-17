@@ -35,6 +35,8 @@ export function useTopicConnections(topicId: string, mode: TopicConnectionMode):
             refreshTimer = setTimeout(() => {
                 refreshTimer = null;
                 void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
+                void queryClient.invalidateQueries({queryKey: ["topic-title-edits"]});
+                void queryClient.invalidateQueries({queryKey: ["topic-title-edit"]});
             }, 50);
         };
         const onConnectionsChanged = (event: Event) => {

@@ -1,12 +1,13 @@
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql, type Kysely, type Transaction} from "kysely";
-import type {BlockCommentsOutput, BlockType, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, CreateTopicInput, CreateTopicOutput, DeleteBlockReactionInput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlock, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
 import {claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
+import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
@@ -90,106 +91,6 @@ class TopicEditError extends Error {
     }
 }
 
-type RejectTreeRow = {
-    id: string;
-    editId: string;
-    rootReactionId: string;
-    subjectId: string;
-    reasonId: string | null;
-    depth: number;
-};
-
-async function rejectTree(database: Kysely<DB> | Transaction<DB>, editIds: string[]): Promise<RejectTreeRow[]> {
-    if (editIds.length === 0) return [];
-    const result = await sql<RejectTreeRow>`
-        WITH RECURSIVE reject_tree AS (
-            SELECT reaction.id,
-                   reaction.subject_id AS "editId",
-                   reaction.id AS "rootReactionId",
-                   reaction.subject_id AS "subjectId",
-                   reaction.reason_id AS "reasonId",
-                   0::int AS depth,
-                   ARRAY[reaction.id] AS path
-            FROM reaction
-            WHERE reaction.type = 'reject'
-              AND reaction.subject_id IN (${sql.join(editIds.map(id => sql`${id}`))})
-            UNION ALL
-            SELECT child.id,
-                   reject_tree."editId",
-                   reject_tree."rootReactionId",
-                   child.subject_id,
-                   child.reason_id,
-                   reject_tree.depth + 1,
-                   reject_tree.path || child.id
-            FROM reject_tree
-            INNER JOIN reaction AS child
-                ON child.subject_id = reject_tree."reasonId"
-               AND child.type = 'reject'
-            WHERE NOT child.id = ANY(reject_tree.path)
-        )
-        SELECT id, "editId", "rootReactionId", "subjectId", "reasonId", depth
-        FROM reject_tree
-    `.execute(database);
-    return result.rows;
-}
-
-function activeRejectCounts(tree: RejectTreeRow[]): Map<string, number> {
-    const rowsByRoot = new Map<string, RejectTreeRow[]>();
-    for (const row of tree) {
-        const rows = rowsByRoot.get(row.rootReactionId) ?? [];
-        rows.push(row);
-        rowsByRoot.set(row.rootReactionId, rows);
-    }
-    const counts = new Map<string, number>();
-    for (const rows of rowsByRoot.values()) {
-        const root = rows.find(row => row.depth === 0);
-        if (!root) continue;
-        const subjects = new Set(rows.map(row => row.subjectId));
-        const leaves = rows.filter(row => !row.reasonId || !subjects.has(row.reasonId));
-        if (leaves.every(leaf => leaf.depth % 2 === 0)) {
-            counts.set(root.editId, (counts.get(root.editId) ?? 0) + 1);
-        }
-    }
-    return counts;
-}
-
-function visibleRejectCounts(tree: RejectTreeRow[]): {unreplicated: Map<string, number>; replicated: Map<string, number>} {
-    const childrenByRoot = new Map<string, number>();
-    for (const row of tree) {
-        if (row.depth > 0) childrenByRoot.set(row.rootReactionId, (childrenByRoot.get(row.rootReactionId) ?? 0) + 1);
-    }
-    const unreplicated = new Map<string, number>();
-    const replicated = new Map<string, number>();
-    for (const row of tree) {
-        if (row.depth !== 0) continue;
-        const target = childrenByRoot.has(row.rootReactionId) ? replicated : unreplicated;
-        target.set(row.editId, (target.get(row.editId) ?? 0) + 1);
-    }
-    return {unreplicated, replicated};
-}
-
-async function deleteReactionTree(database: Transaction<DB>, rootReactionId: string): Promise<void> {
-    const result = await sql<{id: string}>`
-        WITH RECURSIVE reaction_tree AS (
-            SELECT id, reason_id, ARRAY[id] AS path
-            FROM reaction
-            WHERE id = ${rootReactionId}
-            UNION ALL
-            SELECT child.id, child.reason_id, reaction_tree.path || child.id
-            FROM reaction_tree
-            INNER JOIN reaction AS child
-                ON child.subject_id = reaction_tree.reason_id
-               AND child.type = 'reject'
-            WHERE NOT child.id = ANY(reaction_tree.path)
-        )
-        SELECT id FROM reaction_tree
-    `.execute(database);
-    const ids = result.rows.map(row => row.id);
-    if (ids.length === 0) return;
-    await database.deleteFrom("reaction").where("id", "in", ids).execute();
-    await database.deleteFrom("record").where("id", "in", ids).execute();
-}
-
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
     if (input.typeId !== "parrafo" && input.typeId !== "h1" && input.typeId !== "h2") return null;
     if (typeof input.content !== "string") return null;
@@ -210,7 +111,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
         const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
 
         try {
-            const result = await sql<{id: string; title: string}>`
+            const result = await sql<{id: string; title: string; slug: string}>`
                 WITH topic_activity AS (
                     SELECT edit.topic_id, record.author_id, record.created_at
                     FROM edit
@@ -233,7 +134,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     LEFT JOIN edit AS subject_edit ON subject_edit.id = reaction.subject_id
                     WHERE reason.topic_id IS NOT NULL OR subject_edit.topic_id IS NOT NULL
                 )
-                SELECT topic.id, topic.title
+                SELECT topic.id, topic.title, topic.slug
                 FROM topic
                 LEFT JOIN topic_activity ON topic_activity.topic_id = topic.id
                 WHERE (${search} = '' OR topic.title ILIKE ${`%${search}%`})
@@ -257,7 +158,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const topic = await ctx.kysely
                 .selectFrom("topic")
-                .select(["id", "title"])
+                .select(["id", "title", "slug"])
                 .where("id", "=", req.params.id)
                 .executeTakeFirst();
             if (!topic) return res.status(404).json({success: false, error: "No encontramos ese tema."});
@@ -272,7 +173,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
     router.get("/topics/:id/blocks", async (req, res) => {
         try {
             const [convergence, blockTypes] = await Promise.all([
-                topicConvergence(ctx.kysely, req.params.id),
+                topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -294,7 +195,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
     router.get("/topics/:id/editor-data", requireSession(ctx), async (req, res) => {
         try {
             const [blocks, blockTypes] = await Promise.all([
-                topicConvergence(ctx.kysely, req.params.id),
+                topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
                     .where("id", "in", ["parrafo", "h1", "h2"])
@@ -393,96 +294,6 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
     });
 
-    router.get("/topics/:id/blocks/:blockNumber/comments", async (req, res) => {
-        try {
-            const blockExists = await ctx.kysely.selectFrom("block")
-                .select("block_number")
-                .where("topic_id", "=", req.params.id)
-                .where("block_number", "=", req.params.blockNumber)
-                .executeTakeFirst();
-            if (!blockExists) return res.status(404).json({success: false, error: "No encontramos ese bloque."});
-
-            const comments = await ctx.kysely.selectFrom("comment")
-                .innerJoin("block_version", join => join
-                    .onRef("block_version.edit_id", "=", "comment.root_id")
-                    .onRef("block_version.topic_id", "=", "comment.topic_id")
-                    .onRef("block_version.block_number", "=", "comment.block_number"))
-                .innerJoin("edit as root_edit", "root_edit.id", "block_version.edit_id")
-                .innerJoin("record as root_record", "root_record.id", "root_edit.id")
-                .innerJoin("record", "record.id", "comment.id")
-                .innerJoin("user", "user.id", "record.author_id")
-                .select([
-                    "comment.id",
-                    "comment.comment_number as commentNumber",
-                    "comment.root_id as commentRootId",
-                    "block_version.id as blockVersionId",
-                    "block_version.id as rootId",
-                    sql<string>`CASE
-                        WHEN comment.reply_to_id = comment.root_id THEN block_version.id
-                        ELSE comment.reply_to_id
-                    END`.as("replyToId"),
-                    "record.deleted",
-                    "comment.content",
-                    "record.created_at as createdAt",
-                    "user.id as authorId",
-                    "user.username as authorUsername",
-                    sql<number>`(
-                        SELECT count(*)::int FROM comment AS reply
-                        WHERE reply.reply_to_id = comment.id
-                    )`.as("directReplyCount"),
-                    sql<string | null>`(
-                        SELECT reaction.subject_id
-                        FROM reaction
-                        WHERE reaction.reason_id = comment.id
-                          AND reaction.type = 'reject'
-                        LIMIT 1
-                    )`.as("reactionSubjectId"),
-                ])
-                .where("comment.topic_id", "=", req.params.id)
-                .where("comment.block_number", "=", req.params.blockNumber)
-                .where("root_record.deleted", "=", false)
-                .orderBy("record.created_at", "desc")
-                .orderBy("record.id", "desc")
-                .execute();
-            const commentsById = new Map(comments.map(comment => [comment.id, comment]));
-            const depths = new Map<string, number | null>();
-            const replicaDepth = (commentId: string, visiting = new Set<string>()): number | null => {
-                if (depths.has(commentId)) return depths.get(commentId) ?? null;
-                const comment = commentsById.get(commentId);
-                if (!comment?.reactionSubjectId || visiting.has(commentId)) return null;
-                if (comment.reactionSubjectId === comment.commentRootId) {
-                    depths.set(commentId, 0);
-                    return 0;
-                }
-                const parentDepth = replicaDepth(comment.reactionSubjectId, new Set([...visiting, commentId]));
-                const depth = parentDepth === null ? null : parentDepth + 1;
-                depths.set(commentId, depth);
-                return depth;
-            };
-            const value: BlockCommentsOutput = {comments: comments.map(comment => {
-                const depth = replicaDepth(comment.id);
-                return {
-                id: comment.id,
-                commentNumber: comment.commentNumber,
-                blockVersionId: comment.blockVersionId,
-                rootId: comment.rootId,
-                replyToId: comment.replyToId,
-                directReplyCount: comment.directReplyCount,
-                rejection: depth !== null,
-                suggestedVote: depth === null ? null : depth % 2 === 0 ? "reject" : "accept",
-                replicaDepth: depth,
-                deleted: comment.deleted,
-                content: comment.content,
-                createdAt: comment.createdAt.toISOString(),
-                author: {id: comment.authorId, username: comment.authorUsername},
-            };})};
-            return res.json({success: true, value});
-        } catch (error) {
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comments lookup failed");
-            return res.status(500).json({success: false, error: "No pudimos cargar los comentarios."});
-        }
-    });
-
     router.delete("/topics/:id/blocks/:blockNumber/versions/:versionId", requireSession(ctx), async (req, res) => {
         const user = requiredUser(req);
         try {
@@ -501,276 +312,12 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 if (version.authorId !== user.id) throw new TopicEditError(403, "Solo el autor puede eliminar esta edición.");
                 await trx.updateTable("record").set({deleted: true}).where("id", "=", version.editId).execute();
             });
-            await notifyTopicChanged(ctx.kysely, req.params.id, "edit", ctx.logger);
+            await notifyTopicChanged(ctx.kysely, String(req.params.id), "edit", ctx.logger);
             return res.json({success: true});
         } catch (error) {
             if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic edit deletion failed");
             return res.status(500).json({success: false, error: "No pudimos eliminar la edición."});
-        }
-    });
-
-    router.post("/topics/:id/blocks/:blockNumber/versions/:versionId/reactions", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        const input = (req.body ?? {}) as Partial<CreateBlockReactionInput>;
-        if (input.type !== "accept") return res.status(400).json({success: false, error: "La reacción no es válida."});
-        try {
-            const version = await ctx.kysely.selectFrom("block_version")
-                .innerJoin("edit", "edit.id", "block_version.edit_id")
-                .innerJoin("record", "record.id", "edit.id")
-                .select(["block_version.edit_id as editId", "record.author_id as authorId"])
-                .where("block_version.id", "=", req.params.versionId)
-                .where("block_version.topic_id", "=", req.params.id)
-                .where("block_version.block_number", "=", req.params.blockNumber)
-                .where("record.deleted", "=", false)
-                .executeTakeFirst();
-            if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
-            if (version.authorId === user.id) return res.status(403).json({success: false, error: "No podés votar tu propia edición."});
-            await ctx.kysely.transaction().execute(async trx => {
-                await sql`select pg_advisory_xact_lock(hashtext(${`${version.editId}:reaction`}))`.execute(trx);
-                const existing = await trx.selectFrom("reaction")
-                    .innerJoin("record", "record.id", "reaction.id")
-                    .select("reaction.id")
-                    .where("reaction.subject_id", "=", version.editId)
-                    .where("record.author_id", "=", user.id)
-                    .executeTakeFirst();
-                if (existing) throw new TopicEditError(409, "Ya votaste esta edición.");
-                const reactionId = randomUUID();
-                await trx.insertInto("record").values({id: reactionId, type_id: "reaction", author_id: user.id}).execute();
-                await trx.insertInto("reaction").values({id: reactionId, type: "accept", subject_id: version.editId, reason_id: null}).execute();
-            });
-            await notifyTopicChanged(ctx.kysely, req.params.id, "vote", ctx.logger);
-            return res.status(201).json({success: true});
-        } catch (error) {
-            if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block version reaction failed");
-            return res.status(500).json({success: false, error: "No pudimos registrar el voto."});
-        }
-    });
-
-    router.delete("/topics/:id/blocks/:blockNumber/versions/:versionId/reactions", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        const input = (req.body ?? {}) as DeleteBlockReactionInput;
-        try {
-            const version = await ctx.kysely.selectFrom("block_version")
-                .select("edit_id as editId")
-                .where("id", "=", req.params.versionId)
-                .where("topic_id", "=", req.params.id)
-                .where("block_number", "=", req.params.blockNumber)
-                .executeTakeFirst();
-            if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
-            await ctx.kysely.transaction().execute(async trx => {
-                await sql`select pg_advisory_xact_lock(hashtext(${`${version.editId}:reaction`}))`.execute(trx);
-                const reaction = await trx.selectFrom("reaction")
-                    .innerJoin("record", "record.id", "reaction.id")
-                    .select(["reaction.id", "reaction.type", "reaction.reason_id as reasonId", "record.author_id as authorId"])
-                    .where("reaction.subject_id", "=", version.editId)
-                    .where("record.author_id", "=", user.id)
-                    .executeTakeFirst();
-                if (!reaction) throw new TopicEditError(404, "No encontramos tu voto a esta edición.");
-                if (reaction.type === "reject" && input.deleteReason === true && reaction.reasonId) {
-                    await trx.updateTable("record").set({deleted: true}).where("id", "=", reaction.reasonId).execute();
-                }
-                await deleteReactionTree(trx, reaction.id);
-            });
-            await notifyTopicChanged(ctx.kysely, req.params.id, "vote", ctx.logger);
-            return res.json({success: true});
-        } catch (error) {
-            if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block version reaction cancellation failed");
-            return res.status(500).json({success: false, error: "No pudimos cancelar el voto."});
-        }
-    });
-
-    router.delete("/topics/:id/blocks/:blockNumber/comments/:commentId", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        try {
-            const comment = await ctx.kysely.selectFrom("comment")
-                .innerJoin("record", "record.id", "comment.id")
-                .select(["comment.id", "comment.root_id as rootId", "record.author_id"])
-                .where("comment.id", "=", req.params.commentId)
-                .where("comment.topic_id", "=", req.params.id)
-                .where("comment.block_number", "=", req.params.blockNumber)
-                .executeTakeFirst();
-            if (!comment) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
-            if (comment.author_id !== user.id) return res.status(403).json({success: false, error: "Solo el autor puede eliminar este comentario."});
-            const removedVote = await ctx.kysely.transaction().execute(async trx => {
-                await sql`select pg_advisory_xact_lock(hashtext(${`${comment.rootId}:reaction`}))`.execute(trx);
-                const rejection = await trx.selectFrom("reaction")
-                    .select("id")
-                    .where("reason_id", "=", comment.id)
-                    .where("type", "=", "reject")
-                    .executeTakeFirst();
-                if (rejection) {
-                    await deleteReactionTree(trx, rejection.id);
-                }
-                await trx.updateTable("record")
-                    .set({deleted: true})
-                    .where("id", "=", comment.id)
-                    .execute();
-                return Boolean(rejection);
-            });
-            await notifyTopicChanged(ctx.kysely, req.params.id, removedVote ? "vote" : "comment", ctx.logger);
-            return res.json({success: true});
-        } catch (error) {
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comment deletion failed");
-            return res.status(500).json({success: false, error: "No pudimos eliminar el comentario."});
-        }
-    });
-
-    router.post("/topics/:id/blocks/:blockNumber/comments", requireSession(ctx), async (req, res) => {
-        const user = requiredUser(req);
-        const topicId = req.params.id;
-        const blockNumber = req.params.blockNumber;
-        if (typeof topicId !== "string" || typeof blockNumber !== "string") {
-            return res.status(400).json({success: false, error: "El tema o bloque no es válido."});
-        }
-        const input = (req.body ?? {}) as Partial<CreateBlockCommentInput>;
-        const content = typeof input.content === "string" ? input.content.trim() : "";
-        if (typeof input.blockVersionId !== "string" || !content || content.length > 20_000
-            || (input.reject !== undefined && typeof input.reject !== "boolean")
-            || (input.replica !== undefined && typeof input.replica !== "boolean")
-            || (input.reject === true && input.replica === true)
-            || (input.replica === true && typeof input.replyToId !== "string")) {
-            return res.status(400).json({success: false, error: "Ingresá un comentario válido."});
-        }
-        const reject = input.reject === true;
-        const replica = input.replica === true;
-        try {
-            const version = await ctx.kysely.selectFrom("block_version")
-                .innerJoin("edit", "edit.id", "block_version.edit_id")
-                .innerJoin("record", "record.id", "edit.id")
-                .select(["block_version.id", "block_version.edit_id as editId", "record.author_id as authorId"])
-                .where("block_version.id", "=", input.blockVersionId)
-                .where("block_version.topic_id", "=", topicId)
-                .where("block_version.block_number", "=", blockNumber)
-                .where("record.deleted", "=", false)
-                .executeTakeFirst();
-            if (!version) return res.status(404).json({success: false, error: "No encontramos esa versión del bloque."});
-            if (reject && version.authorId === user.id) return res.status(403).json({success: false, error: "No podés rechazar tu propia edición."});
-
-            let replyToId = version.editId;
-            let replicaDepth: number | null = null;
-            if (input.replyToId) {
-                const parentDepth = await sql<{depth: number}>`
-                    WITH RECURSIVE ancestors AS (
-                        SELECT id, reply_to_id, 1::int AS depth
-                        FROM comment
-                        WHERE id = ${input.replyToId}
-                          AND topic_id = ${topicId}
-                          AND root_id = ${version.editId}
-                          AND block_number = ${blockNumber}
-                        UNION ALL
-                        SELECT comment.id, comment.reply_to_id, ancestors.depth + 1
-                        FROM comment
-                        INNER JOIN ancestors ON ancestors.reply_to_id = comment.id
-                    )
-                    SELECT max(depth)::int AS depth FROM ancestors
-                `.execute(ctx.kysely);
-                const depth = parentDepth.rows[0]?.depth;
-                if (!depth) return res.status(404).json({success: false, error: "No encontramos ese comentario."});
-                replyToId = input.replyToId;
-                if (replica) {
-                    const target = await ctx.kysely.selectFrom("comment")
-                        .innerJoin("record", "record.id", "comment.id")
-                        .innerJoin("reaction", join => join
-                            .onRef("reaction.reason_id", "=", "comment.id")
-                            .on("reaction.type", "=", "reject"))
-                        .select(["comment.id", "record.author_id as authorId"])
-                        .where("comment.id", "=", input.replyToId)
-                        .where("comment.topic_id", "=", topicId)
-                        .where("comment.block_number", "=", blockNumber)
-                        .where("comment.root_id", "=", version.editId)
-                        .executeTakeFirst();
-                    if (!target) return res.status(400).json({success: false, error: "Solo se pueden replicar rechazos o réplicas."});
-                    if (target.authorId === user.id) return res.status(403).json({success: false, error: "No podés replicar tu propio voto."});
-                    replicaDepth = depth;
-                }
-            }
-
-            const created = await ctx.kysely.transaction().execute(async trx => {
-                await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:comment`}))`.execute(trx);
-                if (reject || replica) {
-                    await sql`select pg_advisory_xact_lock(hashtext(${`${version.editId}:reaction`}))`.execute(trx);
-                }
-                if (reject) {
-                    const existingReaction = await trx.selectFrom("reaction")
-                        .innerJoin("record", "record.id", "reaction.id")
-                        .select(["reaction.id", "reaction.type"])
-                        .where("reaction.subject_id", "=", version.editId)
-                        .where("record.author_id", "=", user.id)
-                        .executeTakeFirst();
-                    if (existingReaction?.type === "reject") throw new TopicEditError(409, "Ya votaste esta edición.");
-                    if (existingReaction) {
-                        await trx.deleteFrom("reaction").where("id", "=", existingReaction.id).execute();
-                        await trx.deleteFrom("record").where("id", "=", existingReaction.id).execute();
-                    }
-                }
-                if (replica) {
-                    const targetReaction = await trx.selectFrom("reaction")
-                        .select("id")
-                        .where("reason_id", "=", replyToId)
-                        .where("type", "=", "reject")
-                        .executeTakeFirst();
-                    if (!targetReaction) throw new TopicEditError(409, "El voto que querías replicar ya no está disponible.");
-                    const existingReplica = await trx.selectFrom("reaction")
-                        .innerJoin("record", "record.id", "reaction.id")
-                        .select("reaction.id")
-                        .where("reaction.subject_id", "=", replyToId)
-                        .where("reaction.type", "=", "reject")
-                        .where("record.author_id", "=", user.id)
-                        .executeTakeFirst();
-                    if (existingReplica) throw new TopicEditError(409, "Ya replicaste este voto.");
-                }
-                const existing = await trx.selectFrom("comment")
-                    .select("comment_number")
-                    .where("topic_id", "=", topicId)
-                    .where("comment_number", "like", "c-%")
-                    .execute();
-                const number = existing.reduce((max, item) => {
-                    const value = Number(item.comment_number.slice(2));
-                    return Number.isInteger(value) ? Math.max(max, value) : max;
-                }, 0) + 1;
-                const id = randomUUID();
-                await trx.insertInto("record").values({id, type_id: "comment", author_id: user.id}).execute();
-                await trx.insertInto("comment").values({
-                    id,
-                    topic_id: topicId,
-                    comment_number: `c-${number}`,
-                    root_id: version.editId,
-                    reply_to_id: replyToId,
-                    content,
-                    block_number: blockNumber,
-                }).execute();
-                if (reject || replica) {
-                    const reactionId = randomUUID();
-                    await trx.insertInto("record").values({id: reactionId, type_id: "reaction", author_id: user.id}).execute();
-                    await trx.insertInto("reaction").values({id: reactionId, type: "reject", subject_id: replica ? replyToId : version.editId, reason_id: id}).execute();
-                }
-                const record = await trx.selectFrom("record").select("created_at").where("id", "=", id).executeTakeFirstOrThrow();
-                return {
-                    id,
-                    commentNumber: `c-${number}`,
-                    blockVersionId: version.id,
-                    rootId: version.id,
-                    replyToId: input.replyToId ?? version.id,
-                    directReplyCount: 0,
-                    rejection: reject || replica,
-                    suggestedVote: reject ? "reject" as const : replicaDepth === null ? null : replicaDepth % 2 === 0 ? "reject" as const : "accept" as const,
-                    replicaDepth: reject ? 0 : replicaDepth,
-                    deleted: false,
-                    content,
-                    createdAt: record.created_at.toISOString(),
-                    author: user,
-                };
-            });
-            await notifyTopicChanged(ctx.kysely, topicId, reject || replica ? "vote" : "comment", ctx.logger);
-            const value: CreateBlockCommentOutput = {comment: created};
-            return res.status(201).json({success: true, value});
-        } catch (error) {
-            if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
-            ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "block comment creation failed");
-            return res.status(500).json({success: false, error: "No pudimos publicar el comentario."});
         }
     });
 
@@ -928,7 +475,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
     });
 
-    router.post("/topics", async (req, res) => {
+    router.post("/topics", requireSession(ctx), async (req, res) => {
         const input = (req.body ?? {}) as Partial<CreateTopicInput>;
         const title = typeof input.title === "string" ? input.title.trim() : "";
         const id = canonicalizeTopicId(title);
@@ -941,11 +488,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
 
         try {
-            const topic = await ctx.kysely
-                .insertInto("topic")
-                .values({id, title})
-                .returning(["id", "title"])
-                .executeTakeFirstOrThrow();
+            const topic = await ctx.kysely.transaction().execute(async trx => {
+                const topic = await trx.insertInto("topic").values({id, title, slug: id})
+                    .returning(["id", "title", "slug"]).executeTakeFirstOrThrow();
+                const editId = randomUUID();
+                await trx.insertInto("record").values({id: editId, type_id: "edit", author_id: requiredUser(req).id}).execute();
+                await trx.insertInto("edit").values({id: editId, topic_id: id, title, message: null}).execute();
+                await trx.insertInto("topic_redirect").values({slug: id, topic_id: id, edit_id: editId}).execute();
+                return topic;
+            });
             const value: CreateTopicOutput = {topic};
             return res.status(201).json({success: true, value});
         } catch (error) {

@@ -1,9 +1,10 @@
 "use client"
 
+import {useTopicRoute} from "@/components/topic-route-provider";
+
 import Link from "next/link";
-import {useParams} from "next/navigation";
 import {useQuery} from "@tanstack/react-query";
-import type {TopicBlocksOutput, TopicOutput} from "@cabildo-abierto/api";
+import type {TopicBlocksOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
@@ -25,18 +26,11 @@ import {TopicReadingContent} from "@/components/topic-reading-content";
 import {useMediaQuery} from "@/hooks/use-media-query";
 
 export default function TopicPage() {
-    const {id} = useParams<{id: string}>();
+    const topic = useTopicRoute();
+    const id = topic.id;
     const {user, loading: authLoading} = useAuth();
     const isMobile = useIsMobile();
     const openToolsInPage = useMediaQuery("(max-width: 1535px)");
-    const topicQuery = useQuery({
-        queryKey: ["topic", id],
-        queryFn: async () => {
-            const result = await get<TopicOutput>(`/topics/${encodeURIComponent(id)}`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value.topic;
-        },
-    });
     const blocksQuery = useQuery({
         queryKey: ["topic", id, "blocks"],
         queryFn: async () => {
@@ -45,15 +39,14 @@ export default function TopicPage() {
             return result.value;
         },
     });
-    const topic = topicQuery.data;
     const blocks = blocksQuery.data?.blocks ?? [];
     const deletedBlocks = blocksQuery.data?.deletedBlocks ?? [];
-    const error = topicQuery.error instanceof Error ? topicQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
+    const error = blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (topicQuery.isPending || blocksQuery.isPending || !topic) return <TopicLoading/>;
+    if (blocksQuery.isPending) return <TopicLoading/>;
 
-    const editButton = isMobile === false && (user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.id)}/editar`}/>} variant="outline" size="sm">
+    const editButton = isMobile === false && (user ? <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topic.slug)}/editar`}/>} variant="outline" size="sm">
         <PencilSimpleIcon/>
         Editar
     </Button> : <AlertDialog>

@@ -1,4 +1,6 @@
-"use client";
+"use client"
+
+import {useTopicRoute} from "@/components/topic-route-provider";;
 
 import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
@@ -17,13 +19,14 @@ export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initi
     latestBlock: TopicBlock | undefined;
     initialHistoryOpen: boolean;
 }) {
+    const {slug: topicSlug} = useTopicRoute();
     const router = useRouter();
     const [displayedBlock, setDisplayedBlock] = useState(initialBlock);
     const realtimeChange = useTopicRealtimeChange(topicId);
     const deletingVersion = useTopicLocalConvergence(topicId, blocks => {
         const block = blocks.find(block => block.blockNumber === displayedBlock.blockNumber);
         if (block) setDisplayedBlock(block);
-        else router.replace(`/tema/${encodeURIComponent(topicId)}`);
+        else router.replace(`/tema/${encodeURIComponent(topicSlug)}`);
     });
 
     useEffect(() => {
@@ -40,7 +43,7 @@ export function TopicBlockPageContent({topicId, initialBlock, latestBlock, initi
     const {footnotes, numberById} = topicFootnotes([displayedBlock]);
     return <div className="min-w-0 space-y-3">
         {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
-            if (!latestBlock) router.push(`/tema/${encodeURIComponent(topicId)}`);
+            if (!latestBlock) router.push(`/tema/${encodeURIComponent(topicSlug)}`);
             else setDisplayedBlock(latestBlock);
         }}/>} 
         <div>

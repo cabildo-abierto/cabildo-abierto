@@ -1,5 +1,7 @@
 "use client"
 
+import {useTopicRoute} from "@/components/topic-route-provider";
+
 import {useState, type MouseEvent} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
@@ -29,6 +31,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     onHistoryOpenChange?: (open: boolean) => void;
     onSectionOpen?: (section: "comments" | "history") => void;
 }) {
+    const {slug: topicSlug} = useTopicRoute();
     const [localCommentsOpen, setLocalCommentsOpen] = useState(pageLayout);
     const commentsOpen = controlledCommentsOpen ?? localCommentsOpen;
     const setCommentsOpen = (open: boolean) => {
@@ -227,22 +230,22 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const filteredVersion = previewVersion ?? selectedVersion;
     const commentsSection = commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
         filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion}
-        conversationHref={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}
+        conversationHref={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}
         pageLayout={pageLayout} onShowAll={() => { setSelectedVersion(null); setPreviewVersion(null); }} onPublish={publish}
         onCancelRejection={() => setRejectionVersion(null)}
         onDelete={commentId => deleteMutation.mutateAsync(commentId).then(() => true).catch(() => false)}/>;
-    const historySection = historyOpen && <TopicBlockHistory topicId={topicId} block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
+    const historySection = historyOpen && <TopicBlockHistory block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
         selectedVersionId={selectedVersion?.id ?? null}
         onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
         onAccept={acceptVersion} onReject={rejectVersion}
         onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
         onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
     if (openInPage) return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
-        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
+        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
         </Button>
-        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicId)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=historial`}/>} type="button" variant="ghost" size="sm"
+        <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=historial`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label="Ver historial de versiones" title="Historial de versiones">
             <GitDiffIcon className="size-3.5"/>
         </Button>
