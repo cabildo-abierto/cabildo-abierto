@@ -23,7 +23,7 @@ El stack utilizado incluye:
  - Lexical (editor).
  - Visx + d3 (visualizaciones).
  - Express (typescript).
- - PostgreSQL + Prisma + Kysely.
+ - PostgreSQL + Kysely.
  - Redis (IORedis).
  - BullMQ.
 
@@ -42,8 +42,10 @@ pnpm run dev
 
 Inicializar una base de datos de desarrollo:
 ```
-npx prisma migrate dev
+pnpm --filter backend migrate
 ```
+
+Las migraciones SQL y los snapshots del esquema se documentan en [apps/backend/schema/README.md](apps/backend/schema/README.md).
 
 ## Contribuir
 

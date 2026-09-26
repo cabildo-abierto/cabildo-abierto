@@ -7,6 +7,11 @@ type Generated<T> = T extends ColumnType<infer Select, infer Insert, infer Updat
 type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type DB = {
+    migration: {
+        migration_id: Generated<string>;
+        run_date: Timestamp;
+        file_name: string;
+    };
     user: {
         id: Generated<string>;
         username: string;

@@ -5,7 +5,8 @@ export default defineConfig({
         "src/index.ts",
         "src/worker.ts",
         "src/mirror.ts",
-        "src/worker-mirror.ts"
+        "src/worker-mirror.ts",
+        "src/scripts/apply-migrations.ts"
     ],
     format: ["esm"],
     splitting: false,

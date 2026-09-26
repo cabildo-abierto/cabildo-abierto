@@ -73,16 +73,18 @@ echo "$CONTAINER_REGISTRY_PASSWORD" | docker login "$CONTAINER_REGISTRY" -u "$CO
 
 ## 4. Aplicar migraciones
 
-Las migraciones no se ejecutan automáticamente y Prisma CLI no forma parte de la
-imagen de runtime. Cuando haya migraciones nuevas, aplicalas desde el checkout
-local antes de desplegar el backend:
+Las migraciones no se ejecutan automáticamente. Cuando haya migraciones nuevas,
+aplicalas desde el checkout local antes de desplegar el backend:
 
 ```bash
 read -rsp 'Neon DIRECT_URL: ' DIRECT_URL; echo
 export DIRECT_URL
-pnpm --filter backend exec prisma migrate deploy --config prisma.config.ts
+pnpm --filter backend migrate
 unset DIRECT_URL
 ```
+
+La imagen también incluye el migrador: ejecutar `node dist/scripts/apply-migrations.js`
+desde `/app`, con las variables de conexión del entorno correspondiente.
 
 ## 5. Desplegar
 

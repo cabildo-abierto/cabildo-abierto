@@ -47,6 +47,7 @@ WORKDIR /app
 COPY --from=builder /runtime/node_modules ./node_modules
 COPY --from=builder /runtime/package.json ./package.json
 COPY --from=builder /runtime/dist ./dist
+COPY --from=builder /runtime/schema ./schema
 
 EXPOSE 8080
 CMD ["node", "dist/index.js"]

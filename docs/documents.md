@@ -29,7 +29,7 @@ La conversión tiene un máximo de 60 segundos y una conversión simultánea por
 
 ## Base de datos y despliegue
 
-Este cambio modifica el esquema Prisma y los tipos Kysely, pero **no crea ni ejecuta migraciones**. Antes de arrancar la nueva versión, aplicar mediante el flujo habitual del proyecto los cambios de esquema:
+El esquema inicial SQL y los tipos Kysely incluyen el modelo documental. Antes de arrancar el backend, ejecutar `pnpm --filter backend migrate`. El esquema incluye:
 
 - Tablas `file`, `document`, `document_block` y sus relaciones/índices.
 - `document.id` como PK y FK a `block_version.id`; `document.file_id`, título y descripción.

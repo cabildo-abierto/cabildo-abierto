@@ -8,7 +8,8 @@
   "files": [
     "dist",
     "public",
-    "package.json"
+    "package.json",
+    "schema"
   ],
   "private": true,
   "type": "module",
@@ -25,7 +26,7 @@
     "script:once": "tsx src/scripts/script.ts | pino-pretty",
     "script:create-test-users": "tsx src/scripts/create-test-users.ts",
     "script:sync-ca-users": "tsx src/scripts/sync-ca-users.ts | pino-pretty",
-    "build": "tsup src/index.ts",
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist coverage",
     "test": "NODE_ENV=test vitest --pool=threads",
@@ -33,7 +34,8 @@
     "test:watch": "NODE_ENV=test vitest --watch",
     "test:bail": "NODE_ENV=test vitest --pool=threads --bail=1",
     "test:reset-db": "tsx watch --clear-screen=false src/scripts/reset-dev-db.ts | pino-pretty",
-    "coverage": "NODE_ENV=test vitest run --coverage"
+    "coverage": "NODE_ENV=test vitest run --coverage",
+    "migrate": "tsx src/scripts/apply-migrations.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",
@@ -52,12 +54,10 @@
   "devDependencies": {
     "@cabildo-abierto/api": "workspace:*",
     "@eslint/js": "^9.39.5",
-    "@prisma/client": "^7.10.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/pg": "^8.23.1",
     "eslint": "^9.39.5",
-    "prisma": "7.10.0",
     "tsup": "^8.5.1",
     "vite": "7.3.2",
     "vite-tsconfig-paths": "^6.1.1",
