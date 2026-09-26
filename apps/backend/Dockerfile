@@ -40,7 +40,7 @@ RUN pnpm --filter backend --prod deploy /runtime
 # ============================
 FROM base AS runner
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl libreoffice-writer font-noto ttf-liberation
 
 WORKDIR /app
 

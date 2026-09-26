@@ -48,7 +48,7 @@ export type TopicChangedEvent = {
 export type TopicRealtimeEvent = TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent
 
 export type BlockType = {
-    id: "parrafo" | "h1" | "h2"
+    id: "parrafo" | "h1" | "h2" | "documento"
     name: string
 }
 

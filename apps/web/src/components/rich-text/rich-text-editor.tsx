@@ -8,6 +8,7 @@ import {baseKeymap, toggleMark} from "prosemirror-commands";
 import {history, redo, undo} from "prosemirror-history";
 import {keymap} from "prosemirror-keymap";
 import {isRichTextEmpty, richTextPlainText} from "@cabildo-abierto/utils";
+import type {DocumentInsertionAction} from "@/components/documents/document-insertion-picker";
 import {RichTextFloatingToolbar, type RichTextToolbarState} from "@/components/rich-text/rich-text-floating-toolbar";
 import {richTextDocumentFromString, richTextSchema, serializeRichTextDocument} from "@/components/rich-text/rich-text-schema";
 
@@ -61,9 +62,10 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     };
 }
 
-export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty}: {
+export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion}: {
     content: string
     footnoteNumbers?: ReadonlyMap<string, number>
+    documentInsertion?: DocumentInsertionAction
     toolbarContainer: HTMLElement | null
     onChange: (content: string) => void
     onDeleteEmpty: () => void
@@ -206,6 +208,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
             view={view}
             state={toolbar}
+            documentInsertion={documentInsertion}
             toolbarRef={element => { toolbarElementRef.current = element; }}
         />, toolbarContainer)}
     </div>;

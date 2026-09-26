@@ -72,6 +72,7 @@ export type DB = {
         name: string;
     };
     comment: {
+        document_block_id: Generated<string | null>;
         id: string;
         topic_id: string;
         comment_number: string;
@@ -80,6 +81,18 @@ export type DB = {
         content: string;
         block_number: string | null;
         edit_id: string | null;
+    };
+    file: {
+        id: string; author_id: string; created_at: Generated<Timestamp>;
+        format: Generated<string | null>; preview_file_id: Generated<string | null>;
+        preview_status: Generated<string>; preview_error: Generated<string | null>;
+        name: string; bucket: string; key: string; mime: string; size: number; sha256: string;
+    };
+    document: {
+        id: string; file_id: string; title: string; description: string;
+    };
+    document_block: {
+        id: string; file_id: string; position: number; type_id: string; content: string;
     };
     reaction: {
         id: string;

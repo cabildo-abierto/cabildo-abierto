@@ -3,11 +3,12 @@
 import {useEffect, useState} from "react";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
-import {AsteriskIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon} from "@phosphor-icons/react";
+import {AsteriskIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {RichTextLinkPicker, type RichTextLink} from "@/components/rich-text/rich-text-link-picker";
 import {richTextSchema} from "@/components/rich-text/rich-text-schema";
 import {cn} from "@/lib/utils";
+import {DocumentInsertionPicker, type DocumentInsertionAction} from "@/components/documents/document-insertion-picker";
 import {RichTextFootnoteEditor} from "@/components/rich-text/rich-text-footnote-editor";
 
 export type RichTextToolbarState = {
@@ -32,11 +33,13 @@ function applyLink(view: EditorView, state: RichTextToolbarState, link: RichText
     view.focus();
 }
 
-export function RichTextFloatingToolbar({view, state, toolbarRef}: {
+export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsertion}: {
+    documentInsertion?: DocumentInsertionAction
     view: EditorView
     state: RichTextToolbarState
     toolbarRef: (element: HTMLDivElement | null) => void
 }) {
+    const [documentPickerOpen, setDocumentPickerOpen] = useState(false);
     const [linkPickerOpen, setLinkPickerOpen] = useState(state.openLinkPicker);
     const [footnoteEditorOpen, setFootnoteEditorOpen] = useState(state.openFootnoteEditor);
     useEffect(() => {
@@ -67,7 +70,7 @@ export function RichTextFloatingToolbar({view, state, toolbarRef}: {
         view.focus();
         setFootnoteEditorOpen(false);
     };
-    const panelOpen = linkPickerOpen || footnoteEditorOpen;
+    const panelOpen = linkPickerOpen || footnoteEditorOpen || documentPickerOpen;
 
     return <div ref={toolbarRef} className="flex justify-start"
         onMouseDown={event => event.stopPropagation()}>
@@ -82,7 +85,16 @@ export function RichTextFloatingToolbar({view, state, toolbarRef}: {
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.footnote && "bg-muted")}
                 aria-label="Agregar o editar nota al pie" title="Nota al pie" onMouseDown={event => event.preventDefault()}
                 onClick={() => setFootnoteEditorOpen(true)}><AsteriskIcon className="size-4"/></Button>
+            {documentInsertion && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar documento" title="Insertar documento"
+                onMouseDown={event => event.preventDefault()} onClick={() => setDocumentPickerOpen(true)}><FileTextIcon className={cn("size-4")}/></Button>}
         </div>}
+        {documentPickerOpen && documentInsertion && <DocumentInsertionPicker
+            action={{...documentInsertion, onInsert: async content => {
+                const saved = await documentInsertion.onInsert(content);
+                if (saved) setDocumentPickerOpen(false);
+                return saved;
+            }}}
+            onCancel={() => { setDocumentPickerOpen(false); view.focus(); }}/>}
         {linkPickerOpen && <RichTextLinkPicker
             current={state.link}
             onApply={link => finishLink(link)}

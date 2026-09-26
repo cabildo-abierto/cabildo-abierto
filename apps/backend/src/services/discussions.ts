@@ -5,7 +5,7 @@ import type {DB} from "#/db/types.js";
 import {deleteReactionTree} from "#/services/record-reactions.js";
 import {TopicActionError, lockTopicTitleEdits, convergeTopicName, initialTitleEdit} from "#/services/topic-title-edits.js";
 
-export type DiscussionTarget = {id: string; rootId: string; topicId: string; blockNumber: string | null; kind: "edit" | "title"};
+export type DiscussionTarget = {id: string; rootId: string; topicId: string; blockNumber: string | null; kind: "edit" | "title" | "document"; documentBlockId?: string};
 type Database = Kysely<DB> | Transaction<DB>;
 
 export async function mutateDiscussion<T>(database: Kysely<DB>, target: DiscussionTarget, action: (trx: Transaction<DB>, authorId: string) => Promise<T>): Promise<T> {
@@ -20,7 +20,7 @@ export async function mutateDiscussion<T>(database: Kysely<DB>, target: Discussi
     });
 }
 
-export async function discussionComments(database: Database, topicId: string, scope: {blockNumber: string} | {rootId: string}): Promise<BlockComment[]> {
+export async function discussionComments(database: Database, topicId: string, scope: {blockNumber: string} | {rootId: string} | {documentBlockId: string}): Promise<BlockComment[]> {
     let query = database.selectFrom("comment")
         .innerJoin("record", "record.id", "comment.id")
         .innerJoin("record as root_record", "root_record.id", "comment.root_id")
@@ -32,9 +32,11 @@ export async function discussionComments(database: Database, topicId: string, sc
             sql<number>`(SELECT count(*)::int FROM comment r WHERE r.reply_to_id = comment.id)`.as("directReplyCount"),
             sql<string | null>`(SELECT subject_id FROM reaction WHERE reason_id = comment.id AND type = 'reject' LIMIT 1)`.as("reactionSubjectId"),
         ]).where("comment.topic_id", "=", topicId);
-    query = "blockNumber" in scope
+    query = "documentBlockId" in scope
+        ? query.where("comment.document_block_id", "=", scope.documentBlockId)
+        : "blockNumber" in scope
         ? query.where("comment.block_number", "=", scope.blockNumber).where("root_record.deleted", "=", false)
-        : query.where("comment.root_id", "=", scope.rootId);
+        : query.where("comment.root_id", "=", scope.rootId).where("comment.document_block_id", "is", null);
     const rows = await query.orderBy("record.created_at", "desc").orderBy("record.id", "desc").execute();
     const byId = new Map(rows.map(row => [row.id, row]));
     const depthOf = (id: string, seen = new Set<string>()): number | null => {
@@ -56,6 +58,7 @@ export async function discussionComments(database: Database, topicId: string, sc
 }
 
 async function requireMutableTitleReaction(trx: Transaction<DB>, target: DiscussionTarget) {
+    if (target.kind === "document") throw new TopicActionError(400, "Los bloques internos solo admiten comentarios.");
     if (target.kind === "title" && await initialTitleEdit(trx, target.topicId) === target.rootId) {
         throw new TopicActionError(403, "El título inicial no puede recibir votos.");
     }
@@ -83,8 +86,10 @@ export async function cancelDiscussionReaction(trx: Transaction<DB>, target: Dis
 
 export async function deleteDiscussionComment(trx: Transaction<DB>, target: DiscussionTarget, commentId: string, userId: string) {
     const comment = await trx.selectFrom("comment").innerJoin("record", "record.id", "comment.id")
-        .select("author_id").where("comment.id", "=", commentId).where("topic_id", "=", target.topicId).where("root_id", "=", target.rootId)
-        .where("block_number", target.blockNumber === null ? "is" : "=", target.blockNumber).executeTakeFirst();
+        .select("author_id").where("comment.id", "=", commentId).where("topic_id", "=", target.topicId)
+        .$if(target.kind !== "document", query => query.where("root_id", "=", target.rootId))
+        .where("block_number", target.blockNumber === null ? "is" : "=", target.blockNumber)
+        .where("document_block_id", target.documentBlockId ? "=" : "is", target.documentBlockId ?? null).executeTakeFirst();
     if (!comment) throw new TopicActionError(404, "No encontramos ese comentario.");
     if (comment.author_id !== userId) throw new TopicActionError(403, "Solo el autor puede eliminar este comentario.");
     const reaction = await trx.selectFrom("reaction").select("id").where("reason_id", "=", commentId).where("type", "=", "reject").executeTakeFirst();
@@ -93,6 +98,7 @@ export async function deleteDiscussionComment(trx: Transaction<DB>, target: Disc
 }
 
 export async function publishDiscussionComment(trx: Transaction<DB>, target: DiscussionTarget, user: {id: string; username: string}, authorId: string, input: CreateDiscussionCommentInput): Promise<BlockComment> {
+    if (target.kind === "document" && (input.reject || input.replica)) throw new TopicActionError(400, "Los bloques internos solo admiten comentarios.");
     const content = typeof input.content === "string" ? input.content.trim() : "";
     if (!content || content.length > 20_000 || (input.reject !== undefined && typeof input.reject !== "boolean")
         || (input.replica !== undefined && typeof input.replica !== "boolean") || (input.reject && input.replica)
@@ -105,8 +111,10 @@ export async function publishDiscussionComment(trx: Transaction<DB>, target: Dis
     let replicaDepth: number | null = null;
     if (input.replyToId) {
         const parent = await trx.selectFrom("comment").innerJoin("record", "record.id", "comment.id").select(["comment.id", "author_id", "record.deleted"])
-            .where("comment.id", "=", input.replyToId).where("topic_id", "=", target.topicId).where("root_id", "=", target.rootId)
-            .where("block_number", target.blockNumber === null ? "is" : "=", target.blockNumber).executeTakeFirst();
+            .where("comment.id", "=", input.replyToId).where("topic_id", "=", target.topicId)
+            .$if(target.kind !== "document", query => query.where("root_id", "=", target.rootId))
+            .where("block_number", target.blockNumber === null ? "is" : "=", target.blockNumber)
+            .where("document_block_id", target.documentBlockId ? "=" : "is", target.documentBlockId ?? null).executeTakeFirst();
         if (!parent || parent.deleted) throw new TopicActionError(404, "No encontramos ese comentario.");
         if (input.replica) {
             if (parent.author_id === user.id) throw new TopicActionError(403, "No podés replicar tu propio voto.");
@@ -131,7 +139,7 @@ export async function publishDiscussionComment(trx: Transaction<DB>, target: Dis
     const id = randomUUID();
     await trx.insertInto("record").values({id, type_id: "comment", author_id: user.id}).execute();
     await trx.insertInto("comment").values({id, topic_id: target.topicId, comment_number: `c-${number}`, root_id: target.rootId,
-        reply_to_id: replyToId, content, block_number: target.blockNumber, edit_id: target.rootId}).execute();
+        reply_to_id: replyToId, content, block_number: target.blockNumber, edit_id: target.rootId, document_block_id: target.documentBlockId ?? null}).execute();
     if (input.reject || input.replica) {
         const reactionId = randomUUID();
         await trx.insertInto("record").values({id: reactionId, type_id: "reaction", author_id: user.id}).execute();

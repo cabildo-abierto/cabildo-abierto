@@ -1,8 +1,11 @@
+import {documentBlockContent} from "#/services/documents/block-content.js";
+import {requireDocumentFileAccess} from "#/services/documents/access.js";
+import {TopicActionError} from "#/services/topic-title-edits.js";
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql, type Kysely, type Transaction} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, parseDocumentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
@@ -10,7 +13,7 @@ import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 
-const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2"};
+const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d"};
 
 type StoredTopicBlock = {
     id: string;
@@ -29,7 +32,7 @@ async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId:
                block_version.edit_id AS "editId",
                block_version.block_number AS "blockNumber",
                block.type_id AS "typeId",
-               block_version.content,
+               ${documentBlockContent()} as content,
                block_version.order,
                block_version.deleted,
                (
@@ -40,6 +43,7 @@ async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId:
                      AND comment.reply_to_id = comment.root_id
                ) AS "commentCount"
         FROM block_version
+        LEFT JOIN document ON document.id = block_version.id
         INNER JOIN block
             ON block.topic_id = block_version.topic_id
            AND block.block_number = block_version.block_number
@@ -60,8 +64,8 @@ async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId:
         if (!selected.has(blockNumber)) selected.set(blockNumber, {...block, deleted: true});
     }
     return [...selected.values()]
-        .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber))
-        .map(({editId: _editId, ...block}) => block);
+        .sort(compareContentBlocks)
+        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.content}));
 }
 
 function databaseCode(error: unknown): string | undefined {
@@ -77,7 +81,7 @@ function sameConvergenceBlocks(left: SaveTopicEditBlockInput[], right: TopicEdit
         if (!block.blockNumber || !block.id || seen.has(block.blockNumber)) return false;
         const current = rightByNumber.get(block.blockNumber);
         if (!current || current.id !== block.id || current.typeId !== block.typeId
-            || current.content !== block.content || current.order !== block.order || current.deleted !== block.deleted) {
+            || current.content !== block.content || (block.typeId !== "documento" && current.order !== block.order) || current.deleted !== block.deleted) {
             return false;
         }
         seen.add(block.blockNumber);
@@ -92,6 +96,10 @@ class TopicEditError extends Error {
 }
 
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+    if (input.typeId === "documento") {
+        const document = typeof input.content === "string" ? parseDocumentBlock(input.content) : null;
+        return document ? {typeId: "documento", content: JSON.stringify(document)} : null;
+    }
     if (input.typeId !== "parrafo" && input.typeId !== "h1" && input.typeId !== "h2") return null;
     if (typeof input.content !== "string") return null;
     const content = input.typeId === "parrafo" ? input.content : input.content.trim();
@@ -176,7 +184,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -198,7 +206,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -213,6 +221,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
     router.get("/topics/:id/blocks/:blockNumber/versions", withSession(ctx), async (req, res) => {
         try {
             const versions = await ctx.kysely.selectFrom("block_version")
+                .leftJoin("document", "document.id", "block_version.id")
                 .innerJoin("block", join => join
                     .onRef("block.topic_id", "=", "block_version.topic_id")
                     .onRef("block.block_number", "=", "block_version.block_number"))
@@ -223,7 +232,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     "block_version.id",
                     "block_version.block_number as blockNumber",
                     "block.type_id as typeId",
-                    "block_version.content",
+                    documentBlockContent().as("content"),
                     "block_version.deleted",
                     "block_version.order",
                     "edit.id as editId",
@@ -271,7 +280,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     id: version.id,
                     blockNumber: version.blockNumber,
                     typeId: version.typeId as BlockType["id"],
-                    content: version.content ?? "",
+                    content: version.typeId === "documento" ? JSON.stringify(parseDocumentBlock(version.content)) : version.content ?? "",
                     order: version.order,
                     editId: version.editId,
                     deleted: version.deleted,
@@ -315,7 +324,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
             await notifyTopicChanged(ctx.kysely, String(req.params.id), "edit", ctx.logger);
             return res.json({success: true});
         } catch (error) {
-            if (error instanceof TopicEditError) return res.status(error.status).json({success: false, error: error.message});
+            if (error instanceof TopicEditError || error instanceof TopicActionError) return res.status(error.status).json({success: false, error: error.message});
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic edit deletion failed");
             return res.status(500).json({success: false, error: "No pudimos eliminar la edición."});
         }
@@ -333,9 +342,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
             const parsed = blockContent(block);
             const existing = typeof block.id === "string" && typeof block.blockNumber === "string";
             const newBlock = block.id === null && block.blockNumber === null;
-            if (!parsed || (!existing && !newBlock) || !isOrder(block.order)
+            if (!parsed || (!existing && !newBlock) || (block.typeId !== "documento" && !isOrder(block.order))
                 || typeof block.deleted !== "boolean" || (newBlock && block.deleted)) return null;
-            return {...block, ...parsed};
+            return {...block, ...parsed, order: parsed.typeId === "documento" ? "n" : block.order};
         });
         if (parsedBlocks.some(block => block === null)) {
             return res.status(400).json({success: false, error: "La edición contiene bloques inválidos."});
@@ -346,11 +355,11 @@ export const topicRoutes = (ctx: AppContext): Router => {
             if (!block || typeof block !== "object") return true;
             const parsed = blockContent(block);
             return !parsed || typeof block.id !== "string" || typeof block.blockNumber !== "string"
-                || !isOrder(block.order) || typeof block.deleted !== "boolean";
+                || (block.typeId !== "documento" && !isOrder(block.order)) || typeof block.deleted !== "boolean";
         }))) {
             return res.status(400).json({success: false, error: "La convergencia base no es válida."});
         }
-        const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted);
+        const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted && block.typeId !== "documento");
         if (visibleRequestedBlocks.some((block, index) => index > 0 && visibleRequestedBlocks[index - 1].order >= block.order)) {
             return res.status(400).json({success: false, error: "El orden de los bloques no es válido."});
         }
@@ -358,14 +367,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
-                const linkedTopicIds = [...new Set(visibleRequestedBlocks.flatMap(block => block.typeId === "parrafo"
-                    ? richTextInternalTopicIds(block.content)
-                    : []))];
-                if (linkedTopicIds.length > 0) {
-                    const existingTopics = await trx.selectFrom("topic").select("id").where("id", "in", linkedTopicIds).execute();
-                    if (existingTopics.length !== linkedTopicIds.length) {
-                        throw new TopicEditError(400, "La edición contiene links a temas inexistentes.");
-                    }
+                for (const block of requestedBlocks.filter(block => block.typeId === "documento")) {
+                    await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
                 }
                 const currentBlocks = await topicConvergence(trx, topicId);
                 if (baseBlocks && !sameConvergenceBlocks(baseBlocks, currentBlocks)) {
@@ -391,9 +394,18 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
                 const changedExisting = existingInputs.filter(block => {
                     const current = currentByNumber.get(block.blockNumber!)!;
-                    return block.deleted !== current.deleted || block.content !== current.content || block.order !== current.order;
+                    return block.deleted !== current.deleted || block.content !== current.content || (block.typeId !== "documento" && block.order !== current.order);
                 });
                 const newInputs = requestedBlocks.filter(block => block.blockNumber === null);
+                const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => block.typeId === "parrafo"
+                    ? richTextInternalTopicIds(block.content)
+                    : []))];
+                if (linkedTopicIds.length > 0) {
+                    const existingTopics = await trx.selectFrom("topic").select("id").where("id", "in", linkedTopicIds).execute();
+                    if (existingTopics.length !== linkedTopicIds.length) {
+                        throw new TopicEditError(400, "La edición contiene links a temas inexistentes.");
+                    }
+                }
                 if (changedExisting.length === 0 && newInputs.length === 0) {
                     throw new TopicEditError(400, "La edición no contiene cambios.");
                 }
@@ -411,7 +423,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
 
                 const nextNumberByType = new Map<BlockType["id"], number>();
-                for (const typeId of ["parrafo", "h1", "h2"] as const) {
+                for (const typeId of ["parrafo", "h1", "h2", "documento"] as const) {
                     if (!newInputs.some(block => block.typeId === typeId)) continue;
                     const prefix = BLOCK_PREFIXES[typeId];
                     await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
@@ -427,6 +439,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     nextNumberByType.set(typeId, max + 1);
                 }
 
+                if (newInputs.some(block => block.typeId === "documento")) await trx.insertInto("block_type")
+                    .values({id: "documento", name: "Documento"}).onConflict(c => c.column("id").doNothing()).execute();
                 const versions: Array<{
                     id: string
                     topic_id: string
@@ -436,6 +450,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     edit_id: string
                     deleted: boolean
                 }> = [];
+                const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
                 for (const block of requestedBlocks) {
                     let blockNumber = block.blockNumber;
                     if (blockNumber === null) {
@@ -450,24 +465,30 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     } else if (!changedExisting.some(changed => changed.blockNumber === blockNumber)) {
                         continue;
                     }
+                    const versionId = randomUUID();
+                    if (block.typeId === "documento") {
+                        const metadata = parseDocumentBlock(block.content)!;
+                        documents.push({id: versionId, file_id: metadata.fileId, title: metadata.title, description: metadata.description});
+                    }
                     versions.push({
-                        id: randomUUID(),
+                        id: versionId,
                         topic_id: topicId,
                         block_number: blockNumber,
-                        content: block.deleted ? "" : block.content,
+                        content: block.typeId === "documento" || block.deleted ? "" : block.content,
                         order: block.order,
                         edit_id: editId,
                         deleted: block.deleted,
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
+                if (documents.length) await trx.insertInto("document").values(documents).execute();
                 return topicConvergence(trx, topicId);
             });
             await notifyTopicChanged(ctx.kysely, topicId, "edit", ctx.logger);
             const value: SaveTopicEditOutput = {blocks};
             return res.status(201).json({success: true, value});
         } catch (error) {
-            if (error instanceof TopicEditError) {
+            if (error instanceof TopicEditError || error instanceof TopicActionError) {
                 return res.status(error.status).json({success: false, error: error.message});
             }
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic edit creation failed");

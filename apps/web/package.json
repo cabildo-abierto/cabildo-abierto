@@ -28,7 +28,9 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.42.3",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@cabildo-abierto/api": "workspace:*",

@@ -1,15 +1,17 @@
 "use client"
 
+import {useTopicBlockComments} from "@/hooks/use-topic-block-comments";
 import {useTopicRoute} from "@/components/topic-route-provider";
 
 import {useState, type MouseEvent} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import type {BlockComment, BlockCommentsOutput, CreateBlockCommentInput, CreateBlockCommentOutput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
+import type {CreateBlockCommentInput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
 import {TopicBlockHistory} from "@/components/topic-block-history";
+import {TopicBlockPanel} from "@/components/topic-block-panel";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 import {useToast} from "@/components/ui/toast";
@@ -52,15 +54,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const commentsKey = ["topic", topicId, "block", block.blockNumber, "comments"] as const;
     const versionsKey = topicBlockVersionsKey(topicId, block.blockNumber);
     const blocksKey = ["topic", topicId, "blocks"] as const;
-    const commentsQuery = useQuery({
-        queryKey: commentsKey,
-        queryFn: async () => {
-            const result = await get<BlockCommentsOutput>(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/comments`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value.comments;
-        },
-        enabled: commentsOpen,
-    });
+    const {commentsQuery, publishMutation, deleteMutation, commentCount: loadedCommentCount} = useTopicBlockComments(topicId, block.blockNumber, commentsOpen);
     const versionsQuery = useQuery({
         queryKey: versionsKey,
         queryFn: async () => {
@@ -69,40 +63,6 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
             return result.value.versions;
         },
         enabled: historyOpen,
-    });
-    const publishMutation = useMutation({
-        mutationFn: async (input: CreateBlockCommentInput) => {
-            const result = await post<CreateBlockCommentInput, CreateBlockCommentOutput>(
-                `/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/comments`, input,
-            );
-            if ("error" in result) throw new Error(result.error);
-            return result.value.comment;
-        },
-        onSuccess: (comment, input) => {
-            queryClient.setQueryData<BlockComment[]>(commentsKey, current => {
-                const next = (current ?? []).map(existing => existing.id === input.replyToId
-                    ? {...existing, directReplyCount: existing.directReplyCount + 1}
-                    : existing);
-                return [comment, ...next];
-            });
-            void queryClient.invalidateQueries({queryKey: versionsKey});
-            void queryClient.invalidateQueries({queryKey: blocksKey});
-            if (input.reject || input.replica) {
-                setRejectionVersion(null);
-                void queryClient.invalidateQueries({queryKey: versionsKey});
-                void queryClient.invalidateQueries({queryKey: commentsKey});
-                void queryClient.invalidateQueries({queryKey: blocksKey});
-            }
-        },
-        onError: (error, input) => toast({
-            title: input.replica
-                ? "No pudimos publicar la réplica"
-                : input.reject
-                    ? "No pudimos publicar el rechazo"
-                    : "No pudimos publicar el comentario",
-            description: error instanceof Error ? error.message : undefined,
-            variant: "destructive",
-        }),
     });
     const reactionMutation = useMutation({
         mutationFn: async ({version, input}: {version: TopicBlockVersion; input: CreateBlockReactionInput}) => {
@@ -131,25 +91,6 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
             void queryClient.invalidateQueries({queryKey: blocksKey});
         },
         onError: error => toast({title: "No pudimos cancelar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
-    });
-    const deleteMutation = useMutation({
-        mutationFn: async (commentId: string) => {
-            const result = await del(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}/comments/${encodeURIComponent(commentId)}`);
-            if ("error" in result) throw new Error(result.error);
-            return commentId;
-        },
-        onSuccess: commentId => {
-            queryClient.setQueryData<BlockComment[]>(commentsKey, current => current?.map(comment =>
-                comment.id === commentId ? {...comment, deleted: true} : comment));
-            void queryClient.invalidateQueries({queryKey: commentsKey});
-            void queryClient.invalidateQueries({queryKey: versionsKey});
-            void queryClient.invalidateQueries({queryKey: blocksKey});
-        },
-        onError: error => toast({
-            title: "No pudimos eliminar el comentario",
-            description: error instanceof Error ? error.message : undefined,
-            variant: "destructive",
-        }),
     });
     const deleteVersionMutation = useMutation({
         mutationKey: topicDeleteVersionKey(topicId),
@@ -209,6 +150,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const publish = async (content: string, replyToId?: string, blockVersionId = block.id, reject = false, replica = false): Promise<boolean> => {
         const input: CreateBlockCommentInput = {blockVersionId, replyToId, content, reject, replica};
         try { await publishMutation.mutateAsync(input); } catch { return false; }
+        if (reject || replica) setRejectionVersion(null);
         setSelectedVersion(null);
         setPreviewVersion(null);
         return true;
@@ -226,7 +168,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
     const comments = commentsQuery.data ?? null;
     const versions = versionsQuery.data ?? null;
     const commentsError = commentsQuery.error instanceof Error ? commentsQuery.error.message : null;
-    const commentCount = block.commentCount;
+    const commentCount = loadedCommentCount ?? block.commentCount;
     const filteredVersion = previewVersion ?? selectedVersion;
     const commentsSection = commentsOpen && <TopicBlockComments comments={comments} loading={commentsQuery.isPending} error={commentsError}
         filteredVersion={filteredVersion} pinnedVersionId={selectedVersion?.id} rejectionVersion={rejectionVersion}
@@ -240,7 +182,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         onAccept={acceptVersion} onReject={rejectVersion}
         onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
         onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
-    if (openInPage) return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    if (openInPage && block.typeId !== "documento") return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
@@ -251,11 +193,11 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         </Button>
     </div>;
     return <div className={cn(pageLayout ? "relative mt-4" : "")} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-        <div className={cn(pageLayout ? "flex items-center gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
+        <div className={cn(pageLayout ? "flex items-center gap-1" : block.typeId === "documento" ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
             <Button type="button" variant="ghost" size="sm"
                 className={cn(
                     "text-muted-foreground transition-opacity",
-                    pageLayout || commentCount > 0
+                    pageLayout || commentCount > 0 || block.typeId === "documento"
                         ? "opacity-100"
                         : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100",
                 )}
@@ -264,12 +206,12 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
                 <ChatCircleIcon className="size-4"/>{commentCount > 0 && <span>{commentCount}</span>}
             </Button>
             <Button type="button" variant="ghost" size="sm"
-                className={cn("text-muted-foreground transition-opacity", pageLayout ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
+                className={cn("text-muted-foreground transition-opacity", pageLayout || block.typeId === "documento" ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
                 aria-label={historyOpen ? "Cerrar historial de versiones" : "Ver historial de versiones"}
                 aria-expanded={historyOpen} title="Historial de versiones" onClick={toggleHistory}>
                 <GitDiffIcon className="size-4"/>
             </Button>
         </div>
-        {pageLayout ? <>{historySection}{commentsSection}</> : <>{commentsSection}{historySection}</>}
+        <TopicBlockPanel history={historySection} comments={commentsSection} pageLayout={pageLayout}/>
     </div>;
 }

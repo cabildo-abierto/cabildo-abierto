@@ -142,13 +142,13 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
     </li>;
     };
 
-    return <><section className={cn("mt-4 box-border min-w-0 max-w-full", !pageLayout && "2xl:absolute 2xl:top-0 2xl:left-full 2xl:ml-32 2xl:mt-0 2xl:w-72")} aria-label={scope === "title" ? "Comentarios del título" : "Comentarios del bloque"}>
-        {readOnly ? <p className="text-xs text-muted-foreground">La discusión de esta edición eliminada está cerrada.</p> : authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <div className={cn(scope !== "title" && "pr-3")}><CommentComposer
+    return <><section className={cn("mt-4 box-border min-w-0 max-w-full")} aria-label={scope === "title" ? "Comentarios del título" : "Comentarios del bloque"}>
+        {readOnly ? <p className="text-xs text-muted-foreground">La discusión de esta edición eliminada está cerrada.</p> : authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `${scope === "title" ? "la edición de título" : "la edición"} «${rejectionVersion.message}» de ${topicAuthorName(rejectionVersion.author, user?.id)}`
                 : `la edición de ${topicAuthorName(rejectionVersion.author, user?.id)} del ${formatTopicBlockDate(rejectionVersion.createdAt)}` : undefined}
             onPublish={(content, replyToId) => onPublish(content, replyToId, rejectionVersion?.id, Boolean(rejectionVersion))}
-            onCancel={rejectionVersion ? onCancelRejection : undefined}/></div>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+            onCancel={rejectionVersion ? onCancelRejection : undefined}/>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
         <div className={cn("mt-2", scope !== "title" && "mb-16")}>
@@ -158,8 +158,8 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
             </div>}
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
-            {rootComments.some(isRenderable) && <ScrollArea className="max-h-[600px]">
-                <ol className="space-y-2 pr-3">{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
+            {rootComments.some(isRenderable) && <ScrollArea className={cn("group/comment-scroll max-h-[600px]")}>
+                <ol className={cn("space-y-2 group-data-[has-overflow-y]/comment-scroll:pr-3")}>{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
             </ScrollArea>}
             {pageLayout && !loading && !error && !rootComments.some(isRenderable) && <p className={cn("text-xs text-muted-foreground", scope === "title" ? "py-1" : "rounded-md bg-muted/40 p-3")}>
                 {filteredVersion ? "Esta versión no recibió comentarios." : scope === "title" ? "La propuesta todavía no recibió comentarios." : "El bloque todavía no recibió comentarios."}

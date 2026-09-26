@@ -12,6 +12,7 @@ model User {
   email        String @unique @map("email")
   passwordHash String @map("password_hash")
 
+  files File[]
   records  Record[]
   sessions Session[]
 
@@ -95,6 +96,8 @@ model BlockVersion {
   id          String @id @default(uuid())
   topicId     String @map("topic_id")
   blockNumber String @map("block_number")
+
+  document Document?
 
   content String @map("content")
 
@@ -188,7 +191,12 @@ model Comment {
   blockNumber String? @map("block_number")
   block       Block?  @relation(fields: [blockNumber, topicId], references: [blockNumber, topicId], onDelete: Restrict)
 
+  documentBlockId String? @map("document_block_id")
+  documentBlock DocumentBlock? @relation(fields: [documentBlockId], references: [id], onDelete: Restrict)
+
   justifiesRejections Reaction[]
+
+  @@index([documentBlockId])
 
   @@unique([topicId, commentNumber])
   @@index([replyToId])
@@ -209,4 +217,50 @@ model Reaction {
   record Record @relation("ReactionRecord", fields: [id], references: [id])
 
   @@map("reaction")
+}
+
+model File {
+  id String @id
+  authorId String @map("author_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  name String
+  bucket String
+  key String @unique
+  mime String
+  size Int
+  sha256 String
+  author User @relation(fields: [authorId], references: [id])
+  format String?
+  previewFileId String? @map("preview_file_id")
+  previewStatus String @default("ready") @map("preview_status")
+  previewError String? @map("preview_error")
+  previewFile File? @relation("FilePreview", fields: [previewFileId], references: [id])
+  previewOf File[] @relation("FilePreview")
+  documents Document[]
+  blocks DocumentBlock[]
+  @@map("file")
+}
+
+model Document {
+  // Shared primary key makes a document belong to exactly one existing version.
+  id String @id
+  version BlockVersion @relation(fields: [id], references: [id], onDelete: Restrict)
+  fileId String @map("file_id")
+  title String
+  description String
+  file File @relation(fields: [fileId], references: [id])
+  @@index([fileId])
+  @@map("document")
+}
+
+model DocumentBlock {
+  id String @id
+  fileId String @map("file_id")
+  position Int
+  typeId String @map("type_id")
+  content String
+  file File @relation(fields: [fileId], references: [id])
+  comments Comment[]
+  @@unique([fileId, position])
+  @@map("document_block")
 }

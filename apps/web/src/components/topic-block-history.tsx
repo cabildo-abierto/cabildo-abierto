@@ -4,9 +4,8 @@ import {useTopicRoute} from "@/components/topic-route-provider";
 
 import type {TopicBlock, TopicBlockVersion} from "@cabildo-abierto/api";
 import Link from "next/link";
-import {ChatCircleIcon, CheckIcon, DotsThreeIcon, FlagIcon, GitDiffIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
+import {GitDiffIcon, TrashIcon} from "@phosphor-icons/react";
 import {useState} from "react";
-import {useAuth} from "@/components/auth-provider";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,13 +16,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import {Button} from "@/components/ui/button";
 import {TopicBlockContent} from "@/components/topic-block-content";
-import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block-date";
 import {Spinner} from "@/components/ui/spinner";
 import {cn} from "@/lib/utils";
-import {topicAuthorName} from "@/components/topic-author-name";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {TopicBlockHistoryVersionHeader} from "@/components/topic-block-history-version-header";
 
 export function TopicBlockHistory({
                                       block,
@@ -51,16 +47,15 @@ export function TopicBlockHistory({
     onCancelReaction: (version: TopicBlockVersion, deleteReason: boolean) => void
 }) {
     const {slug: topicSlug} = useTopicRoute();
-    const {user} = useAuth();
     const [cancelVersion, setCancelVersion] = useState<TopicBlockVersion | null>(null);
     const [deleteVersion, setDeleteVersion] = useState<TopicBlockVersion | null>(null);
     const requestCancel = (version: TopicBlockVersion) => {
         if (version.userReaction === "reject") setCancelVersion(version);
         else onCancelReaction(version, false);
     };
-    return <section className="mt-4 mb-2 rounded-lg border bg-muted/20 p-3"
+    return <section className={cn("mt-4 mb-2 min-w-0 rounded-lg border bg-muted/20 p-3 wrap-anywhere")}
                     aria-label={`Historial de ${block.blockNumber}`}>
-        <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <div className={cn("mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground")}>
             <GitDiffIcon/>
             <span>Versiones de</span>
             <Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}`}
@@ -72,7 +67,6 @@ export function TopicBlockHistory({
         {versions &&
             <ol className="relative space-y-4 pl-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-0.5 before:rounded-full before:bg-border">
                 {versions.map(version => {
-                    const commentCount = version.commentCount;
                     const selected = selectedVersionId === version.id;
                     return <li key={version.id} className="group/version relative"
                                onMouseEnter={() => onPreview(version)} onMouseLeave={() => onPreview(null)}
@@ -88,65 +82,9 @@ export function TopicBlockHistory({
                         <span
                             className={cn("size-2 rounded-full", version.rejected ? "bg-red-500/65" : "bg-green-500/65")}/>
                     </span>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                            <div className={"flex space-x-1"}>
-                                <span
-                                    className="font-medium text-muted-foreground">{topicAuthorName(version.author, user?.id)}</span>
-                                <span aria-hidden="true">·</span>
-                                <time
-                                    dateTime={version.createdAt}
-                                    title={formatTopicBlockDate(version.createdAt)}
-                                    className="tabular-nums"
-                                >
-                                    {formatRelativeDate(version.createdAt)}
-                                </time>
-                            </div>
-                            {version.current && <span
-                                className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">Versión actual</span>}
-                            <Button type="button" variant="ghost" size="xs"
-                                    className="h-5 gap-1 px-1 text-[10px] aria-pressed:bg-muted aria-pressed:text-foreground dark:aria-pressed:bg-muted/70"
-                                    aria-pressed={selected}
-                                    aria-label={`${selected ? "Dejar de filtrar" : "Ver"} comentarios de esta versión (${commentCount})`}
-                                    onClick={() => onSelect(version)}>
-                                <ChatCircleIcon className="size-3"/><span>{commentCount}</span>
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-xs" aria-label="Acciones de la edición"/>}>
-                                    <DotsThreeIcon/>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start" className="w-max min-w-32">
-                                    <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem>
-                                    {user?.id === version.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap"
-                                        onClick={() => setDeleteVersion(version)}><TrashIcon/>Eliminar</DropdownMenuItem>}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <div className="ml-auto flex flex-col items-end gap-1">
-                            <span className="inline-flex items-center gap-1">
-                            <Button type="button" variant="ghost" size="sm"
-                                    disabled={!user || user.id === version.author.id}
-                                    className={cn("h-6 gap-1 px-1 text-green-600 hover:bg-green-500/10 hover:text-green-700 disabled:opacity-50 dark:text-green-400 dark:hover:text-green-300", version.userReaction === "accept" && "bg-green-500/15")}
-                                    aria-pressed={version.userReaction === "accept"}
-                                    aria-label={version.userReaction === "accept" ? `Cancelar voto de aceptación (${version.acceptCount})` : `Votar aceptación (${version.acceptCount})`}
-                                    title={version.userReaction === "accept" ? "Cancelar voto de aceptación" : "Votar aceptación"}
-                                    onClick={() => version.userReaction === "accept" ? requestCancel(version) : onAccept(version)}>
-                                <CheckIcon className="size-3"/><span>{version.acceptCount}</span>
-                            </Button>
-                            <Button type="button" variant="ghost" size="sm"
-                                    disabled={!user || user.id === version.author.id}
-                                    className={cn("h-6 gap-1 px-1 text-red-600 hover:bg-red-500/10 hover:text-red-700 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300", version.userReaction === "reject" && "bg-red-500/15")}
-                                    aria-pressed={version.userReaction === "reject"}
-                                    aria-label={version.userReaction === "reject" ? `Cancelar voto de rechazo (${version.rejectCount})` : `Votar rechazo (${version.rejectCount})`}
-                                    title={version.userReaction === "reject" ? "Cancelar voto de rechazo" : "Votar rechazo"}
-                                    onClick={() => version.userReaction === "reject" ? requestCancel(version) : onReject(version)}>
-                                <XIcon className="size-3"/><span>{version.rejectCount}</span>
-                            </Button>
-                            </span>
-                                {version.replicatedRejectCount > 0 && <span
-                                    className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                                {version.replicatedRejectCount} {version.replicatedRejectCount === 1 ? "rechazo replicado" : "rechazos replicados"}
-                            </span>}
-                            </div>
-                        </div>
+                        <TopicBlockHistoryVersionHeader version={version} selected={selected}
+                            onSelect={onSelect} onAccept={onAccept} onReject={onReject}
+                            onCancelReaction={requestCancel} onDelete={setDeleteVersion}/>
                         {version.message && <div className="flex justify-start pb-1">
                             <div
                                 className={"rounded-md bg-muted px-2 py-0 text-[10px] font-medium leading-relaxed text-foreground whitespace-pre-wrap break-words"}>

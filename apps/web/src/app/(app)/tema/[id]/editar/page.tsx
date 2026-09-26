@@ -8,6 +8,7 @@ import {useQuery} from "@tanstack/react-query";
 import type {TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
+import {BackToTopicButton} from "@/components/back-to-topic-button";
 import {TopicView} from "@/components/topic-view";
 import {TopicBlockEditor, type TopicBlockEditorHandle} from "@/components/topic-block-editor";
 import {useAuth} from "@/components/auth-provider";
@@ -44,7 +45,7 @@ export default function EditTopicPage() {
     if (isMobile) return <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-2xl flex-col items-start justify-center gap-4 p-6">
         <h1 className="text-xl font-semibold">La edición está disponible solo en computadora</h1>
         <p className="text-sm text-muted-foreground">Podés seguir consultando el tema desde este dispositivo.</p>
-        <Button type="button" variant="outline" onClick={() => router.replace(`/tema/${encodeURIComponent(topic.slug)}`)}>Volver al tema</Button>
+        <BackToTopicButton href={`/tema/${encodeURIComponent(topic.slug)}`} replace/>
     </div>;
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
     if (blocksQuery.isPending) return <TopicLoading/>;

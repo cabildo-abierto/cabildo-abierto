@@ -16,6 +16,13 @@ export const env = cleanEnv(process.env, {
     DIRECT_URL: str({default: ''}),
     ADMIN_TOKEN: str(),
 
+    CLOUDFLARE_ACCOUNT_ID: str({default: ''}),
+    CLOUDFLARE_ACCESS_KEY_ID: str({default: ''}),
+    CLOUDFLARE_SECRET_ACCESS_KEY: str({default: ''}),
+    CLOUDFLARE_BUCKET: str({default: ''}),
+    DOCUMENT_MAX_MB: num({default: 25}),
+    DOCUMENT_TEXT_MAX_MB: num({default: 5}),
+    LIBREOFFICE_PATH: str({default: 'libreoffice'}),
     DATABASE_URL: str(),
     MAX_CONNECTIONS: num({devDefault: 2}),
     RUN_CRONS: bool({devDefault: false}),

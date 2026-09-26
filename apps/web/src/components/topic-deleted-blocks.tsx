@@ -39,7 +39,7 @@ export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted 
             <span>Bloque eliminado ({block.blockNumber})</span>
             {onRestore && <Button type="button" variant="outline" size="xs" onClick={onRestore}>Restaurar</Button>}
         </div>
-        <TopicBlockContent block={block}/>
+        <TopicBlockContent block={block} linksEnabled={block.typeId !== "documento"}/>
         <TopicBlockTools topicId={topicId} block={block} openInPage={openInPage} {...toolsProps}/>
     </article>;
 }

@@ -4,3 +4,4 @@ export * from "./auth"
 export * from "./topic"
 
 export * from "./topic-title-edit"
+export * from "./document"

@@ -54,3 +54,4 @@ export function permutationFor(blockNumbers: string[]): BlockPermutationEntry[] 
 export * from "./rich-text.js";
 
 export * from "./topic-slug.js";
+export * from "./documents.js";

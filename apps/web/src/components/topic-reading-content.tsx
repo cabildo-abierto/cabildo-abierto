@@ -1,5 +1,8 @@
 "use client";
 
+import {compareContentBlocks} from "@cabildo-abierto/utils";
+import {DocumentSection} from "@/components/documents/document-section";
+
 import {useEffect, useState} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
 import {TopicBlockView} from "@/components/topic-block";
@@ -44,7 +47,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const effectiveDeletedBlocks = displayedDeletedBlocks.filter(block => !displayedBlockNumbers.has(block.blockNumber));
     const displayedDeletedNumbers = new Set(effectiveDeletedBlocks.map(block => block.blockNumber));
     const blocksToRender = [...displayedBlocks, ...(showDeleted ? effectiveDeletedBlocks : [])]
-        .sort((left, right) => left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber));
+        .sort(compareContentBlocks);
     const {footnotes, numberById} = topicFootnotes(displayedBlocks);
     return <>
         {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
@@ -54,7 +57,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
         <TopicDeletedBlocks topicId={topicId} count={displayedDeletedBlocks.length} open={showDeleted} onToggle={() => setShowDeleted(value => !value)}/>
         {blocksToRender.length === 0
             ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p>
-            : <div>{blocksToRender.map(block => displayedDeletedNumbers.has(block.blockNumber)
+            : <div>{blocksToRender.filter(block => block.typeId !== "documento").map(block => displayedDeletedNumbers.has(block.blockNumber)
                 ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage}
                     toolsProps={blockSectionProps(block.blockNumber)}/>
                 : <TopicBlockView
@@ -64,6 +67,12 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
                     footnoteNumbers={numberById}
                     openInPage={openToolsInPage}
                     {...blockSectionProps(block.blockNumber)}
-                />)}<TopicFootnoteList footnotes={footnotes}/></div>}
+                />)}
+                {blocksToRender.some(block => block.typeId === "documento") && <DocumentSection>
+                    {blocksToRender.filter(block => block.typeId === "documento").map(block => displayedDeletedNumbers.has(block.blockNumber)
+                        ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
+                        : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>)}
+                </DocumentSection>}
+                <TopicFootnoteList footnotes={footnotes}/></div>}
     </>;
 }

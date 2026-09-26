@@ -7,7 +7,7 @@ import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/re
 type Database = Kysely<DB> | Transaction<DB>;
 
 export class TopicActionError extends Error {
-    constructor(readonly status: 400 | 403 | 404 | 409, message: string) { super(message); }
+    constructor(readonly status: 400 | 403 | 404 | 409 | 413, message: string) { super(message); }
 }
 
 export async function lockTopicTitleEdits(database: Transaction<DB>, topicId: string) {
