@@ -1,9 +1,8 @@
 # ============================
 # 1. Base
 # ============================
-FROM node:20-alpine AS base
-RUN apk update
-RUN apk add --no-cache libc6-compat
+FROM node:20-bookworm-slim AS base
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /repo
 
 # ============================
@@ -30,8 +29,8 @@ RUN --mount=type=cache,id=pnpm-backend-store,target=/pnpm/store \
 COPY --from=prepare /repo/out/full/ .
 COPY tsconfig.base.json /repo/.
 
-RUN pnpm -F api build
-RUN pnpm -F utils build
+RUN pnpm -F @cabildo-abierto/api build
+RUN pnpm -F @cabildo-abierto/utils build
 RUN pnpm -F backend build
 RUN pnpm --filter backend --prod deploy /runtime
 
@@ -40,7 +39,7 @@ RUN pnpm --filter backend --prod deploy /runtime
 # ============================
 FROM base AS runner
 
-RUN apk add --no-cache curl libreoffice-writer font-noto ttf-liberation
+RUN apt-get update && apt-get install -y --no-install-recommends curl libreoffice-writer fonts-noto fonts-liberation && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

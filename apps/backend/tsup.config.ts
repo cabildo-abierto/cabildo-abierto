@@ -1,13 +1,11 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-    entry: [
-        "src/index.ts",
-        "src/worker.ts",
-        "src/mirror.ts",
-        "src/worker-mirror.ts",
-        "src/scripts/apply-migrations.ts"
-    ],
+    entry: {
+        "lcca-worker": "src/services/visualizations/query-worker.ts",
+        "index": "src/index.ts",
+        "scripts/apply-migrations": "src/scripts/apply-migrations.ts"
+    },
     format: ["esm"],
     splitting: false,
     sourcemap: true,

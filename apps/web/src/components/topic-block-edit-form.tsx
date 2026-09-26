@@ -14,11 +14,12 @@ function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
 }
 
-export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion}: {
+export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization}: {
     block: TopicBlock
     isNew: boolean
     blockTypes: BlockType[]
     footnoteNumbers?: ReadonlyMap<string, number>
+    onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
     documentInsertion?: AttachmentInsertionAction
     toolbarContainer: HTMLElement | null
@@ -33,7 +34,7 @@ export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, t
 
     return <div className="relative -mx-3 px-3 py-2">
         {block.typeId === "parrafo" ? <RichTextEditor key={block.blockNumber} content={block.content} footnoteNumbers={footnoteNumbers} toolbarContainer={toolbarContainer}
-            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onChange={content => onChange({...block, content})} onDeleteEmpty={onDeleteEmpty}/> : <Input
+            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onChange={content => onChange({...block, content})} onDeleteEmpty={onDeleteEmpty}/> : <Input
             value={block.content}
             onChange={event => onChange({...block, content: event.target.value})}
             onKeyDown={event => { if (event.key === "Backspace" && block.content === "") onDeleteEmpty(); }}
@@ -51,7 +52,7 @@ export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, t
                     <SelectValue><BlockTypeIcon typeId={block.typeId}/></SelectValue>
                 </SelectTrigger>
                 <SelectContent className="w-max min-w-48">
-                    {blockTypes.filter(type => !isAttachmentBlock(type.id)).map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
+                    {blockTypes.filter(type => !isAttachmentBlock(type.id) && type.id !== "visualizacion").map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
                         <BlockTypeIcon typeId={type.id}/>
                         <span>{type.name}</span>
                     </SelectItem>)}

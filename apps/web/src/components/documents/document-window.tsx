@@ -17,12 +17,13 @@ import {DocumentPage} from "./document-page";
 import {DocumentWindowResizeHandles} from "./document-window-resize-handles";
 import {DocumentWindowComments} from "./document-window-comments";
 
-export function DocumentWindow({block, title, returnFocus}: {
-    block: TopicBlock; title: string; returnFocus: RefObject<HTMLAnchorElement | null>;
+export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicId}: {
+    block: TopicBlock; title: string; returnFocus: RefObject<HTMLAnchorElement | null>; topicId?: string;
 }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const commentsId = useId();
-    const {id: topicId} = useTopicRoute();
+    const {id: routeTopicId} = useTopicRoute();
+    const topicId = sourceTopicId ?? routeTopicId;
     const discussion = useTopicBlockComments(topicId, block.blockNumber);
     const commentCount = discussion.commentCount ?? block.commentCount;
     const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow(commentsOpen ? 332 : 0);

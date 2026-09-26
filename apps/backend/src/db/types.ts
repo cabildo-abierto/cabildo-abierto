@@ -98,6 +98,11 @@ export type DB = {
         columns: ColumnType<import("@cabildo-abierto/api").DatasetColumn[], string, string>;
         csv_options: ColumnType<import("@cabildo-abierto/api").CSVOptions, string, string>;
     };
+    visualization: {
+        id: string; query: string; query_language_version: number;
+        spec: ColumnType<import("@cabildo-abierto/api").VisualizationSpecV1, string, string>;
+    };
+    visualization_dataset: {visualization_id: string; dataset_topic_id: string; dataset_block_number: string};
     document: {
         id: string; file_id: string; title: string; description: string;
     };

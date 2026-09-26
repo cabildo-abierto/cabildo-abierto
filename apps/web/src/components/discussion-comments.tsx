@@ -162,7 +162,7 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
                 <ol className={cn("space-y-2 group-data-[has-overflow-y]/comment-scroll:pr-3")}>{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
             </ScrollArea>}
             {pageLayout && !loading && !error && !rootComments.some(isRenderable) && <p className={cn("text-xs text-muted-foreground", scope === "title" ? "py-1" : "rounded-md bg-muted/40 p-3")}>
-                {filteredVersion ? "Esta versión no recibió comentarios." : scope === "title" ? "La propuesta todavía no recibió comentarios." : "El bloque todavía no recibió comentarios."}
+                {filteredVersion ? "Esta versión no recibió comentarios." : scope === "title" ? "La propuesta todavía no recibió comentarios." : "Todavía no recibió comentarios."}
             </p>}
         </div>
     </section>

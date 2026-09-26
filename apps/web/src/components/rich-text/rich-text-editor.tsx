@@ -62,9 +62,10 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     };
 }
 
-export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion}: {
+export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization}: {
     content: string
     footnoteNumbers?: ReadonlyMap<string, number>
+    onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
     documentInsertion?: AttachmentInsertionAction
     toolbarContainer: HTMLElement | null
@@ -210,7 +211,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
             view={view}
             state={toolbar}
-            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion}
+            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization}
             toolbarRef={element => { toolbarElementRef.current = element; }}
         />, toolbarContainer)}
     </div>;

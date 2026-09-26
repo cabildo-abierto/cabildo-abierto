@@ -1,73 +1,23 @@
+import {runQueryJob} from '#/services/visualizations/query-process.js';
+import {resolveSources} from '#/services/visualizations/resolve-sources.js';
+import type {LccaAnalysis, DatasetReference} from '@cabildo-abierto/api';
+import {topicConvergence} from '#/services/topic-convergence.js';
 import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 import {documentBlockContent} from "#/services/documents/block-content.js";
 import {requireDocumentFileAccess} from "#/services/documents/access.js";
 import {TopicActionError} from "#/services/topic-title-edits.js";
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
-import {sql, type Kysely, type Transaction} from "kysely";
+import {sql} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
-import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 
-const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds"};
-
-type StoredTopicBlock = {
-    id: string;
-    editId: string;
-    blockNumber: string;
-    typeId: BlockType["id"];
-    content: string;
-    order: string;
-    commentCount: number;
-    deleted: boolean;
-};
-
-async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId: string): Promise<TopicEditableBlock[]> {
-    const blockResult = await sql<StoredTopicBlock>`
-        SELECT block_version.id,
-               block_version.edit_id AS "editId",
-               block_version.block_number AS "blockNumber",
-               block.type_id AS "typeId",
-               ${documentBlockContent()} as content,
-               block_version.order,
-               block_version.deleted,
-               (
-                   SELECT COUNT(*)::int
-                   FROM comment
-                   WHERE comment.topic_id = block_version.topic_id
-                     AND comment.block_number = block_version.block_number
-                     AND comment.reply_to_id = comment.root_id
-               ) AS "commentCount"
-        FROM block_version
-        LEFT JOIN document ON document.id = block_version.id
-        INNER JOIN block
-            ON block.topic_id = block_version.topic_id
-           AND block.block_number = block_version.block_number
-        INNER JOIN edit ON edit.id = block_version.edit_id
-        INNER JOIN record ON record.id = edit.id
-        WHERE block_version.topic_id = ${topicId}
-          AND record.deleted = false
-        ORDER BY block_version.block_number, record.created_at DESC, record.id DESC
-    `.execute(database);
-    const rejectCounts = activeRejectCounts(await rejectTree(database, blockResult.rows.map(block => block.editId)));
-    const selected = new Map<string, StoredTopicBlock>();
-    const latest = new Map<string, StoredTopicBlock>();
-    for (const block of blockResult.rows) {
-        if (!latest.has(block.blockNumber)) latest.set(block.blockNumber, block);
-        if (!selected.has(block.blockNumber) && (rejectCounts.get(block.editId) ?? 0) === 0) selected.set(block.blockNumber, block);
-    }
-    for (const [blockNumber, block] of latest) {
-        if (!selected.has(blockNumber)) selected.set(blockNumber, {...block, deleted: true});
-    }
-    return [...selected.values()]
-        .sort(compareContentBlocks)
-        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(block.content)) : block.content}));
-}
+const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v"};
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
@@ -97,6 +47,10 @@ class TopicEditError extends Error {
 }
 
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+    if (input.typeId === "visualizacion") {
+        const visualization = typeof input.content === "string" ? parseVisualizationBlock(input.content) : null;
+        return visualization ? {typeId: "visualizacion", content: JSON.stringify(visualization)} : null;
+    }
     if (input.typeId === "dataset") {
         const dataset = typeof input.content === "string" ? parseDatasetBlock(input.content) : null;
         return dataset ? {typeId: "dataset", content: JSON.stringify(dataset)} : null;
@@ -189,7 +143,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -211,7 +165,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -370,6 +324,14 @@ export const topicRoutes = (ctx: AppContext): Router => {
         }
 
         try {
+            const dependencies = new Map<string, DatasetReference[]>();
+            for (const block of requestedBlocks.filter(block => block.typeId === "visualizacion")) {
+                const metadata = parseVisualizationBlock(block.content)!;
+                if (!dependencies.has(block.content)) {
+                    const analysis = await runQueryJob<LccaAnalysis>({type: 'analyze', query: metadata.query});
+                    dependencies.set(block.content, analysis.sources);
+                }
+            }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
                 for (const block of requestedBlocks.filter(block => block.typeId === "dataset")) {
@@ -378,6 +340,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 }
                 for (const block of requestedBlocks.filter(block => block.typeId === "documento")) {
                     await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
+                }
+                for (const [content,sources] of dependencies) {
+                    const {analysis} = await resolveSources(trx,{sources,basicView: null});
+                    dependencies.set(content,analysis.sources);
+                }
+                for (const sources of dependencies.values()) for (const source of sources) {
+                    const dataset = await trx.selectFrom('block').select('type_id')
+                        .where('topic_id', '=', source.topicId).where('block_number', '=', source.blockNumber).executeTakeFirst();
+                    if (dataset?.type_id !== 'dataset') throw new TopicEditError(400, 'La consulta referencia un bloque que no es un conjunto de datos.');
                 }
                 const currentBlocks = await topicConvergence(trx, topicId);
                 if (baseBlocks && !sameConvergenceBlocks(baseBlocks, currentBlocks)) {
@@ -432,7 +403,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
 
                 const nextNumberByType = new Map<BlockType["id"], number>();
-                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset"] as const) {
+                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"] as const) {
                     if (!newInputs.some(block => block.typeId === typeId)) continue;
                     const prefix = BLOCK_PREFIXES[typeId];
                     await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
@@ -460,6 +431,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     deleted: boolean
                 }> = [];
                 const datasets: Array<{id: string; title: string; description: string; file_id: string | null; source_url: string | null; columns: string; csv_options: string}> = [];
+                const visualizations: Array<{id: string; query: string; query_language_version: number; spec: string}> = [];
+                const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
                 const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
                 for (const block of requestedBlocks) {
                     let blockNumber = block.blockNumber;
@@ -476,6 +449,11 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         continue;
                     }
                     const versionId = randomUUID();
+                    if (block.typeId === "visualizacion") {
+                        const metadata = parseVisualizationBlock(block.content)!;
+                        visualizations.push({id: versionId, query: metadata.query, query_language_version: metadata.queryLanguageVersion, spec: JSON.stringify(metadata.spec)});
+                        for (const source of dependencies.get(block.content)!) visualizationDatasets.push({visualization_id: versionId, dataset_topic_id: source.topicId, dataset_block_number: source.blockNumber});
+                    }
                     if (block.typeId === "dataset") {
                         const metadata = parseDatasetBlock(block.content)!;
                         datasets.push({id: versionId, title: metadata.title, description: metadata.description,
@@ -490,13 +468,15 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         id: versionId,
                         topic_id: topicId,
                         block_number: blockNumber,
-                        content: isAttachmentBlock(block.typeId) || block.deleted ? "" : block.content,
+                        content: isAttachmentBlock(block.typeId) || block.typeId === "visualizacion" || block.deleted ? "" : block.content,
                         order: block.order,
                         edit_id: editId,
                         deleted: block.deleted,
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
+                if (visualizations.length) await trx.insertInto("visualization").values(visualizations).execute();
+                if (visualizationDatasets.length) await trx.insertInto("visualization_dataset").values(visualizationDatasets).execute();
                 if (datasets.length) await trx.insertInto("dataset").values(datasets).execute();
                 if (documents.length) await trx.insertInto("document").values(documents).execute();
                 return topicConvergence(trx, topicId);

@@ -6,6 +6,7 @@ import {currentUser, requiredUser, requireSession, withSession} from "#/auth/mid
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {TopicActionError, lockTopicTitleEdits, convergeTopicName, topicTitleEditViews, initialTitleEdit} from "#/services/topic-title-edits.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
+import {resolveTopic} from '#/services/resolve-topic.js';
 
 export function topicTitleEditRoutes(ctx: AppContext) {
     const router = express.Router();
@@ -19,9 +20,7 @@ export function topicTitleEditRoutes(ctx: AppContext) {
     };
     router.get("/topics/resolve/:slug", async (req, res) => {
         try {
-            const topic = await ctx.kysely.selectFrom("topic_redirect").innerJoin("topic", "topic.id", "topic_redirect.topic_id")
-                .select(["topic.id", "topic.title", "topic.slug"]).where("topic_redirect.slug", "=", req.params.slug).executeTakeFirst();
-            if (!topic) throw new TopicActionError(404, "No encontramos ese tema.");
+            const topic = await resolveTopic(ctx.kysely,String(req.params.slug));
             return res.json({success: true, value: {topic}});
         } catch (error) { return fail(res, error); }
     });

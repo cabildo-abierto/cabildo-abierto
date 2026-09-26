@@ -93,7 +93,7 @@ export function TopicBlockHistory({
                         </div>}
                         {version.deleted
                             ? <p className="flex space-x-1 items-center text-xs italic text-muted-foreground"><TrashIcon/>Bloque eliminado.</p>
-                            : <TopicBlockContent block={version}/>}
+                            : <TopicBlockContent block={version} refreshOnMount={false} preview/>}
                     </li>;
                 })}
             </ol>}

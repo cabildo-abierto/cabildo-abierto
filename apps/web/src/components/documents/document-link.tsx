@@ -7,8 +7,8 @@ import type {TopicBlock} from "@cabildo-abierto/api";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 import {DocumentWindow} from "./document-window";
 
-export function DocumentLink({block, title, className, children}: {
-    block: TopicBlock; title: string; className: string; children: ReactNode;
+export function DocumentLink({block, title, className, children, topicId}: {
+    block: TopicBlock; title: string; className: string; children: ReactNode; topicId?: string;
 }) {
     const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
@@ -23,7 +23,7 @@ export function DocumentLink({block, title, className, children}: {
                 setOpen(true);
             }}>{children}</Link>
         <Dialog.Portal>
-            <DocumentWindow block={block} title={title} returnFocus={linkRef}/>
+            <DocumentWindow block={block} title={title} returnFocus={linkRef} topicId={topicId}/>
         </Dialog.Portal>
     </Dialog.Root>;
 }

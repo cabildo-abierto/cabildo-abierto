@@ -1,0 +1,576 @@
+/* Generated from schemas/visualization/spec_v1.schema.json. */
+export const visualizationSchema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:cabildo-abierto:visualization:spec:1",
+  "title": "VisualizationSpecV1",
+  "description": "Especificación de presentación de una tabla tipada: columnas con nombre y tipo de datos, y filas con valores correspondientes a esas columnas. Es independiente del origen de los datos.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "chart"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Título opcional de la visualización."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Descripción opcional de la visualización."
+    },
+    "chart": {
+      "title": "VisualizationChart",
+      "description": "Variante discriminada por type.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/barChart"
+        },
+        {
+          "$ref": "#/definitions/lineChart"
+        },
+        {
+          "$ref": "#/definitions/scatterChart"
+        },
+        {
+          "$ref": "#/definitions/histogramChart"
+        },
+        {
+          "$ref": "#/definitions/tableChart"
+        }
+      ]
+    },
+    "layout": {
+      "$ref": "#/definitions/layout"
+    }
+  },
+  "definitions": {
+    "fieldName": {
+      "title": "FieldName",
+      "description": "Nombre exacto de una columna de la tabla tipada recibida. No es una expresión ni una ruta.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "\\S"
+    },
+    "label": {
+      "title": "VisualizationLabel",
+      "description": "Etiqueta visible; si se omite, se deriva del campo.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "\\S"
+    },
+    "numberFormat": {
+      "title": "NumberFormat",
+      "description": "Formato numérico con locale es-AR. La precisión afecta únicamente la presentación.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "number"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Decimales visibles; omitido usa formato automático."
+        }
+      }
+    },
+    "percentFormat": {
+      "title": "PercentFormat",
+      "description": "Formato porcentual: 0.25 se muestra como 25 %. No transforma los datos ni los ejes.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "percent"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Decimales visibles.",
+          "default": 0
+        }
+      }
+    },
+    "dateFormat": {
+      "title": "DateFormat",
+      "description": "Formato de fecha con locale es-AR y zona horaria UTC.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "date"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "date",
+            "datetime",
+            "month",
+            "year"
+          ],
+          "description": "Nivel de detalle de la fecha.",
+          "default": "date"
+        }
+      }
+    },
+    "valueFormat": {
+      "title": "ValueFormat",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/numberFormat"
+        },
+        {
+          "$ref": "#/definitions/percentFormat"
+        },
+        {
+          "$ref": "#/definitions/dateFormat"
+        }
+      ],
+      "description": "Formato compatible con el tipo de la columna de la tabla recibida."
+    },
+    "axis": {
+      "title": "AxisOptions",
+      "description": "Presentación de un eje. La escala se deriva del gráfico y del tipo de datos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/label"
+        },
+        "format": {
+          "$ref": "#/definitions/valueFormat"
+        },
+        "tickCount": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 20,
+          "description": "Cantidad orientativa de marcas; el renderer puede reducirla para evitar solapamientos."
+        },
+        "tickLabelAngle": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Rotación de las etiquetas en grados; positivo en sentido horario.",
+          "default": 0
+        }
+      }
+    },
+    "axisField": {
+      "title": "AxisField",
+      "description": "Columna asignada a un eje y su presentación.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field"
+      ],
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/fieldName"
+        },
+        "label": {
+          "$ref": "#/definitions/label"
+        },
+        "format": {
+          "$ref": "#/definitions/valueFormat"
+        },
+        "tickCount": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 20,
+          "description": "Cantidad orientativa de marcas; el renderer puede reducirla para evitar solapamientos."
+        },
+        "tickLabelAngle": {
+          "type": "integer",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Rotación de las etiquetas en grados; positivo en sentido horario.",
+          "default": 0
+        }
+      }
+    },
+    "field": {
+      "title": "FieldReference",
+      "description": "Columna de la tabla recibida utilizada para separar series o asignar color/tamaño; no agrupa ni agrega datos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field"
+      ],
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/fieldName"
+        },
+        "label": {
+          "$ref": "#/definitions/label"
+        }
+      }
+    },
+    "barChart": {
+      "title": "BarChart",
+      "description": "Compara valores numéricos por categoría, sin agregarlos. Requiere una fila por categoría y seriesBy; los duplicados producen un error. Conserva el orden de aparición de las categorías. El eje cuantitativo lineal incluye cero.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "x",
+        "series"
+      ],
+      "properties": {
+        "type": {
+          "const": "bar"
+        },
+        "x": {
+          "$ref": "#/definitions/axisField"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/series"
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "orientation": {
+          "type": "string",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "description": "Orientación de las barras; x sigue representando la categoría.",
+          "default": "vertical"
+        },
+        "layout": {
+          "type": "string",
+          "enum": [
+            "grouped",
+            "stacked"
+          ],
+          "description": "Disposición de las series en cada categoría; stacked admite valores no negativos.",
+          "default": "grouped"
+        },
+        "yAxis": {
+          "$ref": "#/definitions/axis"
+        },
+        "showLegend": {
+          "type": "boolean",
+          "description": "Mostrar leyenda cuando hay más de una serie visible.",
+          "default": true
+        },
+        "showGrid": {
+          "type": "boolean",
+          "description": "Mostrar grilla del eje cuantitativo.",
+          "default": true
+        },
+        "seriesBy": {
+          "$ref": "#/definitions/field",
+          "description": "Separa series visuales según esta columna de la tabla recibida, sin agregar valores."
+        }
+      }
+    },
+    "lineChart": {
+      "title": "LineChart",
+      "description": "Conecta observaciones por X ascendente con segmentos rectos, sin agregarlas. X debe ser numérico o temporal e Y numérico. Requiere una fila por X y seriesBy; los duplicados producen un error.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "x",
+        "series"
+      ],
+      "properties": {
+        "type": {
+          "const": "line"
+        },
+        "x": {
+          "$ref": "#/definitions/axisField"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/series"
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "yAxis": {
+          "$ref": "#/definitions/axis"
+        },
+        "showPoints": {
+          "type": "boolean",
+          "description": "Mostrar puntos además de los segmentos.",
+          "default": false
+        },
+        "showLegend": {
+          "type": "boolean",
+          "description": "Mostrar leyenda cuando hay más de una serie visible.",
+          "default": true
+        },
+        "showGrid": {
+          "type": "boolean",
+          "description": "Mostrar grilla.",
+          "default": true
+        },
+        "seriesBy": {
+          "$ref": "#/definitions/field",
+          "description": "Separa series visuales según esta columna de la tabla recibida, sin agregar valores."
+        }
+      }
+    },
+    "scatterChart": {
+      "title": "ScatterChart",
+      "description": "Un punto por fila con coordenadas numéricas; no agrega ni conecta puntos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "type": {
+          "const": "scatter"
+        },
+        "x": {
+          "$ref": "#/definitions/axisField"
+        },
+        "y": {
+          "$ref": "#/definitions/axisField"
+        },
+        "color": {
+          "$ref": "#/definitions/field"
+        },
+        "size": {
+          "$ref": "#/definitions/field"
+        },
+        "showLegend": {
+          "type": "boolean",
+          "description": "Mostrar leyenda cuando se usa color por categoría.",
+          "default": true
+        },
+        "showGrid": {
+          "type": "boolean",
+          "description": "Mostrar grilla.",
+          "default": true
+        }
+      }
+    },
+    "autoBins": {
+      "title": "AutoBins",
+      "description": "Calcula intervalos de igual ancho usando la regla de Sturges, con un máximo de 100 intervalos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "auto"
+        }
+      }
+    },
+    "countBins": {
+      "title": "CountBins",
+      "description": "Divide el rango observado en esta cantidad de intervalos de igual ancho.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "count"
+      ],
+      "properties": {
+        "mode": {
+          "const": "count"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Cantidad de intervalos."
+        }
+      }
+    },
+    "boundaryBins": {
+      "title": "BoundaryBins",
+      "description": "Límites estrictamente crecientes que deben cubrir los valores observados. Cada par consecutivo define un intervalo.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "boundaries"
+      ],
+      "properties": {
+        "mode": {
+          "const": "boundaries"
+        },
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 101,
+          "uniqueItems": true
+        }
+      }
+    },
+    "histogramBins": {
+      "title": "HistogramBins",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/autoBins"
+        },
+        {
+          "$ref": "#/definitions/countBins"
+        },
+        {
+          "$ref": "#/definitions/boundaryBins"
+        }
+      ],
+      "default": {
+        "mode": "auto"
+      }
+    },
+    "histogramChart": {
+      "title": "HistogramChart",
+      "description": "Distribución de una columna numérica por intervalos; excluye valores nulos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "x"
+      ],
+      "properties": {
+        "type": {
+          "const": "histogram"
+        },
+        "x": {
+          "$ref": "#/definitions/axisField"
+        },
+        "bins": {
+          "$ref": "#/definitions/histogramBins"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": [
+            "count",
+            "relative"
+          ],
+          "description": "count cuenta valores; relative divide por el total de valores no nulos de la columna de la tabla recibida.",
+          "default": "count"
+        },
+        "yAxis": {
+          "$ref": "#/definitions/axis"
+        },
+        "showGrid": {
+          "type": "boolean",
+          "description": "Mostrar grilla del eje de frecuencias.",
+          "default": true
+        }
+      }
+    },
+    "tableColumn": {
+      "title": "TableColumn",
+      "description": "Columna visible; label cambia solo el encabezado y format solo su presentación.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field"
+      ],
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/fieldName"
+        },
+        "label": {
+          "$ref": "#/definitions/label"
+        },
+        "format": {
+          "$ref": "#/definitions/valueFormat"
+        }
+      }
+    },
+    "tableChart": {
+      "title": "TableChart",
+      "description": "Vista de la tabla tipada recibida. Conserva el orden de las filas; las columnas se muestran en el orden configurado.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "columns"
+      ],
+      "properties": {
+        "type": {
+          "const": "table"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/tableColumn"
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100,
+          "description": "Filas de la tabla recibida por página.",
+          "default": 25
+        }
+      }
+    },
+    "layout": {
+      "title": "VisualizationLayout",
+      "description": "Tamaño adaptable al ancho disponible. Tipografía, márgenes y paleta se resuelven desde el tema de Cabildo.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "aspectRatio": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3,
+          "default": 1.6,
+          "description": "Relación ancho/alto del área del gráfico. En tablas determina la altura del área con scroll; la paginación queda fuera."
+        }
+      }
+    },
+    "series": {
+      "title": "VisualizationSeries",
+      "description": "Columna numérica de la tabla recibida. El orden de las series define su orden visible; todas comparten la escala Y.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field"
+      ],
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/fieldName"
+        },
+        "label": {
+          "$ref": "#/definitions/label"
+        }
+      }
+    }
+  }
+};

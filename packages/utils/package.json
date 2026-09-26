@@ -9,7 +9,8 @@
     "dev": "tsc -w"
   },
   "dependencies": {
-    "@cabildo-abierto/api": "workspace:*"
+    "@cabildo-abierto/api": "workspace:*",
+    "ajv": "^8.20.0"
   },
   "exports": {
     ".": {

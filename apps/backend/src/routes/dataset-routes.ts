@@ -1,9 +1,9 @@
+import {loadDataset} from '#/services/datasets/load.js';
 import express from 'express';
 import {mkdtemp, writeFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import type {DatasetOutput} from '@cabildo-abierto/api';
-import {datasetCell, validDatasetUrl} from '@cabildo-abierto/utils';
+import {validDatasetUrl} from '@cabildo-abierto/utils';
 import type {AppContext} from '#/setup.js';
 import {requireSession, requiredUser} from '#/auth/middleware.js';
 import {TopicActionError} from '#/services/topic-title-edits.js';
@@ -11,7 +11,7 @@ import {R2Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {storeFile, removeUnattachedFile} from '#/services/storage/files.js';
 import {datasetLimits, parseCSV} from '#/services/datasets/csv.js';
 import {downloadCSV} from '#/services/datasets/download.js';
-import {requireDatasetAccess, requireDatasetFileAccess} from '#/services/datasets/access.js';
+import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 
 export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new R2Storage()) {
     const router = express.Router();
@@ -72,20 +72,7 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
     });
     router.get('/dataset-versions/:id', async (req,res) => {
         try {
-            const dataset = await requireDatasetAccess(ctx.kysely, String(req.params.id));
-            const data = dataset.source_url ? await downloadCSV(dataset.source_url)
-                : await getStorage().read(await requireDatasetFileAccess(ctx.kysely, dataset.file_id!));
-            const parsed = parseCSV(data);
-            if ((parsed.rows.length + 1) * dataset.columns.length > datasetLimits().cells) throw new TopicActionError(413, 'La tabla supera la cantidad de celdas permitida.');
-            const indices = new Map(parsed.columns.map((c,i) => [c.name,i]));
-            const rows = parsed.rows.map(row => dataset.columns.map(column => {
-                const index = indices.get(column.name);
-                return index === undefined ? {raw: '', value: null, error: 'La columna ya no está en el CSV.'}
-                    : datasetCell(row[index], column.type, parsed.csvOptions);
-            }));
-            const value: DatasetOutput = {id: dataset.id, title: dataset.title, description: dataset.description,
-                fileId: dataset.file_id, sourceUrl: dataset.source_url, columns: dataset.columns, csvOptions: parsed.csvOptions,
-                rows, rowCount: rows.length, topic: {id: dataset.topicId, title: dataset.topicTitle, slug: dataset.topicSlug}};
+            const value = await loadDataset(ctx.kysely, String(req.params.id), getStorage);
             res.set('Cache-Control','no-store').json({success: true, value});
         } catch(error) { return fail(res,error); }
     });

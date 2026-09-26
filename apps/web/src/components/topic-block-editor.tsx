@@ -1,10 +1,14 @@
 "use client";
 
+import {VisualizationEditorPopup} from '@/components/visualizations/visualization-editor-popup';
+import {VisualizationBlock} from '@/components/visualizations/visualization-block';
+import {VisualizationEditActions} from '@/components/visualizations/visualization-edit-actions';
+
 
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicDocumentEditor} from "@/components/documents/topic-document-editor";
 import {TopicBlockContent} from "@/components/topic-block-content";
@@ -35,6 +39,7 @@ type TopicEditState = {
 type ChangeKind = "new" | "content" | "order" | null;
 
 function blockIsEmpty(block: Pick<TopicBlock, "typeId" | "content">): boolean {
+    if (block.typeId === "visualizacion") return !parseVisualizationBlock(block.content);
     if (block.typeId === "dataset") return !parseDatasetBlock(block.content);
     if (block.typeId === "documento") return !parseDocumentBlock(block.content);
     return block.typeId === "parrafo" ? isRichTextEmpty(block.content) : !block.content.trim();
@@ -154,6 +159,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const blocks = persistedBlocks(initialBlocks);
         return {...stateFromSaved(blocks), showDeleted: false, message: ""};
     });
+    const [visualizationPopup, setVisualizationPopup] = useState<{blockNumber?: string; after?: string; content?: string} | null>(null);
+    const [validVisualizations, setValidVisualizations] = useState<Map<string,string>>(new Map());
     const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState<Set<string>>(new Set());
@@ -176,7 +183,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
     const requiresMessage = affectedBlockCount > 1;
     const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
-    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && (blockIsEmpty(block)
+    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && block.typeId === "visualizacion" && changeKind(block, savedByNumber) !== null && validVisualizations.get(block.blockNumber) !== block.content) || edit.blocks.some(block => !block.deleted && (blockIsEmpty(block)
         || (block.typeId === "parrafo" && (richTextPlainText(block.content).length > 20_000 || block.content.length > 100_000))
         || ((block.typeId === "h1" || block.typeId === "h2") && /[\r\n]/.test(block.content))));
     const convergenceChanged = !saving && !deletingVersion && !sameConvergence(edit.savedBlocks, initialBlocks);
@@ -247,6 +254,23 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             return next;
         }),
     });
+
+    const confirmVisualization = (content: string) => {
+        if (!visualizationPopup) return;
+        setEdit(current => {
+            if (visualizationPopup.blockNumber) return {...current, blocks: current.blocks.map(block => block.blockNumber === visualizationPopup.blockNumber ? {...block,content} : block)};
+            const visible = current.blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
+            const index = visible.findIndex(block => block.blockNumber === visualizationPopup.after);
+            const previous = visible[index], next = visible[index+1];
+            const id = `new-${crypto.randomUUID()}`;
+            const block: WorkingBlock = {id, blockNumber: id, typeId: 'visualizacion', content, order: orderBetween(previous?.order ?? null,next?.order ?? null), commentCount: 0, isNew: true, deleted: false};
+            const deactivated = deactivateBlock(current,null);
+            return {...deactivated, blocks: [...deactivated.blocks,block].sort(compareContentBlocks)};
+        });
+        setVisualizationPopup(null);
+        setError(null);
+    };
+    const visualizationActions = (block: WorkingBlock) => <VisualizationEditActions disabled={saving} onEdit={() => setVisualizationPopup({blockNumber: block.blockNumber, content: block.content})} onRemove={() => setEdit(current => ({...current, blocks: current.blocks.flatMap(candidate => candidate.blockNumber !== block.blockNumber ? [candidate] : candidate.isNew ? [] : [{...candidate, deleted: true}])}))}/>;
 
     const updateBlock = (updated: TopicBlock) => {
         setEdit(current => ({
@@ -400,6 +424,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
     return <div className="flex flex-1 flex-col gap-3">
+        {visualizationPopup && <VisualizationEditorPopup topicId={topicId} initialContent={visualizationPopup.content} onClose={() => setVisualizationPopup(null)} onConfirm={confirmVisualization}/>}
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setEdit(current => mergeConvergence(current, initialBlocks));
             setError(null);
@@ -432,8 +457,15 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={openToolsInPage}
                             newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
                             onRestore={() => restoreBlock(block.blockNumber)} toolsProps={blockSectionProps(block.blockNumber)}/>
+                        : block.typeId === "visualizacion" ? <div className={cn("py-2")}>
+                            <VisualizationBlock block={block} onValidityChange={valid => setValidVisualizations(current => {
+                                if ((valid && current.get(block.blockNumber) === block.content) || (!valid && !current.has(block.blockNumber))) return current;
+                                const next = new Map(current); if (valid) next.set(block.blockNumber,block.content); else next.delete(block.blockNumber); return next;
+                            })}/>
+                            <TopicBlockTools topicId={topicId} block={block} actions={visualizationActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
+                        </div>
                         : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
-                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setVisualizationPopup({after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
                             role="button"
@@ -453,11 +485,11 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
                         </article>}
                     </div>
-                    {active && (block.typeId === "parrafo" || singleChangedBlockNumber === block.blockNumber) && <div
+                    {((active && block.typeId === "parrafo") || (singleChangedBlockNumber === block.blockNumber && (active || block.typeId === "visualizacion"))) && <div
                         className="flex items-start justify-between gap-2 pt-2 pb-2" draggable={false}
                         data-topic-editor-block={block.blockNumber}
                         onDragStart={event => event.stopPropagation()}>
-                        <div ref={setToolbarContainer} className="min-w-0"/>
+                        <div ref={block.typeId === "visualizacion" ? undefined : setToolbarContainer} className="min-w-0"/>
                         {singleChangedBlockNumber === block.blockNumber && <div
                             className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                             onAnimationEnd={() => setShaking(false)}>
@@ -465,7 +497,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <TopicEditActionButtons saving={saving || uploading.size > 0} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
                         </div>}
                     </div>}
-                    {!block.isNew && !block.deleted && <TopicBlockTools
+                    {!block.isNew && !block.deleted && block.typeId !== "visualizacion" && <TopicBlockTools
                         topicId={topicId}
                         block={block}
                         openInPage={openToolsInPage}
