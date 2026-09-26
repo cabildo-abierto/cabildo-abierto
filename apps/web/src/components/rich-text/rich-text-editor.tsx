@@ -193,7 +193,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
 
         const closeOnOutsidePointer = (event: PointerEvent) => {
             const target = event.target as Node;
-            if (target instanceof Element && target.closest("[data-dataset-editor-popup]")) return;
+            if (target instanceof Element && target.closest("[data-attachment-editor-popup]")) return;
             if (!editor.dom.contains(target) && !toolbarElementRef.current?.contains(target)) setToolbar(null);
         };
         document.addEventListener("pointerdown", closeOnOutsidePointer);

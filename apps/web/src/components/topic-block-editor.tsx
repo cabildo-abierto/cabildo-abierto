@@ -200,7 +200,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const deactivateParagraphOnOutsidePointer = (event: PointerEvent) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
-            if (target.closest('[data-slot="select-content"], [data-dataset-editor-popup]')) return;
+            if (target.closest('[data-slot="select-content"], [data-attachment-editor-popup]')) return;
             setEdit(current => {
                 const activeBlock = current.blocks.find(block => block.blockNumber === current.activeBlockNumber);
                 if (!activeBlock || activeBlock.typeId !== "parrafo") return current;
@@ -478,7 +478,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             </div>;
         })}
         {(["documento", "dataset"] as const).map(type => <TopicDocumentEditor key={type} dataset={type === "dataset"} topicId={topicId} blocks={edit.blocks.filter(block => block.typeId === type && (!block.deleted || edit.showDeleted))}
-            disabled={saving || uploading.size > 0} onChange={updateBlock} onRestore={restoreBlock}
+            insertionAction={attachmentInsertion(type)} disabled={saving || uploading.size > 0} onChange={updateBlock} onRestore={restoreBlock}
             renderActions={(blockNumber, onClose) => (!hasChanges || singleChangedBlockNumber === blockNumber) && <div className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                 onAnimationEnd={() => setShaking(false)}>
                 {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}

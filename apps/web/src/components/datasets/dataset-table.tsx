@@ -26,7 +26,7 @@ export function DatasetTable({columns, rows, onTypeChange, fillHeight = false}: 
                     <div title={column.name} className={cn('mb-1 max-w-48 truncate font-medium')}>{column.name}</div>
                     {onTypeChange ? <Select value={column.type} onValueChange={value => { if (value) onTypeChange(index, value as DatasetColumnType); }}>
                         <SelectTrigger size="sm" aria-label={`Tipo de ${column.name}`}><SelectValue>{DATASET_TYPE_NAMES[column.type]}</SelectValue></SelectTrigger>
-                        <SelectContent data-dataset-editor-popup>{DATASET_TYPES.map(type => <SelectItem key={type} value={type}>{DATASET_TYPE_NAMES[type]}</SelectItem>)}</SelectContent>
+                        <SelectContent data-attachment-editor-popup>{DATASET_TYPES.map(type => <SelectItem key={type} value={type}>{DATASET_TYPE_NAMES[type]}</SelectItem>)}</SelectContent>
                     </Select> : <span className={cn('font-normal text-muted-foreground')}>{DATASET_TYPE_NAMES[column.type]}</span>}
                 </th>)}</tr></thead>
                 <tbody>{rows.slice(current * 100, (current + 1) * 100).map((row, rowIndex) => <tr key={current * 100 + rowIndex} className={cn('even:bg-muted/30')}>

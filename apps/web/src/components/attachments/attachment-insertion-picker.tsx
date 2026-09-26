@@ -4,8 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {parseDocumentBlock, parseDatasetBlock} from "@cabildo-abierto/utils";
 import {useTopicRoute} from "@/components/topic-route-provider";
 import {Button} from "@/components/ui/button";
-import {DocumentBlockForm} from "@/components/documents/document-block-form";
-import {DatasetEditorPopup} from "@/components/datasets/dataset-editor-popup";
+import {AttachmentEditorPopup} from "./attachment-editor-popup";
 import {cn} from "@/lib/utils";
 
 export type AttachmentInsertionAction = {
@@ -47,18 +46,6 @@ export function AttachmentInsertionPicker({action, type, onCancel}: {action: Att
         </div>
     </>;
 
-    if (dataset) return <DatasetEditorPopup topicId={topic.id} content={content} disabled={busy} inserting
-        onChange={changeContent} onBusyChange={changeBusy} onClose={onCancel} onSubmit={submit}>{actions}</DatasetEditorPopup>;
-
-    return <form role="dialog" aria-label="Insertar documento"
-        className={cn("max-h-[75dvh] w-80 max-w-[calc(100vw-3rem)] space-y-3 overflow-auto rounded-lg border bg-popover p-3 text-popover-foreground shadow-md")}
-        onMouseDown={event => event.stopPropagation()}
-        onKeyDown={event => {
-            event.stopPropagation();
-            if (event.key === "Escape" && !busy) { event.preventDefault(); onCancel(); }
-        }}
-        onSubmit={event => { event.preventDefault(); submit(); }}>
-        <DocumentBlockForm topicId={topic.id} content={content} disabled={busy} embedded onChange={changeContent} onBusyChange={changeBusy}/>
-        {actions}
-    </form>;
+    return <AttachmentEditorPopup type={type} topicId={topic.id} content={content} disabled={busy} inserting
+        onChange={changeContent} onBusyChange={changeBusy} onClose={onCancel} onSubmit={submit}>{actions}</AttachmentEditorPopup>;
 }
