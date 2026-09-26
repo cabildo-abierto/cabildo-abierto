@@ -1,3 +1,4 @@
+import {datasetRoutes} from './dataset-routes.js';
 import {documentRoutes} from "./document-routes.js";
 import express, {Router} from 'express'
 import {adminRoutes} from './admin-routes.js';
@@ -15,6 +16,7 @@ export const createRouter = (ctx: AppContext): Router => {
 
     router.use(authRoutes(ctx))
     router.use(documentRoutes(ctx))
+    router.use(datasetRoutes(ctx))
     router.use(topicConnectionRoutes(ctx))
     router.use(topicTitleEditRoutes(ctx))
     router.use(discussionRoutes(ctx))

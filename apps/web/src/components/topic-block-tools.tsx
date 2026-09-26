@@ -1,9 +1,11 @@
-"use client"
+"use client";
+
+import {isAttachmentBlock} from '@cabildo-abierto/utils';
 
 import {useTopicBlockComments} from "@/hooks/use-topic-block-comments";
 import {useTopicRoute} from "@/components/topic-route-provider";
 
-import {useState, type MouseEvent} from "react";
+import {useState, type MouseEvent, type ReactNode} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type {CreateBlockCommentInput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
@@ -20,9 +22,10 @@ import {notifyTopicLocalConvergence, topicDeleteVersionKey} from "@/hooks/use-to
 export const topicBlockVersionsKey = (topicId: string, blockNumber: string) =>
     ["topic", topicId, "block", blockNumber, "versions"] as const;
 
-export function TopicBlockTools({topicId, block, buttonClassName, openInPage = false, pageLayout = false, initialHistoryOpen = false, commentsOpen: controlledCommentsOpen, onCommentsOpenChange, historyOpen: controlledHistoryOpen, onHistoryOpenChange, onSectionOpen}: {
+export function TopicBlockTools({topicId, block, actions, buttonClassName, openInPage = false, pageLayout = false, initialHistoryOpen = false, commentsOpen: controlledCommentsOpen, onCommentsOpenChange, historyOpen: controlledHistoryOpen, onHistoryOpenChange, onSectionOpen}: {
     topicId: string;
     block: TopicBlock;
+    actions?: ReactNode;
     buttonClassName?: string;
     openInPage?: boolean;
     pageLayout?: boolean;
@@ -182,7 +185,7 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
         onAccept={acceptVersion} onReject={rejectVersion}
         onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
         onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
-    if (openInPage && block.typeId !== "documento") return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    if (openInPage && !isAttachmentBlock(block.typeId)) return <div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
@@ -191,13 +194,14 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label="Ver historial de versiones" title="Historial de versiones">
             <GitDiffIcon className="size-3.5"/>
         </Button>
+        {actions}
     </div>;
     return <div className={cn(pageLayout ? "relative mt-4" : "")} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-        <div className={cn(pageLayout ? "flex items-center gap-1" : block.typeId === "documento" ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
+        <div className={cn(pageLayout ? "flex items-center gap-1" : isAttachmentBlock(block.typeId) ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
             <Button type="button" variant="ghost" size="sm"
                 className={cn(
                     "text-muted-foreground transition-opacity",
-                    pageLayout || commentCount > 0 || block.typeId === "documento"
+                    pageLayout || commentCount > 0 || isAttachmentBlock(block.typeId)
                         ? "opacity-100"
                         : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100",
                 )}
@@ -206,11 +210,12 @@ export function TopicBlockTools({topicId, block, buttonClassName, openInPage = f
                 <ChatCircleIcon className="size-4"/>{commentCount > 0 && <span>{commentCount}</span>}
             </Button>
             <Button type="button" variant="ghost" size="sm"
-                className={cn("text-muted-foreground transition-opacity", pageLayout || block.typeId === "documento" ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
+                className={cn("text-muted-foreground transition-opacity", pageLayout || isAttachmentBlock(block.typeId) ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
                 aria-label={historyOpen ? "Cerrar historial de versiones" : "Ver historial de versiones"}
                 aria-expanded={historyOpen} title="Historial de versiones" onClick={toggleHistory}>
                 <GitDiffIcon className="size-4"/>
             </Button>
+            {actions}
         </div>
         <TopicBlockPanel history={historySection} comments={commentsSection} pageLayout={pageLayout}/>
     </div>;

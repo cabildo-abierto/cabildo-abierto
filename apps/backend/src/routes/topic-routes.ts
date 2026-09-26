@@ -1,3 +1,4 @@
+import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 import {documentBlockContent} from "#/services/documents/block-content.js";
 import {requireDocumentFileAccess} from "#/services/documents/access.js";
 import {TopicActionError} from "#/services/topic-title-edits.js";
@@ -5,7 +6,7 @@ import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql, type Kysely, type Transaction} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseDocumentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
@@ -13,7 +14,7 @@ import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 
-const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d"};
+const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds"};
 
 type StoredTopicBlock = {
     id: string;
@@ -65,7 +66,7 @@ async function topicConvergence(database: Kysely<DB> | Transaction<DB>, topicId:
     }
     return [...selected.values()]
         .sort(compareContentBlocks)
-        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.content}));
+        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(block.content)) : block.content}));
 }
 
 function databaseCode(error: unknown): string | undefined {
@@ -81,7 +82,7 @@ function sameConvergenceBlocks(left: SaveTopicEditBlockInput[], right: TopicEdit
         if (!block.blockNumber || !block.id || seen.has(block.blockNumber)) return false;
         const current = rightByNumber.get(block.blockNumber);
         if (!current || current.id !== block.id || current.typeId !== block.typeId
-            || current.content !== block.content || (block.typeId !== "documento" && current.order !== block.order) || current.deleted !== block.deleted) {
+            || current.content !== block.content || (!isAttachmentBlock(block.typeId) && current.order !== block.order) || current.deleted !== block.deleted) {
             return false;
         }
         seen.add(block.blockNumber);
@@ -96,6 +97,10 @@ class TopicEditError extends Error {
 }
 
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+    if (input.typeId === "dataset") {
+        const dataset = typeof input.content === "string" ? parseDatasetBlock(input.content) : null;
+        return dataset ? {typeId: "dataset", content: JSON.stringify(dataset)} : null;
+    }
     if (input.typeId === "documento") {
         const document = typeof input.content === "string" ? parseDocumentBlock(input.content) : null;
         return document ? {typeId: "documento", content: JSON.stringify(document)} : null;
@@ -184,7 +189,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -206,7 +211,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -280,7 +285,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     id: version.id,
                     blockNumber: version.blockNumber,
                     typeId: version.typeId as BlockType["id"],
-                    content: version.typeId === "documento" ? JSON.stringify(parseDocumentBlock(version.content)) : version.content ?? "",
+                    content: version.typeId === "documento" ? JSON.stringify(parseDocumentBlock(version.content)) : version.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(version.content)) : version.content ?? "",
                     order: version.order,
                     editId: version.editId,
                     deleted: version.deleted,
@@ -342,9 +347,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
             const parsed = blockContent(block);
             const existing = typeof block.id === "string" && typeof block.blockNumber === "string";
             const newBlock = block.id === null && block.blockNumber === null;
-            if (!parsed || (!existing && !newBlock) || (block.typeId !== "documento" && !isOrder(block.order))
+            if (!parsed || (!existing && !newBlock) || (!isAttachmentBlock(block.typeId) && !isOrder(block.order))
                 || typeof block.deleted !== "boolean" || (newBlock && block.deleted)) return null;
-            return {...block, ...parsed, order: parsed.typeId === "documento" ? "n" : block.order};
+            return {...block, ...parsed, order: isAttachmentBlock(parsed.typeId) ? "n" : block.order};
         });
         if (parsedBlocks.some(block => block === null)) {
             return res.status(400).json({success: false, error: "La edición contiene bloques inválidos."});
@@ -355,11 +360,11 @@ export const topicRoutes = (ctx: AppContext): Router => {
             if (!block || typeof block !== "object") return true;
             const parsed = blockContent(block);
             return !parsed || typeof block.id !== "string" || typeof block.blockNumber !== "string"
-                || (block.typeId !== "documento" && !isOrder(block.order)) || typeof block.deleted !== "boolean";
+                || (!isAttachmentBlock(block.typeId) && !isOrder(block.order)) || typeof block.deleted !== "boolean";
         }))) {
             return res.status(400).json({success: false, error: "La convergencia base no es válida."});
         }
-        const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted && block.typeId !== "documento");
+        const visibleRequestedBlocks = requestedBlocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
         if (visibleRequestedBlocks.some((block, index) => index > 0 && visibleRequestedBlocks[index - 1].order >= block.order)) {
             return res.status(400).json({success: false, error: "El orden de los bloques no es válido."});
         }
@@ -367,6 +372,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
         try {
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
+                for (const block of requestedBlocks.filter(block => block.typeId === "dataset")) {
+                    const dataset = parseDatasetBlock(block.content)!;
+                    if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id);
+                }
                 for (const block of requestedBlocks.filter(block => block.typeId === "documento")) {
                     await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
                 }
@@ -394,7 +403,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
                 const changedExisting = existingInputs.filter(block => {
                     const current = currentByNumber.get(block.blockNumber!)!;
-                    return block.deleted !== current.deleted || block.content !== current.content || (block.typeId !== "documento" && block.order !== current.order);
+                    return block.deleted !== current.deleted || block.content !== current.content || (!isAttachmentBlock(block.typeId) && block.order !== current.order);
                 });
                 const newInputs = requestedBlocks.filter(block => block.blockNumber === null);
                 const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => block.typeId === "parrafo"
@@ -423,7 +432,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
 
                 const nextNumberByType = new Map<BlockType["id"], number>();
-                for (const typeId of ["parrafo", "h1", "h2", "documento"] as const) {
+                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset"] as const) {
                     if (!newInputs.some(block => block.typeId === typeId)) continue;
                     const prefix = BLOCK_PREFIXES[typeId];
                     await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
@@ -450,6 +459,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     edit_id: string
                     deleted: boolean
                 }> = [];
+                const datasets: Array<{id: string; title: string; description: string; file_id: string | null; source_url: string | null; columns: string; csv_options: string}> = [];
                 const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
                 for (const block of requestedBlocks) {
                     let blockNumber = block.blockNumber;
@@ -466,6 +476,12 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         continue;
                     }
                     const versionId = randomUUID();
+                    if (block.typeId === "dataset") {
+                        const metadata = parseDatasetBlock(block.content)!;
+                        datasets.push({id: versionId, title: metadata.title, description: metadata.description,
+                            file_id: metadata.fileId, source_url: metadata.sourceUrl,
+                            columns: JSON.stringify(metadata.columns), csv_options: JSON.stringify(metadata.csvOptions)});
+                    }
                     if (block.typeId === "documento") {
                         const metadata = parseDocumentBlock(block.content)!;
                         documents.push({id: versionId, file_id: metadata.fileId, title: metadata.title, description: metadata.description});
@@ -474,13 +490,14 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         id: versionId,
                         topic_id: topicId,
                         block_number: blockNumber,
-                        content: block.typeId === "documento" || block.deleted ? "" : block.content,
+                        content: isAttachmentBlock(block.typeId) || block.deleted ? "" : block.content,
                         order: block.order,
                         edit_id: editId,
                         deleted: block.deleted,
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
+                if (datasets.length) await trx.insertInto("dataset").values(datasets).execute();
                 if (documents.length) await trx.insertInto("document").values(documents).execute();
                 return topicConvergence(trx, topicId);
             });

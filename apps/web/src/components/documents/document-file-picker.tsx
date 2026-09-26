@@ -7,8 +7,9 @@ import {Spinner} from "@/components/ui/spinner";
 import {DocumentFileName} from "./document-file-name";
 import {cn} from "@/lib/utils";
 
-export function DocumentFilePicker({fileId, busy, disabled, onSelect}: {
+export function DocumentFilePicker({fileId, busy, disabled, onSelect, accept = DOCUMENT_ACCEPT}: {
     fileId: string;
+    accept?: string;
     busy: boolean;
     disabled: boolean;
     onSelect: (file: File) => Promise<void>;
@@ -17,7 +18,7 @@ export function DocumentFilePicker({fileId, busy, disabled, onSelect}: {
     const [selectedName, setSelectedName] = useState<string | null>(null);
 
     return <div className={cn("flex items-center gap-2")}>
-        <input ref={inputRef} type="file" accept={DOCUMENT_ACCEPT} hidden disabled={disabled || busy}
+        <input ref={inputRef} type="file" accept={accept} hidden disabled={disabled || busy}
             onChange={async event => {
                 const file = event.target.files?.[0];
                 event.target.value = "";
@@ -34,7 +35,7 @@ export function DocumentFilePicker({fileId, busy, disabled, onSelect}: {
             {selectedName ?? <DocumentFileName fileId={fileId}/>}
         </div>}
         <span className={cn("size-4 shrink-0")}>
-            {busy && <Spinner aria-label="Subiendo y preparando el documento" className={cn("text-muted-foreground")}/>}
+            {busy && <Spinner aria-label={accept === ".csv" ? "Cargando CSV" : "Subiendo y preparando el documento"} className={cn("text-muted-foreground")}/>}
         </span>
     </div>;
 }

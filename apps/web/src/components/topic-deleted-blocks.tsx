@@ -1,5 +1,7 @@
 "use client";
 
+import {isAttachmentBlock} from '@cabildo-abierto/utils';
+
 import {useEffect, useState} from "react";
 import {createPortal} from "react-dom";
 import {ClockCounterClockwiseIcon} from "@phosphor-icons/react";
@@ -39,7 +41,7 @@ export function TopicDeletedBlockItem({topicId, block, openInPage, newlyDeleted 
             <span>Bloque eliminado ({block.blockNumber})</span>
             {onRestore && <Button type="button" variant="outline" size="xs" onClick={onRestore}>Restaurar</Button>}
         </div>
-        <TopicBlockContent block={block} linksEnabled={block.typeId !== "documento"}/>
+        <TopicBlockContent block={block} linksEnabled={!isAttachmentBlock(block.typeId)}/>
         <TopicBlockTools topicId={topicId} block={block} openInPage={openInPage} {...toolsProps}/>
     </article>;
 }

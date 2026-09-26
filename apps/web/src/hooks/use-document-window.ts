@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useRef, useState, type KeyboardEvent, type PointerEvent} from "react";
+import {useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent} from "react";
 
 type Bounds = {left: number; top: number; width: number; height: number};
 export type WindowResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
@@ -8,30 +8,29 @@ type Operation = "move" | WindowResizeDirection;
 const margin = 16;
 
 function fit(bounds: Bounds, sidePanelWidth: number): Bounds {
-    const width = Math.min(Math.max(360 + sidePanelWidth, bounds.width), window.innerWidth - margin * 2);
+    const availableWidth = Math.max(1, window.innerWidth - margin * 2 - sidePanelWidth);
+    const width = Math.min(Math.max(360, bounds.width), availableWidth);
     const height = Math.min(Math.max(280, bounds.height), window.innerHeight - margin * 2);
     return {
         width, height,
-        left: Math.max(margin, Math.min(bounds.left, window.innerWidth - width - margin)),
+        left: Math.max(margin, Math.min(bounds.left, window.innerWidth - width - sidePanelWidth - margin)),
         top: Math.max(margin, Math.min(bounds.top, window.innerHeight - height - margin)),
     };
 }
 
 export function useDocumentWindow(sidePanelWidth = 0) {
     const [bounds, setBounds] = useState(() => {
-        const width = Math.min(960 + sidePanelWidth, window.innerWidth - 64);
+        const width = Math.min(960, window.innerWidth - 64 - sidePanelWidth);
         const height = Math.min(820, window.innerHeight - 64);
-        return fit({width, height, left: (window.innerWidth - width) / 2, top: (window.innerHeight - height) / 2}, sidePanelWidth);
+        return fit({width, height, left: (window.innerWidth - width - sidePanelWidth) / 2, top: (window.innerHeight - height) / 2}, sidePanelWidth);
     });
     const [maximized, setMaximized] = useState(false);
     const [interacting, setInteracting] = useState(false);
     const gesture = useRef<{operation: Operation; x: number; y: number; bounds: Bounds} | null>(null);
-    const previousSidePanelWidth = useRef(sidePanelWidth);
+    const fittedBounds = fit(bounds, sidePanelWidth);
 
-    useEffect(() => {
-        const difference = sidePanelWidth - previousSidePanelWidth.current;
-        previousSidePanelWidth.current = sidePanelWidth;
-        setBounds(current => fit({...current, width: current.width + difference}, sidePanelWidth));
+    useLayoutEffect(() => {
+        setBounds(current => fit(current, sidePanelWidth));
     }, [sidePanelWidth]);
 
     useEffect(() => {
@@ -42,13 +41,14 @@ export function useDocumentWindow(sidePanelWidth = 0) {
 
     const adjust = (initial: Bounds, operation: Operation, dx: number, dy: number): Bounds => {
         if (operation === "move") return fit({...initial, left: initial.left + dx, top: initial.top + dy}, sidePanelWidth);
-        const minWidth = Math.min(360 + sidePanelWidth, window.innerWidth - margin * 2);
+        const rightLimit = window.innerWidth - margin - sidePanelWidth;
+        const minWidth = Math.min(360, Math.max(1, rightLimit - margin));
         const minHeight = Math.min(280, window.innerHeight - margin * 2);
         let {left, top} = initial;
         let right = initial.left + initial.width;
         let bottom = initial.top + initial.height;
         if (operation.includes("w")) left = Math.max(margin, Math.min(left + dx, right - minWidth));
-        if (operation.includes("e")) right = Math.min(window.innerWidth - margin, Math.max(right + dx, left + minWidth));
+        if (operation.includes("e")) right = Math.min(rightLimit, Math.max(right + dx, left + minWidth));
         if (operation.includes("n")) top = Math.max(margin, Math.min(top + dy, bottom - minHeight));
         if (operation.includes("s")) bottom = Math.min(window.innerHeight - margin, Math.max(bottom + dy, top + minHeight));
         return {left, top, width: right - left, height: bottom - top};
@@ -60,7 +60,7 @@ export function useDocumentWindow(sidePanelWidth = 0) {
             event.preventDefault();
             event.currentTarget.focus();
             event.currentTarget.setPointerCapture(event.pointerId);
-            gesture.current = {operation, x: event.clientX, y: event.clientY, bounds};
+            gesture.current = {operation, x: event.clientX, y: event.clientY, bounds: fittedBounds};
             setInteracting(true);
         },
         onPointerMove: (event: PointerEvent<HTMLElement>) => {
@@ -84,7 +84,7 @@ export function useDocumentWindow(sidePanelWidth = 0) {
     });
 
     return {
-        style: maximized ? {inset: margin} : bounds,
+        style: maximized ? {inset: margin} : {...fittedBounds, width: fittedBounds.width + sidePanelWidth},
         maximized, interacting,
         toggleMaximized: () => setMaximized(current => !current),
         moveControls: controls("move"),

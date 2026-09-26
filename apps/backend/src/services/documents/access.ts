@@ -1,3 +1,4 @@
+import {requireFileAccess} from '#/services/storage/access.js';
 import type {Kysely, Transaction} from "kysely";
 import type {DB} from "#/db/types.js";
 import {TopicActionError} from "#/services/topic-title-edits.js";
@@ -5,13 +6,7 @@ import {TopicActionError} from "#/services/topic-title-edits.js";
 type Database = Kysely<DB> | Transaction<DB>;
 
 export async function requireDocumentFileAccess(database: Database, fileId: string, userId?: string) {
-    const file = await database.selectFrom('file').selectAll().where('id', '=', fileId).where('format', 'is not', null).executeTakeFirst();
-    if (!file) throw new TopicActionError(404, 'No encontramos ese archivo.');
-    const publication = await database.selectFrom('document').innerJoin('block_version', 'block_version.id', 'document.id')
-        .innerJoin('record', 'record.id', 'block_version.edit_id').select('document.id')
-        .where('document.file_id', '=', fileId).where('record.deleted', '=', false).where('block_version.deleted', '=', false).executeTakeFirst();
-    if (!publication && file.author_id !== userId) throw new TopicActionError(404, 'No encontramos ese archivo.');
-    return file;
+    return requireFileAccess(database, fileId, userId, 'document');
 }
 
 export async function requireDocumentAccess(database: Database, id: string) {

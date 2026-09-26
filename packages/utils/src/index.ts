@@ -55,3 +55,4 @@ export * from "./rich-text.js";
 
 export * from "./topic-slug.js";
 export * from "./documents.js";
+export * from './datasets.js';

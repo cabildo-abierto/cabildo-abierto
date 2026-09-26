@@ -93,6 +93,11 @@ export type DB = {
         preview_status: Generated<string>; preview_error: Generated<string | null>;
         name: string; bucket: string; key: string; mime: string; size: number; sha256: string;
     };
+    dataset: {
+        id: string; title: string; description: string; file_id: string | null; source_url: string | null;
+        columns: ColumnType<import("@cabildo-abierto/api").DatasetColumn[], string, string>;
+        csv_options: ColumnType<import("@cabildo-abierto/api").CSVOptions, string, string>;
+    };
     document: {
         id: string; file_id: string; title: string; description: string;
     };

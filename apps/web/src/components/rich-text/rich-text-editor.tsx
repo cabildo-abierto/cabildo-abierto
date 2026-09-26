@@ -8,7 +8,7 @@ import {baseKeymap, toggleMark} from "prosemirror-commands";
 import {history, redo, undo} from "prosemirror-history";
 import {keymap} from "prosemirror-keymap";
 import {isRichTextEmpty, richTextPlainText} from "@cabildo-abierto/utils";
-import type {DocumentInsertionAction} from "@/components/documents/document-insertion-picker";
+import type {AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
 import {RichTextFloatingToolbar, type RichTextToolbarState} from "@/components/rich-text/rich-text-floating-toolbar";
 import {richTextDocumentFromString, richTextSchema, serializeRichTextDocument} from "@/components/rich-text/rich-text-schema";
 
@@ -62,10 +62,11 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     };
 }
 
-export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion}: {
+export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion}: {
     content: string
     footnoteNumbers?: ReadonlyMap<string, number>
-    documentInsertion?: DocumentInsertionAction
+    datasetInsertion?: AttachmentInsertionAction
+    documentInsertion?: AttachmentInsertionAction
     toolbarContainer: HTMLElement | null
     onChange: (content: string) => void
     onDeleteEmpty: () => void
@@ -192,6 +193,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
 
         const closeOnOutsidePointer = (event: PointerEvent) => {
             const target = event.target as Node;
+            if (target instanceof Element && target.closest("[data-dataset-editor-popup]")) return;
             if (!editor.dom.contains(target) && !toolbarElementRef.current?.contains(target)) setToolbar(null);
         };
         document.addEventListener("pointerdown", closeOnOutsidePointer);
@@ -208,7 +210,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
             view={view}
             state={toolbar}
-            documentInsertion={documentInsertion}
+            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion}
             toolbarRef={element => { toolbarElementRef.current = element; }}
         />, toolbarContainer)}
     </div>;

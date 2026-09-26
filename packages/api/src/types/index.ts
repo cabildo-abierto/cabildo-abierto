@@ -5,3 +5,4 @@ export * from "./topic"
 
 export * from "./topic-title-edit"
 export * from "./document"
+export * from './dataset';

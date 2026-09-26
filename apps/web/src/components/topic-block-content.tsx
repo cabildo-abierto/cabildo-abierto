@@ -1,9 +1,10 @@
+import {isAttachmentBlock} from '@cabildo-abierto/utils';
 import {DocumentCard} from "@/components/documents/document-card";
 import type {TopicBlock} from "@cabildo-abierto/api";
 import {RichTextRenderer} from "@/components/rich-text/rich-text-renderer";
 
 export function TopicBlockContent({block, linksEnabled = true, showExternalLinkIcon, footnoteNumbers}: {block: TopicBlock; linksEnabled?: boolean; showExternalLinkIcon?: boolean; footnoteNumbers?: ReadonlyMap<string, number>}) {
-    if (block.typeId === "documento") return <DocumentCard block={block} linksEnabled={linksEnabled}/>;
+    if (isAttachmentBlock(block.typeId)) return <DocumentCard block={block} linksEnabled={linksEnabled}/>;
     if (block.typeId === "h1") return <h2 className="text-xl font-semibold">{block.content}</h2>;
     if (block.typeId === "h2") return <h3 className="text-base font-semibold">{block.content}</h3>;
     return <p className="m-0 whitespace-pre-wrap p-0 text-sm leading-relaxed"><RichTextRenderer content={block.content} linksEnabled={linksEnabled} showExternalLinkIcon={showExternalLinkIcon} footnoteNumbers={footnoteNumbers}/></p>;

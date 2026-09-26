@@ -4,7 +4,10 @@ import * as React from "react";
 import {ScrollArea as ScrollAreaPrimitive} from "@base-ui/react/scroll-area";
 import {cn} from "@/lib/utils";
 
-function ScrollArea({className, children, ...props}: ScrollAreaPrimitive.Root.Props) {
+function ScrollArea({className, children, viewportClassName, horizontal = false, ...props}: ScrollAreaPrimitive.Root.Props & {
+    viewportClassName?: string;
+    horizontal?: boolean;
+}) {
     return <ScrollAreaPrimitive.Root
         data-slot="scroll-area"
         className={cn("relative overflow-hidden", className)}
@@ -12,11 +15,12 @@ function ScrollArea({className, children, ...props}: ScrollAreaPrimitive.Root.Pr
     >
         <ScrollAreaPrimitive.Viewport
             data-slot="scroll-area-viewport"
-            className="max-h-[inherit] w-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+            className={cn("max-h-[inherit] w-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30", viewportClassName)}
         >
-            <ScrollAreaPrimitive.Content>{children}</ScrollAreaPrimitive.Content>
+            <ScrollAreaPrimitive.Content style={horizontal ? undefined : {minWidth: 0}}>{children}</ScrollAreaPrimitive.Content>
         </ScrollAreaPrimitive.Viewport>
         <ScrollBar/>
+        {horizontal && <ScrollBar orientation="horizontal"/>}
     </ScrollAreaPrimitive.Root>;
 }
 

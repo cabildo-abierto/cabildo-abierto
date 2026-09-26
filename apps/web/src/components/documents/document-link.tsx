@@ -15,7 +15,7 @@ export function DocumentLink({block, title, className, children}: {
     const linkRef = useRef<HTMLAnchorElement>(null);
 
     return <Dialog.Root open={open} onOpenChange={setOpen}>
-        <Link ref={linkRef} href={`/documento/${encodeURIComponent(block.id)}`} className={className}
+        <Link ref={linkRef} href={`/${block.typeId === "dataset" ? "conjunto-de-datos" : "documento"}/${encodeURIComponent(block.id)}`} className={className}
             aria-haspopup={isMobile === false ? "dialog" : undefined}
             onClick={event => {
                 if (isMobile !== false || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

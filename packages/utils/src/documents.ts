@@ -39,8 +39,9 @@ export function parseCADocument(value: unknown): CADocument | null {
 }
 
 export function compareContentBlocks(left: {typeId: string; order: string; blockNumber: string}, right: {typeId: string; order: string; blockNumber: string}): number {
-    if (left.typeId === "documento" || right.typeId === "documento") {
-        if (left.typeId !== right.typeId) return left.typeId === "documento" ? 1 : -1;
+    const rank = (type: string) => type === "dataset" ? 2 : type === "documento" ? 1 : 0;
+    if (rank(left.typeId) || rank(right.typeId)) {
+        if (rank(left.typeId) !== rank(right.typeId)) return rank(left.typeId) - rank(right.typeId);
         return left.blockNumber.localeCompare(right.blockNumber, undefined, {numeric: true});
     }
     return left.order.localeCompare(right.order) || left.blockNumber.localeCompare(right.blockNumber);

@@ -1,9 +1,10 @@
-"use client"
+"use client";
+
 
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseDocumentBlock, isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicDocumentEditor} from "@/components/documents/topic-document-editor";
 import {TopicBlockContent} from "@/components/topic-block-content";
@@ -34,12 +35,13 @@ type TopicEditState = {
 type ChangeKind = "new" | "content" | "order" | null;
 
 function blockIsEmpty(block: Pick<TopicBlock, "typeId" | "content">): boolean {
+    if (block.typeId === "dataset") return !parseDatasetBlock(block.content);
     if (block.typeId === "documento") return !parseDocumentBlock(block.content);
     return block.typeId === "parrafo" ? isRichTextEmpty(block.content) : !block.content.trim();
 }
 
-function newDocumentBlock(id: string, content: string): WorkingBlock {
-    return {id, blockNumber: id, typeId: "documento", content, order: "n", commentCount: 0, isNew: true, deleted: false};
+function newAttachmentBlock(typeId: "documento" | "dataset", id: string, content: string): WorkingBlock {
+    return {id, blockNumber: id, typeId, content, order: "n", commentCount: 0, isNew: true, deleted: false};
 }
 
 function persistedBlocks(blocks: TopicEditableBlock[]): WorkingBlock[] {
@@ -74,7 +76,7 @@ function changeKind(block: WorkingBlock, savedByNumber: ReadonlyMap<string, Work
     if (block.deleted) return null;
     if (saved.deleted !== block.deleted) return "content";
     if (block.content !== saved.content) return "content";
-    if (block.typeId !== "documento" && block.order !== saved.order) return "order";
+    if (!isAttachmentBlock(block.typeId) && block.order !== saved.order) return "order";
     return null;
 }
 
@@ -86,7 +88,7 @@ function mergeConvergence(state: TopicEditState, latestBlocks: TopicEditableBloc
         const working = workingByNumber.get(block.blockNumber);
         if (!saved || !working) return block;
         const contentChanged = working.content !== saved.content;
-        const orderChanged = working.typeId !== "documento" && working.order !== saved.order;
+        const orderChanged = !isAttachmentBlock(working.typeId) && working.order !== saved.order;
         const deletionChanged = working.deleted !== saved.deleted;
         return {
             ...block,
@@ -98,12 +100,12 @@ function mergeConvergence(state: TopicEditState, latestBlocks: TopicEditableBloc
     const localBlocks = state.blocks.filter(block => block.isNew);
     let blocks = [...latest, ...localBlocks]
         .sort(compareContentBlocks);
-    const visibleBlocks = blocks.filter(block => !block.deleted && block.typeId !== "documento");
+    const visibleBlocks = blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
     const hasDuplicateOrder = visibleBlocks.some((block, index) => index > 0 && visibleBlocks[index - 1].order >= block.order);
     if (hasDuplicateOrder) {
         const orderByNumber = new Map(permutationFor(visibleBlocks.map(block => block.blockNumber))
             .map(item => [item.blockNumber, item.order]));
-        blocks = blocks.map(block => block.deleted || block.typeId === "documento" ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
+        blocks = blocks.map(block => block.deleted || isAttachmentBlock(block.typeId) ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
             .sort(compareContentBlocks);
     }
     const savedBlocks = persistedBlocks(latestBlocks);
@@ -198,7 +200,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const deactivateParagraphOnOutsidePointer = (event: PointerEvent) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
-            if (target.closest('[data-slot="select-content"]')) return;
+            if (target.closest('[data-slot="select-content"], [data-dataset-editor-popup]')) return;
             setEdit(current => {
                 const activeBlock = current.blocks.find(block => block.blockNumber === current.activeBlockNumber);
                 if (!activeBlock || activeBlock.typeId !== "parrafo") return current;
@@ -218,33 +220,33 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
 
     useImperativeHandle(ref, () => ({
         canFinishEditing: () => {
-            if (!hasChanges && !newBlocks.some(block => block.typeId === "documento") && !uploading.size) return true;
+            if (!hasChanges && !newBlocks.some(block => isAttachmentBlock(block.typeId)) && !uploading.size) return true;
             shakeActions();
             return false;
         },
     }));
 
-    const documentInsertion = {
+    const attachmentInsertion = (typeId: "documento" | "dataset") => ({
         canSave: !hasChanges,
         saving,
         error,
         onChange: (id: string, content: string) => setEdit(current => {
-            const document = newDocumentBlock(id, content);
+            const document = newAttachmentBlock(typeId, id, content);
             const exists = current.blocks.some(block => block.id === id);
             return {...current, blocks: exists ? current.blocks.map(block => block.id === id ? document : block) : [...current.blocks, document]};
         }),
         onInsert: async (content: string) => {
             const id = `new-${crypto.randomUUID()}`;
-            const blocks = edit.blocks.filter(block => !(block.isNew && block.typeId !== "documento" && blockIsEmpty(block)));
-            const document = newDocumentBlock(id, content);
+            const blocks = edit.blocks.filter(block => !(block.isNew && !isAttachmentBlock(block.typeId) && blockIsEmpty(block)));
+            const document = newAttachmentBlock(typeId, id, content);
             return save({...edit, blocks: [...blocks, document]});
         },
         onBusyChange: (busy: boolean) => setUploading(current => {
             const next = new Set(current);
-            if (busy) next.add("document-insertion"); else next.delete("document-insertion");
+            if (busy) next.add(`${typeId}-insertion`); else next.delete(`${typeId}-insertion`);
             return next;
         }),
-    };
+    });
 
     const updateBlock = (updated: TopicBlock) => {
         setEdit(current => ({
@@ -263,7 +265,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
 
     const startNewBlock = (after: string | null) => {
         setEdit(current => {
-            const visibleBlocks = current.blocks.filter(block => !block.deleted && block.typeId !== "documento");
+            const visibleBlocks = current.blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
             const onlyEmptyParagraph = visibleBlocks.length === 1
                 && after === null
                 && visibleBlocks[0].isNew
@@ -281,7 +283,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 ? visibleBeforeDeactivation[previousActiveIndex - 1]?.blockNumber ?? null
                 : after;
             const deactivated = deactivateBlock(current, null);
-            const deactivatedVisibleBlocks = deactivated.blocks.filter(block => !block.deleted && block.typeId !== "documento");
+            const deactivatedVisibleBlocks = deactivated.blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
             const anchorIndex = insertionAnchor === null ? -1 : deactivatedVisibleBlocks.findIndex(block => block.blockNumber === insertionAnchor);
             const previousBlock = deactivatedVisibleBlocks[anchorIndex];
             const nextBlock = deactivatedVisibleBlocks[anchorIndex + 1];
@@ -323,7 +325,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const moveDraggedBlock = (target: string) => {
         if (!draggedBlock || draggedBlock === target) return;
         setEdit(current => {
-            const visibleBlocks = current.blocks.filter(block => !block.deleted && block.typeId !== "documento");
+            const visibleBlocks = current.blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
             const from = visibleBlocks.findIndex(block => block.blockNumber === draggedBlock);
             const to = visibleBlocks.findIndex(block => block.blockNumber === target);
             if (from === -1 || to === -1) return current;
@@ -332,7 +334,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             reordered.splice(to, 0, moved);
             const orderByNumber = new Map(permutationFor(reordered.map(block => block.blockNumber))
                 .map(item => [item.blockNumber, item.order]));
-            const blocks = current.blocks.map(block => block.deleted || block.typeId === "documento" ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
+            const blocks = current.blocks.map(block => block.deleted || isAttachmentBlock(block.typeId) ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
                 .sort(compareContentBlocks);
             return {...current, blocks};
         });
@@ -395,7 +397,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         return true;
     };
 
-    const visibleBlocks = edit.blocks.filter(block => block.typeId !== "documento" && (!block.deleted || (edit.showDeleted && !block.isNew)));
+    const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
     return <div className="flex flex-1 flex-col gap-3">
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
@@ -431,7 +433,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
                             onRestore={() => restoreBlock(block.blockNumber)} toolsProps={blockSectionProps(block.blockNumber)}/>
                         : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
-                            documentInsertion={documentInsertion} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
                             role="button"
@@ -475,7 +477,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                     : <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>)}
             </div>;
         })}
-        <TopicDocumentEditor topicId={topicId} blocks={edit.blocks.filter(block => block.typeId === "documento" && (!block.deleted || edit.showDeleted))}
+        {(["documento", "dataset"] as const).map(type => <TopicDocumentEditor key={type} dataset={type === "dataset"} topicId={topicId} blocks={edit.blocks.filter(block => block.typeId === type && (!block.deleted || edit.showDeleted))}
             disabled={saving || uploading.size > 0} onChange={updateBlock} onRestore={restoreBlock}
             renderActions={(blockNumber, onClose) => (!hasChanges || singleChangedBlockNumber === blockNumber) && <div className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                 onAnimationEnd={() => setShaking(false)}>
@@ -485,7 +487,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             onBusyChange={(blockNumber, busy) => setUploading(current => {
                 const next = new Set(current); if (busy) next.add(blockNumber); else next.delete(blockNumber); return next;
             })}
-            onRemove={blockNumber => setEdit(current => ({...current, blocks: current.blocks.flatMap(block => block.blockNumber !== blockNumber ? [block] : block.isNew ? [] : [{...block, deleted: true}])}))}/>
+            onRemove={blockNumber => setEdit(current => ({...current, blocks: current.blocks.flatMap(block => block.blockNumber !== blockNumber ? [block] : block.isNew ? [] : [{...block, deleted: true}])}))}/>) }
         <TopicFootnoteList footnotes={footnotes}/>
         {showActionsCard && <TopicEditActionsCard
             modifiedCount={modifiedBlockCount}

@@ -1,3 +1,4 @@
+import {requireFileAccess} from '#/services/storage/access.js';
 import express, {type Request, type Response} from "express";
 import {sql} from "kysely";
 import type {DocumentFormat, DocumentOutput} from "@cabildo-abierto/api";
@@ -5,7 +6,7 @@ import type {AppContext} from "#/setup.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {TopicActionError} from "#/services/topic-title-edits.js";
 import {R2Storage, type ObjectStorage} from "#/services/storage/storage.js";
-import {requireDocumentAccess, requireDocumentFileAccess} from "#/services/documents/access.js";
+import {requireDocumentAccess} from "#/services/documents/access.js";
 import {uploadDocument} from "#/services/documents/upload.js";
 import {convertOfficeFile} from "#/services/documents/conversion.js";
 import {deleteDiscussionComment, discussionComments, mutateDiscussion, publishDiscussionComment, type DiscussionTarget} from "#/services/discussions.js";
@@ -35,7 +36,7 @@ export function documentRoutes(ctx: AppContext) {
     });
     router.get('/document-files/:id', withSession(ctx), async (req, res) => {
         try {
-            const file = await requireDocumentFileAccess(ctx.kysely, String(req.params.id), currentUser(req)?.id);
+            const file = await requireFileAccess(ctx.kysely, String(req.params.id), currentUser(req)?.id);
             return res.json({success: true, value: {fileId: file.id, fileName: file.name}});
         } catch (error) { return fail(res, error); }
     });

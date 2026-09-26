@@ -42,6 +42,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1136.0",
     "@cabildo-abierto/utils": "workspace:*",
     "cors": "^2.8.6",
+    "csv-parse": "^7.0.3",
     "dotenv": "^17.4.2",
     "envalid": "^8.2.0",
     "express": "^5.2.1",
