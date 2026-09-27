@@ -1,5 +1,5 @@
 import {Schema, type Node as ProseMirrorNode} from "prosemirror-model";
-import {RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent} from "@cabildo-abierto/utils";
+import {footnoteLabel, parseFootnoteAttrs, RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent} from "@cabildo-abierto/utils";
 
 export const richTextSchema = new Schema({
     nodes: {
@@ -11,17 +11,22 @@ export const richTextSchema = new Schema({
             inline: true,
             group: "inline",
             atom: true,
-            attrs: {id: {}, content: {}},
+            attrs: {id: {}, kind: {default: "text"}, content: {default: null}, url: {default: null}, label: {default: null}, blockNumber: {default: null}},
             toDOM: node => ["sup", {
+                id: `footnote-ref-${node.attrs.id}`,
                 "data-footnote-id": node.attrs.id,
-                "data-footnote-content": node.attrs.content,
+                "data-footnote-content": node.attrs.content ?? "",
+                "data-footnote": JSON.stringify(footnoteNodeAttrs(node.attrs)),
                 class: "cursor-pointer font-medium text-primary underline underline-offset-2",
-                title: node.attrs.content,
+                title: footnoteLabel(footnoteNodeAttrs(node.attrs)),
             }, "*"],
-            parseDOM: [{tag: "[data-footnote-id]", getAttrs: element => ({
-                id: (element as HTMLElement).dataset.footnoteId,
-                content: (element as HTMLElement).dataset.footnoteContent,
-            })}],
+            parseDOM: [{tag: "[data-footnote-id]", getAttrs: element => {
+                const dom = element as HTMLElement;
+                try {
+                    const attrs = dom.dataset.footnote ? JSON.parse(dom.dataset.footnote) : {id: dom.dataset.footnoteId, content: dom.dataset.footnoteContent};
+                    return parseFootnoteAttrs(attrs) ?? false;
+                } catch { return false; }
+            }}],
         },
     },
     marks: {
@@ -62,6 +67,16 @@ export const richTextSchema = new Schema({
     },
 });
 
+export function footnoteNodeAttrs(attrs: Record<string, unknown>) {
+    const kind = attrs.kind ?? "text";
+    const value = kind === "text" ? {id: attrs.id, kind, content: attrs.content}
+        : kind === "url" ? {id: attrs.id, kind, url: attrs.url, ...(attrs.label == null ? {} : {label: attrs.label})}
+        : {id: attrs.id, kind, blockNumber: attrs.blockNumber};
+    const note = parseFootnoteAttrs(value);
+    if (!note) throw new Error("Nota al pie inválida.");
+    return note;
+}
+
 function plainTextDocument(content: string): ProseMirrorNode {
     const inline: ProseMirrorNode[] = [];
     content.split("\n").forEach((line, index) => {
@@ -83,11 +98,14 @@ export function richTextDocumentFromString(content: string): ProseMirrorNode {
 
 export function serializeRichTextDocument(doc: ProseMirrorNode): string {
     const plainText = doc.textBetween(0, doc.content.size, "\n", "\n");
-    if (!plainText.trim()) return "";
+    if (!plainText.trim() && !doc.toJSON().content[0].content?.some((node: {type: string}) => node.type === "footnote")) return "";
     const content: RichTextContent = {
         format: RICH_TEXT_FORMAT,
         version: RICH_TEXT_VERSION,
         doc: doc.toJSON() as RichTextContent["doc"],
     };
+    for (const node of content.doc.content[0].content ?? []) {
+        if (node.type === "footnote") node.attrs = footnoteNodeAttrs(node.attrs);
+    }
     return JSON.stringify(content);
 }

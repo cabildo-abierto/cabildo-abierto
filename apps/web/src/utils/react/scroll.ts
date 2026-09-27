@@ -1,29 +1,29 @@
 
 
-function dist(x: number, y: number){
-    return Math.abs(x-y)
-}
+let scrollFrame: number | undefined;
 
-export function smoothScrollTo(target: HTMLElement | number, duration = 600) {
+export function smoothScrollTo(target: HTMLElement | number, duration = 600, onComplete?: () => void) {
+    if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame);
     const start = window.scrollY;
     const targetPosition = typeof target === 'number' ? target : target.getBoundingClientRect().top + start - 60;
     const startTime = performance.now();
 
-    function scroll(currentTime: any) {
+    function scroll(currentTime: number) {
         const elapsed = currentTime - startTime;
         const progress = Math.max(Math.min(elapsed / duration, 1), 0);
 
         const easing = progress * (2 - progress);
 
         const stepDestination = start + (targetPosition - start) * easing
-        if (dist(start, targetPosition) > dist(stepDestination, targetPosition)) {
-            window.scrollTo(0, stepDestination);
-        }
+        window.scrollTo({top: stepDestination, behavior: "instant"});
 
         if (progress < 1) {
-            requestAnimationFrame(scroll);
+            scrollFrame = requestAnimationFrame(scroll);
+        } else {
+            scrollFrame = undefined;
+            onComplete?.();
         }
     }
 
-    requestAnimationFrame(scroll);
+    scrollFrame = requestAnimationFrame(scroll);
 }

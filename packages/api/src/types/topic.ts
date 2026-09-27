@@ -141,6 +141,7 @@ export type TopicBlockVersionsOutput = {
 }
 
 export type SaveTopicEditBlockInput = {
+    localId?: string
     id: string | null
     blockNumber: string | null
     typeId: BlockType["id"]

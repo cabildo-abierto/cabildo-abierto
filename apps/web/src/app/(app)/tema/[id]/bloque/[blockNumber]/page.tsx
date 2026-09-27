@@ -1,5 +1,6 @@
 "use client"
 
+import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-context";
 import {useTopicRoute} from "@/components/topic-route-provider";
 
 import {BackToTopicButton} from "@/components/back-to-topic-button";
@@ -46,7 +47,7 @@ export default function TopicBlockPage() {
                 <TopicConnectionCount topicId={topic.id} mode="reading"/>
             </div>
         </header>
-        <TopicBlockPageContent topicId={topic.id} initialBlock={initialBlock.current} latestBlock={block}
-            initialHistoryOpen={searchParams.get("seccion") === "historial"}/>
+        <TopicFootnoteProvider topicId={id} blocks={blocksQuery.data?.blocks ?? []}><TopicBlockPageContent topicId={topic.id} initialBlock={initialBlock.current} latestBlock={block}
+            initialHistoryOpen={searchParams.get("seccion") === "historial"}/></TopicFootnoteProvider>
     </div>;
 }

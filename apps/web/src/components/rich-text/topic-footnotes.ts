@@ -1,7 +1,7 @@
 import type {TopicBlock} from "@cabildo-abierto/api";
-import {parseRichTextContent} from "@cabildo-abierto/utils";
+import {parseFootnoteAttrs, type FootnoteAttrs, parseRichTextContent} from "@cabildo-abierto/utils";
 
-export type TopicFootnote = {id: string; content: string; number: number};
+export type TopicFootnote = FootnoteAttrs & {number: number};
 
 export function topicFootnotes(blocks: Pick<TopicBlock, "typeId" | "content">[]): {
     footnotes: TopicFootnote[]
@@ -15,7 +15,8 @@ export function topicFootnotes(blocks: Pick<TopicBlock, "typeId" | "content">[])
         for (const node of richText?.doc.content[0].content ?? []) {
             if (node.type !== "footnote" || seen.has(node.attrs.id)) continue;
             seen.add(node.attrs.id);
-            footnotes.push({...node.attrs, number: footnotes.length + 1});
+            const attrs = parseFootnoteAttrs(node.attrs);
+            if (attrs) footnotes.push({...attrs, number: footnotes.length + 1});
         }
     }
     return {footnotes, numberById: new Map(footnotes.map(note => [note.id, note.number]))};

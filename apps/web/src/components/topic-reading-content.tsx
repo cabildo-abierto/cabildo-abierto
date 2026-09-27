@@ -1,5 +1,6 @@
 "use client";
 
+import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-context";
 import {TopicContentFlow} from '@/components/images/topic-content-flow';
 
 import {compareContentBlocks, isAttachmentBlock} from "@cabildo-abierto/utils";
@@ -52,7 +53,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const blocksToRender = [...displayedBlocks, ...(showDeleted ? effectiveDeletedBlocks : [])]
         .sort(compareContentBlocks);
     const {footnotes, numberById} = topicFootnotes(displayedBlocks);
-    return <>
+    return <TopicFootnoteProvider topicId={topicId} blocks={displayedBlocks}>
         {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setDisplayedBlocks(latestBlocks);
             setDisplayedDeletedBlocks(latestDeletedBlocks);
@@ -71,11 +72,12 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
                     openInPage={openToolsInPage}
                     {...blockSectionProps(block.blockNumber)}
                 />)}
+                <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>
                 {(["documento", "dataset"] as const).map(type => blocksToRender.some(block => block.typeId === type) && <div key={type} className={cn("clear-both")}><DocumentSection dataset={type === "dataset"}>
                     {blocksToRender.filter(block => block.typeId === type).map(block => displayedDeletedNumbers.has(block.blockNumber)
                         ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
                         : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>)}
                 </DocumentSection></div>)}
-                <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div></TopicContentFlow>}
-    </>;
+                </TopicContentFlow>}
+    </TopicFootnoteProvider>;
 }

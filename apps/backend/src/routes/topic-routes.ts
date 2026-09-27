@@ -1,3 +1,4 @@
+import {resolveTopicFootnotes} from "#/services/topic-footnotes.js";
 import {requireFileAccess} from '#/services/storage/access.js';
 import {runQueryJob} from '#/services/visualizations/query-process.js';
 import {resolveSources} from '#/services/visualizations/resolve-sources.js';
@@ -306,7 +307,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
             const parsed = blockContent(block);
             const existing = typeof block.id === "string" && typeof block.blockNumber === "string";
             const newBlock = block.id === null && block.blockNumber === null;
-            if (!parsed || (!existing && !newBlock) || (!isAttachmentBlock(block.typeId) && !isOrder(block.order))
+            if ((block.localId !== undefined && (!newBlock || typeof block.localId !== "string" || !/^new-[0-9a-f-]{36}$/i.test(block.localId)))
+                || !parsed || (!existing && !newBlock) || (!isAttachmentBlock(block.typeId) && !isOrder(block.order))
                 || typeof block.deleted !== "boolean" || (newBlock && block.deleted)) return null;
             return {...block, ...parsed, order: isAttachmentBlock(parsed.typeId) ? "n" : block.order};
         });
@@ -314,6 +316,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
             return res.status(400).json({success: false, error: "La edición contiene bloques inválidos."});
         }
         const requestedBlocks = parsedBlocks as SaveTopicEditInput["blocks"];
+        const localIds = requestedBlocks.flatMap(block => block.localId === undefined ? [] : [block.localId]);
+        if (new Set(localIds).size !== localIds.length) return res.status(400).json({success: false, error: "La edición contiene identificadores temporales duplicados."});
         const baseBlocks = input.baseBlocks;
         if (baseBlocks !== undefined && (!Array.isArray(baseBlocks) || baseBlocks.some(block => {
             if (!block || typeof block !== "object") return true;
@@ -427,8 +431,25 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     nextNumberByType.set(typeId, max + 1);
                 }
 
+                const localNumbers = new Map<string, string>();
+                const newNumbers = new Set<string>();
+                const numberedBlocks = requestedBlocks.map(block => {
+                    if (block.blockNumber !== null) return block;
+                    const nextNumber = nextNumberByType.get(block.typeId)!;
+                    nextNumberByType.set(block.typeId, nextNumber + 1);
+                    const blockNumber = `${BLOCK_PREFIXES[block.typeId]}-${nextNumber}`;
+                    if (block.localId) localNumbers.set(block.localId, blockNumber);
+                    newNumbers.add(blockNumber);
+                    return {...block, blockNumber};
+                });
+                const resolvedBlocks = resolveTopicFootnotes(numberedBlocks, localNumbers, currentByNumber);
                 if (newInputs.some(block => block.typeId === "documento")) await trx.insertInto("block_type")
                     .values({id: "documento", name: "Documento"}).onConflict(c => c.column("id").doNothing()).execute();
+                const newBlocks = resolvedBlocks.filter(block => newNumbers.has(block.blockNumber!));
+                if (newBlocks.length) await trx.insertInto("block").values(newBlocks.map(block => ({
+                    topic_id: topicId, block_number: block.blockNumber!, type_id: block.typeId,
+                }))).execute();
+
                 const versions: Array<{
                     id: string
                     topic_id: string
@@ -443,20 +464,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
                 const images: {id:string;file_id:string;width_percent:number;alignment:string;flow:string;alt:string;caption:string}[] = [];
                 const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
-                for (const block of requestedBlocks) {
-                    let blockNumber = block.blockNumber;
-                    if (blockNumber === null) {
-                        const nextNumber = nextNumberByType.get(block.typeId)!;
-                        nextNumberByType.set(block.typeId, nextNumber + 1);
-                        blockNumber = `${BLOCK_PREFIXES[block.typeId]}-${nextNumber}`;
-                        await trx.insertInto("block").values({
-                            topic_id: topicId,
-                            block_number: blockNumber,
-                            type_id: block.typeId,
-                        }).execute();
-                    } else if (!changedExisting.some(changed => changed.blockNumber === blockNumber)) {
-                        continue;
-                    }
+                for (const block of resolvedBlocks) {
+                    const blockNumber = block.blockNumber!;
+                    if (!newNumbers.has(blockNumber) && !changedExisting.some(changed => changed.blockNumber === blockNumber)) continue;
                     const versionId = randomUUID();
                     if (block.typeId === "imagen") {
                         const data = parseImageBlock(block.content)!;

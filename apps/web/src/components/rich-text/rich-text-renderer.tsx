@@ -1,7 +1,9 @@
 import Link from "next/link";
 import {Fragment, type ReactNode} from "react";
-import {parseRichTextContent, type RichTextMark} from "@cabildo-abierto/utils";
+import {footnoteLabel, parseFootnoteAttrs, parseRichTextContent, type RichTextMark} from "@cabildo-abierto/utils";
 import {ArrowSquareOutIcon} from "@phosphor-icons/react";
+import {FootnoteLink} from "./footnote-link";
+import {cn} from "@/lib/utils";
 
 function markedText(text: string, marks: RichTextMark[], linksEnabled: boolean, showExternalLinkIcon: boolean, isExternalLinkEnd: boolean): ReactNode {
     return marks.reduceRight<ReactNode>((children, mark) => {
@@ -36,9 +38,9 @@ export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = 
         if (node.type === "footnote") {
             localFootnoteNumber += 1;
             const number = footnoteNumbers?.get(node.attrs.id) ?? localFootnoteNumber;
-            return <sup key={node.attrs.id} id={`footnote-ref-${node.attrs.id}`} title={node.attrs.content}>
+            return <sup key={node.attrs.id} id={`footnote-ref-${node.attrs.id}`} title={footnoteLabel(parseFootnoteAttrs(node.attrs)!)}>
                 {footnoteNumbers
-                    ? <a href={`#footnote-${node.attrs.id}`} className="ml-0.5 font-medium no-underline hover:underline">{number}</a>
+                    ? <FootnoteLink href={`#footnote-${node.attrs.id}`} className={cn("ml-0.5 font-medium no-underline hover:underline")}>{number}</FootnoteLink>
                     : <span className="ml-0.5 font-medium">{number}</span>}
             </sup>;
         }

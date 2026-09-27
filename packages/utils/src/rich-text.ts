@@ -1,3 +1,4 @@
+import {parseFootnoteAttrs, type FootnoteAttrs} from "./footnotes.js";
 export const RICH_TEXT_FORMAT = "cabildo-rich-text";
 export const RICH_TEXT_VERSION = 1;
 
@@ -10,7 +11,7 @@ export type RichTextMark =
 export type RichTextInlineNode =
     | {type: "text"; text: string; marks?: RichTextMark[]}
     | {type: "hard_break"}
-    | {type: "footnote"; attrs: {id: string; content: string}};
+    | {type: "footnote"; attrs: FootnoteAttrs | {id: string; content: string}};
 
 export type RichTextDocument = {
     type: "doc"
@@ -58,14 +59,7 @@ function validMark(value: unknown): value is RichTextMark {
 function validInlineNode(value: unknown): value is RichTextInlineNode {
     if (!object(value) || typeof value.type !== "string") return false;
     if (value.type === "hard_break") return exactKeys(value, ["type"]);
-    if (value.type === "footnote") return exactKeys(value, ["type", "attrs"])
-        && object(value.attrs)
-        && exactKeys(value.attrs, ["id", "content"])
-        && typeof value.attrs.id === "string"
-        && /^[0-9a-f-]{36}$/i.test(value.attrs.id)
-        && typeof value.attrs.content === "string"
-        && value.attrs.content.trim().length > 0
-        && value.attrs.content.length <= 5_000;
+    if (value.type === "footnote") return exactKeys(value, ["type", "attrs"]) && !!parseFootnoteAttrs(value.attrs);
     if (value.type !== "text" || !exactKeys(value, ["type", "text", "marks"])
         || typeof value.text !== "string" || value.text.length === 0) return false;
     if (value.marks === undefined) return true;

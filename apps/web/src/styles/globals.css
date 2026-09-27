@@ -142,3 +142,13 @@
   25% { transform: translateX(-0.25rem); }
   75% { transform: translateX(0.25rem); }
 }
+
+@keyframes section-expand {
+  from { height: 0; overflow: hidden; }
+  to { height: var(--accordion-panel-height); overflow: hidden; }
+}
+
+@keyframes section-collapse {
+  from { height: var(--accordion-panel-height); overflow: hidden; }
+  to { height: 0; overflow: hidden; }
+}

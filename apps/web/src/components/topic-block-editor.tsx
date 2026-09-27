@@ -1,5 +1,6 @@
 "use client";
 
+import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-context";
 import {ImageEditorPopup} from "@/components/images/image-editor-popup";
 import {EditableImageBlock} from "@/components/images/editable-image-block";
 import {TopicBlockFrame} from "@/components/images/topic-block-frame";
@@ -400,6 +401,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 deleted: block.deleted,
             })),
             blocks: state.blocks.map(block => ({
+                ...(block.isNew ? {localId: block.blockNumber} : {}),
                 id: block.isNew ? null : block.id,
                 blockNumber: block.isNew ? null : block.blockNumber,
                 typeId: block.typeId,
@@ -435,7 +437,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
 
     const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
-    return <div className="flex flex-1 flex-col gap-3">
+    return <TopicFootnoteProvider topicId={topicId} blocks={edit.blocks}><div className="flex flex-1 flex-col gap-3">
         {inlinePopup?.typeId === "visualizacion" && <VisualizationEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {inlinePopup?.typeId === "imagen" && <ImageEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
@@ -527,6 +529,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                     : <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>)}
             </div>;
         })}
+        <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>
         {(["documento", "dataset"] as const).map(type => <TopicDocumentEditor key={type} dataset={type === "dataset"} topicId={topicId} blocks={edit.blocks.filter(block => block.typeId === type && (!block.deleted || edit.showDeleted))}
             insertionAction={attachmentInsertion(type)} disabled={saving || uploading.size > 0} onChange={updateBlock} onRestore={restoreBlock}
             renderActions={(blockNumber, onClose) => (!hasChanges || singleChangedBlockNumber === blockNumber) && <div className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
@@ -538,7 +541,6 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 const next = new Set(current); if (busy) next.add(blockNumber); else next.delete(blockNumber); return next;
             })}
             onRemove={blockNumber => setEdit(current => ({...current, blocks: current.blocks.flatMap(block => block.blockNumber !== blockNumber ? [block] : block.isNew ? [] : [{...block, deleted: true}])}))}/>) }
-        <TopicFootnoteList footnotes={footnotes}/>
         {showActionsCard && <TopicEditActionsCard
             modifiedCount={modifiedBlockCount}
             deletedCount={deletedBlocks.length}
@@ -554,5 +556,5 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             onSave={() => void save()}
             onShakeEnd={() => setShaking(false)}/>}
         </TopicContentFlow>
-    </div>;
+    </div></TopicFootnoteProvider>;
 });

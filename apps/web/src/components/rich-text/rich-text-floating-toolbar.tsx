@@ -1,5 +1,6 @@
 "use client"
 
+import type {FootnoteAttrs, FootnoteContent} from "@cabildo-abierto/utils";
 import {useEffect, useState} from "react";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
@@ -18,7 +19,7 @@ export type RichTextToolbarState = {
     bold: boolean
     italic: boolean
     link: RichTextLink | null
-    footnote: {id: string; content: string} | null
+    footnote: FootnoteAttrs | null
     openLinkPicker: boolean
     openFootnoteEditor: boolean
 };
@@ -49,6 +50,16 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
         if (state.openLinkPicker) setLinkPickerOpen(true);
     }, [state.openLinkPicker]);
     useEffect(() => {
+        const closeOnTextPointer = (event: PointerEvent) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            if (!target.closest("a")) setLinkPickerOpen(false);
+            if (!target.closest("[data-footnote-id]")) setFootnoteEditorOpen(false);
+        };
+        view.dom.addEventListener("pointerdown", closeOnTextPointer);
+        return () => view.dom.removeEventListener("pointerdown", closeOnTextPointer);
+    }, [view]);
+    useEffect(() => {
         if (state.openFootnoteEditor) setFootnoteEditorOpen(true);
     }, [state.openFootnoteEditor]);
     const toggle = (type: "bold" | "italic") => {
@@ -59,8 +70,8 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
         applyLink(view, state, link);
         setLinkPickerOpen(false);
     };
-    const saveFootnote = (content: string) => {
-        const attrs = {id: state.footnote?.id ?? crypto.randomUUID(), content};
+    const saveFootnote = (content: FootnoteContent) => {
+        const attrs = {id: state.footnote?.id ?? crypto.randomUUID(), ...content};
         const transaction = state.footnote
             ? view.state.tr.setNodeMarkup(state.from, richTextSchema.nodes.footnote, attrs)
             : view.state.tr.insert(state.to, richTextSchema.nodes.footnote.create(attrs));
@@ -109,7 +120,7 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
             onRemove={() => finishLink(null)}
         />}
         {footnoteEditorOpen && <RichTextFootnoteEditor
-            initialContent={state.footnote?.content ?? ""}
+            initial={state.footnote ?? {kind: "text", content: ""}}
             editing={state.footnote !== null}
             onSave={saveFootnote}
             onDelete={deleteFootnote}

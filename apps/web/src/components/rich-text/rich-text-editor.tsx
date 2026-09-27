@@ -1,4 +1,7 @@
-"use client"
+"use client";
+
+import {footnoteLabel} from "@cabildo-abierto/utils";
+import {footnoteNodeAttrs} from "./rich-text-schema";
 
 import {useEffect, useRef, useState} from "react";
 import {createPortal} from "react-dom";
@@ -34,10 +37,7 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
             bold: false,
             italic: false,
             link: null,
-            footnote: {
-                id: view.state.selection.node.attrs.id as string,
-                content: view.state.selection.node.attrs.content as string,
-            },
+            footnote: footnoteNodeAttrs(view.state.selection.node.attrs),
             openLinkPicker: false,
             openFootnoteEditor: false,
         };
@@ -132,18 +132,21 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
                     dom.contentEditable = "false";
                     const label = document.createElement("sup");
                     dom.appendChild(label);
-                    const render = (id: string, noteContent: string) => {
+                    const render = (attrs: ReturnType<typeof footnoteNodeAttrs>) => {
+                        const {id} = attrs;
+                        const noteContent = footnoteLabel(attrs);
+                        dom.dataset.footnote = JSON.stringify(attrs);
                         dom.dataset.footnoteId = id;
                         dom.dataset.footnoteContent = noteContent;
                         dom.title = noteContent;
                         label.textContent = String(footnoteNumbersRef.current?.get(id) ?? "*");
                     };
-                    render(node.attrs.id as string, node.attrs.content as string);
+                    render(footnoteNodeAttrs(node.attrs));
                     return {
                         dom,
                         update: nextNode => {
                             if (nextNode.type !== richTextSchema.nodes.footnote) return false;
-                            render(nextNode.attrs.id as string, nextNode.attrs.content as string);
+                            render(footnoteNodeAttrs(nextNode.attrs));
                             return true;
                         },
                         ignoreMutation: () => true,
