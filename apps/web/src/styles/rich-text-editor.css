@@ -4,3 +4,21 @@
   border: none !important;
   margin: 0 !important;
 }
+
+.rich-text-content ul,
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.rich-text-content ol,
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.rich-text-content ul,
+.rich-text-content ol,
+.ProseMirror ul,
+.ProseMirror ol {
+  margin-block: 0.25rem;
+  padding-inline-start: 1.5rem;
+}

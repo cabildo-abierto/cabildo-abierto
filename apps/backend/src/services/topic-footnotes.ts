@@ -1,5 +1,5 @@
 import type {SaveTopicEditBlockInput} from "@cabildo-abierto/api";
-import {parseRichTextContent, parseFootnoteAttrs} from "@cabildo-abierto/utils";
+import {parseRichTextContent, parseFootnoteAttrs, richTextInlineNodes} from "@cabildo-abierto/utils";
 import {TopicActionError} from "./topic-title-edits.js";
 
 export function resolveTopicFootnotes(
@@ -13,10 +13,11 @@ export function resolveTopicFootnotes(
         const richText = parseRichTextContent(block.content);
         if (!richText) return block;
         const previousContent = block.blockNumber ? previous.get(block.blockNumber)?.content : undefined;
-        const previousNotes = new Map((parseRichTextContent(previousContent ?? "")?.doc.content[0].content ?? [])
+        const previousRichText = parseRichTextContent(previousContent ?? "");
+        const previousNotes = new Map((previousRichText ? richTextInlineNodes(previousRichText.doc) : [])
             .flatMap(node => node.type === "footnote" ? [[node.attrs.id, parseFootnoteAttrs(node.attrs)] as const] : []));
         let rewritten = false;
-        for (const node of richText.doc.content[0].content ?? []) {
+        for (const node of richTextInlineNodes(richText.doc)) {
             if (node.type !== "footnote") continue;
             const note = parseFootnoteAttrs(node.attrs)!;
             if (note.kind !== "document" && note.kind !== "dataset") continue;

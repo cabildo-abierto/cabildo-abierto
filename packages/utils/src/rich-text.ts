@@ -1,6 +1,6 @@
 import {parseFootnoteAttrs, type FootnoteAttrs} from "./footnotes.js";
 export const RICH_TEXT_FORMAT = "cabildo-rich-text";
-export const RICH_TEXT_VERSION = 1;
+export const RICH_TEXT_VERSION = 2;
 
 export type RichTextMark =
     | {type: "bold"}
@@ -13,14 +13,21 @@ export type RichTextInlineNode =
     | {type: "hard_break"}
     | {type: "footnote"; attrs: FootnoteAttrs | {id: string; content: string}};
 
+export type RichTextParagraph = {type: "paragraph"; content?: RichTextInlineNode[]};
+export type RichTextListItem = {type: "list_item"; content: [RichTextParagraph, ...RichTextBlockNode[]]};
+export type RichTextList =
+    | {type: "bullet_list"; content: RichTextListItem[]}
+    | {type: "ordered_list"; attrs?: {order: number}; content: RichTextListItem[]};
+export type RichTextBlockNode = RichTextParagraph | RichTextList;
+
 export type RichTextDocument = {
     type: "doc"
-    content: [{type: "paragraph"; content?: RichTextInlineNode[]}]
+    content: RichTextBlockNode[]
 };
 
 export type RichTextContent = {
     format: typeof RICH_TEXT_FORMAT
-    version: typeof RICH_TEXT_VERSION
+    version: 1 | typeof RICH_TEXT_VERSION
     doc: RichTextDocument
 };
 
@@ -69,16 +76,41 @@ function validInlineNode(value: unknown): value is RichTextInlineNode {
         && !(types.includes("internal_link") && types.includes("external_link"));
 }
 
+function validBlockNode(value: unknown, depth = 0): value is RichTextBlockNode {
+    if (!object(value) || depth > 64) return false;
+    if (value.type === "paragraph") return exactKeys(value, ["type", "content"])
+        && (value.content === undefined || (Array.isArray(value.content) && value.content.every(validInlineNode)));
+    if (value.type !== "bullet_list" && value.type !== "ordered_list") return false;
+    if (!exactKeys(value, value.type === "ordered_list" ? ["type", "content", "attrs"] : ["type", "content"])) return false;
+    if (value.type === "ordered_list" && value.attrs !== undefined
+        && (!object(value.attrs) || !exactKeys(value.attrs, ["order"]) || !Number.isSafeInteger(value.attrs.order))) return false;
+    return Array.isArray(value.content) && value.content.length > 0 && value.content.every(item =>
+        object(item) && item.type === "list_item" && exactKeys(item, ["type", "content"])
+        && Array.isArray(item.content) && item.content.length > 0 && object(item.content[0]) && item.content[0].type === "paragraph"
+        && item.content.every(child => validBlockNode(child, depth + 1)));
+}
+
 export function isRichTextContent(value: unknown): value is RichTextContent {
     if (!object(value) || !exactKeys(value, ["format", "version", "doc"])
-        || value.format !== RICH_TEXT_FORMAT || value.version !== RICH_TEXT_VERSION || !object(value.doc)
+        || value.format !== RICH_TEXT_FORMAT || (value.version !== 1 && value.version !== RICH_TEXT_VERSION) || !object(value.doc)
         || !exactKeys(value.doc, ["type", "content"]) || value.doc.type !== "doc"
-        || !Array.isArray(value.doc.content) || value.doc.content.length !== 1) return false;
-    const paragraph = value.doc.content[0];
-    return object(paragraph) && exactKeys(paragraph, ["type", "content"])
-        && paragraph.type === "paragraph"
-        && (paragraph.content === undefined
-            || (Array.isArray(paragraph.content) && paragraph.content.every(validInlineNode)));
+        || !Array.isArray(value.doc.content) || !value.doc.content.length) return false;
+    if (value.version === 1 && (value.doc.content.length !== 1 || !object(value.doc.content[0]) || value.doc.content[0].type !== "paragraph")) return false;
+    return value.doc.content.every(node => validBlockNode(node));
+}
+
+export function richTextInlineNodes(doc: RichTextDocument): RichTextInlineNode[] {
+    return richTextParagraphs(doc).flatMap(paragraph => paragraph.content ?? []);
+}
+
+export function richTextParagraphs(doc: RichTextDocument): RichTextParagraph[] {
+    const result: RichTextParagraph[] = [];
+    const visit = (node: RichTextBlockNode) => {
+        if (node.type === "paragraph") result.push(node);
+        else for (const item of node.content) for (const child of item.content) visit(child);
+    };
+    doc.content.forEach(visit);
+    return result;
 }
 
 export function parseRichTextContent(content: string): RichTextContent | null {
@@ -102,20 +134,20 @@ export function claimsRichTextFormat(content: string): boolean {
 export function richTextPlainText(content: string): string {
     const richText = parseRichTextContent(content);
     if (!richText) return content;
-    return (richText.doc.content[0].content ?? []).map(node => node.type === "text" ? node.text : node.type === "hard_break" ? "\n" : "").join("");
+    return richTextParagraphs(richText.doc).map(paragraph => (paragraph.content ?? []).map(node => node.type === "text" ? node.text : node.type === "hard_break" ? "\n" : "").join("")).join("\n");
 }
 
 export function isRichTextEmpty(content: string): boolean {
     const richText = parseRichTextContent(content);
     if (!richText) return content.trim().length === 0;
-    return !(richText.doc.content[0].content ?? []).some(node => node.type === "footnote"
+    return !richTextInlineNodes(richText.doc).some(node => node.type === "footnote"
         || (node.type === "text" && node.text.trim().length > 0));
 }
 
 export function richTextInternalTopicIds(content: string): string[] {
     const richText = parseRichTextContent(content);
     if (!richText) return [];
-    const ids = (richText.doc.content[0].content ?? []).flatMap(node => node.type === "text"
+    const ids = richTextInlineNodes(richText.doc).flatMap(node => node.type === "text"
         ? (node.marks ?? []).flatMap(mark => mark.type === "internal_link" ? [mark.attrs.topicId] : [])
         : []);
     return [...new Set(ids)];

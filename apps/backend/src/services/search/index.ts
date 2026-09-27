@@ -1,6 +1,6 @@
 import {env} from "#/lib/env.js";
 import {sql} from 'kysely';
-import {parseRichTextContent, parseDocumentBlock, parseDatasetBlock, parseImageBlock, parseVisualizationBlock} from '@cabildo-abierto/utils';
+import {parseRichTextContent, richTextParagraphs, parseDocumentBlock, parseDatasetBlock, parseImageBlock, parseVisualizationBlock} from '@cabildo-abierto/utils';
 import type {BlockType} from '@cabildo-abierto/api';
 import {topicConvergence} from '../topic-convergence.js';
 import {currentTopicTitleEdit} from '../topic-title-edits.js';
@@ -12,13 +12,13 @@ import {notifySearchPending} from './notifications.js';
 export function searchPlainText(content: string): string {
     const richText = parseRichTextContent(content);
     if (!richText) return content;
-    return (richText.doc.content[0].content ?? []).map(node => {
+    return richTextParagraphs(richText.doc).map(paragraph => (paragraph.content ?? []).map(node => {
         if (node.type === 'text') return node.text;
         if (node.type === 'hard_break') return '\n';
         const attrs = node.attrs;
         if (!('kind' in attrs) || attrs.kind === 'text') return ` ${attrs.content} `;
         return attrs.kind === 'url' ? ` ${attrs.label || attrs.url} ` : '';
-    }).join('');
+    }).join('')).join('\n');
 }
 
 const sourceFields = {

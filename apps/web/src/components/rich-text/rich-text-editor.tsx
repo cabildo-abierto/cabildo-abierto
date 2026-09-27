@@ -7,13 +7,16 @@ import {useEffect, useRef, useState} from "react";
 import {createPortal} from "react-dom";
 import {EditorState, NodeSelection, TextSelection} from "prosemirror-state";
 import {EditorView} from "prosemirror-view";
-import {baseKeymap, toggleMark} from "prosemirror-commands";
+import {baseKeymap, toggleMark, chainCommands} from "prosemirror-commands";
+import {splitListItemKeepMarks, liftListItem, sinkListItem} from "prosemirror-schema-list";
+import {activeListType} from "./rich-text-lists";
 import {history, redo, undo} from "prosemirror-history";
 import {keymap} from "prosemirror-keymap";
 import {isRichTextEmpty, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
 import {RichTextFloatingToolbar, type RichTextToolbarState} from "@/components/rich-text/rich-text-floating-toolbar";
 import {richTextDocumentFromString, richTextSchema, serializeRichTextDocument} from "@/components/rich-text/rich-text-schema";
+import {cn} from '@/lib/utils';
 
 function selectedLink(view: EditorView, from: number, to: number): RichTextToolbarState["link"] {
     let link: RichTextToolbarState["link"] = null;
@@ -36,6 +39,7 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
             hasSelection: false,
             bold: false,
             italic: false,
+            listType: null,
             link: null,
             footnote: footnoteNodeAttrs(view.state.selection.node.attrs),
             openLinkPicker: false,
@@ -49,6 +53,7 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
         from,
         to,
         hasSelection,
+        listType: activeListType(view.state.selection),
         bold: hasSelection
             ? view.state.doc.rangeHasMark(from, to, richTextSchema.marks.bold)
             : Boolean(richTextSchema.marks.bold.isInSet(marks ?? [])),
@@ -105,12 +110,22 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
                         "Mod-z": undo,
                         "Mod-y": redo,
                         "Mod-Shift-z": redo,
-                        Enter: (state, dispatch) => {
+                        Enter: (state, dispatch, view) => {
+                            if (state.selection instanceof TextSelection && activeListType(state.selection)) {
+                                return chainCommands(splitListItemKeepMarks(richTextSchema.nodes.list_item), liftListItem(richTextSchema.nodes.list_item))(state, dispatch, view);
+                            }
                             dispatch?.(state.tr.replaceSelectionWith(richTextSchema.nodes.hard_break.create()).scrollIntoView());
                             return true;
                         },
+                        "Shift-Enter": (state, dispatch) => {
+                            dispatch?.(state.tr.replaceSelectionWith(richTextSchema.nodes.hard_break.create()).scrollIntoView());
+                            return true;
+                        },
+                        Tab: sinkListItem(richTextSchema.nodes.list_item),
+                        "Shift-Tab": liftListItem(richTextSchema.nodes.list_item),
                         Backspace: state => {
-                            if (state.doc.textContent.length > 0) return false;
+                            if (state.selection instanceof TextSelection && activeListType(state.selection)) return false;
+                            if (!isRichTextEmpty(serializeRichTextDocument(state.doc))) return false;
                             onDeleteEmptyRef.current();
                             return true;
                         },
@@ -185,7 +200,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
                 const nextState = editor.state.apply(transaction);
                 if (transaction.docChanged) {
                     const serialized = serializeRichTextDocument(nextState.doc);
-                    if (richTextPlainText(serialized).length > 20_000) return;
+                    if (richTextPlainText(serialized).length > 20_000 || serialized.length > 100_000) return;
                     onChangeRef.current(serialized);
                 }
                 editor.updateState(nextState);
@@ -210,7 +225,8 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
     }, []);
 
     return <div className="relative" draggable={false} onDragStart={event => event.stopPropagation()} onMouseDown={event => event.stopPropagation()}>
-        {isRichTextEmpty(content) && <span className="pointer-events-none absolute inset-x-0 top-0 text-sm text-muted-foreground">Escribí un párrafo...</span>}
+        {isRichTextEmpty(content) && (!view || (view.state.doc.childCount === 1 && view.state.doc.firstChild?.type === richTextSchema.nodes.paragraph))
+            && <span className={cn("pointer-events-none absolute inset-x-0 top-0 text-sm text-muted-foreground")}>Escribí un párrafo...</span>}
         <div ref={mountRef} className="relative"/>
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
             view={view}

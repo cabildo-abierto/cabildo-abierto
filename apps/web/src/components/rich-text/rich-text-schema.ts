@@ -1,10 +1,14 @@
+import {orderedList, bulletList, listItem} from "prosemirror-schema-list";
 import {Schema, type Node as ProseMirrorNode} from "prosemirror-model";
-import {footnoteLabel, parseFootnoteAttrs, RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent} from "@cabildo-abierto/utils";
+import {footnoteLabel, parseFootnoteAttrs, RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent, richTextInlineNodes, isRichTextEmpty} from "@cabildo-abierto/utils";
 
 export const richTextSchema = new Schema({
     nodes: {
-        doc: {content: "paragraph"},
-        paragraph: {content: "inline*", toDOM: () => ["p", {class: "m-0 p-0"}, 0], parseDOM: [{tag: "p"}]},
+        doc: {content: "block+"},
+        paragraph: {group: "block", content: "inline*", toDOM: () => ["p", {class: "m-0 p-0"}, 0], parseDOM: [{tag: "p"}]},
+        bullet_list: {...bulletList, group: "block", content: "list_item+"},
+        ordered_list: {...orderedList, group: "block", content: "list_item+"},
+        list_item: {...listItem, content: "paragraph block*"},
         text: {group: "inline"},
         hard_break: {inline: true, group: "inline", selectable: false, toDOM: () => ["br"], parseDOM: [{tag: "br"}]},
         footnote: {
@@ -97,15 +101,14 @@ export function richTextDocumentFromString(content: string): ProseMirrorNode {
 }
 
 export function serializeRichTextDocument(doc: ProseMirrorNode): string {
-    const plainText = doc.textBetween(0, doc.content.size, "\n", "\n");
-    if (!plainText.trim() && !doc.toJSON().content[0].content?.some((node: {type: string}) => node.type === "footnote")) return "";
     const content: RichTextContent = {
         format: RICH_TEXT_FORMAT,
         version: RICH_TEXT_VERSION,
         doc: doc.toJSON() as RichTextContent["doc"],
     };
-    for (const node of content.doc.content[0].content ?? []) {
+    for (const node of richTextInlineNodes(content.doc)) {
         if (node.type === "footnote") node.attrs = footnoteNodeAttrs(node.attrs);
     }
-    return JSON.stringify(content);
+    const serialized = JSON.stringify(content);
+    return isRichTextEmpty(serialized) ? "" : serialized;
 }

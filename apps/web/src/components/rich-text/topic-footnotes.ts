@@ -1,5 +1,5 @@
 import type {TopicBlock} from "@cabildo-abierto/api";
-import {parseFootnoteAttrs, type FootnoteAttrs, parseRichTextContent} from "@cabildo-abierto/utils";
+import {parseFootnoteAttrs, type FootnoteAttrs, parseRichTextContent, richTextInlineNodes} from "@cabildo-abierto/utils";
 
 export type TopicFootnote = FootnoteAttrs & {number: number};
 
@@ -12,7 +12,7 @@ export function topicFootnotes(blocks: Pick<TopicBlock, "typeId" | "content">[])
     for (const block of blocks) {
         if (block.typeId !== "parrafo") continue;
         const richText = parseRichTextContent(block.content);
-        for (const node of richText?.doc.content[0].content ?? []) {
+        for (const node of richText ? richTextInlineNodes(richText.doc) : []) {
             if (node.type !== "footnote" || seen.has(node.attrs.id)) continue;
             seen.add(node.attrs.id);
             const attrs = parseFootnoteAttrs(node.attrs);

@@ -1,5 +1,6 @@
 import {ImageBlock} from '@/components/images/image-block';
 import {VisualizationBlock} from '@/components/visualizations/visualization-block';
+import {cn} from "@/lib/utils";
 import {isAttachmentBlock} from '@cabildo-abierto/utils';
 import {DocumentCard} from "@/components/documents/document-card";
 import type {TopicBlock} from "@cabildo-abierto/api";
@@ -11,5 +12,5 @@ export function TopicBlockContent({block, linksEnabled = true, showExternalLinkI
     if (isAttachmentBlock(block.typeId)) return <DocumentCard block={block} linksEnabled={linksEnabled} refreshOnMount={refreshOnMount}/>;
     if (block.typeId === "h1") return <h2 className="text-xl font-semibold">{block.content}</h2>;
     if (block.typeId === "h2") return <h3 className="text-base font-semibold">{block.content}</h3>;
-    return <p className="m-0 whitespace-pre-wrap p-0 text-sm leading-relaxed"><RichTextRenderer content={block.content} linksEnabled={linksEnabled} showExternalLinkIcon={showExternalLinkIcon} footnoteNumbers={footnoteNumbers}/></p>;
+    return <div className={cn("rich-text-content m-0 whitespace-pre-wrap p-0 text-sm leading-relaxed")}><RichTextRenderer content={block.content} linksEnabled={linksEnabled} showExternalLinkIcon={showExternalLinkIcon} footnoteNumbers={footnoteNumbers}/></div>;
 }

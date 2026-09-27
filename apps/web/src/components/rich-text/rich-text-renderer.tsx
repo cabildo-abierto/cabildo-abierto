@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {Fragment, type ReactNode} from "react";
-import {footnoteLabel, parseFootnoteAttrs, parseRichTextContent, type RichTextMark} from "@cabildo-abierto/utils";
+import {footnoteLabel, parseFootnoteAttrs, parseRichTextContent, type RichTextMark, type RichTextBlockNode, type RichTextInlineNode} from "@cabildo-abierto/utils";
 import {ArrowSquareOutIcon} from "@phosphor-icons/react";
 import {FootnoteLink} from "./footnote-link";
 import {cn} from "@/lib/utils";
@@ -31,9 +31,8 @@ export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = 
 }) {
     const richText = parseRichTextContent(content);
     if (!richText) return content;
-    const nodes = richText.doc.content[0].content ?? [];
     let localFootnoteNumber = 0;
-    return nodes.map((node, index) => {
+    const renderInline = (nodes: RichTextInlineNode[]) => nodes.map((node, index) => {
         if (node.type === "hard_break") return <br key={index}/>;
         if (node.type === "footnote") {
             localFootnoteNumber += 1;
@@ -46,4 +45,10 @@ export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = 
         }
         return <Fragment key={index}>{markedText(node.text, node.marks ?? [], linksEnabled, showExternalLinkIcon, externalHref(node) !== externalHref(nodes[index + 1]))}</Fragment>;
     });
+    const renderBlock = (node: RichTextBlockNode, index: number): ReactNode => {
+        if (node.type === "paragraph") return <p key={index} className={cn("m-0 p-0")}>{renderInline(node.content ?? [])}</p>;
+        const items = node.content.map((item, itemIndex) => <li key={itemIndex}>{item.content.map(renderBlock)}</li>);
+        return node.type === "ordered_list" ? <ol key={index} start={node.attrs?.order ?? 1}>{items}</ol> : <ul key={index}>{items}</ul>;
+    };
+    return richText.doc.content.map(renderBlock);
 }

@@ -4,9 +4,10 @@ import type {FootnoteAttrs, FootnoteContent} from "@cabildo-abierto/utils";
 import {useEffect, useState} from "react";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
-import {AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
+import {ListBulletsIcon, ListNumbersIcon, AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {RichTextLinkPicker, type RichTextLink} from "@/components/rich-text/rich-text-link-picker";
+import {toggleList, type RichTextListType} from "./rich-text-lists";
 import {richTextSchema} from "@/components/rich-text/rich-text-schema";
 import {cn} from "@/lib/utils";
 import {AttachmentInsertionPicker, type AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
@@ -18,6 +19,7 @@ export type RichTextToolbarState = {
     hasSelection: boolean
     bold: boolean
     italic: boolean
+    listType: RichTextListType | null
     link: RichTextLink | null
     footnote: FootnoteAttrs | null
     openLinkPicker: boolean
@@ -89,11 +91,15 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
 
     return <div ref={toolbarRef} className="flex justify-start"
         onMouseDown={event => event.stopPropagation()}>
-        {!panelOpen && <div className="flex items-center gap-0.5 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
+        {!panelOpen && <div className={cn("flex max-w-full flex-wrap items-center gap-0.5 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md")}>
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.bold && "bg-muted")} aria-pressed={state.bold}
                 aria-label="Negrita" title="Negrita" onMouseDown={event => event.preventDefault()} onClick={() => toggle("bold")}><TextBIcon className="size-4"/></Button>
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.italic && "bg-muted")} aria-pressed={state.italic}
                 aria-label="Itálica" title="Itálica" onMouseDown={event => event.preventDefault()} onClick={() => toggle("italic")}><TextItalicIcon className="size-4"/></Button>
+            {([['bullet_list', 'Lista con viñetas', ListBulletsIcon], ['ordered_list', 'Lista numerada', ListNumbersIcon]] as const).map(([type, label, Icon]) =>
+                <Button key={type} type="button" variant="ghost" size="icon-sm" className={cn(state.listType === type && "bg-muted")}
+                    aria-pressed={state.listType === type} aria-label={label} title={label} disabled={!!state.footnote}
+                    onMouseDown={event => event.preventDefault()} onClick={() => { toggleList(type)(view.state, view.dispatch); view.focus(); }}><Icon className={cn("size-4")}/></Button>)}
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.link && "bg-muted")} aria-expanded={false}
                 aria-label="Agregar o editar link" title={state.hasSelection ? "Link" : "Seleccioná texto para agregar un link"}
                 disabled={!state.hasSelection} onMouseDown={event => event.preventDefault()} onClick={() => setLinkPickerOpen(true)}><LinkSimpleIcon className="size-4"/></Button>
