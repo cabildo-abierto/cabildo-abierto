@@ -41,6 +41,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
     onSectionOpen?: (section: "comments" | "history" | "sources") => void;
 }) {
     const sourcesId = useId();
+    const attachmentTools = isAttachmentBlock(block.typeId) || block.typeId === "imagen";
     const visualization = block.typeId === "visualizacion";
     const [localSourcesOpen, setLocalSourcesOpen] = useState(false);
     const sourcesOpen = controlledSourcesOpen ?? localSourcesOpen;
@@ -208,7 +209,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
             }}><TableIcon className={cn("size-4")}/></Button>
         {actions}
     </div>;
-    if (openInPage && !isAttachmentBlock(block.typeId) && !hideDiscussion) return <>{visualizationControls}<div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    if (openInPage && !attachmentTools && !hideDiscussion) return <>{visualizationControls}<div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
@@ -221,11 +222,12 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
     </div><TopicBlockPanel sources={sourcesSection} history={null} comments={null} pageLayout={pageLayout}/></>;
     return <div className={cn(pageLayout ? "relative mt-4" : "")} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
         {visualizationControls}
-        {!hideDiscussion && <div className={cn(pageLayout ? "flex items-center gap-1" : isAttachmentBlock(block.typeId) ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
+        {hideDiscussion && !visualization && actions && <div className={cn("flex items-center justify-end gap-1")}>{actions}</div>}
+        {!hideDiscussion && <div className={cn(pageLayout ? "flex items-center gap-1" : attachmentTools ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
             <Button type="button" variant="ghost" size="sm"
                 className={cn(
                     "text-muted-foreground transition-opacity",
-                    pageLayout || commentCount > 0 || isAttachmentBlock(block.typeId)
+                    pageLayout || commentCount > 0 || attachmentTools
                         ? "opacity-100"
                         : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100",
                 )}
@@ -234,7 +236,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
                 <ChatCircleIcon className="size-4"/>{commentCount > 0 && <span>{commentCount}</span>}
             </Button>
             <Button type="button" variant="ghost" size="sm"
-                className={cn("text-muted-foreground transition-opacity", pageLayout || isAttachmentBlock(block.typeId) ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
+                className={cn("text-muted-foreground transition-opacity", pageLayout || attachmentTools ? "opacity-100" : "opacity-0 group-hover/block:opacity-100 group-focus-within/block:opacity-100")}
                 aria-label={historyOpen ? "Cerrar historial de versiones" : "Ver historial de versiones"}
                 aria-expanded={historyOpen} title="Historial de versiones" onClick={toggleHistory}>
                 <GitDiffIcon className="size-4"/>

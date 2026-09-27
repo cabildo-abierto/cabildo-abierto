@@ -3,7 +3,7 @@
 import {useEffect, useState} from "react";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
-import {AsteriskIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
+import {AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {RichTextLinkPicker, type RichTextLink} from "@/components/rich-text/rich-text-link-picker";
 import {richTextSchema} from "@/components/rich-text/rich-text-schema";
@@ -33,7 +33,8 @@ function applyLink(view: EditorView, state: RichTextToolbarState, link: RichText
     view.focus();
 }
 
-export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization}: {
+export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+    onInsertImage?: () => void
     onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
     documentInsertion?: AttachmentInsertionAction
@@ -88,6 +89,7 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.footnote && "bg-muted")}
                 aria-label="Agregar o editar nota al pie" title="Nota al pie" onMouseDown={event => event.preventDefault()}
                 onClick={() => setFootnoteEditorOpen(true)}><AsteriskIcon className="size-4"/></Button>
+            {onInsertImage && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar imagen" title="Insertar imagen" onMouseDown={event => event.preventDefault()} onClick={onInsertImage}><ImageIcon className={cn("size-4")}/></Button>}
             {onInsertVisualization && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar visualización" title="Insertar visualización" onMouseDown={event => event.preventDefault()} onClick={onInsertVisualization}><ChartBarIcon className={cn("size-4")}/></Button>}
             {documentInsertion && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar documento" title="Insertar documento"
                 onMouseDown={event => event.preventDefault()} onClick={() => setAttachmentPicker("documento")}><FileTextIcon className={cn("size-4")}/></Button>}

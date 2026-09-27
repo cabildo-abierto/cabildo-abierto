@@ -1,10 +1,13 @@
 "use client";
 
+import {TopicContentFlow} from '@/components/images/topic-content-flow';
+
 import {compareContentBlocks, isAttachmentBlock} from "@cabildo-abierto/utils";
 import {DocumentSection} from "@/components/documents/document-section";
 
 import {useEffect, useState} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
+import {cn} from "@/lib/utils";
 import {TopicBlockView} from "@/components/topic-block";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
@@ -57,7 +60,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
         <TopicDeletedBlocks topicId={topicId} count={displayedDeletedBlocks.length} open={showDeleted} onToggle={() => setShowDeleted(value => !value)}/>
         {blocksToRender.length === 0
             ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p>
-            : <div>{blocksToRender.filter(block => !isAttachmentBlock(block.typeId)).map(block => displayedDeletedNumbers.has(block.blockNumber)
+            : <TopicContentFlow>{blocksToRender.filter(block => !isAttachmentBlock(block.typeId)).map(block => displayedDeletedNumbers.has(block.blockNumber)
                 ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage}
                     toolsProps={blockSectionProps(block.blockNumber)}/>
                 : <TopicBlockView
@@ -68,11 +71,11 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
                     openInPage={openToolsInPage}
                     {...blockSectionProps(block.blockNumber)}
                 />)}
-                {(["documento", "dataset"] as const).map(type => blocksToRender.some(block => block.typeId === type) && <DocumentSection key={type} dataset={type === "dataset"}>
+                {(["documento", "dataset"] as const).map(type => blocksToRender.some(block => block.typeId === type) && <div key={type} className={cn("clear-both")}><DocumentSection dataset={type === "dataset"}>
                     {blocksToRender.filter(block => block.typeId === type).map(block => displayedDeletedNumbers.has(block.blockNumber)
                         ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
                         : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>)}
-                </DocumentSection>)}
-                <TopicFootnoteList footnotes={footnotes}/></div>}
+                </DocumentSection></div>)}
+                <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div></TopicContentFlow>}
     </>;
 }

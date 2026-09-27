@@ -1,3 +1,4 @@
+import {TopicBlockFrame} from '@/components/images/topic-block-frame';
 import type {TopicBlock} from "@cabildo-abierto/api";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
@@ -15,12 +16,12 @@ export function TopicBlockView({topicId, block, openInPage = false, footnoteNumb
     openInPage?: boolean;
     footnoteNumbers?: ReadonlyMap<string, number>;
 }) {
-    return <div className="group/block relative">
+    return <TopicBlockFrame block={block}><div className="group/block relative">
         <article className="py-2"><TopicBlockContent block={block} footnoteNumbers={footnoteNumbers}/></article>
         <TopicBlockTools topicId={topicId} block={block} openInPage={openInPage}
             commentsOpen={commentsOpen} onCommentsOpenChange={onCommentsOpenChange}
             historyOpen={historyOpen} onHistoryOpenChange={onHistoryOpenChange} sourcesOpen={sourcesOpen} onSourcesOpenChange={onSourcesOpenChange} onSectionOpen={onSectionOpen}/>
-    </div>;
+    </div></TopicBlockFrame>;
 }
 
 export {TopicBlockContent};

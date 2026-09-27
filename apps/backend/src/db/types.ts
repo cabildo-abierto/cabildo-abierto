@@ -93,6 +93,8 @@ export type DB = {
         preview_status: Generated<string>; preview_error: Generated<string | null>;
         name: string; bucket: string; key: string; mime: string; size: number; sha256: string;
     };
+    image_asset: {file_id: string; width: number; height: number};
+    image: {id: string; file_id: string; width_percent: number; alignment: string; flow: string; alt: string; caption: string};
     dataset: {
         id: string; title: string; description: string; file_id: string | null; source_url: string | null;
         columns: ColumnType<import("@cabildo-abierto/api").DatasetColumn[], string, string>;

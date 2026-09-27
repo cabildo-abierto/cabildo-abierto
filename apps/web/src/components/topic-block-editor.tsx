@@ -1,5 +1,9 @@
 "use client";
 
+import {ImageEditorPopup} from "@/components/images/image-editor-popup";
+import {EditableImageBlock} from "@/components/images/editable-image-block";
+import {TopicBlockFrame} from "@/components/images/topic-block-frame";
+import {TopicContentFlow} from "@/components/images/topic-content-flow";
 import {VisualizationEditorPopup} from '@/components/visualizations/visualization-editor-popup';
 import {VisualizationBlock} from '@/components/visualizations/visualization-block';
 import {VisualizationEditActions} from '@/components/visualizations/visualization-edit-actions';
@@ -8,7 +12,7 @@ import {VisualizationEditActions} from '@/components/visualizations/visualizatio
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, permutationFor, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicDocumentEditor} from "@/components/documents/topic-document-editor";
 import {TopicBlockContent} from "@/components/topic-block-content";
@@ -26,6 +30,7 @@ import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-dele
 import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
 import {useTopicLocalConvergence} from "@/hooks/use-topic-local-convergence";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
+import {normalizeTopicBlockOrders} from "@/components/topic-block-order";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
 type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
@@ -39,6 +44,7 @@ type TopicEditState = {
 type ChangeKind = "new" | "content" | "order" | null;
 
 function blockIsEmpty(block: Pick<TopicBlock, "typeId" | "content">): boolean {
+    if (block.typeId === "imagen") return !parseImageBlock(block.content);
     if (block.typeId === "visualizacion") return !parseVisualizationBlock(block.content);
     if (block.typeId === "dataset") return !parseDatasetBlock(block.content);
     if (block.typeId === "documento") return !parseDocumentBlock(block.content);
@@ -107,13 +113,10 @@ function mergeConvergence(state: TopicEditState, latestBlocks: TopicEditableBloc
         .sort(compareContentBlocks);
     const visibleBlocks = blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
     const hasDuplicateOrder = visibleBlocks.some((block, index) => index > 0 && visibleBlocks[index - 1].order >= block.order);
-    if (hasDuplicateOrder) {
-        const orderByNumber = new Map(permutationFor(visibleBlocks.map(block => block.blockNumber))
-            .map(item => [item.blockNumber, item.order]));
-        blocks = blocks.map(block => block.deleted || isAttachmentBlock(block.typeId) ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
-            .sort(compareContentBlocks);
-    }
     const savedBlocks = persistedBlocks(latestBlocks);
+    const hasLocalOrderChanges = state.blocks.some(block => !block.isNew && !block.deleted && !isAttachmentBlock(block.typeId)
+        && block.order !== previousSavedByNumber.get(block.blockNumber)?.order);
+    if (hasDuplicateOrder || hasLocalOrderChanges) blocks = normalizeTopicBlockOrders(blocks, savedBlocks);
     const activeBlockNumber = blocks.some(block => !block.deleted && block.blockNumber === state.activeBlockNumber)
         ? state.activeBlockNumber
         : null;
@@ -159,7 +162,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const blocks = persistedBlocks(initialBlocks);
         return {...stateFromSaved(blocks), showDeleted: false, message: ""};
     });
-    const [visualizationPopup, setVisualizationPopup] = useState<{blockNumber?: string; after?: string; content?: string} | null>(null);
+    const [inlinePopup, setInlinePopup] = useState<{typeId: "imagen" | "visualizacion"; blockNumber?: string; after?: string; content?: string} | null>(null);
     const [validVisualizations, setValidVisualizations] = useState<Map<string,string>>(new Map());
     const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
@@ -255,22 +258,34 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         }),
     });
 
-    const confirmVisualization = (content: string) => {
-        if (!visualizationPopup) return;
+    const confirmInlineBlock = (content: string) => {
+        if (!inlinePopup) return;
         setEdit(current => {
-            if (visualizationPopup.blockNumber) return {...current, blocks: current.blocks.map(block => block.blockNumber === visualizationPopup.blockNumber ? {...block,content} : block)};
+            if (inlinePopup.blockNumber) return {...current, blocks: current.blocks.map(block => block.blockNumber === inlinePopup.blockNumber ? {...block,content} : block)};
             const visible = current.blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
-            const index = visible.findIndex(block => block.blockNumber === visualizationPopup.after);
+            const index = visible.findIndex(block => block.blockNumber === inlinePopup.after);
             const previous = visible[index], next = visible[index+1];
             const id = `new-${crypto.randomUUID()}`;
-            const block: WorkingBlock = {id, blockNumber: id, typeId: 'visualizacion', content, order: orderBetween(previous?.order ?? null,next?.order ?? null), commentCount: 0, isNew: true, deleted: false};
+            const block: WorkingBlock = {id, blockNumber: id, typeId: inlinePopup.typeId, content, order: orderBetween(previous?.order ?? null,next?.order ?? null), commentCount: 0, isNew: true, deleted: false};
             const deactivated = deactivateBlock(current,null);
-            return {...deactivated, blocks: [...deactivated.blocks,block].sort(compareContentBlocks)};
+            const blocks = [...deactivated.blocks,block].sort(compareContentBlocks);
+            return {...deactivated, blocks: normalizeTopicBlockOrders(blocks, current.savedBlocks, undefined, id)};
         });
-        setVisualizationPopup(null);
+        setInlinePopup(null);
         setError(null);
     };
-    const visualizationActions = (block: WorkingBlock) => <VisualizationEditActions disabled={saving} onEdit={() => setVisualizationPopup({blockNumber: block.blockNumber, content: block.content})} onRemove={() => setEdit(current => ({...current, blocks: current.blocks.flatMap(candidate => candidate.blockNumber !== block.blockNumber ? [candidate] : candidate.isNew ? [] : [{...candidate, deleted: true}])}))}/>;
+    const removeInlineBlock = (blockNumber: string) => setEdit(current => ({
+        ...current,
+        blocks: current.blocks.flatMap(block => block.blockNumber !== blockNumber ? [block] : block.isNew ? [] : [{...block, deleted: true}]),
+    }));
+    const inlineActions = (block: WorkingBlock) => {
+        const props = {
+            disabled: saving,
+            onEdit: () => setInlinePopup({typeId: block.typeId as "imagen" | "visualizacion", blockNumber: block.blockNumber, content: block.content}),
+            onRemove: () => removeInlineBlock(block.blockNumber),
+        };
+        return <VisualizationEditActions {...props}/>;
+    };
 
     const updateBlock = (updated: TopicBlock) => {
         setEdit(current => ({
@@ -323,7 +338,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 deleted: false,
             };
             const blocks = [...deactivated.blocks, block].sort(compareContentBlocks);
-            return {...deactivated, blocks, activeBlockNumber: localNumber};
+            return {...deactivated, blocks: normalizeTopicBlockOrders(blocks, current.savedBlocks, undefined, localNumber), activeBlockNumber: localNumber};
         });
         setError(null);
     };
@@ -342,7 +357,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             if (!saved) return current;
             const blocks = current.blocks.map(block => block.blockNumber === blockNumber ? {...saved, deleted: false} : block)
                 .sort(compareContentBlocks);
-            return {...current, blocks, activeBlockNumber: blockNumber};
+            return {...current, blocks: isAttachmentBlock(saved.typeId) ? blocks : normalizeTopicBlockOrders(blocks, current.savedBlocks, undefined, blockNumber), activeBlockNumber: blockNumber};
         });
     };
 
@@ -356,10 +371,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             const reordered = [...visibleBlocks];
             const [moved] = reordered.splice(from, 1);
             reordered.splice(to, 0, moved);
-            const orderByNumber = new Map(permutationFor(reordered.map(block => block.blockNumber))
-                .map(item => [item.blockNumber, item.order]));
-            const blocks = current.blocks.map(block => block.deleted || isAttachmentBlock(block.typeId) ? block : {...block, order: orderByNumber.get(block.blockNumber)!})
-                .sort(compareContentBlocks);
+            const blocks = normalizeTopicBlockOrders(current.blocks, current.savedBlocks, reordered, moved.blockNumber);
             return {...current, blocks};
         });
     };
@@ -424,7 +436,8 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
     return <div className="flex flex-1 flex-col gap-3">
-        {visualizationPopup && <VisualizationEditorPopup topicId={topicId} initialContent={visualizationPopup.content} onClose={() => setVisualizationPopup(null)} onConfirm={confirmVisualization}/>}
+        {inlinePopup?.typeId === "visualizacion" && <VisualizationEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
+        {inlinePopup?.typeId === "imagen" && <ImageEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setEdit(current => mergeConvergence(current, initialBlocks));
             setError(null);
@@ -432,15 +445,16 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         <TopicDeletedBlocks topicId={topicId} count={deletedBlocksForDisplay.length} open={edit.showDeleted}
             onToggle={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}/>
         {edit.showDeleted && deletedBlocksForDisplay.length === 0 && <p className="text-xs text-muted-foreground">No hay bloques eliminados.</p>}
-        <div className="relative flex flex-1 flex-col gap-0">
+        <TopicContentFlow className={cn("relative flex-1")}>
         {!saving && (visibleBlocks.length === 0 || !blockIsEmpty(visibleBlocks[0])) && <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2">
             <TopicBlockInsertButton onClick={() => startNewBlock(null)}/>
         </div>}
         {visibleBlocks.map((block, index) => {
             const kind = changeKind(block, savedByNumber);
             const active = edit.activeBlockNumber === block.blockNumber;
+            const changeIndicator = kind && <span className={cn("absolute -left-3 w-1 rounded-full", block.typeId === "imagen" ? "inset-y-0" : "top-2 bottom-2", changeBarClass(kind))} aria-hidden="true"/>;
             return <div key={block.blockNumber} className="contents">
-                <div className="group/block relative">
+                <TopicBlockFrame block={block}><div className={cn("group/block relative")}>
                     <div
                         className={cn("relative", draggedBlock === block.blockNumber && "opacity-50")}
                         data-topic-editor-block={block.blockNumber}
@@ -453,19 +467,23 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         onDragEnter={() => { if (!block.deleted) moveDraggedBlock(block.blockNumber); }}
                         onDragOver={event => event.preventDefault()}
                         onDragEnd={() => setDraggedBlock(null)}>
-                        {kind && <span className={cn("absolute top-2 bottom-2 -left-3 w-1 rounded-full", changeBarClass(kind))} aria-hidden="true"/>}
+                        {block.typeId !== "imagen" && changeIndicator}
                         {block.deleted ? <TopicDeletedBlockItem block={block} topicId={topicId} openInPage={openToolsInPage}
                             newlyDeleted={!savedByNumber.get(block.blockNumber)?.deleted}
                             onRestore={() => restoreBlock(block.blockNumber)} toolsProps={blockSectionProps(block.blockNumber)}/>
+                        : block.typeId === "imagen" ? <EditableImageBlock block={block} changeIndicator={changeIndicator} disabled={saving} onChange={updateBlock}
+                            onEdit={() => setInlinePopup({typeId: "imagen", blockNumber: block.blockNumber, content: block.content})}
+                            onRemove={() => removeInlineBlock(block.blockNumber)}
+                            toolsProps={{topicId, hideDiscussion: block.isNew, openInPage: openToolsInPage, ...blockSectionProps(block.blockNumber)}}/>
                         : block.typeId === "visualizacion" ? <div className={cn("py-2")}>
                             <VisualizationBlock block={block} onValidityChange={valid => setValidVisualizations(current => {
                                 if ((valid && current.get(block.blockNumber) === block.content) || (!valid && !current.has(block.blockNumber))) return current;
                                 const next = new Map(current); if (valid) next.set(block.blockNumber,block.content); else next.delete(block.blockNumber); return next;
                             })}/>
-                            <TopicBlockTools topicId={topicId} block={block} actions={visualizationActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
+                            <TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
                         </div>
                         : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
-                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setVisualizationPopup({after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setInlinePopup({typeId: "visualizacion", after: block.blockNumber})} onInsertImage={() => setInlinePopup({typeId: "imagen", after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
                             role="button"
@@ -485,11 +503,11 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
                         </article>}
                     </div>
-                    {((active && block.typeId === "parrafo") || (singleChangedBlockNumber === block.blockNumber && (active || block.typeId === "visualizacion"))) && <div
+                    {((active && block.typeId === "parrafo") || (singleChangedBlockNumber === block.blockNumber && (active || kind === "order" || block.typeId === "visualizacion" || block.typeId === "imagen"))) && <div
                         className="flex items-start justify-between gap-2 pt-2 pb-2" draggable={false}
                         data-topic-editor-block={block.blockNumber}
                         onDragStart={event => event.stopPropagation()}>
-                        <div ref={block.typeId === "visualizacion" ? undefined : setToolbarContainer} className="min-w-0"/>
+                        <div ref={active && block.typeId === "parrafo" ? setToolbarContainer : undefined} className="min-w-0"/>
                         {singleChangedBlockNumber === block.blockNumber && <div
                             className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                             onAnimationEnd={() => setShaking(false)}>
@@ -497,14 +515,14 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <TopicEditActionButtons saving={saving || uploading.size > 0} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
                         </div>}
                     </div>}
-                    {!block.isNew && !block.deleted && block.typeId !== "visualizacion" && <TopicBlockTools
+                    {!block.isNew && !block.deleted && block.typeId !== "visualizacion" && block.typeId !== "imagen" && <TopicBlockTools
                         topicId={topicId}
                         block={block}
                         openInPage={openToolsInPage}
                         {...blockSectionProps(block.blockNumber)}
                     />}
-                </div>
-                {!saving && !block.deleted && !blockIsEmpty(block) && (index < visibleBlocks.length - 1
+                </div></TopicBlockFrame>
+                {!saving && block.typeId !== "imagen" && !block.deleted && !blockIsEmpty(block) && (index < visibleBlocks.length - 1
                     ? !blockIsEmpty(visibleBlocks[index + 1]) && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
                     : <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>)}
             </div>;
@@ -535,6 +553,6 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             onCancel={cancel}
             onSave={() => void save()}
             onShakeEnd={() => setShaking(false)}/>}
-        </div>
+        </TopicContentFlow>
     </div>;
 });

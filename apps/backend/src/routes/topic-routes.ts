@@ -1,3 +1,4 @@
+import {requireFileAccess} from '#/services/storage/access.js';
 import {runQueryJob} from '#/services/visualizations/query-process.js';
 import {resolveSources} from '#/services/visualizations/resolve-sources.js';
 import type {LccaAnalysis, DatasetReference} from '@cabildo-abierto/api';
@@ -10,14 +11,14 @@ import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 
-const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v"};
+const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v", imagen: "i"};
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
@@ -47,6 +48,10 @@ class TopicEditError extends Error {
 }
 
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+    if (input.typeId === "imagen") {
+        const image = typeof input.content === "string" ? parseImageBlock(input.content) : null;
+        return image ? {typeId: "imagen", content: JSON.stringify(image)} : null;
+    }
     if (input.typeId === "visualizacion") {
         const visualization = typeof input.content === "string" ? parseVisualizationBlock(input.content) : null;
         return visualization ? {typeId: "visualizacion", content: JSON.stringify(visualization)} : null;
@@ -143,7 +148,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -165,7 +170,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -239,7 +244,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     id: version.id,
                     blockNumber: version.blockNumber,
                     typeId: version.typeId as BlockType["id"],
-                    content: version.typeId === "documento" ? JSON.stringify(parseDocumentBlock(version.content)) : version.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(version.content)) : version.content ?? "",
+                    content: version.typeId === "imagen" ? JSON.stringify(parseImageBlock(version.content)) : version.typeId === "documento" ? JSON.stringify(parseDocumentBlock(version.content)) : version.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(version.content)) : version.content ?? "",
                     order: version.order,
                     editId: version.editId,
                     deleted: version.deleted,
@@ -334,6 +339,9 @@ export const topicRoutes = (ctx: AppContext): Router => {
             }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
+                for (const block of requestedBlocks.filter(block => block.typeId === "imagen")) {
+                    await requireFileAccess(trx, parseImageBlock(block.content)!.fileId, user.id, 'image');
+                }
                 for (const block of requestedBlocks.filter(block => block.typeId === "dataset")) {
                     const dataset = parseDatasetBlock(block.content)!;
                     if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id);
@@ -403,7 +411,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
 
                 const nextNumberByType = new Map<BlockType["id"], number>();
-                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion"] as const) {
+                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"] as const) {
                     if (!newInputs.some(block => block.typeId === typeId)) continue;
                     const prefix = BLOCK_PREFIXES[typeId];
                     await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);
@@ -433,6 +441,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 const datasets: Array<{id: string; title: string; description: string; file_id: string | null; source_url: string | null; columns: string; csv_options: string}> = [];
                 const visualizations: Array<{id: string; query: string; query_language_version: number; spec: string}> = [];
                 const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
+                const images: {id:string;file_id:string;width_percent:number;alignment:string;flow:string;alt:string;caption:string}[] = [];
                 const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
                 for (const block of requestedBlocks) {
                     let blockNumber = block.blockNumber;
@@ -449,6 +458,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         continue;
                     }
                     const versionId = randomUUID();
+                    if (block.typeId === "imagen") {
+                        const data = parseImageBlock(block.content)!;
+                        images.push({id:versionId,file_id:data.fileId,width_percent:data.widthPercent,alignment:data.alignment,flow:data.flow,alt:data.alt,caption:data.caption});
+                    }
                     if (block.typeId === "visualizacion") {
                         const metadata = parseVisualizationBlock(block.content)!;
                         visualizations.push({id: versionId, query: metadata.query, query_language_version: metadata.queryLanguageVersion, spec: JSON.stringify(metadata.spec)});
@@ -468,13 +481,14 @@ export const topicRoutes = (ctx: AppContext): Router => {
                         id: versionId,
                         topic_id: topicId,
                         block_number: blockNumber,
-                        content: isAttachmentBlock(block.typeId) || block.typeId === "visualizacion" || block.deleted ? "" : block.content,
+                        content: isAttachmentBlock(block.typeId) || (block.typeId === "visualizacion" || block.typeId === "imagen") || block.deleted ? "" : block.content,
                         order: block.order,
                         edit_id: editId,
                         deleted: block.deleted,
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
+                if (images.length) await trx.insertInto("image").values(images).execute();
                 if (visualizations.length) await trx.insertInto("visualization").values(visualizations).execute();
                 if (visualizationDatasets.length) await trx.insertInto("visualization_dataset").values(visualizationDatasets).execute();
                 if (datasets.length) await trx.insertInto("dataset").values(datasets).execute();

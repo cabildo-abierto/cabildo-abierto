@@ -1,7 +1,7 @@
 import {sql, type Kysely, type Transaction} from 'kysely';
 import type {BlockType, TopicEditableBlock} from '@cabildo-abierto/api';
 import type {DB} from '#/db/types.js';
-import {compareContentBlocks, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock} from '@cabildo-abierto/utils';
+import {compareContentBlocks, parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock} from '@cabildo-abierto/utils';
 import {documentBlockContent} from './documents/block-content.js';
 import {activeRejectCounts, rejectTree} from './record-reactions.js';
 
@@ -55,6 +55,6 @@ export async function topicConvergence(database: Kysely<DB> | Transaction<DB>, t
     }
     return [...selected.values()]
         .sort(compareContentBlocks)
-        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "visualizacion" ? JSON.stringify(parseVisualizationBlock(block.content)) : block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(block.content)) : block.content}));
+        .map(({editId: _editId, ...block}) => ({...block, content: block.typeId === "imagen" ? JSON.stringify(parseImageBlock(block.content)) : block.typeId === "visualizacion" ? JSON.stringify(parseVisualizationBlock(block.content)) : block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(block.content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(block.content)) : block.content}));
 }
 
