@@ -1,4 +1,4 @@
-import {memo, useMemo, type PointerEvent} from 'react';
+import {memo, useMemo, useId, type PointerEvent} from 'react';
 import {AxisBottom, AxisLeft} from '@visx/axis';
 import {GridRows} from '@visx/grid';
 import {scaleLinear} from '@visx/scale';
@@ -7,33 +7,48 @@ import type {LineChart, ScatterChart} from '@cabildo-abierto/api';
 import {formatTableValue, type PlotSeries} from '@cabildo-abierto/utils';
 import {plotColors} from './visualization-legend';
 import {VisualizationTooltip} from './visualization-tooltip';
+import {useChartWheelZoom} from '@/hooks/use-chart-wheel-zoom';
+import {plotDomain, visibleLineDomain} from '@/lib/visualization-zoom';
 import {useChartTooltip} from '@/hooks/use-chart-tooltip';
 export const VisualizationPointPlot = memo(function VisualizationPointPlot({chart, series, temporal, width, height, preview = false}: {chart: LineChart | ScatterChart; series: PlotSeries[]; temporal: boolean; width: number; height: number; preview?: boolean}) {
     const tooltip = useChartTooltip(series,width,height);
     const margin = preview ? {left: 6, right: 6, top: 6, bottom: 6} : {left: 70, right: 20, top: 15, bottom: 65};
     const w = Math.max(1,width-margin.left-margin.right), h = Math.max(1,height-margin.top-margin.bottom);
-    let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity, maxSize = 1;
-    for (const s of series) for (const point of s.points) {
-        xmin = Math.min(xmin,point.x); xmax = Math.max(xmax,point.x);
-        if (point.y !== null) { ymin = Math.min(ymin,point.y); ymax = Math.max(ymax,point.y); }
-        if (point.size !== undefined) maxSize = Math.max(maxSize,point.size);
-    }
-    const domain = (min: number, max: number): [number,number] => !Number.isFinite(min) ? [0,1] : min === max ? [min-0.5,max+0.5] : [min,max];
-    const x = scaleLinear({domain: domain(xmin,xmax), range: [0,w], nice: !temporal});
-    const y = scaleLinear({domain: domain(ymin,ymax), range: [h,0], nice: true});
+    const clipId = useId();
+    const extent = useMemo(() => {
+        let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity, maxSize = 1;
+        for (const s of series) for (const point of s.points) {
+            xmin = Math.min(xmin,point.x); xmax = Math.max(xmax,point.x);
+            if (point.y !== null) { ymin = Math.min(ymin,point.y); ymax = Math.max(ymax,point.y); }
+            if (point.size !== undefined) maxSize = Math.max(maxSize,point.size);
+        }
+        return {
+            x: scaleLinear({domain: plotDomain(xmin,xmax), nice: !temporal}).domain() as [number,number],
+            y: scaleLinear({domain: plotDomain(ymin,ymax), nice: true}).domain() as [number,number],
+            maxSize,
+        };
+    }, [series,temporal]);
+    const zoomKey = useMemo(() => ({series,type: chart.type}), [series,chart.type]);
+    const zoom = useChartWheelZoom({svg: tooltip.svg, resetKey: zoomKey, enabled: !preview,
+        xDomain: extent.x, yDomain: chart.type === 'scatter' ? extent.y : undefined,
+        left: margin.left, top: margin.top, width: w, height: h, onZoom: tooltip.close});
+    const x = scaleLinear({domain: zoom.x, range: [0,w]});
+    const visibleY = useMemo(() => chart.type === 'line' ? visibleLineDomain(series,zoom.x) : extent.y, [series,zoom.x,chart.type,extent.y]);
+    const y = scaleLinear({domain: chart.type === 'line' ? visibleY : zoom.y!, range: [h,0], nice: chart.type === 'line'});
+    const maxSize = extent.maxSize;
     const yAxis = chart.type === 'line' ? chart.yAxis : chart.y;
     const xFormat = (value: number) => formatTableValue(temporal ? new Date(value).toISOString() : value, chart.x.format ?? (temporal ? {type: 'date'} : undefined));
     const yFormat = (value: number) => formatTableValue(value,yAxis?.format);
     const linePoints = useMemo(() => {
         const byX = new Map<number,{point: PlotSeries['points'][number]; label: string; color: string}[]>();
         if (!preview && chart.type === 'line') series.forEach((s,i) => s.points.forEach(point => {
-            if (point.y === null) return;
+            if (point.y === null || point.x < zoom.x[0] || point.x > zoom.x[1]) return;
             const values = byX.get(point.x) ?? [];
             values.push({point,label: s.label,color: plotColors[i % plotColors.length]});
             byX.set(point.x,values);
         }));
         return {byX,xs: [...byX.keys()].sort((a,b) => a-b)};
-    }, [series,chart.type,preview]);
+    }, [series,chart.type,preview,zoom.x]);
     const showLine = (selectedX: number) => {
         const values = linePoints.byX.get(selectedX);
         if (!values?.length) return;
@@ -52,12 +67,14 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
     };
     const tickStyle = {fill: 'var(--foreground)', fontSize: 10};
     return <><svg ref={tooltip.svg} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label={chart.type === 'line' ? 'Gráfico de líneas' : 'Gráfico de dispersión'}>
+        <defs><clipPath id={clipId}><rect width={w} height={h}/></clipPath></defs>
         <g transform={`translate(${margin.left},${margin.top})`}>
             {!preview && chart.showGrid !== false && <GridRows scale={y} width={w} stroke="var(--border)"/>}
+            <g clipPath={`url(#${clipId})`}>
             {series.map((s,i) => <g key={i}>
                 {chart.type === 'line' && <LinePath data={s.points} x={point => x(point.x)} y={point => y(point.y ?? 0)} defined={point => point.y !== null} stroke={plotColors[i % plotColors.length]} strokeWidth={2}/>}
                 {(chart.type === 'scatter' || (!preview && chart.showPoints)) && s.points.map((point,j) => {
-                    if (point.y === null) return null;
+                    if (point.y === null || point.x < zoom.x[0] || point.x > zoom.x[1] || (chart.type === 'scatter' && (point.y < zoom.y![0] || point.y > zoom.y![1]))) return null;
                     const radius = point.size === undefined ? (preview ? 2 : 3.5) : Math.sqrt(preview ? 4+25*point.size/maxSize : 9+100*point.size/maxSize);
                     const color = plotColors[i % plotColors.length];
                     const details = {title: s.label || 'Punto',rows: [
@@ -90,6 +107,7 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                         showLine(xs[event.key === 'Home' ? 0 : event.key === 'End' ? xs.length-1 : Math.max(0,Math.min(xs.length-1,index+(event.key === 'ArrowLeft' ? -1 : 1)))]);
                     }}/>
             </>}
+            </g>
             {!preview && <AxisBottom top={h} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chart.x.tickCount ?? Math.max(2,Math.floor(w/90))} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={{...tickStyle, angle: chart.x.tickLabelAngle ?? 0}}/>}
             {!preview && <AxisLeft scale={y} tickFormat={v => yFormat(Number(v))} numTicks={yAxis?.tickCount ?? 5} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={{...tickStyle, angle: yAxis?.tickLabelAngle ?? 0}}/>}
         </g>

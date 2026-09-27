@@ -1,14 +1,14 @@
 "use client";
 import {useCallback, useDeferredValue, useEffect, useMemo, useState} from 'react';
 import {Dialog} from '@base-ui/react/dialog';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {ChartBarIcon, XIcon} from '@phosphor-icons/react';
-import type {BasicDataView, DatasetSource, LccaAnalysis, VisualizationContent, VisualizationSpecV1} from '@cabildo-abierto/api';
+import type {BasicDataView, DatasetSource, LccaOutput, VisualizationContent, VisualizationSpecV1} from '@cabildo-abierto/api';
 import {basicViewQuery, datasetCell, parseVisualizationBlock, prepareVisualization} from '@cabildo-abierto/utils';
-import {post} from '@/utils/react/fetch';
 import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from '@/hooks/use-debounced-value';
 import {usePreparedVisualization} from '@/hooks/use-prepared-visualization';
+import {lccaAnalysisOptions, useLccaAnalysis} from '@/hooks/use-lcca-analysis';
 import {useLccaQuery} from '@/hooks/use-lcca-query';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -25,37 +25,39 @@ import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/components/ui/tabs';
 import {VisualizationChartOptions, defaultChart} from './visualization-chart-options';
 export function VisualizationEditorPopup({topicId, initialContent, onConfirm, onClose}: {topicId: string; initialContent?: string; onConfirm: (content: string) => void; onClose: () => void}) {
     const initial = useMemo(() => parseVisualizationBlock(initialContent ?? ''), [initialContent]);
+    const client = useQueryClient();
+    const initialAnalysis = useLccaAnalysis(initial?.query ?? '');
+    const cachedView = initialAnalysis.data?.basicView ?? null;
+    const cachedQuery = useMemo(() => cachedView ? basicViewQuery(cachedView) : initial?.query ?? '', [cachedView,initial?.query]);
+    const cachedSource = cachedView ? client.getQueryData(['dataset-source', cachedView.source.topicId, cachedView.source.blockNumber]) : true;
+    const cachedResult = client.getQueryData<LccaOutput>(['lcca-query', cachedQuery]);
     const [spec,setSpec] = useState<VisualizationSpecV1>(() => initial?.spec ?? {schemaVersion: 1, chart: defaultChart('table', [])});
-    const [mode,setMode] = useState<'basic' | 'advanced'>(initial ? 'advanced' : 'basic');
-    const [view,setView] = useState<BasicDataView | null>(null);
+    const [mode,setMode] = useState<'basic' | 'advanced'>(cachedView || !initial ? 'basic' : 'advanced');
+    const [view,setView] = useState<BasicDataView | null>(cachedView);
     const [query,setQuery] = useState(initial?.query ?? '');
-    const [analyzing,setAnalyzing] = useState(!!initial);
-    const [initialLoading,setInitialLoading] = useState(!!initial);
-    const [initialReady,setInitialReady] = useState(!initial);
+    const [switchingToBasic,setSwitchingToBasic] = useState(false);
+    const initialLoading = !!initial && initialAnalysis.isPending;
+    const analyzing = switchingToBasic || initialLoading;
+    const [initialReady,setInitialReady] = useState(!initial || (!!initialAnalysis.data && !!cachedSource && !!cachedResult));
     const [previewTab, setPreviewTab] = useState('visualization');
     const [confirmedError, setConfirmedError] = useState<{chart: VisualizationSpecV1['chart']; table: unknown; message: string} | null>(null);
     const [renderFailure,setRenderFailure] = useState<{spec: unknown; table: unknown; message: string} | null>(null);
     const [replace,setReplace] = useState(false);
     const [analysisError,setAnalysisError] = useState<string | null>(null);
     useEffect(() => {
-        if (!initial) return;
-        let active = true;
-        void post<{query: string; queryLanguageVersion: 1},LccaAnalysis>('/lcca/analyze', {query: initial.query, queryLanguageVersion: 1}).then(output => {
-            if (!active) return;
-            setAnalyzing(false);
-            setInitialLoading(false);
-            if ('error' in output) { setAnalysisError(output.error); return; }
-            if (output.value.basicView) { setView(output.value.basicView); setMode('basic'); }
-        });
-        return () => { active = false; };
-    }, [initial]);
+        if (initialAnalysis.data?.basicView) {
+            setView(initialAnalysis.data.basicView);
+            setMode('basic');
+        }
+        if (initialAnalysis.error) setAnalysisError(initialAnalysis.error.message);
+    }, [initialAnalysis.data,initialAnalysis.error]);
     const source = useQuery({queryKey: ['dataset-source', view?.source.topicId, view?.source.blockNumber], enabled: !!view,
         queryFn: async () => {
             const output = await dataViewRequest<DatasetSource>(`/datasets/${encodeURIComponent(view!.source.topicId)}/${encodeURIComponent(view!.source.blockNumber)}`);
             return output;
-        }, retry: false});
+        }, staleTime: 30000, retry: false});
     const generated = useMemo(() => {
-        if (!view || (view.filters.length && !source.data)) return {query: '', error: null};
+        if (!view || (view.filters.length && !source.data)) return {query: '', error: null, view: null};
         try {
             const normalized: BasicDataView = {...view, filters: view.filters.map(filter => {
                 const column = source.data?.columns.find(c => c.name === filter.field);
@@ -69,11 +71,11 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
                 });
                 return {...filter, type: column.type, values};
             })};
-            return {query: basicViewQuery(normalized), error: null};
-        } catch (error) { return {query: '', error: error instanceof Error ? error.message : 'Revisá los filtros.'}; }
+            return {query: basicViewQuery(normalized), error: null, view: normalized};
+        } catch (error) { return {query: '', error: error instanceof Error ? error.message : 'Revisá los filtros.', view: null}; }
     }, [view, source.data]);
     const currentQuery = mode === 'basic' ? generated.query : query;
-    const result = useLccaQuery(currentQuery, !analyzing);
+    const result = useLccaQuery(currentQuery, !analyzing, true, true);
     useEffect(() => {
         if (!initialReady && !initialLoading && !(mode === 'basic' && !!view && source.isPending) && !result.loading) setInitialReady(true);
     }, [initialReady,initialLoading,mode,view,source.isPending,result.loading]);
@@ -107,12 +109,16 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
     const switchToBasic = async () => {
         setAnalysisError(null); setReplace(false);
         if (!query.trim()) { setMode('basic'); return; }
-        setAnalyzing(true);
-        const output = await post<{query: string; queryLanguageVersion: 1},LccaAnalysis>('/lcca/analyze', {query, queryLanguageVersion: 1});
-        setAnalyzing(false);
-        if ('error' in output) { setAnalysisError(output.error); return; }
-        if (output.value.basicView) { setView(output.value.basicView); setMode('basic'); }
-        else setReplace(true);
+        setSwitchingToBasic(true);
+        try {
+            const analysis = await client.fetchQuery(lccaAnalysisOptions(query));
+            if (analysis.basicView) { setView(analysis.basicView); setMode('basic'); }
+            else setReplace(true);
+        } catch (cause) {
+            setAnalysisError(cause instanceof Error ? cause.message : 'No pudimos analizar la consulta.');
+        } finally {
+            setSwitchingToBasic(false);
+        }
     };
     const confirm = () => {
         if (!canConfirm) return;
@@ -125,6 +131,12 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
             }
         }
         const content: VisualizationContent = {query: currentQuery, queryLanguageVersion: 1, spec};
+        if (mode === 'basic' && generated.view) {
+            client.setQueryData(lccaAnalysisOptions(currentQuery).queryKey, {
+                basicView: generated.view,
+                sources: result.data!.sources.map(({topicId,blockNumber}) => ({topicId,blockNumber})),
+            });
+        }
         onConfirm(JSON.stringify(content));
     };
     return <Dialog.Root open disablePointerDismissal onOpenChange={open => { if (!open) onClose(); }}>

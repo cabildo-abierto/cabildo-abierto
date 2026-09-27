@@ -2,7 +2,7 @@ import type {TypedTable, TableValue, VisualizationSpecV1, ValueFormat, DatasetCo
 import {validateVisualizationSpec} from './visualizations.js';
 export type PlotPoint = {x: number; y: number | null; size?: number};
 export type PlotSeries = {label: string; points: PlotPoint[]};
-export type BarRow = {key: string; label: string; values: (number | null)[]};
+export type BarRow = {key: string; label: string; values: (number | null)[]; interval?: [number, number]};
 export type VisualizationData = {kind: 'bar'; rows: BarRow[]; labels: string[]} | {kind: 'line' | 'scatter'; series: PlotSeries[]; temporal: boolean} | {kind: 'table'};
 export function formatTableValue(value: TableValue, format?: ValueFormat): string {
     if (value === null) return '';
@@ -53,7 +53,7 @@ export function prepareVisualization(spec: VisualizationSpecV1, table: TypedTabl
             const index = value === bounds[bounds.length - 1] ? counts.length - 1 : bounds.findIndex((b,i) => i < counts.length && value >= b && value < bounds[i + 1]);
             counts[index]++;
         }
-        return {kind: 'bar', labels: ['Frecuencia'], rows: counts.map((count,i) => ({key: String(i), label: `${formatTableValue(bounds[i], chart.x.format)}–${formatTableValue(bounds[i+1], chart.x.format)}`, values: [chart.frequency === 'relative' ? count / values.length : count]}))};
+        return {kind: 'bar', labels: ['Frecuencia'], rows: counts.map((count,i) => ({key: String(i), interval: [bounds[i], bounds[i+1]], label: `${formatTableValue(bounds[i], chart.x.format)}–${formatTableValue(bounds[i+1], chart.x.format)}`, values: [chart.frequency === 'relative' ? count / values.length : count]}))};
     }
     if (chart.type === 'scatter') {
         const y = field(chart.y.field, ['integer', 'decimal'], chart.y.format);

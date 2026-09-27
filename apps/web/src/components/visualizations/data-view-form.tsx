@@ -14,7 +14,7 @@ export function DataViewForm({topicId, view, onChange, onSource}: {topicId: stri
         queryFn: async () => {
             const output = await dataViewRequest<DatasetSource>(`/datasets/${encodeURIComponent(view!.source.topicId)}/${encodeURIComponent(view!.source.blockNumber)}`);
             return output;
-        }, retry: false});
+        }, staleTime: 30000, retry: false});
     const source = selected.data;
     const columns = source?.columns ?? [];
     const columnOptions = columns.map(c => ({value: c.name, label: c.name}));

@@ -5,13 +5,13 @@ import type {DatasetSource, LccaOutput, TopicChangedEvent} from '@cabildo-abiert
 import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from './use-debounced-value';
 import {TOPIC_REALTIME_CHANGE_EVENT} from './use-topic-realtime-change';
-export function useLccaQuery(query: string, enabled = true, refreshOnMount = true) {
+export function useLccaQuery(query: string, enabled = true, refreshOnMount = true, cacheResults = false) {
     const debounced = useDebouncedValue(query,600);
     const client = useQueryClient();
     const result = useQuery({
         queryKey: ['lcca-query', debounced], enabled: enabled && !!debounced.trim() && debounced === query,
         queryFn: ({signal}) => dataViewRequest<LccaOutput>('/lcca/query', {method: 'POST', signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: debounced, queryLanguageVersion: 1})}),
-        staleTime: 0, gcTime: 0, retry: false, refetchOnMount: refreshOnMount ? 'always' : false, refetchOnWindowFocus: false, refetchOnReconnect: false,
+        staleTime: 0, gcTime: cacheResults ? 5 * 60 * 1000 : 0, retry: false, refetchOnMount: refreshOnMount ? 'always' : false, refetchOnWindowFocus: false, refetchOnReconnect: false,
     });
     const sources = result.data?.sources ?? [];
     const checks = useQueries({queries: sources.map(source => ({
@@ -35,5 +35,5 @@ export function useLccaQuery(query: string, enabled = true, refreshOnMount = tru
         return () => window.removeEventListener(TOPIC_REALTIME_CHANGE_EVENT, handle);
     }, [sources, client]);
     const current = debounced === query;
-    return {data: current && !changed && !missing && !result.error ? result.data : undefined, loading: enabled && !!query.trim() && (!current || result.isPending || result.isFetching || changed), error: current ? missing ?? result.error : null, refetch: result.refetch};
+    return {data: current && !changed && !missing && !result.error ? result.data : undefined, loading: enabled && !!query.trim() && (!current || result.isPending || (result.isFetching && (!cacheResults || !result.data)) || changed), error: current ? missing ?? result.error : null, refetch: result.refetch};
 }
