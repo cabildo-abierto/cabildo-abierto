@@ -4,7 +4,8 @@ export default defineConfig({
     entry: {
         "lcca-worker": "src/services/visualizations/query-worker.ts",
         "index": "src/index.ts",
-        "scripts/apply-migrations": "src/scripts/apply-migrations.ts"
+        "scripts/apply-migrations": "src/scripts/apply-migrations.ts",
+        "scripts/search-reindex": "src/scripts/search-reindex.ts"
     },
     format: ["esm"],
     splitting: false,

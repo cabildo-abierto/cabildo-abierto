@@ -1,3 +1,5 @@
+import {lockSearchTopic} from "./search/schema.js";
+import {synchronizeTopicSearch} from "./search/index.js";
 import {randomUUID} from "node:crypto";
 import {sql, type Transaction, type Kysely} from "kysely";
 import type {BlockComment, CreateDiscussionCommentInput} from "@cabildo-abierto/api";
@@ -10,12 +12,14 @@ type Database = Kysely<DB> | Transaction<DB>;
 
 export async function mutateDiscussion<T>(database: Kysely<DB>, target: DiscussionTarget, action: (trx: Transaction<DB>, authorId: string) => Promise<T>): Promise<T> {
     return database.transaction().execute(async trx => {
+        await lockSearchTopic(trx, target.topicId);
         if (target.kind === "title") await lockTopicTitleEdits(trx, target.topicId);
         await sql`select pg_advisory_xact_lock(hashtext(${`${target.rootId}:reaction`}))`.execute(trx);
         const record = await trx.selectFrom("record").select(["author_id", "deleted"]).where("id", "=", target.rootId).executeTakeFirst();
         if (!record || record.deleted) throw new TopicActionError(404, "La publicación ya no está disponible.");
         const result = await action(trx, record.author_id);
         if (target.kind === "title") await convergeTopicName(trx, target.topicId);
+        await synchronizeTopicSearch(trx, target.topicId);
         return result;
     });
 }

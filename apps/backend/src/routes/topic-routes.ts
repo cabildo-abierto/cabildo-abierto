@@ -1,3 +1,5 @@
+import {lockSearchTopic} from "#/services/search/schema.js";
+import {synchronizeTopicSearch} from "#/services/search/index.js";
 import {resolveTopicFootnotes} from "#/services/topic-footnotes.js";
 import {requireFileAccess} from '#/services/storage/access.js';
 import {runQueryJob} from '#/services/visualizations/query-process.js';
@@ -272,6 +274,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
         const user = requiredUser(req);
         try {
             await ctx.kysely.transaction().execute(async trx => {
+                await lockSearchTopic(trx, String(req.params.id));
                 await sql`select pg_advisory_xact_lock(hashtext(${`${req.params.id}:edit`}))`.execute(trx);
                 const version = await trx.selectFrom("block_version")
                     .innerJoin("edit", "edit.id", "block_version.edit_id")
@@ -285,6 +288,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 if (!version || version.deleted) throw new TopicEditError(404, "No encontramos esa versión.");
                 if (version.authorId !== user.id) throw new TopicEditError(403, "Solo el autor puede eliminar esta edición.");
                 await trx.updateTable("record").set({deleted: true}).where("id", "=", version.editId).execute();
+                await synchronizeTopicSearch(trx, String(req.params.id));
             });
             await notifyTopicChanged(ctx.kysely, String(req.params.id), "edit", ctx.logger);
             return res.json({success: true});
@@ -342,6 +346,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 }
             }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
+                await lockSearchTopic(trx, topicId);
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
                 for (const block of requestedBlocks.filter(block => block.typeId === "imagen")) {
                     await requireFileAccess(trx, parseImageBlock(block.content)!.fileId, user.id, 'image');
@@ -503,6 +508,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 if (visualizationDatasets.length) await trx.insertInto("visualization_dataset").values(visualizationDatasets).execute();
                 if (datasets.length) await trx.insertInto("dataset").values(datasets).execute();
                 if (documents.length) await trx.insertInto("document").values(documents).execute();
+                await synchronizeTopicSearch(trx, topicId);
                 return topicConvergence(trx, topicId);
             });
             await notifyTopicChanged(ctx.kysely, topicId, "edit", ctx.logger);
@@ -531,12 +537,14 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
         try {
             const topic = await ctx.kysely.transaction().execute(async trx => {
+                await lockSearchTopic(trx, id);
                 const topic = await trx.insertInto("topic").values({id, title, slug: id})
                     .returning(["id", "title", "slug"]).executeTakeFirstOrThrow();
                 const editId = randomUUID();
                 await trx.insertInto("record").values({id: editId, type_id: "edit", author_id: requiredUser(req).id}).execute();
                 await trx.insertInto("edit").values({id: editId, topic_id: id, title, message: null}).execute();
                 await trx.insertInto("topic_redirect").values({slug: id, topic_id: id, edit_id: editId}).execute();
+                await synchronizeTopicSearch(trx, id);
                 return topic;
             });
             const value: CreateTopicOutput = {topic};

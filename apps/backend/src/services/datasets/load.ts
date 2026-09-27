@@ -1,3 +1,4 @@
+import {refreshSearchUrl} from "../search/url.js";
 import type {Kysely} from 'kysely';
 import type {DB} from '#/db/types.js';
 import type {ObjectStorage} from '../storage/storage.js';
@@ -11,6 +12,7 @@ export async function loadDataset(database: Kysely<DB>, id: string, getStorage: 
     const dataset = await requireDatasetAccess(database, id);
     const data = dataset.source_url ? await downloadCSV(dataset.source_url) : await getStorage().read(await requireDatasetFileAccess(database, dataset.file_id!));
     const parsed = parseCSV(data);
+    if (dataset.source_url) await refreshSearchUrl(database, dataset.source_url, data);
     if ((parsed.rows.length + 1) * dataset.columns.length > datasetLimits().cells) throw new TopicActionError(413, 'La tabla supera la cantidad de celdas permitida.');
     const indices = new Map(parsed.columns.map((c,i) => [c.name,i]));
     const rows = parsed.rows.map(row => dataset.columns.map(column => {

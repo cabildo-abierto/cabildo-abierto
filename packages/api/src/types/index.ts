@@ -9,3 +9,4 @@ export * from './dataset';
 export * from './visualization';
 
 export * from './image';
+export * from './search';

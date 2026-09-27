@@ -22,6 +22,7 @@ export const env = cleanEnv(process.env, {
     CLOUDFLARE_BUCKET: str({default: ''}),
     DATASET_MAX_MB: num({default: 10}),
     DATASET_MAX_CELLS: num({default: 200000}),
+    SEARCH_URL_REFRESH_SECONDS: num({default: 300}),
     DOCUMENT_MAX_MB: num({default: 25}),
     DOCUMENT_TEXT_MAX_MB: num({default: 5}),
     LIBREOFFICE_PATH: str({default: 'libreoffice'}),

@@ -35,7 +35,8 @@
     "test:bail": "NODE_ENV=test vitest --pool=threads --bail=1",
     "test:reset-db": "tsx watch --clear-screen=false src/scripts/reset-dev-db.ts | pino-pretty",
     "coverage": "NODE_ENV=test vitest run --coverage",
-    "migrate": "tsx src/scripts/apply-migrations.ts"
+    "migrate": "tsx src/scripts/apply-migrations.ts",
+    "search:reindex": "node dist/scripts/search-reindex.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",

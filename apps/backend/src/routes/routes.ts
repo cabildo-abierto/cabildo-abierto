@@ -1,4 +1,5 @@
 import {imageRoutes} from './image-routes.js';
+import {searchRoutes} from './search-routes.js';
 import {visualizationRoutes} from './visualization-routes.js';
 import {datasetRoutes} from './dataset-routes.js';
 import {documentRoutes} from "./document-routes.js";
@@ -17,6 +18,7 @@ export const createRouter = (ctx: AppContext): Router => {
     const router = express.Router()
 
     router.use(authRoutes(ctx))
+    router.use(searchRoutes(ctx))
     router.use(imageRoutes(ctx))
     router.use(documentRoutes(ctx))
     router.use(datasetRoutes(ctx))

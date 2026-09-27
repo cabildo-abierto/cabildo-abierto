@@ -7,6 +7,31 @@ type Generated<T> = T extends ColumnType<infer Select, infer Insert, infer Updat
 type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type DB = {
+    search_source: {
+        id: Generated<string>;
+        kind: import('@cabildo-abierto/api').SearchSourceKind;
+        block_version_id: Generated<string | null>; title_edit_id: Generated<string | null>;
+        comment_id: Generated<string | null>; file_id: Generated<string | null>; source_url: Generated<string | null>;
+        extractor_version: Generated<number>; content_hash: Generated<string | null>;
+        indexed_at: Generated<Timestamp | null>; last_checked_at: Generated<Timestamp | null>;
+        status: Generated<'pending' | 'ready' | 'failed'>;
+        generation: Generated<string>; indexed_generation: Generated<string>;
+        attempts: Generated<number>; retry_at: Generated<Timestamp>;
+        lease_token: Generated<string | null>; lease_until: Generated<Timestamp | null>; last_error: Generated<string | null>;
+    };
+    search_entry: {
+        id: Generated<string>; source_id: string; segment_number: number;
+        block_type_id: Generated<string | null>; title_text: Generated<string>; body_text: Generated<string>;
+        location: ColumnType<Record<string, number>, string | undefined, string>;
+        search_config: Generated<string>;
+        is_visible: Generated<boolean>; is_current: Generated<boolean>; indexed_at: Generated<Timestamp>;
+        search_vector: ColumnType<string, never, never>;
+    };
+    search_reference: {
+        id: Generated<string>; source_id: string; topic_id: string;
+        block_version_id: Generated<string | null>; title_edit_id: Generated<string | null>; comment_id: Generated<string | null>;
+        is_visible: Generated<boolean>; is_current: Generated<boolean>;
+    };
     migration: {
         migration_id: Generated<string>;
         run_date: Timestamp;

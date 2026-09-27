@@ -1,3 +1,5 @@
+import {lockSearchTopic} from "#/services/search/schema.js";
+import {synchronizeTopicSearch} from "#/services/search/index.js";
 import {randomUUID} from "node:crypto";
 import express, {type Response} from "express";
 import {sql} from "kysely";
@@ -64,6 +66,7 @@ export function topicTitleEditRoutes(ctx: AppContext) {
             const user = requiredUser(req);
             const id = randomUUID();
             await ctx.kysely.transaction().execute(async trx => {
+                await lockSearchTopic(trx, topicId);
                 await lockTopicTitleEdits(trx, topicId);
                 const topic = await trx.selectFrom("topic").selectAll().where("id", "=", topicId).executeTakeFirst();
                 if (!topic) throw new TopicActionError(404, "No encontramos ese tema.");
@@ -74,6 +77,7 @@ export function topicTitleEditRoutes(ctx: AppContext) {
                 await trx.insertInto("edit").values({id, topic_id: topicId, title, message}).execute();
                 if (!alias) await trx.insertInto("topic_redirect").values({slug, topic_id: topicId, edit_id: id}).execute();
                 await convergeTopicName(trx, topicId);
+                await synchronizeTopicSearch(trx, topicId);
             });
             await notifyTopicChanged(ctx.kysely, topicId, "title", ctx.logger);
             const [edit] = await topicTitleEditViews(ctx.kysely, [id], user.id);
@@ -85,12 +89,14 @@ export function topicTitleEditRoutes(ctx: AppContext) {
             const edit = await ctx.kysely.selectFrom("edit").select(["id", "topic_id"]).where("id", "=", req.params.id).where("topic_id", "=", req.params.topicId).where("title", "is not", null).executeTakeFirst();
             if (!edit) throw new TopicActionError(404, "No encontramos ese cambio de título.");
             await ctx.kysely.transaction().execute(async trx => {
+                await lockSearchTopic(trx, edit.topic_id);
                 await lockTopicTitleEdits(trx, edit.topic_id);
                 if (await initialTitleEdit(trx, edit.topic_id) === edit.id) throw new TopicActionError(403, "No se puede eliminar el título inicial.");
                 const record = await trx.selectFrom("record").selectAll().where("id", "=", edit.id).executeTakeFirstOrThrow();
                 if (record.author_id !== requiredUser(req).id) throw new TopicActionError(403, "Solo el autor puede eliminar este cambio de título.");
                 await trx.updateTable("record").set({deleted: true}).where("id", "=", edit.id).execute();
                 await convergeTopicName(trx, edit.topic_id);
+                await synchronizeTopicSearch(trx, edit.topic_id);
             });
             await notifyTopicChanged(ctx.kysely, edit.topic_id, "title", ctx.logger);
             return res.json({success: true});

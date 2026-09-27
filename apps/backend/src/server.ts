@@ -1,3 +1,4 @@
+import {startSearchWorker} from "./services/search/runner.js";
 /*server.ts*/
 import events from 'node:events'
 import type http from 'node:http'
@@ -12,7 +13,8 @@ export class Server {
     constructor(
         public app: express.Application,
         public server: http.Server,
-        public ctx: AppContext
+        public ctx: AppContext,
+        private stopSearchWorker: () => Promise<void>
     ) {
     }
 
@@ -74,7 +76,7 @@ export class Server {
         await events.once(server, 'listening')
         ctx.logger.pino.info(`Server (${env.NODE_ENV}) running on port http://${env.HOST}:${env.PORT}`)
 
-        const serverInstance = new Server(app, server, ctx)
+        const serverInstance = new Server(app, server, ctx, startSearchWorker(ctx))
 
         process.on('SIGINT', async () => {
             await serverInstance.close()
@@ -91,6 +93,7 @@ export class Server {
 
     async close() {
         this.ctx.logger.pino.info('sigint received, shutting down')
+        await this.stopSearchWorker()
         await this.ctx.topicConnections?.close()
         return new Promise<void>((resolve) => {
             this.server.close(async () => {

@@ -39,7 +39,7 @@ RUN pnpm --filter backend --prod deploy /runtime
 # ============================
 FROM base AS runner
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl libreoffice-writer fonts-noto fonts-liberation && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl poppler-utils libreoffice-writer fonts-noto fonts-liberation && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
