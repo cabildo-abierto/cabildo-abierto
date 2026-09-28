@@ -16,10 +16,10 @@ async function searchQueries(database: Kysely<DB>, input: string) {
                         THEN to_tsvector('public.search_simple'::regconfig, text) ELSE to_tsvector(config::regconfig, text) END)) AS word)
                  ELSE plainto_tsquery(config::regconfig, text)::text END AS query
         FROM jsonb_to_recordset(${JSON.stringify(tokens)}::jsonb) AS token(text text, quoted boolean, prefix boolean, ordinal integer)
-        CROSS JOIN (VALUES ('public.search_spanish'), ('public.search_simple')) AS configs(config)
+        CROSS JOIN (VALUES ('public.search_spanish'), ('public.search_spanish_all'), ('public.search_simple')) AS configs(config)
         ORDER BY ordinal`.execute(database);
     const queryFor = (config: string) => rows.rows.filter(row => row.config === config && row.query).map(row => `(${row.query})`).join(' & ');
-    return {spanish: queryFor('public.search_spanish'), simple: queryFor('public.search_simple')};
+    return {spanish: queryFor('public.search_spanish'), spanishAll: queryFor('public.search_spanish_all'), simple: queryFor('public.search_simple')};
 }
 
 export function parseSearchHeadline(headline: string, startMarker: string, endMarker: string): SearchSnippet {
@@ -57,7 +57,7 @@ export function parseSearchHeadline(headline: string, startMarker: string, endMa
 }
 
 export async function searchContent(database: Kysely<DB>, options: SearchOptions): Promise<ContentSearchOutput> {
-    const {spanish, simple} = await searchQueries(database, options.q);
+    const {spanish, spanishAll, simple} = await searchQueries(database, options.q);
     const marker = randomUUID().replaceAll('-', '');
     const start = `MATCHSTART${marker}`, end = `MATCHEND${marker}`;
     // PostgreSQL marks matches using the same normalization as the index; crop afterwards
@@ -75,10 +75,13 @@ export async function searchContent(database: Kysely<DB>, options: SearchOptions
                 to_tsvector(e.search_config, e.title_text) @@ q.query AS title_match,
                 s.kind = 'topic_title' AS topic_title
             FROM search_entry e JOIN search_source s ON s.id = e.source_id
-            CROSS JOIN LATERAL (SELECT CASE WHEN e.search_config = 'public.search_simple'::regconfig
-                THEN ${simple}::tsquery ELSE ${spanish}::tsquery END AS query) q
+            CROSS JOIN LATERAL (SELECT CASE
+                WHEN e.search_config = 'public.search_simple'::regconfig THEN ${simple}::tsquery
+                WHEN e.search_config = 'public.search_spanish_all'::regconfig THEN ${spanishAll}::tsquery
+                ELSE ${spanish}::tsquery END AS query) q
             WHERE e.is_visible AND ${currentEntry} AND ${types} AND ${comments}
                 AND ((e.search_config = 'public.search_spanish'::regconfig AND e.search_vector @@ ${spanish}::tsquery)
+                  OR (e.search_config = 'public.search_spanish_all'::regconfig AND e.search_vector @@ ${spanishAll}::tsquery)
                   OR (e.search_config = 'public.search_simple'::regconfig AND e.search_vector @@ ${simple}::tsquery))
         ), matched_references AS MATERIALIZED (
             SELECT DISTINCT ON (m.id, r.topic_id) m.id, m.rank, m.title_match, m.topic_title, r.topic_id, r.block_version_id, r.comment_id,
@@ -116,8 +119,10 @@ export async function searchContent(database: Kysely<DB>, options: SearchOptions
             JOIN search_source s ON s.id = e.source_id
             LEFT JOIN record cr ON cr.id = p.comment_id
             LEFT JOIN public."user" ca ON ca.id = cr.author_id
-            CROSS JOIN LATERAL (SELECT CASE WHEN e.search_config = 'public.search_simple'::regconfig
-                THEN ${simple}::tsquery ELSE ${spanish}::tsquery END AS query) q
+            CROSS JOIN LATERAL (SELECT CASE
+                WHEN e.search_config = 'public.search_simple'::regconfig THEN ${simple}::tsquery
+                WHEN e.search_config = 'public.search_spanish_all'::regconfig THEN ${spanishAll}::tsquery
+                ELSE ${spanish}::tsquery END AS query) q
         )
         SELECT (SELECT count(*)::int FROM topics) AS "totalTopics",
             coalesce((SELECT sum(match_count)::int FROM topics), 0) AS "totalMatches",

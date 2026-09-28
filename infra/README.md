@@ -65,6 +65,13 @@ API publicada bajo `/api`:
 ./infra/scripts/deploy.sh dev all
 ```
 
+Al incluir el backend, el deploy ejecuta las migraciones pendientes con la imagen
+nueva antes de activar los contenedores. Un fallo cancela el deploy y deja el
+servicio anterior activo. En `prod` y `test`, el contenedor temporal usa la red
+`cabildo-dev_default` si existe, o `bridge`; configurá `MIGRATION_NETWORK` en
+`infra/env/deploy.env` si la base requiere otra red Docker. Los deploys solo de
+web no ejecutan migraciones.
+
 Este entorno usa Docker Compose, `127.0.0.1:3002` para web y
 `127.0.0.1:8082` para backend, sin modificar el stack mínimo existente. Ver
 [`DEV_DEPLOY.md`](./DEV_DEPLOY.md) para la preparación inicial del nodo.

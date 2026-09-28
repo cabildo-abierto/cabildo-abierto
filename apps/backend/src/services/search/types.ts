@@ -7,5 +7,5 @@ export type SearchSource = {
 };
 export type SearchSegment = {
     title: string; text: string; type: BlockType['id'] | null;
-    location: Record<string, number>; config?: 'search_simple' | 'search_spanish';
+    location: Record<string, number>; config?: 'search_simple' | 'search_spanish_all';
 };

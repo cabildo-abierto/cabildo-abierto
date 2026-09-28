@@ -42,7 +42,7 @@ export async function replaceSearchSegments(database: SearchDatabase, sourceId: 
     for (let offset = 0; offset < segments.length; offset += 200) {
         const values = segments.slice(offset, offset + 200).map((segment, index) => sql`(
             ${sourceId}, ${offset + index}, ${segment.type}, ${segment.title.replaceAll('\0', '')}, ${segment.text.replaceAll('\0', '')},
-            ${JSON.stringify(segment.location)}::jsonb, ${`public.${segment.config ?? 'search_spanish'}`}::regconfig
+            ${JSON.stringify(segment.location)}::jsonb, ${`public.${segment.config ?? 'search_spanish_all'}`}::regconfig
         )`);
         await sql`INSERT INTO ${table} (source_id, segment_number, block_type_id, title_text, body_text, location, search_config)
             VALUES ${sql.join(values)}`.execute(database);

@@ -273,28 +273,18 @@ fi
 if [ "$DEPLOY_WEB" -eq 1 ]; then
   echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:${WEB_TAG}"
   docker push "${WEB_IMAGE_REPO}:${WEB_TAG}"
-
-  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:${WEB_LATEST}"
-  docker push "${WEB_IMAGE_REPO}:${WEB_LATEST}"
 fi
 
 if [ "$DEPLOY_BACKEND" -eq 1 ]; then
   echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
   docker push "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
-
-  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
-  docker push "${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
 fi
 
 echo ""
 echo "🎉 Successfully built & pushed:"
-[ "$DEPLOY_WEB" -eq 1 ] && \
-  echo "    ${WEB_IMAGE_REPO}:${WEB_TAG}" && \
-  echo "    ${WEB_IMAGE_REPO}:${WEB_LATEST}"
+[ "$DEPLOY_WEB" -eq 1 ] && echo "    ${WEB_IMAGE_REPO}:${WEB_TAG}"
 
-[ "$DEPLOY_BACKEND" -eq 1 ] && \
-  echo "    ${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" && \
-  echo "    ${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
+[ "$DEPLOY_BACKEND" -eq 1 ] && echo "    ${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
 echo ""
 
 #############################################
@@ -329,6 +319,48 @@ if [ "$ENV" = "dev" ]; then
   ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "mkdir -p '${REMOTE_STACK_ROOT}/env'"
   rsync -az -e "ssh ${SSH_OPTS[*]}" infra/env/web.dev.env infra/env/backend.dev.env "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/env/"
   ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "chmod 600 '${REMOTE_STACK_ROOT}/env/web.dev.env' '${REMOTE_STACK_ROOT}/env/backend.dev.env'"
+fi
+
+if [ "$DEPLOY_BACKEND" -eq 1 ]; then
+  ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" bash <<EOF
+    set -euo pipefail
+    if [ "${ENV}" = "dev" ]; then
+      BACKEND_ENV_FILE="${REMOTE_STACK_ROOT}/env/backend.dev.env"
+    elif [ "${ENV}" = "prod" ]; then
+      BACKEND_ENV_FILE=/etc/cabildo/backend.env
+    else
+      BACKEND_ENV_FILE=/etc/cabildo/backend.test.env
+    fi
+    if [ ! -f "\$BACKEND_ENV_FILE" ]; then
+      echo "❌ Missing backend environment file: \$BACKEND_ENV_FILE"
+      exit 1
+    fi
+    MIGRATION_NETWORK="${MIGRATION_NETWORK:-}"
+    if [ -z "\$MIGRATION_NETWORK" ]; then
+      if docker network inspect cabildo-dev_default >/dev/null 2>&1; then
+        MIGRATION_NETWORK=cabildo-dev_default
+      else
+        MIGRATION_NETWORK=bridge
+      fi
+    fi
+    echo "📦 Pulling backend image for migrations…"
+    docker pull "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
+    echo "🗃️  Applying pending database migrations…"
+    if ! docker run --rm --network "\$MIGRATION_NETWORK" --env-file "\$BACKEND_ENV_FILE" \
+      "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" node dist/scripts/apply-migrations.js; then
+      echo "❌ Database migration failed. The current deployment remains active."
+      exit 1
+    fi
+EOF
+fi
+
+if [ "$DEPLOY_WEB" -eq 1 ]; then
+  echo "⬆️  Pushing web image: ${WEB_IMAGE_REPO}:${WEB_LATEST}"
+  docker push "${WEB_IMAGE_REPO}:${WEB_LATEST}"
+fi
+if [ "$DEPLOY_BACKEND" -eq 1 ]; then
+  echo "⬆️  Pushing backend image: ${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
+  docker push "${BACKEND_IMAGE_REPO}:${BACKEND_LATEST}"
 fi
 
 ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" bash <<EOF

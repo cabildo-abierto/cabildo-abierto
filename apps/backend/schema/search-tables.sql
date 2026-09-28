@@ -40,7 +40,7 @@ CREATE TABLE __SEARCH_SCHEMA__.search_entry (
     title_text text NOT NULL DEFAULT '',
     body_text text NOT NULL DEFAULT '',
     location jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(location) = 'object'),
-    search_config regconfig NOT NULL DEFAULT 'public.search_spanish'::regconfig,
+    search_config regconfig NOT NULL DEFAULT 'public.search_spanish_all'::regconfig,
     is_visible boolean NOT NULL DEFAULT false,
     is_current boolean NOT NULL DEFAULT false,
     indexed_at timestamptz NOT NULL DEFAULT now(),

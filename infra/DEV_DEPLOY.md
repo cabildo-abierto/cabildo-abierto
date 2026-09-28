@@ -71,20 +71,16 @@ imágenes privadas:
 echo "$CONTAINER_REGISTRY_PASSWORD" | docker login "$CONTAINER_REGISTRY" -u "$CONTAINER_REGISTRY_USER" --password-stdin
 ```
 
-## 4. Aplicar migraciones
+## 4. Migraciones
 
-Las migraciones no se ejecutan automáticamente. Cuando haya migraciones nuevas,
-aplicalas desde el checkout local antes de desplegar el backend:
-
-```bash
-read -rsp 'Neon DIRECT_URL: ' DIRECT_URL; echo
-export DIRECT_URL
-pnpm --filter backend migrate
-unset DIRECT_URL
-```
-
-La imagen también incluye el migrador: ejecutar `node dist/scripts/apply-migrations.js`
-desde `/app`, con las variables de conexión del entorno correspondiente.
+Al desplegar el backend, el script descarga la imagen nueva y ejecuta una sola vez
+las migraciones pendientes antes de actualizar el servicio. Usa `DIRECT_URL` (o
+`DATABASE_URL` si falta) de `backend.dev.env`. Si una migración falla, el deploy
+termina con error y el backend anterior sigue activo. Cada migración se ejecuta
+dentro de una transacción: la migración que falla se revierte; las anteriores
+que ya se confirmaron permanecen aplicadas.
+Si `backend.dev.env` apunta a la base de producción, este deploy aplicará las
+migraciones allí.
 
 ## 5. Desplegar
 
