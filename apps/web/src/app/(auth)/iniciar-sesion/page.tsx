@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import {type FormEvent, useEffect} from "react";
+import {type FormEvent, useEffect, useState} from "react";
 import {useMutation} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {AuthOutput, LoginInput} from "@cabildo-abierto/api";
@@ -16,13 +16,16 @@ import {Spinner} from "@/components/ui/spinner";
 export default function LoginPage() {
     const router = useRouter();
     const {user, loading, setUser} = useAuth();
+    const [redirecting, setRedirecting] = useState(false);
     const loginMutation = useMutation({
         mutationFn: async (input: LoginInput) => {
             const result = await post<LoginInput, AuthOutput>("/auth/login", input);
             if ("error" in result) throw new Error(result.error);
             return result.value.user;
         },
+        onSuccess: () => setRedirecting(true),
     });
+    const submitting = loginMutation.isPending || redirecting || !!user;
 
     useEffect(() => {
         if (!loading && user) router.replace("/");
@@ -61,8 +64,8 @@ export default function LoginPage() {
                     </FieldGroup>
                 </CardContent>
                 <CardFooter className="mt-4 flex flex-col gap-3">
-                    <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
-                        {loginMutation.isPending ? <><Spinner/>Ingresando…</> : "Ingresar"}
+                    <Button type="submit" className="w-full" disabled={submitting}>
+                        {submitting ? <><Spinner/>Ingresando…</> : "Ingresar"}
                     </Button>
                     <p className="text-muted-foreground">
                         ¿No tenés una cuenta? <Link href="/registro" className="text-foreground underline underline-offset-4">Registrate</Link>

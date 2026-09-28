@@ -14,9 +14,9 @@ export function TopicSearchResult(props: TopicSearchResultProps) {
     const topic = 'topic' in props ? props.topic : props.result.topic;
     const ResultIcon = result?.kind === 'comment' ? ChatCircleIcon : result?.blockType === 'dataset' ? TableIcon : FileTextIcon;
     const resultType = result?.kind === 'comment' ? 'Comentario' : result?.blockType === 'dataset' ? 'Conjunto de datos' : 'Documento';
-    return <Link href={`/tema/${encodeURIComponent(topic.slug)}`} className={cn("block h-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>
-        <Card className={cn("h-full py-0 transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-sm active:translate-y-0 motion-reduce:transition-none")}>
-            <CardContent className={cn("flex h-full flex-col justify-center gap-2 px-4 py-4")}>
+    return <Link href={`/tema/${encodeURIComponent(topic.slug)}`} className={cn("block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>
+        <Card className={cn("py-0 transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-sm active:translate-y-0 motion-reduce:transition-none")}>
+            <CardContent className={cn("flex flex-col gap-2 px-4 py-4")}>
                 <span className={cn("font-medium")}>{topic.title}</span>
                 {result && result.kind !== 'topic_title' && <>
                     {(result.attachmentTitle || result.kind === 'comment') && <span className={cn('flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground')}>

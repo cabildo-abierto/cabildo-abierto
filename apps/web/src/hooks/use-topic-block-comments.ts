@@ -29,6 +29,7 @@ export function useTopicBlockComments(topicId: string, blockNumber: string, enab
             return result.value.comment;
         },
         onSuccess: (comment, input) => {
+            toast({title: input.reject || input.replica ? "Se registró el voto" : "Se publicó el comentario"});
             queryClient.setQueryData<BlockComment[]>(commentsKey, current => {
                 const next = (current ?? []).map(existing => existing.id === input.replyToId
                     ? {...existing, directReplyCount: existing.directReplyCount + 1}

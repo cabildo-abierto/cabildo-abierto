@@ -6,6 +6,7 @@ import {Logger} from "#/utils/logger.js";
 import {env} from './lib/env.js';
 import * as dotenv from 'dotenv';
 import {TopicConnections} from "#/services/topic-connections.js";
+import {devDbLatencyPlugin} from "#/lib/dev-db-latency.js";
 dotenv.config();
 
 export type AppContext = {
@@ -20,7 +21,9 @@ const envName = env.NODE_ENV
 
 
 export function setupKysely(dbUrl?: string, maxThreads?: number) {
+    const delayMs = env.NODE_ENV === 'development' ? env.DEV_DB_LATENCY_MS : 0;
     return new Kysely<DB>({
+        plugins: delayMs > 0 ? [devDbLatencyPlugin(delayMs)] : [],
         dialect: new PostgresDialect({
             pool: new Pool({
                 connectionString: dbUrl ?? env.DATABASE_URL,

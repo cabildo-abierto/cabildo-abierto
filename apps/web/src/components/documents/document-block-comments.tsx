@@ -5,9 +5,11 @@ import {useQuery, useQueryClient} from "@tanstack/react-query";
 import type {DiscussionCommentsOutput} from "@cabildo-abierto/api";
 import {DiscussionComments} from "@/components/discussion-comments";
 import {get, post, del} from "@/utils/react/fetch";
+import {useToast} from "@/components/ui/toast";
 
 export function DocumentBlockComments({documentId, blockId, versionId}: {documentId: string; blockId: string; versionId: string}) {
     const queryClient = useQueryClient();
+    const {toast} = useToast();
     const [error, setError] = useState<string | null>(null);
     const path = `/documents/${documentId}/blocks/${blockId}/comments`;
     const queryKey = ['document-comments', documentId, blockId];
@@ -29,7 +31,9 @@ export function DocumentBlockComments({documentId, blockId, versionId}: {documen
             setError(null);
             const result = await post(path, {content, replyToId});
             if ("error" in result) { setError(result.error); return false; }
-            await refresh(); return true;
+            await refresh();
+            toast({title: "Se publicó el comentario"});
+            return true;
         }}
         onDelete={async commentId => {
             setError(null);

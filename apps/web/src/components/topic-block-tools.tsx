@@ -65,6 +65,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
     const [selectedVersion, setSelectedVersion] = useState<TopicBlockVersion | null>(null);
     const [previewVersion, setPreviewVersion] = useState<TopicBlockVersion | null>(null);
     const [rejectionVersion, setRejectionVersion] = useState<TopicBlockVersion | null>(null);
+    const [voting, setVoting] = useState<{versionId: string; type: "accept" | "reject"} | null>(null);
     const {toast} = useToast();
     const queryClient = useQueryClient();
     const commentsKey = ["topic", topicId, "block", block.blockNumber, "comments"] as const;
@@ -87,11 +88,18 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
             );
             if ("error" in result) throw new Error(result.error);
         },
-        onSuccess: () => {
-            void queryClient.invalidateQueries({queryKey: versionsKey});
-            void queryClient.invalidateQueries({queryKey: blocksKey});
-        },
+        onMutate: ({version}) => setVoting({versionId: version.id, type: "accept"}),
+        onSuccess: () => toast({title: "Se registró el voto"}),
         onError: error => toast({title: "No pudimos registrar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
+        onSettled: async () => {
+            try {
+                await Promise.all([
+                    queryClient.invalidateQueries({queryKey: versionsKey}),
+                    queryClient.invalidateQueries({queryKey: blocksKey}),
+                    queryClient.invalidateQueries({queryKey: commentsKey}),
+                ]);
+            } finally { setVoting(null); }
+        },
     });
     const cancelReactionMutation = useMutation({
         mutationFn: async ({version, deleteReason}: {version: TopicBlockVersion; deleteReason: boolean}) => {
@@ -101,12 +109,18 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
             );
             if ("error" in result) throw new Error(result.error);
         },
-        onSuccess: () => {
-            void queryClient.invalidateQueries({queryKey: versionsKey});
-            void queryClient.invalidateQueries({queryKey: commentsKey});
-            void queryClient.invalidateQueries({queryKey: blocksKey});
-        },
+        onMutate: ({version}) => setVoting({versionId: version.id, type: version.userReaction === "accept" ? "accept" : "reject"}),
+        onSuccess: () => toast({title: "Se canceló el voto"}),
         onError: error => toast({title: "No pudimos cancelar el voto", description: error instanceof Error ? error.message : undefined, variant: "destructive"}),
+        onSettled: async () => {
+            try {
+                await Promise.all([
+                    queryClient.invalidateQueries({queryKey: versionsKey}),
+                    queryClient.invalidateQueries({queryKey: commentsKey}),
+                    queryClient.invalidateQueries({queryKey: blocksKey}),
+                ]);
+            } finally { setVoting(null); }
+        },
     });
     const deleteVersionMutation = useMutation({
         mutationKey: topicDeleteVersionKey(topicId),
@@ -171,8 +185,9 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
         setPreviewVersion(null);
         return true;
     };
-    const acceptVersion = (version: TopicBlockVersion) => {
-        reactionMutation.mutate({version, input: {type: "accept"}});
+    const acceptVersion = (version: TopicBlockVersion, deleteReason?: boolean) => {
+        if (voting) return;
+        reactionMutation.mutate({version, input: {type: "accept", deleteReason}});
     };
     const rejectVersion = (version: TopicBlockVersion) => {
         setRejectionVersion(version);
@@ -195,9 +210,11 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
     const historySection = !hideDiscussion && historyOpen && <TopicBlockHistory block={block} versions={versions} loading={versionsQuery.isPending} error={versionsQuery.error instanceof Error ? versionsQuery.error.message : null}
         selectedVersionId={selectedVersion?.id ?? null}
         onPreview={version => { if (commentsOpen) setPreviewVersion(version); }} onSelect={selectVersion}
-        onAccept={acceptVersion} onReject={rejectVersion}
+        voting={voting} onAccept={acceptVersion} onReject={rejectVersion}
         onDelete={version => deleteVersionMutation.mutateAsync(version).then(() => true).catch(() => false)}
-        onCancelReaction={(version, deleteReason) => cancelReactionMutation.mutate({version, deleteReason})}/>;
+        onCancelReaction={(version, deleteReason) => {
+            if (!voting) cancelReactionMutation.mutate({version, deleteReason});
+        }}/>;
     const sourcesSection = visualization && sourcesOpen && <VisualizationSourcesPanel block={block} id={sourcesId}/>;
     const visualizationControls = visualization && <div className={cn("flex items-center justify-end gap-1")}>
         <Button type="button" variant="ghost" size="sm" className={cn("text-muted-foreground", sourcesOpen && "bg-muted")}

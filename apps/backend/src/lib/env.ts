@@ -27,6 +27,7 @@ export const env = cleanEnv(process.env, {
     DOCUMENT_TEXT_MAX_MB: num({default: 5}),
     LIBREOFFICE_PATH: str({default: 'libreoffice'}),
     DATABASE_URL: str(),
+    DEV_DB_LATENCY_MS: num({default: 0}),
     MAX_CONNECTIONS: num({devDefault: 2}),
     RUN_CRONS: bool({devDefault: false}),
     MIRROR_EXTENDED_USERS: bool({devDefault: false}),

@@ -4,11 +4,14 @@ import {useRef, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import type {CreateDiscussionCommentInput, TopicTitleEdit, TopicTitleEditOutput} from "@cabildo-abierto/api";
 import {del, get, post} from "@/utils/react/fetch";
+import {useToast} from "@/components/ui/toast";
 
 export function useTopicTitleEditActions(edit: TopicTitleEdit) {
     const queryClient = useQueryClient();
+    const {toast} = useToast();
     const running = useRef(false);
     const [pending, setPending] = useState(false);
+    const [pendingVote, setPendingVote] = useState<"accept" | "reject" | null>(null);
     const [error, setError] = useState<string | null>(null);
     const base = `/topics/${encodeURIComponent(edit.topic.id)}/title-edits/${encodeURIComponent(edit.id)}`;
     const run = async (action: () => Promise<{success: boolean; error?: string}>) => {
@@ -36,12 +39,27 @@ export function useTopicTitleEditActions(edit: TopicTitleEdit) {
             return false;
         } finally { running.current = false; setPending(false); }
     };
+    const vote = async (type: "accept" | "reject", cancel: boolean, action: () => Promise<{success: boolean; error?: string}>) => {
+        if (running.current) return false;
+        setPendingVote(type);
+        try {
+            const saved = await run(action);
+            if (saved) toast({title: cancel ? "Se canceló el voto" : "Se registró el voto"});
+            return saved;
+        } finally {
+            setPendingVote(null);
+        }
+    };
     return {
-        pending, error,
-        accept: () => run(() => post(`${base}/reactions`, {type: "accept"})),
-        cancelReaction: (deleteReason: boolean) => run(() => del(`${base}/reactions`, {deleteReason})),
+        pending, pendingVote, error,
+        accept: (deleteReason?: boolean) => vote("accept", false, () => post(`${base}/reactions`, {type: "accept", deleteReason})),
+        cancelReaction: (deleteReason: boolean) => vote(edit.userReaction === "accept" ? "accept" : "reject", true, () => del(`${base}/reactions`, {deleteReason})),
         deleteEdit: () => run(() => del(base)),
-        publish: (input: CreateDiscussionCommentInput) => run(() => post(`${base}/comments`, input)),
+        publish: async (input: CreateDiscussionCommentInput) => {
+            const saved = await run(() => post(`${base}/comments`, input));
+            if (saved) toast({title: input.reject || input.replica ? "Se registró el voto" : "Se publicó el comentario"});
+            return saved;
+        },
         deleteComment: (id: string) => run(() => del(`${base}/comments/${encodeURIComponent(id)}`)),
     };
 }

@@ -12,6 +12,7 @@ import {VisualizationEditActions} from '@/components/visualizations/visualizatio
 
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
+import {useToast} from "@/components/ui/toast";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {compareContentBlocks, parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, richTextPlainText} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
@@ -159,6 +160,7 @@ export type TopicBlockEditorHandle = {
 export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicEditableBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
     const openToolsInPage = useMediaQuery("(max-width: 1535px)") !== false;
     const queryClient = useQueryClient();
+    const {toast} = useToast();
     const [edit, setEdit] = useState<TopicEditState>(() => {
         const blocks = persistedBlocks(initialBlocks);
         return {...stateFromSaved(blocks), showDeleted: false, message: ""};
@@ -431,6 +433,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const blocks = persistedBlocks(result.value.blocks);
         setEdit({...stateFromSaved(blocks), showDeleted: false, message: ""});
         setSaving(false);
+        toast({title: "Se guardó la edición"});
         void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
         return true;
     };

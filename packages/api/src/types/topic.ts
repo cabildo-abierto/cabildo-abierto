@@ -126,6 +126,7 @@ export type CreateBlockCommentInput = {
 
 export type CreateBlockReactionInput = {
     type: "accept"
+    deleteReason?: boolean
 }
 
 export type DeleteBlockReactionInput = {

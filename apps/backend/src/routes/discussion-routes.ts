@@ -78,7 +78,7 @@ export function discussionRoutes(ctx: AppContext) {
             try {
                 if (req.body?.type !== "accept") throw new TopicActionError(400, "La reacción no es válida.");
                 const target = await resolve(req, kind);
-                await mutateDiscussion(ctx.kysely, target, (trx, author) => acceptDiscussion(trx, target, requiredUser(req).id, author));
+                await mutateDiscussion(ctx.kysely, target, (trx, author) => acceptDiscussion(trx, target, requiredUser(req).id, author, req.body?.deleteReason));
                 await notify(target, "vote");
                 return res.status(201).json({success: true});
             } catch (error) { return fail(res, error); }

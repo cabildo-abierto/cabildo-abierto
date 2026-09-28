@@ -33,7 +33,7 @@ export function TopicTitleEditDetail({edit, commentsOpen, onCommentsOpenChange}:
             {edit.message && <div className="space-y-1">
                 <p className="whitespace-pre-wrap break-words text-xs leading-relaxed">{edit.message}</p>
             </div>}
-            <TopicTitleEditActions edit={edit} pending={actions.pending} onAccept={actions.accept} onCancelReaction={actions.cancelReaction}
+            <TopicTitleEditActions edit={edit} pending={actions.pending} pendingVote={actions.pendingVote} onAccept={actions.accept} onCancelReaction={actions.cancelReaction}
                 onDelete={actions.deleteEdit} onReject={() => { setRejecting(true); onCommentsOpenChange(true); }}>
                 <Button variant="ghost" size="sm" className={cn("text-muted-foreground", commentsOpen && "bg-muted")}
                     aria-expanded={commentsOpen} aria-controls={commentsId}

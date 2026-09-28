@@ -1,17 +1,20 @@
 "use client";
 
 import type {TopicBlockVersion} from "@cabildo-abierto/api";
-import {ChatCircleIcon, CheckIcon, DotsThreeIcon, FlagIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
+import {ChatCircleIcon, CheckIcon, DotsThreeIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
 import {useAuth} from "@/components/auth-provider";
 import {Button} from "@/components/ui/button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {formatRelativeDate, formatTopicBlockDate} from "@/components/topic-block-date";
 import {topicAuthorName} from "@/components/topic-author-name";
 import {cn} from "@/lib/utils";
+import {Spinner} from "@/components/ui/spinner";
 
-export function TopicBlockHistoryVersionHeader({version, selected, onSelect, onAccept, onReject, onCancelReaction, onDelete}: {
+export function TopicBlockHistoryVersionHeader({version, selected, voting, pendingVote, onSelect, onAccept, onReject, onCancelReaction, onDelete}: {
     version: TopicBlockVersion;
     selected: boolean;
+    voting: boolean;
+    pendingVote: "accept" | "reject" | null;
     onSelect: (version: TopicBlockVersion) => void;
     onAccept: (version: TopicBlockVersion) => void;
     onReject: (version: TopicBlockVersion) => void;
@@ -39,13 +42,13 @@ export function TopicBlockHistoryVersionHeader({version, selected, onSelect, onA
                     </div>
                     {version.current && <span className={cn("shrink-0 whitespace-nowrap rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary")}>Versión actual</span>}
                 </div>
-                <DropdownMenu>
+                {user?.id === version.author.id && !version.deleted && <DropdownMenu>
                     <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" aria-label="Acciones de la edición"/>}><DotsThreeIcon/></DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className={cn("w-max min-w-32")}>
-                        <DropdownMenuItem className={cn("whitespace-nowrap")}><FlagIcon/>Reportar</DropdownMenuItem>
-                        {user?.id === version.author.id && <DropdownMenuItem variant="destructive" className={cn("whitespace-nowrap")} onClick={() => onDelete(version)}><TrashIcon/>Eliminar</DropdownMenuItem>}
+                        {/* <DropdownMenuItem className={cn("whitespace-nowrap")}><FlagIcon/>Reportar</DropdownMenuItem> */}
+                        <DropdownMenuItem variant="destructive" className={cn("whitespace-nowrap")} onClick={() => onDelete(version)}><TrashIcon/>Eliminar</DropdownMenuItem>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu>}
             </div>
             <div className={cn("flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1")}>
                 <Button type="button" variant="ghost" size="sm"
@@ -56,10 +59,10 @@ export function TopicBlockHistoryVersionHeader({version, selected, onSelect, onA
                     {votes.map(({type, label, count, Icon, onVote, className, activeClassName}) => {
                         const active = version.userReaction === type;
                         const action = active ? `Cancelar voto de ${label}` : `Votar ${label}`;
-                        return <Button key={type} type="button" variant="ghost" size="sm" disabled={!user || user.id === version.author.id}
+                        return <Button key={type} type="button" variant="ghost" size="sm" disabled={voting || !user || user.id === version.author.id}
                             className={cn("h-6 gap-1 px-1 tabular-nums disabled:opacity-50", className, active && activeClassName)}
-                            aria-pressed={active} aria-label={`${action} (${count})`} title={action}
-                            onClick={() => active ? onCancelReaction(version) : onVote(version)}><Icon className={cn("size-3")}/><span>{count}</span></Button>;
+                            aria-pressed={active} aria-busy={pendingVote === type} aria-label={`${action} (${count})`} title={action}
+                            onClick={() => active ? onCancelReaction(version) : onVote(version)}>{pendingVote === type ? <Spinner className={cn("size-3")}/> : <Icon className={cn("size-3")}/>}<span>{count}</span></Button>;
                     })}
                 </div>
             </div>

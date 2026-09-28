@@ -68,12 +68,17 @@ async function requireMutableTitleReaction(trx: Transaction<DB>, target: Discuss
     }
 }
 
-export async function acceptDiscussion(trx: Transaction<DB>, target: DiscussionTarget, userId: string, authorId: string) {
+export async function acceptDiscussion(trx: Transaction<DB>, target: DiscussionTarget, userId: string, authorId: string, deleteReason?: boolean) {
     await requireMutableTitleReaction(trx, target);
     if (userId === authorId) throw new TopicActionError(403, "No podés votar tu propia publicación.");
-    const existing = await trx.selectFrom("reaction").innerJoin("record", "record.id", "reaction.id").select("reaction.id")
+    const existing = await trx.selectFrom("reaction").innerJoin("record", "record.id", "reaction.id").select(["reaction.id", "reaction.type", "reaction.reason_id"])
         .where("subject_id", "=", target.rootId).where("author_id", "=", userId).executeTakeFirst();
-    if (existing) throw new TopicActionError(409, "Ya votaste esta publicación.");
+    if (existing?.type === "accept") throw new TopicActionError(409, "Ya votaste esta publicación.");
+    if (existing) {
+        if (typeof deleteReason !== "boolean") throw new TopicActionError(400, "Elegí qué hacer con la justificación del rechazo.");
+        if (deleteReason && existing.reason_id) await trx.updateTable("record").set({deleted: true}).where("id", "=", existing.reason_id).execute();
+        await deleteReactionTree(trx, existing.id);
+    }
     const id = randomUUID();
     await trx.insertInto("record").values({id, type_id: "reaction", author_id: userId}).execute();
     await trx.insertInto("reaction").values({id, type: "accept", subject_id: target.rootId, reason_id: null}).execute();

@@ -27,6 +27,7 @@ export function TopicBlockHistory({
                                       loading,
                                       error,
                                       selectedVersionId,
+                                      voting,
                                       onPreview,
                                       onSelect,
                                       onAccept,
@@ -39,19 +40,24 @@ export function TopicBlockHistory({
     loading: boolean
     error: string | null
     selectedVersionId: string | null
+    voting: {versionId: string; type: "accept" | "reject"} | null
     onPreview: (version: TopicBlockVersion | null) => void
     onSelect: (version: TopicBlockVersion) => void
-    onAccept: (version: TopicBlockVersion) => void
+    onAccept: (version: TopicBlockVersion, deleteReason?: boolean) => void
     onReject: (version: TopicBlockVersion) => void
     onDelete: (version: TopicBlockVersion) => Promise<boolean>
     onCancelReaction: (version: TopicBlockVersion, deleteReason: boolean) => void
 }) {
     const {slug: topicSlug} = useTopicRoute();
-    const [cancelVersion, setCancelVersion] = useState<TopicBlockVersion | null>(null);
+    const [reasonDialog, setReasonDialog] = useState<{version: TopicBlockVersion; action: "cancel" | "accept"} | null>(null);
     const [deleteVersion, setDeleteVersion] = useState<TopicBlockVersion | null>(null);
     const requestCancel = (version: TopicBlockVersion) => {
-        if (version.userReaction === "reject") setCancelVersion(version);
+        if (version.userReaction === "reject") setReasonDialog({version, action: "cancel"});
         else onCancelReaction(version, false);
+    };
+    const requestAccept = (version: TopicBlockVersion) => {
+        if (version.userReaction === "reject") setReasonDialog({version, action: "accept"});
+        else onAccept(version);
     };
     return <section className={cn("mt-4 mb-2 min-w-0 rounded-lg border bg-muted/20 p-3 wrap-anywhere")}
                     aria-label={`Historial de ${block.blockNumber}`}>
@@ -82,12 +88,13 @@ export function TopicBlockHistory({
                         <span
                             className={cn("size-2 rounded-full", version.rejected ? "bg-red-500/65" : "bg-green-500/65")}/>
                     </span>
-                        <TopicBlockHistoryVersionHeader version={version} selected={selected}
-                            onSelect={onSelect} onAccept={onAccept} onReject={onReject}
+                        <TopicBlockHistoryVersionHeader version={version} selected={selected} voting={voting !== null}
+                            pendingVote={voting?.versionId === version.id ? voting.type : null}
+                            onSelect={onSelect} onAccept={requestAccept} onReject={onReject}
                             onCancelReaction={requestCancel} onDelete={setDeleteVersion}/>
                         {version.message && <div className="flex justify-start pb-1">
                             <div
-                                className={"rounded-md bg-muted px-2 py-0 text-[10px] font-medium leading-relaxed text-foreground whitespace-pre-wrap break-words"}>
+                                className={cn("rounded-md bg-muted px-2 py-0 text-xs font-medium leading-relaxed text-foreground whitespace-pre-wrap break-words")}>
                                 {version.message}
                             </div>
                         </div>}
@@ -97,25 +104,25 @@ export function TopicBlockHistory({
                     </li>;
                 })}
             </ol>}
-        <AlertDialog open={Boolean(cancelVersion)} onOpenChange={open => {
-            if (!open) setCancelVersion(null);
+        <AlertDialog open={Boolean(reasonDialog)} onOpenChange={open => {
+            if (!open) setReasonDialog(null);
         }}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Cancelar rechazo</AlertDialogTitle>
+                    <AlertDialogTitle>{reasonDialog?.action === "accept" ? "Cambiar a aceptación" : "Cancelar rechazo"}</AlertDialogTitle>
                     <AlertDialogDescription>¿Querés borrar también la justificación o conservarla como
                         comentario?</AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="w-full flex-col">
+                <AlertDialogFooter className={cn("w-full sm:flex-col")}>
                     <AlertDialogCancel className="w-full"
-                                       onClick={() => setCancelVersion(null)}>Cancelar</AlertDialogCancel>
+                                       onClick={() => setReasonDialog(null)}>Cancelar</AlertDialogCancel>
                     <AlertDialogAction className="w-full" onClick={() => {
-                        if (cancelVersion) onCancelReaction(cancelVersion, false);
-                        setCancelVersion(null);
+                        if (reasonDialog) (reasonDialog.action === "accept" ? onAccept : onCancelReaction)(reasonDialog.version, false);
+                        setReasonDialog(null);
                     }}>Conservar comentario</AlertDialogAction>
                     <AlertDialogAction className="w-full" variant="destructive" onClick={() => {
-                        if (cancelVersion) onCancelReaction(cancelVersion, true);
-                        setCancelVersion(null);
+                        if (reasonDialog) (reasonDialog.action === "accept" ? onAccept : onCancelReaction)(reasonDialog.version, true);
+                        setReasonDialog(null);
                     }}>Borrar justificación</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

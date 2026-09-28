@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type {DiscussionComment, TopicBlockVersion} from "@cabildo-abierto/api";
 import {useState, type ReactNode} from "react";
-import {ChatCircleIcon, CheckIcon, DotsThreeIcon, FlagIcon, ShareNetworkIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
+import {ChatCircleIcon, CheckIcon, DotsThreeIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
 import {useAuth} from "@/components/auth-provider";
 import {Button} from "@/components/ui/button";
 import {
@@ -51,6 +51,7 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
     const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [activeReplicaId, setActiveReplicaId] = useState<string | null>(null);
     const [deleteComment, setDeleteComment] = useState<DiscussionComment | null>(null);
+    const sidePanel = !pageLayout && scope === "block";
     const visibleComments = filteredVersion ? comments?.filter(comment => comment.rootId === filteredVersion.id) : comments;
     const commentsByParent = new Map<string, DiscussionComment[]>();
     for (const comment of visibleComments ?? []) {
@@ -73,6 +74,7 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
         const hasHiddenReplies = !pageLayout && depth >= MAX_INLINE_COMMENT_DEPTH && visibleChildren.length > 0;
         const userAlreadyReplicated = Boolean(user && children.some(child =>
             !child.deleted && child.suggestedVote !== null && child.author.id === user.id));
+        const canDeleteComment = !readOnly && !comment.deleted && user?.id === comment.author.id;
         const cardClass = cn(
             comment.suggestedVote === "reject" && "border border-red-500/50 bg-red-500/5 dark:border-red-400/50 dark:bg-red-500/10",
             comment.suggestedVote === "accept" && "border border-green-500/50 bg-green-500/5 dark:border-green-400/50 dark:bg-green-500/10",
@@ -110,17 +112,18 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
                 aria-label={`Replicar el voto de ${topicAuthorName(comment.author, user?.id)}`} title="Réplica">
                 Réplica
             </Button>}
-            <DropdownMenu>
+            {canDeleteComment && <DropdownMenu>
                 <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" className="ml-auto"/>}>
                     <DotsThreeIcon/>
                     <span className="sr-only">Acciones del comentario</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-max min-w-32">
-                    <DropdownMenuItem className="whitespace-nowrap"><ShareNetworkIcon/>Compartir</DropdownMenuItem>
-                    {user?.id !== comment.author.id && <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem>}
-                    {!readOnly && user?.id === comment.author.id && <DropdownMenuItem variant="destructive" className="whitespace-nowrap" onClick={() => setDeleteComment(comment)}><TrashIcon/>Eliminar</DropdownMenuItem>}
+                    {/* Compartir y Reportar permanecen ocultos hasta que tengan una acción implementada. */}
+                    {/* <DropdownMenuItem className="whitespace-nowrap"><ShareNetworkIcon/>Compartir</DropdownMenuItem> */}
+                    {/* <DropdownMenuItem className="whitespace-nowrap"><FlagIcon/>Reportar</DropdownMenuItem> */}
+                    <DropdownMenuItem variant="destructive" className="whitespace-nowrap" onClick={() => setDeleteComment(comment)}><TrashIcon/>Eliminar</DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
         </div>}
         {!readOnly && !comment.deleted && isReplyEditorOpen && <div className={"pb-1 pr-1"}>
             <CommentComposer replyTo={comment}
@@ -143,12 +146,12 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
     };
 
     return <><section className={cn("mt-4 box-border min-w-0 max-w-full")} aria-label={scope === "title" ? "Comentarios del título" : "Comentarios del bloque"}>
-        {readOnly ? <p className="text-xs text-muted-foreground">La discusión de esta edición eliminada está cerrada.</p> : authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <CommentComposer
+        {readOnly ? <p className="text-xs text-muted-foreground">La discusión de esta edición eliminada está cerrada.</p> : authLoading ? <p className="flex items-center gap-2 text-xs text-muted-foreground"><Spinner/>Comprobando sesión…</p> : user ? <div className={cn(sidePanel && "pr-3")}><CommentComposer
             rejectionLabel={rejectionVersion ? rejectionVersion.message
                 ? `${scope === "title" ? "la edición de título" : "la edición"} «${rejectionVersion.message}» de ${topicAuthorName(rejectionVersion.author, user?.id)}`
                 : `la edición de ${topicAuthorName(rejectionVersion.author, user?.id)} del ${formatTopicBlockDate(rejectionVersion.createdAt)}` : undefined}
             onPublish={(content, replyToId) => onPublish(content, replyToId, rejectionVersion?.id, Boolean(rejectionVersion))}
-            onCancel={rejectionVersion ? onCancelRejection : undefined}/>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+            onCancel={rejectionVersion ? onCancelRejection : undefined}/></div>: <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
             <Link href="/iniciar-sesion" className="font-medium text-foreground underline underline-offset-4">Iniciá sesión</Link> para escribir un comentario.
         </p>}
         <div className={cn("mt-2", scope !== "title" && "mb-16")}>
@@ -159,7 +162,7 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
             {loading && <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite"><Spinner/>Cargando comentarios…</p>}
             {error && <p className="text-xs text-destructive">{error}</p>}
             {rootComments.some(isRenderable) && <ScrollArea className={cn("group/comment-scroll max-h-[600px]")}>
-                <ol className={cn("space-y-2 group-data-[has-overflow-y]/comment-scroll:pr-3")}>{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
+                <ol className={cn("space-y-2", sidePanel ? "pr-3" : "group-data-[has-overflow-y]/comment-scroll:pr-3")}>{rootComments.filter(isRenderable).map(comment => renderComment(comment, 1))}</ol>
             </ScrollArea>}
             {pageLayout && !loading && !error && !rootComments.some(isRenderable) && <p className={cn("text-xs text-muted-foreground", scope === "title" ? "py-1" : "rounded-md bg-muted/40 p-3")}>
                 {filteredVersion ? "Esta versión no recibió comentarios." : scope === "title" ? "La propuesta todavía no recibió comentarios." : "Todavía no recibió comentarios."}
