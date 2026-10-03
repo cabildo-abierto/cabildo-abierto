@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type {DiscussionComment, TopicBlockVersion} from "@cabildo-abierto/api";
-import {useState, type ReactNode} from "react";
+import {useEffect, useState, type ReactNode} from "react";
 import {ChatCircleIcon, CheckIcon, DotsThreeIcon, TrashIcon, XIcon} from "@phosphor-icons/react";
 import {useAuth} from "@/components/auth-provider";
 import {Button} from "@/components/ui/button";
@@ -53,6 +53,11 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
     const [deleteComment, setDeleteComment] = useState<DiscussionComment | null>(null);
     const sidePanel = !pageLayout && scope === "block";
     const visibleComments = filteredVersion ? comments?.filter(comment => comment.rootId === filteredVersion.id) : comments;
+    useEffect(() => {
+        const commentId = new URLSearchParams(window.location.search).get("comentario");
+        if (!commentId || !visibleComments?.some(comment => comment.id === commentId)) return;
+        document.getElementById(`notificacion-comentario-${commentId}`)?.scrollIntoView({block: "center"});
+    }, [visibleComments]);
     const commentsByParent = new Map<string, DiscussionComment[]>();
     for (const comment of visibleComments ?? []) {
         if (comment.replyToId === comment.rootId) continue;
@@ -81,7 +86,7 @@ export function DiscussionComments({comments, loading, error, filteredVersion, p
             comment.suggestedVote === null && "outline outline-1 -outline-offset-1 outline-[rgb(229_229_229)] dark:outline-[rgb(38_38_38)]",
             comment.suggestedVote === null && (depth % 2 === 1 ? "bg-card" : "bg-muted/40"),
         );
-        return <li key={comment.id} className={cn("pl-1 pt-1 pb-0.5 pr-0 rounded-lg", cardClass)}>
+        return <li key={comment.id} id={`notificacion-comentario-${comment.id}`} className={cn("scroll-mt-20 pl-1 pt-1 pb-0.5 pr-0 rounded-lg", cardClass)}>
 
         {comment.deleted && <div className={"wrap-break-word p-1 leading-relaxed whitespace-pre-wrap flex items-center gap-1 italic text-xs py-2 text-muted-foreground"}>
             <div className={"pb-0.5"}>

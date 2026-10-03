@@ -6,8 +6,9 @@ import type {BlockComment, CreateDiscussionCommentInput} from "@cabildo-abierto/
 import type {DB} from "#/db/types.js";
 import {deleteReactionTree} from "#/services/record-reactions.js";
 import {TopicActionError, lockTopicTitleEdits, convergeTopicName, initialTitleEdit} from "#/services/topic-title-edits.js";
+import {createNotification} from "#/services/notifications.js";
 
-export type DiscussionTarget = {id: string; rootId: string; topicId: string; blockNumber: string | null; kind: "edit" | "title" | "document"; documentBlockId?: string};
+export type DiscussionTarget = {id: string; rootId: string; topicId: string; blockNumber: string | null; kind: "edit" | "title" | "document"; documentBlockId?: string; documentVersionId?: string};
 type Database = Kysely<DB> | Transaction<DB>;
 
 export async function mutateDiscussion<T>(database: Kysely<DB>, target: DiscussionTarget, action: (trx: Transaction<DB>, authorId: string) => Promise<T>): Promise<T> {
@@ -82,6 +83,8 @@ export async function acceptDiscussion(trx: Transaction<DB>, target: DiscussionT
     const id = randomUUID();
     await trx.insertInto("record").values({id, type_id: "reaction", author_id: userId}).execute();
     await trx.insertInto("reaction").values({id, type: "accept", subject_id: target.rootId, reason_id: null}).execute();
+    await createNotification(trx, {recipientId: authorId, actorId: userId, kind: "positive_vote", sourceId: id,
+        topicId: target.topicId, targetId: target.id, blockNumber: target.blockNumber});
 }
 
 export async function cancelDiscussionReaction(trx: Transaction<DB>, target: DiscussionTarget, userId: string, deleteReason: boolean) {
@@ -118,6 +121,7 @@ export async function publishDiscussionComment(trx: Transaction<DB>, target: Dis
     if (input.reject && user.id === authorId) throw new TopicActionError(403, "No podés rechazar tu propia publicación.");
     const replyToId = input.replyToId ?? target.rootId;
     let replicaDepth: number | null = null;
+    let recipientId = authorId;
     if (input.replyToId) {
         const parent = await trx.selectFrom("comment").innerJoin("record", "record.id", "comment.id").select(["comment.id", "author_id", "record.deleted"])
             .where("comment.id", "=", input.replyToId).where("topic_id", "=", target.topicId)
@@ -125,6 +129,7 @@ export async function publishDiscussionComment(trx: Transaction<DB>, target: Dis
             .where("block_number", target.blockNumber === null ? "is" : "=", target.blockNumber)
             .where("document_block_id", target.documentBlockId ? "=" : "is", target.documentBlockId ?? null).executeTakeFirst();
         if (!parent || parent.deleted) throw new TopicActionError(404, "No encontramos ese comentario.");
+        recipientId = parent.author_id;
         if (input.replica) {
             if (parent.author_id === user.id) throw new TopicActionError(403, "No podés replicar tu propio voto.");
             const comments = await discussionComments(trx, target.topicId, target.blockNumber === null ? {rootId: target.rootId} : {blockNumber: target.blockNumber});
@@ -154,6 +159,10 @@ export async function publishDiscussionComment(trx: Transaction<DB>, target: Dis
         await trx.insertInto("record").values({id: reactionId, type_id: "reaction", author_id: user.id}).execute();
         await trx.insertInto("reaction").values({id: reactionId, type: "reject", subject_id: input.replica ? replyToId : target.rootId, reason_id: id}).execute();
     }
+    await createNotification(trx, {recipientId, actorId: user.id,
+        kind: input.replica ? "replica" : input.reject ? "rejection" : input.replyToId ? "reply" : "comment",
+        sourceId: id, topicId: target.topicId, targetId: target.documentVersionId ?? target.id,
+        blockNumber: target.blockNumber, documentBlockId: target.documentBlockId});
     const record = await trx.selectFrom("record").select("created_at").where("id", "=", id).executeTakeFirstOrThrow();
     const depth = input.reject ? 0 : replicaDepth;
     return {id, commentNumber: `c-${number}`, blockVersionId: target.id, rootId: target.id, replyToId: input.replyToId ?? target.id,

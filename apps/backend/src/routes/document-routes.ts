@@ -82,7 +82,7 @@ export function documentRoutes(ctx: AppContext) {
         const doc = await requireDocumentAccess(ctx.kysely, String(req.params.id));
         const block = await ctx.kysely.selectFrom('document_block').select('id').where('id', '=', String(req.params.blockId)).where('file_id', '=', doc.file_id).executeTakeFirst();
         if (!block) throw new TopicActionError(404, 'No encontramos ese bloque.');
-        return {id: doc.edit_id, rootId: doc.edit_id, topicId: doc.topic_id, blockNumber: null, documentBlockId: block.id, kind: 'document'};
+        return {id: doc.edit_id, rootId: doc.edit_id, topicId: doc.topic_id, blockNumber: null, documentBlockId: block.id, documentVersionId: doc.id, kind: 'document'};
     };
     const path = '/documents/:id/blocks/:blockId/comments';
     router.get(path, withSession(ctx), async (req, res) => {

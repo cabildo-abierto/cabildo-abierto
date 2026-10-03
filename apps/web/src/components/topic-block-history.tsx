@@ -5,7 +5,7 @@ import {useTopicRoute} from "@/components/topic-route-provider";
 import type {TopicBlock, TopicBlockVersion} from "@cabildo-abierto/api";
 import Link from "next/link";
 import {GitDiffIcon, TrashIcon} from "@phosphor-icons/react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -51,6 +51,11 @@ export function TopicBlockHistory({
     const {slug: topicSlug} = useTopicRoute();
     const [reasonDialog, setReasonDialog] = useState<{version: TopicBlockVersion; action: "cancel" | "accept"} | null>(null);
     const [deleteVersion, setDeleteVersion] = useState<TopicBlockVersion | null>(null);
+    useEffect(() => {
+        const target = new URLSearchParams(window.location.search).get("edicion");
+        const version = versions?.find(version => version.id === target || version.editId === target);
+        if (version) document.getElementById(`version-${version.id}`)?.scrollIntoView({block: "center"});
+    }, [versions]);
     const requestCancel = (version: TopicBlockVersion) => {
         if (version.userReaction === "reject") setReasonDialog({version, action: "cancel"});
         else onCancelReaction(version, false);
@@ -74,7 +79,7 @@ export function TopicBlockHistory({
             <ol className="relative space-y-4 pl-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-0.5 before:rounded-full before:bg-border">
                 {versions.map(version => {
                     const selected = selectedVersionId === version.id;
-                    return <li key={version.id} className="group/version relative"
+                    return <li key={version.id} id={`version-${version.id}`} className={cn("group/version relative scroll-mt-20")}
                                onMouseEnter={() => onPreview(version)} onMouseLeave={() => onPreview(null)}
                                onFocus={() => onPreview(version)}
                                onBlur={event => {

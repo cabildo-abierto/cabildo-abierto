@@ -7,6 +7,19 @@ type Generated<T> = T extends ColumnType<infer Select, infer Insert, infer Updat
 type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type DB = {
+    notification: {
+        id: string;
+        recipient_id: string;
+        actor_id: string;
+        kind: "comment" | "reply" | "replica" | "rejection" | "positive_vote" | "edit";
+        source_id: string;
+        topic_id: string;
+        block_number: string | null;
+        target_id: string;
+        document_block_id: string | null;
+        created_at: Generated<Timestamp>;
+        read_at: Timestamp | null;
+    };
     search_source: {
         id: Generated<string>;
         kind: import('@cabildo-abierto/api').SearchSourceKind;

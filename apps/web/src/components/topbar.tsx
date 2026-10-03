@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {ThemePicker} from "@/components/theme-picker";
 import {useAuth} from "@/components/auth-provider";
+import {NotificationBell} from "@/components/notification-bell";
 
 export function Topbar() {
     const {user, logout} = useAuth();
@@ -29,6 +30,7 @@ export function Topbar() {
         </div>
         <div className="flex items-center gap-1">
             <ThemePicker/>
+            <NotificationBell/>
             <Button nativeButton={false} render={<Link href="/nuevo-tema"/>} variant="ghost" size="sm">
                 <PlusIcon/>
                 Nuevo tema

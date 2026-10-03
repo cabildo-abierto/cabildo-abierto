@@ -20,6 +20,7 @@ import {currentUser, requireSession, requiredUser, withSession} from "#/auth/mid
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
 import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/record-reactions.js";
 import {notifyTopicChanged} from "#/services/topic-connections.js";
+import {notifyPreviousBlockAuthors} from "#/services/notifications.js";
 
 const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v", imagen: "i"};
 
@@ -503,6 +504,8 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     });
                 }
                 await trx.insertInto("block_version").values(versions).execute();
+                await notifyPreviousBlockAuthors(trx, {topicId, editId, actorId: user.id,
+                    previousBlocks: changedExisting.map(block => ({id: block.id!, blockNumber: block.blockNumber!}))});
                 if (images.length) await trx.insertInto("image").values(images).execute();
                 if (visualizations.length) await trx.insertInto("visualization").values(visualizations).execute();
                 if (visualizationDatasets.length) await trx.insertInto("visualization_dataset").values(visualizationDatasets).execute();
