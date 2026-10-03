@@ -10,8 +10,9 @@ export type DatasetContent = {
 export type DatasetCell = {raw: string; value: string | number | boolean | null; error: string | null};
 export type DatasetPreview = {
     fileId: string | null; fileName: string | null; sourceUrl: string | null;
-    columns: DatasetColumn[]; csvOptions: CSVOptions; rows: string[][];
+    columns: DatasetColumn[]; csvOptions: CSVOptions; rows: string[][]; rowCount: number; snapshotId: string; page: number;
 };
 export type DatasetOutput = DatasetContent & {
-    id: string; topic: TopicSummary; rows: DatasetCell[][]; rowCount: number;
+    id: string; topic: TopicSummary; rows: DatasetCell[][]; rowCount: number; snapshotId: string; page: number;
 };
+export type DatasetMetadata = Pick<DatasetContent, 'title' | 'description'> & {rowCount?: number; checkedAt?: string | null};

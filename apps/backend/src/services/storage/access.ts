@@ -12,8 +12,9 @@ export async function requireFileAccess(database: Kysely<DB> | Transaction<DB>, 
     const published = await database.selectFrom('block_version')
         .leftJoin('image', 'image.id', 'block_version.id')
         .leftJoin('document', 'document.id', 'block_version.id').leftJoin('dataset', 'dataset.id', 'block_version.id')
+        .leftJoin('dataset_source', 'dataset_source.id', 'dataset.source_id')
         .innerJoin('record', 'record.id', 'block_version.edit_id').select('block_version.id')
-        .where(eb => eb.or([eb('document.file_id', '=', fileId), eb('dataset.file_id', '=', fileId), eb('image.file_id', '=', fileId)]))
+        .where(eb => eb.or([eb('document.file_id', '=', fileId), eb('dataset_source.file_id', '=', fileId), eb('image.file_id', '=', fileId)]))
         .where('record.deleted', '=', false).where('block_version.deleted', '=', false).executeTakeFirst();
     if (!published) throw new TopicActionError(404, 'No encontramos ese archivo.');
     return file;

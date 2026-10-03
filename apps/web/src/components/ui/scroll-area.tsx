@@ -4,9 +4,10 @@ import * as React from "react";
 import {ScrollArea as ScrollAreaPrimitive} from "@base-ui/react/scroll-area";
 import {cn} from "@/lib/utils";
 
-function ScrollArea({className, children, viewportClassName, horizontal = false, ...props}: ScrollAreaPrimitive.Root.Props & {
+function ScrollArea({className, children, viewportClassName, horizontal = false, overlay, ...props}: ScrollAreaPrimitive.Root.Props & {
     viewportClassName?: string;
     horizontal?: boolean;
+    overlay?: React.ReactNode;
 }) {
     return <ScrollAreaPrimitive.Root
         data-slot="scroll-area"
@@ -19,6 +20,7 @@ function ScrollArea({className, children, viewportClassName, horizontal = false,
         >
             <ScrollAreaPrimitive.Content style={horizontal ? undefined : {minWidth: 0}}>{children}</ScrollAreaPrimitive.Content>
         </ScrollAreaPrimitive.Viewport>
+        {overlay}
         <ScrollBar/>
         {horizontal && <ScrollBar orientation="horizontal"/>}
     </ScrollAreaPrimitive.Root>;

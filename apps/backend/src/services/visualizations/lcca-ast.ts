@@ -48,7 +48,7 @@ export function analyzeAST(ast: Node, rewrite = false) {
                 || args.some((arg: Node) => arg.class !== 'CONSTANT' || arg.value?.type?.id !== 'VARCHAR' || arg.value?.is_null)
                 || node.column_name_alias?.length || node.with_ordinality !== 'WITHOUT_ORDINALITY') throw new Error("Las fuentes deben usar datos('tema', 'ds-1') o dataset('tema', 'ds-1').");
             const source = {topicId: args[0].value.value as string, blockNumber: args[1].value.value as string};
-            if (!source.topicId || source.topicId.length > 1000 || !/^ds-[1-9]\d*$/.test(source.blockNumber)) throw new Error('La referencia al conjunto de datos no es válida.');
+            if (!source.topicId || source.topicId.length > 1000 || !/^ds-(?:[1-9]\d*|datos-gob-ar-[a-f0-9]{64})$/.test(source.blockNumber)) throw new Error('La referencia al conjunto de datos no es válida.');
             const key = JSON.stringify(source);
             if (!sources.has(key)) sources.set(key, source);
             if (sources.size > 8) throw new Error('Una consulta puede usar como máximo 8 conjuntos de datos.');

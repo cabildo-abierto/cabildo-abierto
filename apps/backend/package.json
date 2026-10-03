@@ -26,6 +26,7 @@
     "script:once": "tsx src/scripts/script.ts | pino-pretty",
     "script:create-test-users": "tsx src/scripts/create-test-users.ts",
     "script:create-notification-examples": "tsx src/scripts/create-notification-examples.ts",
+    "script:import-datos-gob-ar": "tsx src/scripts/import-datos-gob-ar.ts",
     "script:sync-ca-users": "tsx src/scripts/sync-ca-users.ts | pino-pretty",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
@@ -37,7 +38,9 @@
     "test:reset-db": "tsx watch --clear-screen=false src/scripts/reset-dev-db.ts | pino-pretty",
     "coverage": "NODE_ENV=test vitest run --coverage",
     "migrate": "tsx src/scripts/apply-migrations.ts",
-    "search:reindex": "node dist/scripts/search-reindex.js"
+    "search:reindex": "node dist/scripts/search-reindex.js",
+    "datasets:httpfs": "node src/scripts/install-dataset-httpfs.mjs",
+    "datasets:prepare": "tsx src/scripts/datasets-prepare.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1136.0",

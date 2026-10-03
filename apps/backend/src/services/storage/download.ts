@@ -28,7 +28,8 @@ async function addresses(hostname: string, deadline: number) {
         ]);
     } finally { if (timer) clearTimeout(timer); }
 }
-export async function downloadRemoteFile(source: string, options: {maxBytes: number; accept: string; label: string}): Promise<Buffer> {
+export type RemoteOptions = {maxBytes: number; accept: string; label: string; etag?: string | null; lastModified?: string | null};
+export async function openRemoteFile(source: string, options: RemoteOptions) {
     const deadline = Date.now() + 30000;
     const signal = AbortSignal.timeout(30000);
     let location = source;
@@ -40,7 +41,7 @@ export async function downloadRemoteFile(source: string, options: {maxBytes: num
         const address = resolved[0];
         const response = await new Promise<http.IncomingMessage>((resolve, reject) => {
             const request = (url.protocol === 'https:' ? https : http).get(url, {
-                agent: false, signal, headers: {Accept: options.accept, 'Accept-Encoding': 'identity'},
+                agent: false, signal, headers: {Accept: options.accept, 'Accept-Encoding': 'identity', ...(options.etag ? {'If-None-Match': options.etag} : options.lastModified ? {'If-Modified-Since': options.lastModified} : {})},
                 lookup: (_host, options, callback) => {
                     if (typeof options === 'object' && options.all) callback(null, [address]);
                     else callback(null, address.address, address.family);
@@ -53,19 +54,28 @@ export async function downloadRemoteFile(source: string, options: {maxBytes: num
             if (!next || redirects === 3) throw new TopicActionError(400, 'La URL tiene demasiadas redirecciones.');
             location = new URL(next, url).href; continue;
         }
+        if (response.statusCode === 304 && (options.etag || options.lastModified)) {
+            response.destroy(); return {response: null, etag: response.headers.etag, lastModified: response.headers['last-modified']};
+        }
         if (response.statusCode !== 200) { response.destroy(); throw new TopicActionError(400, `No pudimos descargar ${options.label} de esa URL.`); }
         if (response.headers['content-encoding'] && response.headers['content-encoding'] !== 'identity') {
             response.destroy(); throw new TopicActionError(400, `La URL debe devolver ${options.label} sin compresión.`);
         }
         const max = options.maxBytes;
         if (Number(response.headers['content-length']) > max) { response.destroy(); throw new TopicActionError(413, `El archivo remoto supera el tamaño permitido.`); }
-        const chunks: Buffer[] = []; let length = 0;
-        for await (const chunk of response) {
-            length += chunk.length;
-            if (length > max) { response.destroy(); throw new TopicActionError(413, `El archivo remoto supera el tamaño permitido.`); }
-            chunks.push(Buffer.from(chunk));
-        }
-        return Buffer.concat(chunks);
+        return {response, etag: response.headers.etag, lastModified: response.headers['last-modified']};
     }
     throw new TopicActionError(400, `No pudimos descargar ${options.label}.`);
+}
+
+export async function downloadRemoteFile(source: string, options: RemoteOptions): Promise<Buffer> {
+    const {response} = await openRemoteFile(source, options);
+    if (!response) throw new Error('Unexpected conditional response');
+    const chunks: Buffer[] = []; let length = 0;
+    for await (const chunk of response) {
+        length += chunk.length;
+        if (length > options.maxBytes) { response.destroy(); throw new TopicActionError(413, 'El archivo remoto supera el tamaño permitido.'); }
+        chunks.push(Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
 }

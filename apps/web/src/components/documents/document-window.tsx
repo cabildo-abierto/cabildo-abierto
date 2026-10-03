@@ -1,6 +1,8 @@
 "use client";
 
 import {DatasetPage} from '@/components/datasets/dataset-page';
+import {DocumentWindowDescription} from './document-window-description';
+import {parseDatasetBlock, parseDocumentBlock} from '@cabildo-abierto/utils';
 
 import {useId, useRef, useState, type RefObject} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
@@ -26,10 +28,12 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
     const topicId = sourceTopicId ?? routeTopicId;
     const discussion = useTopicBlockComments(topicId, block.blockNumber);
     const commentCount = discussion.commentCount ?? block.commentCount;
-    const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow(commentsOpen ? 332 : 0);
+    const dataset = block.typeId === "dataset";
+    const description = (dataset ? parseDatasetBlock(block.content) : parseDocumentBlock(block.content))?.description;
+    const sidePanelVisible = commentsOpen || Boolean(description);
+    const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow(sidePanelVisible ? 332 : 0);
     const closeRef = useRef<HTMLButtonElement>(null);
     const versionId = block.id;
-    const dataset = block.typeId === "dataset";
     const {data: document} = useDocument(versionId, !dataset);
     const Icon = dataset ? TableIcon : FileTextIcon;
     const externalUrl = dataset ? `/conjunto-de-datos/${encodeURIComponent(versionId)}` : document && (document.format === "pdf" || document.format === "office") && document.previewStatus === "ready"
@@ -66,7 +70,10 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
                 </div>
                 {!maximized && <DocumentWindowResizeHandles controls={resizeControls}/>}
             </div>
-            <DocumentWindowComments id={commentsId} block={block} discussion={discussion} open={commentsOpen}/>
+            <div className={cn("flex h-full w-80 shrink-0 flex-col gap-3", !sidePanelVisible && "hidden")}>
+                {description && <DocumentWindowDescription description={description}/>}
+                <DocumentWindowComments id={commentsId} block={block} discussion={discussion} open={commentsOpen} className={cn("h-auto min-h-0 flex-1 shrink")}/>
+            </div>
         </Dialog.Popup>
     </>;
 }

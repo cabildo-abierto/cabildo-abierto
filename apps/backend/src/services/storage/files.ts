@@ -24,6 +24,9 @@ export async function storeFile(ctx: AppContext, storage: ObjectStorage, path: s
 export async function removeUnattachedFile(ctx: AppContext, storage: ObjectStorage, fileId: string) {
     const file = await ctx.kysely.selectFrom("file").selectAll().where("id", "=", fileId).executeTakeFirst();
     if (!file) return;
+    const snapshots=await ctx.kysely.selectFrom('dataset_snapshot').innerJoin('dataset_source','dataset_source.id','dataset_snapshot.source_id')
+        .select(['dataset_snapshot.bucket','dataset_snapshot.key']).where('dataset_source.file_id','=',fileId).execute();
     await ctx.kysely.deleteFrom("file").where("id", "=", fileId).execute();
+    for(const snapshot of snapshots)await storage.remove(snapshot).catch(error=>ctx.logger.pino.error({fileId,error},'dataset cleanup failed'));
     await storage.remove(file);
 }

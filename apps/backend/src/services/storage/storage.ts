@@ -5,7 +5,7 @@ import {env} from "#/lib/env.js";
 
 export type StorageObject = {bucket: string; key: string};
 export interface ObjectStorage {
-    put(object: StorageObject, path: string, mime: string, size: number): Promise<void>;
+    put(object: StorageObject, path: string, mime: string, size: number, signal?: AbortSignal): Promise<void>;
     read(object: StorageObject): Promise<Uint8Array>;
     remove(object: StorageObject): Promise<void>;
     signedUrl(object: StorageObject, disposition: string, mime: string): Promise<string>;
@@ -21,8 +21,8 @@ export class R2Storage implements ObjectStorage {
             credentials: {accessKeyId: env.CLOUDFLARE_ACCESS_KEY_ID, secretAccessKey: env.CLOUDFLARE_SECRET_ACCESS_KEY},
             requestChecksumCalculation: "WHEN_REQUIRED", responseChecksumValidation: "WHEN_REQUIRED"});
     }
-    async put(object: StorageObject, path: string, mime: string, size: number) {
-        await this.client.send(new PutObjectCommand({Bucket: object.bucket, Key: object.key, Body: createReadStream(path), ContentType: mime, ContentLength: size}));
+    async put(object: StorageObject, path: string, mime: string, size: number, signal?: AbortSignal) {
+        await this.client.send(new PutObjectCommand({Bucket: object.bucket, Key: object.key, Body: createReadStream(path), ContentType: mime, ContentLength: size}), {abortSignal: signal});
     }
     async read(object: StorageObject) {
         const result = await this.client.send(new GetObjectCommand({Bucket: object.bucket, Key: object.key}));

@@ -4,7 +4,7 @@ import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-conte
 import {TopicContentFlow} from '@/components/images/topic-content-flow';
 
 import {compareContentBlocks, isAttachmentBlock} from "@cabildo-abierto/utils";
-import {DocumentSection} from "@/components/documents/document-section";
+import {TopicAttachmentSection} from "@/components/attachments/topic-attachment-section";
 
 import {useEffect, useState} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
@@ -53,6 +53,9 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const blocksToRender = [...displayedBlocks, ...(showDeleted ? effectiveDeletedBlocks : [])]
         .sort(compareContentBlocks);
     const {footnotes, numberById} = topicFootnotes(displayedBlocks);
+    const renderAttachment = (block: TopicBlock) => displayedDeletedNumbers.has(block.blockNumber)
+        ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
+        : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>;
     return <TopicFootnoteProvider topicId={topicId} blocks={displayedBlocks}>
         {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setDisplayedBlocks(latestBlocks);
@@ -73,11 +76,12 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
                     {...blockSectionProps(block.blockNumber)}
                 />)}
                 <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>
-                {(["documento", "dataset"] as const).map(type => blocksToRender.some(block => block.typeId === type) && <div key={type} className={cn("clear-both")}><DocumentSection dataset={type === "dataset"}>
-                    {blocksToRender.filter(block => block.typeId === type).map(block => displayedDeletedNumbers.has(block.blockNumber)
-                        ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
-                        : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>)}
-                </DocumentSection></div>)}
+                {(["documento", "dataset"] as const).map(type => {
+                    const blocks = blocksToRender.filter(block => block.typeId === type);
+                    return blocks.length > 0 && <div key={type} className={cn("clear-both")}>
+                        <TopicAttachmentSection dataset={type === "dataset"} blocks={blocks} renderBlock={renderAttachment}/>
+                    </div>;
+                })}
                 </TopicContentFlow>}
     </TopicFootnoteProvider>;
 }

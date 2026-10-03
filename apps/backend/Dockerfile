@@ -48,5 +48,8 @@ COPY --from=builder /runtime/package.json ./package.json
 COPY --from=builder /runtime/dist ./dist
 COPY --from=builder /runtime/schema ./schema
 
+COPY --from=builder /repo/apps/backend/src/scripts/install-dataset-httpfs.mjs ./install-dataset-httpfs.mjs
+RUN node install-dataset-httpfs.mjs
+
 EXPOSE 8080
 CMD ["node", "dist/index.js"]

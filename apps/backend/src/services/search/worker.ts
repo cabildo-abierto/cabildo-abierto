@@ -8,7 +8,7 @@ import {searchTable} from './schema.js';
 import type {SearchSource} from './types.js';
 
 export async function processSearchSource(database: Kysely<DB>, source: SearchSource, getStorage: () => ObjectStorage, schema = 'public') {
-    const extracted = await extractSearchSource(database, source, getStorage, schema === 'public');
+    const extracted = await extractSearchSource(database, source, getStorage);
     return database.transaction().execute(async trx => {
         const lock = await sql<{locked: boolean}>`SELECT pg_try_advisory_xact_lock_shared(194827, 2) AS locked`.execute(trx);
         if (!lock.rows[0].locked && schema === 'public') return false;

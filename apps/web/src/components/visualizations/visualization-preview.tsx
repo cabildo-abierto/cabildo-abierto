@@ -1,15 +1,16 @@
 import {memo, useMemo} from 'react';
-import type {TypedTable, VisualizationSpecV1} from '@cabildo-abierto/api';
+import type {LccaOutput, VisualizationSpecV1} from '@cabildo-abierto/api';
 import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/components/ui/tabs';
 import type {PreparedVisualization} from '@/hooks/use-prepared-visualization';
 import {cn} from '@/lib/utils';
 import {VisualizationRenderer} from './visualization-renderer';
 import {VisualizationTable} from './visualization-table';
+import {VisualizationDatasetDescriptions} from './visualization-dataset-descriptions';
 import {VisualizationErrorBoundary} from './visualization-error-boundary';
 import {VisualizationUpdatingFrame} from './visualization-updating-frame';
 import {VisualizationPreviewMessage, type PreviewMessage} from './visualization-preview-message';
 
-export const VisualizationPreview = memo(function VisualizationPreview({spec, table, mode, viewMessage, configurationHelp, renderError, onRenderError, prepared, tab, onTabChange, updating}: {spec: VisualizationSpecV1; table?: TypedTable; mode: 'basic' | 'advanced'; viewMessage: PreviewMessage | null; configurationHelp: PreviewMessage | null; renderError: string | null; onRenderError: (error: Error) => void; prepared: PreparedVisualization; tab: string; onTabChange: (tab: string) => void; updating: boolean}) {
+export const VisualizationPreview = memo(function VisualizationPreview({spec, table, mode, viewMessage, configurationHelp, renderError, onRenderError, prepared, tab, onTabChange, updating}: {spec: VisualizationSpecV1; table?: LccaOutput; mode: 'basic' | 'advanced'; viewMessage: PreviewMessage | null; configurationHelp: PreviewMessage | null; renderError: string | null; onRenderError: (error: Error) => void; prepared: PreparedVisualization; tab: string; onTabChange: (tab: string) => void; updating: boolean}) {
     const resetKey = useMemo(() => ({spec,table}), [spec,table]);
     const dataChart = useMemo(() => ({type: 'table' as const, columns: table?.columns.map(column => ({field: column.name})) ?? []}), [table]);
     let chartMessage: PreviewMessage | null = null;
@@ -32,9 +33,13 @@ export const VisualizationPreview = memo(function VisualizationPreview({spec, ta
                         <VisualizationErrorBoundary resetKey={resetKey} onError={onRenderError}><VisualizationRenderer spec={spec} table={table} prepared={prepared} showDimensions={false}/></VisualizationErrorBoundary>
                     </VisualizationUpdatingFrame>
                     )}
+                    {tab === 'visualization' && spec.chart.type === 'table' && !chartMessage && <VisualizationDatasetDescriptions sources={table.sources}/>}
                 </TabsContent>
                 <TabsContent value="data">
-                    {tab === 'data' && <VisualizationTable chart={dataChart} table={table} aspectRatio={1.6}/>}
+                    {tab === 'data' && <>
+                        <VisualizationTable chart={dataChart} table={table} aspectRatio={1.6}/>
+                        <VisualizationDatasetDescriptions sources={table.sources}/>
+                    </>}
                 </TabsContent>
         </Tabs>}
     </section>;

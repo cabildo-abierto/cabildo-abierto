@@ -13,5 +13,5 @@ export type ViewFilter = {field: string; type: DatasetColumnType; operator: View
 export type BasicDataView = {source: DatasetReference; columns: string[]; filters: ViewFilter[]; filterMode: 'and' | 'or'; orderBy: {field: string; direction: 'asc' | 'desc'}[]};
 export type LccaInput = {query: string; queryLanguageVersion: 1};
 export type LccaAnalysis = {sources: DatasetReference[]; basicView: BasicDataView | null};
-export type LccaOutput = TypedTable & {sources: (DatasetReference & {versionId: string})[]};
+export type LccaOutput = TypedTable & {sources: (DatasetReference & {versionId: string; snapshotId: string})[]};
 export type VisualizationSourcesOutput = {sources: {topic: TopicSummary; block: TopicBlock}[]};

@@ -10,8 +10,8 @@ export function DocumentCard({block, linksEnabled = true, refreshOnMount = true,
     const document = dataset ? datasetContent : parseDocumentBlock(block.content);
     const content = <>
         <div className={cn("min-w-0 flex-1")}>
-            <span className={cn("block font-medium leading-relaxed break-words", preview ? "text-xs" : "text-sm", linksEnabled && "group-hover/document:underline underline-offset-4")}>{document?.title ?? (dataset ? "Conjunto de datos" : "Documento")}</span>
-            {document?.description && <p className={cn("mt-0.5 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground break-words")}>{document.description}</p>}
+            <span className={cn("block font-medium leading-relaxed break-words", preview ? "text-xs" : "text-sm", dataset && "line-clamp-2", linksEnabled && "group-hover/document:underline underline-offset-4")}>{document?.title ?? (dataset ? "Conjunto de datos" : "Documento")}</span>
+            {document?.description && <p className={cn("mt-0.5 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground break-words", dataset && "line-clamp-3")}>{document.description}</p>}
             {datasetContent && <DatasetCardDetails versionId={block.id} dataset={datasetContent} draft={!linksEnabled} refreshOnMount={refreshOnMount}/>}
         </div>
     </>;

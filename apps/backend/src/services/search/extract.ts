@@ -1,4 +1,5 @@
-import {cachedSearchDownload} from "./url.js";
+import {existingDatasetSource} from '../datasets/sources.js';
+import {datasetJob} from '../datasets/process.js';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {mkdtemp, readFile, rm, writeFile, stat} from 'node:fs/promises';
@@ -7,26 +8,29 @@ import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {parseCADocument} from '@cabildo-abierto/utils';
 import type {ObjectStorage} from '../storage/storage.js';
-import {downloadCSV} from '../datasets/download.js';
-import {parseCSV} from '../datasets/csv.js';
+import {waitSnapshot} from '../datasets/snapshots.js';
+import type {Kysely} from 'kysely';
+import type {DB} from '#/db/types.js';
+import type {SearchSegment} from './types.js';
 import {convertOfficePath} from '../documents/conversion.js';
 import {searchPlainText} from './index.js';
-import {segmentSearchCSV, segmentSearchText} from './segments.js';
-import type {SearchDatabase} from './schema.js';
+import {segmentSearchText} from './segments.js';
 import type {SearchSource} from './types.js';
 
 const execute = promisify(execFile);
 
-export async function extractSearchSource(database: SearchDatabase, source: SearchSource, getStorage: () => ObjectStorage, useCachedDownload = true) {
-    const file = source.file_id ? await database.selectFrom('file').selectAll().where('id', '=', source.file_id).executeTakeFirstOrThrow() : null;
-    const cached = source.source_url && useCachedDownload ? cachedSearchDownload(source.source_url) : undefined;
-    const data = source.source_url ? cached ?? await downloadCSV(source.source_url) : await getStorage().read(file!);
-    const hash = createHash('sha256').update(data).digest('hex');
-    if (hash === source.content_hash) return {hash, segments: null};
+export async function extractSearchSource(database: Kysely<DB>, source: SearchSource, getStorage: () => ObjectStorage) {
     if (source.kind === 'dataset_file' || source.kind === 'dataset_url') {
-        const csv = parseCSV(data);
-        return {hash, segments: segmentSearchCSV(csv.columns.map(column => column.name), csv.rows)};
+        const sourceId = await existingDatasetSource(database,source);
+        const snapshot = await waitSnapshot(database,sourceId,getStorage());
+        if(snapshot.content_hash === source.content_hash) return {hash:snapshot.content_hash,segments:null};
+        const segments=await datasetJob<SearchSegment[]>('search',{url:await getStorage().signedUrl(snapshot,'inline','application/vnd.apache.parquet'),columns:snapshot.columns.map(c=>c.name)},120);
+        return {hash:snapshot.content_hash,segments};
     }
+    const file = source.file_id ? await database.selectFrom('file').selectAll().where('id', '=', source.file_id).executeTakeFirstOrThrow() : null;
+    const data = await getStorage().read(file!);
+    const hash = createHash('sha256').update(data).digest('hex');
+    if (hash === source.content_hash) return {hash, segments:null};
     if (file!.format === 'text' || file!.format === 'markdown') {
         return {hash, segments: segmentSearchText(new TextDecoder('utf-8', {fatal: true}).decode(data), 'documento')};
     }

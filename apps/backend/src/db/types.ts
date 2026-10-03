@@ -133,8 +133,20 @@ export type DB = {
     };
     image_asset: {file_id: string; width: number; height: number};
     image: {id: string; file_id: string; width_percent: number; alignment: string; flow: string; alt: string; caption: string};
+    dataset_source: {
+        id: string; file_id: string | null; source_url: string | null; snapshot_id: Generated<string | null>;
+        checked_at: Generated<Timestamp | null>; etag: Generated<string | null>; last_modified: Generated<string | null>;
+        status: Generated<string>; error: Generated<string | null>; lease_token: Generated<string | null>; lease_until: Generated<Timestamp | null>;
+    };
+    dataset_snapshot: {
+        id: string; source_id: string; bucket: string; key: string; content_hash: string;
+        columns: ColumnType<import('@cabildo-abierto/api').DatasetColumn[], string, string>;
+        csv_options: ColumnType<import('@cabildo-abierto/api').CSVOptions, string, string>;
+        column_bytes: ColumnType<number[], string, string>;
+        row_count: number; size_bytes: number; created_at: Generated<Timestamp>; retired_at: Generated<Timestamp | null>;
+    };
     dataset: {
-        id: string; title: string; description: string; file_id: string | null; source_url: string | null;
+        id: string; title: string; description: string; source_id: string;
         columns: ColumnType<import("@cabildo-abierto/api").DatasetColumn[], string, string>;
         csv_options: ColumnType<import("@cabildo-abierto/api").CSVOptions, string, string>;
     };

@@ -1,3 +1,4 @@
+import {ensureDatasetSource} from '#/services/datasets/sources.js';
 import {lockSearchTopic} from "#/services/search/schema.js";
 import {synchronizeTopicSearch} from "#/services/search/index.js";
 import {resolveTopicFootnotes} from "#/services/topic-footnotes.js";
@@ -465,7 +466,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     edit_id: string
                     deleted: boolean
                 }> = [];
-                const datasets: Array<{id: string; title: string; description: string; file_id: string | null; source_url: string | null; columns: string; csv_options: string}> = [];
+                const datasets: Array<{id: string; title: string; description: string; source_id: string; columns: string; csv_options: string}> = [];
                 const visualizations: Array<{id: string; query: string; query_language_version: number; spec: string}> = [];
                 const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
                 const images: {id:string;file_id:string;width_percent:number;alignment:string;flow:string;alt:string;caption:string}[] = [];
@@ -486,7 +487,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     if (block.typeId === "dataset") {
                         const metadata = parseDatasetBlock(block.content)!;
                         datasets.push({id: versionId, title: metadata.title, description: metadata.description,
-                            file_id: metadata.fileId, source_url: metadata.sourceUrl,
+                            source_id: await ensureDatasetSource(trx, {file_id: metadata.fileId, source_url: metadata.sourceUrl}),
                             columns: JSON.stringify(metadata.columns), csv_options: JSON.stringify(metadata.csvOptions)});
                     }
                     if (block.typeId === "documento") {

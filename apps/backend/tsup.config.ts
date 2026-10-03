@@ -2,6 +2,10 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
     entry: {
+        "dataset-prepare-worker": "src/services/datasets/prepare-worker.ts",
+        "dataset-search-worker": "src/services/datasets/search-worker.ts",
+        "dataset-page-worker": "src/services/datasets/page-worker.ts",
+        "scripts/datasets-prepare": "src/scripts/datasets-prepare.ts",
         "lcca-worker": "src/services/visualizations/query-worker.ts",
         "index": "src/index.ts",
         "scripts/apply-migrations": "src/scripts/apply-migrations.ts",

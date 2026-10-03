@@ -1,16 +1,16 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {DatasetContent, DatasetPreview} from '@cabildo-abierto/api';
-import {datasetCell, validDatasetUrl} from '@cabildo-abierto/utils';
+import {validDatasetUrl} from '@cabildo-abierto/utils';
 import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/spinner';
 import {DocumentFilePicker} from '@/components/documents/document-file-picker';
-import {backendUrl} from '@/lib/fetch';
+import {preparedDataRequest} from '@/utils/react/prepared-data-request';
 import {cn} from '@/lib/utils';
-import {DatasetTable} from './dataset-table';
+import {DatasetPreviewTable} from './dataset-preview-table';
 
 function draft(content: string): DatasetContent {
     const empty: DatasetContent = {title: '', description: '', fileId: null, sourceUrl: null, columns: [], csvOptions: {delimiter: ',', decimal: '.'}};
@@ -23,6 +23,7 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
     const [source, setSource] = useState<'file' | 'url'>(value.sourceUrl ? 'url' : 'file');
     const [url, setUrl] = useState(value.sourceUrl ?? '');
     const [preview, setPreview] = useState<DatasetPreview | null>(null);
+    const [status,setStatus] = useState('Preparando dataset…');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const loaded = useRef(false);
@@ -32,23 +33,21 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
         setBusy(true); latest.current.onBusyChange(true); setError(null);
         try {
             if (file && !file.name.toLowerCase().endsWith('.csv')) throw new Error('Elegí un archivo CSV.');
-            const endpoint = file ? 'upload' : 'preview';
-            const params = new URLSearchParams();
-            if (file) params.set('name', file.name);
-            const response = await fetch(`${backendUrl}/topics/${encodeURIComponent(topicId)}/datasets/${endpoint}${file ? `?${params}` : ''}`, {
-                method: 'POST', credentials: 'include', headers: {'Content-Type': file ? 'application/octet-stream' : 'application/json'},
-                body: file ?? JSON.stringify({fileId: source === 'file' ? latest.current.value.fileId : null,
-                    sourceUrl: source === 'url' ? url : null}),
-            });
-            const result: {success: boolean; value: DatasetPreview; error?: string} = await response.json();
-            if (!response.ok || !result.success) throw new Error(result.error || 'No pudimos cargar el CSV.');
+            let fileId = source === 'file' ? latest.current.value.fileId : null;
+            if(file){
+                const uploaded=await preparedDataRequest<{fileId:string}>(`/topics/${encodeURIComponent(topicId)}/datasets/upload?name=${encodeURIComponent(file.name)}`,{
+                    method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});
+                fileId=uploaded.fileId;
+            }
+            const result = {value:await preparedDataRequest<DatasetPreview>(`/topics/${encodeURIComponent(topicId)}/datasets/preview`,{
+                method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileId,sourceUrl:source==='url'?url:null,retry:true})},setStatus)};
             setPreview(result.value);
             const current = latest.current.value;
             const sameSource = result.value.fileId ? result.value.fileId === current.fileId : result.value.sourceUrl === current.sourceUrl;
             const columns = result.value.columns.map(column => ({...column,
                 type: sameSource ? current.columns.find(c => c.name === column.name)?.type ?? column.type : column.type}));
             latest.current.onChange(JSON.stringify({...current, fileId: result.value.fileId, sourceUrl: result.value.sourceUrl,
-                columns, csvOptions: result.value.csvOptions, rowCount: result.value.rows.length,
+                columns, csvOptions: result.value.csvOptions, rowCount: result.value.rowCount,
                 title: current.title || (file?.name.replace(/\.csv$/i, '') ?? 'Conjunto de datos')}));
         } catch(e) { setError(e instanceof Error ? e.message : 'No pudimos cargar el CSV.'); }
         finally { setBusy(false); latest.current.onBusyChange(false); }
@@ -60,11 +59,6 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
         // Load the saved source once when entering the form, not on each draft change.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    const rows = useMemo(() => {
-        if (!preview) return [];
-        const indices = new Map(preview.columns.map((column, index) => [column.name, index]));
-        return preview.rows.map(row => value.columns.map(column => datasetCell(row[indices.get(column.name) ?? -1] ?? '', column.type, value.csvOptions)));
-    }, [preview, content]);
     const fieldClass = 'h-auto min-h-0 rounded-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 dark:bg-transparent';
     return <fieldset disabled={disabled || busy} className={cn('min-w-0 space-y-3', !embedded && 'rounded-lg border p-4')}>
         <Input aria-label="Título del conjunto" placeholder="Título" value={value.title} maxLength={200} className={cn(fieldClass, 'font-medium')}
@@ -82,8 +76,9 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
                 {busy && <Spinner aria-label="Cargando CSV"/>}
             </div>}
         {error && <p role="alert" className={cn('text-xs text-destructive')}>{error}</p>}
-        {preview && <div className={cn('space-y-2')}>
-            <DatasetTable columns={value.columns} rows={rows} onTypeChange={(index, type) => update({columns: value.columns.map((column,i) => i === index ? {...column,type} : column)})}/>
+        {busy && <p className={cn('text-xs text-muted-foreground')}>{status}</p>}
+        {preview && !busy && <div className={cn('space-y-2')}>
+            <DatasetPreviewTable key={preview.snapshotId} topicId={topicId} preview={preview} columns={value.columns} onTypeChange={(index, type) => update({columns: value.columns.map((column,i) => i === index ? {...column,type} : column)})}/>
         </div>}
 
     </fieldset>;
