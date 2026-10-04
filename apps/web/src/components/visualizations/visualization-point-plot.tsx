@@ -1,3 +1,4 @@
+import {chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo, useMemo, useId, type PointerEvent} from 'react';
 import {AxisBottom, AxisLeft} from '@visx/axis';
 import {GridRows} from '@visx/grid';
@@ -12,7 +13,8 @@ import {plotDomain, visibleLineDomain} from '@/lib/visualization-zoom';
 import {useChartTooltip} from '@/hooks/use-chart-tooltip';
 export const VisualizationPointPlot = memo(function VisualizationPointPlot({chart, series, temporal, width, height, preview = false}: {chart: LineChart | ScatterChart; series: PlotSeries[]; temporal: boolean; width: number; height: number; preview?: boolean}) {
     const tooltip = useChartTooltip(series,width,height);
-    const margin = preview ? {left: 6, right: 6, top: 6, bottom: 6} : {left: 70, right: 20, top: 15, bottom: 65};
+    const axisLayout = useChartAxisLayout(tooltip.svg, width, height, preview, {left: 70, bottom: 70, right: 20, top: 15}, chart);
+    const {margin} = axisLayout;
     const w = Math.max(1,width-margin.left-margin.right), h = Math.max(1,height-margin.top-margin.bottom);
     const clipId = useId();
     const extent = useMemo(() => {
@@ -65,7 +67,6 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
         const index = low > 0 && Math.abs(x(xs[low-1])-pixel) <= Math.abs(x(xs[low])-pixel) ? low-1 : low;
         showLine(xs[index]);
     };
-    const tickStyle = {fill: 'var(--foreground)', fontSize: 10};
     return <><svg ref={tooltip.svg} style={zoom.style} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label={chart.type === 'line' ? 'Gráfico de líneas' : 'Gráfico de dispersión'}>
         <defs><clipPath id={clipId}><rect width={w} height={h}/></clipPath></defs>
         <g transform={`translate(${margin.left},${margin.top})`}>
@@ -108,8 +109,8 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                     }}/>
             </>}
             </g>
-            {!preview && <AxisBottom top={h} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chart.x.tickCount ?? Math.max(2,Math.floor(w/90))} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={{...tickStyle, angle: chart.x.tickLabelAngle ?? 0}}/>}
-            {!preview && <AxisLeft scale={y} tickFormat={v => yFormat(Number(v))} numTicks={yAxis?.tickCount ?? 5} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={{...tickStyle, angle: yAxis?.tickLabelAngle ?? 0}}/>}
+            {!preview && <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chart.x.tickCount ?? Math.max(2,Math.floor(w/90))} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>}
+            {!preview && <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => yFormat(Number(v))} numTicks={yAxis?.tickCount ?? 5} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(yAxis?.tickLabelAngle ?? 0, 'left')}/>}
         </g>
     </svg>{!preview && <VisualizationTooltip data={tooltip.data}/>}</>;
 });

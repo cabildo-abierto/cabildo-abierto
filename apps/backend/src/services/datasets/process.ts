@@ -1,3 +1,4 @@
+import {env} from '#/lib/env.js';
 import {fork} from 'node:child_process';
 import {TopicActionError} from '../topic-title-edits.js';
 let active = 0;
@@ -8,7 +9,7 @@ export async function datasetJob<T>(worker:'prepare'|'page'|'search',job:object,
     try {
         return await new Promise<T>((resolve,reject)=>{
             const dev=import.meta.url.endsWith('.ts');
-            const child=fork(new URL(dev ? `./${worker}-worker.ts` : `${import.meta.url.includes('/scripts/') ? '../' : './'}dataset-${worker}-worker.js`,import.meta.url),[],{execArgv:dev ? process.execArgv : [],stdio:['ignore','ignore','ignore','ipc']});
+            const child=fork(new URL(dev ? `./${worker}-worker.ts` : `${import.meta.url.includes('/scripts/') ? '../' : './'}dataset-${worker}-worker.js`,import.meta.url),[],{execArgv:[...(dev ? process.execArgv : []), ...(worker === 'prepare' ? [`--max-old-space-size=${env.DATASET_PREPARE_MEMORY_MB}`] : [])],stdio:['ignore','ignore','ignore','ipc']});
             let done=false;
             const finish=(error?:Error,value?:T)=>{if(done)return;done=true;clearTimeout(timer);child.kill('SIGKILL');if(error)reject(error);else resolve(value!);};
             const timer=setTimeout(()=>finish(new TopicActionError(408,'La preparación o lectura del dataset superó el tiempo permitido.')),seconds*1000);

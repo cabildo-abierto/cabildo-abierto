@@ -20,11 +20,11 @@ export type Snapshot=Selectable<DB['dataset_snapshot']>;
 export type PreparedCSV={columns:DatasetColumn[];csvOptions:CSVOptions;rowCount:number;columnBytes:number[];encoding:CSVEncoding};
 export class DatasetPending extends Error {constructor(public state:string){super(state==='checking'?'Verificando actualización…':'Preparando dataset…');}}
 
-async function copyCSV(chunks:AsyncIterable<Uint8Array>,path:string){
+async function copyDatasetInput(chunks:AsyncIterable<Uint8Array>,path:string){
     const file=await open(path,'wx');const hash=createHash('sha256');let size=0;
-    try {for await(const chunk of chunks){size+=chunk.length;if(size>datasetLimits().bytes)throw new TopicActionError(413,'El CSV supera el tamaño permitido.');hash.update(chunk);await file.writeFile(chunk);}}
+    try {for await(const chunk of chunks){size+=chunk.length;if(size>datasetLimits().bytes)throw new TopicActionError(413,'El archivo supera el tamaño permitido.');hash.update(chunk);await file.writeFile(chunk);}}
     finally{await file.close();}
-    if(!size)throw new TopicActionError(400,'El CSV está vacío.');
+    if(!size)throw new TopicActionError(400,'El archivo está vacío.');
     return hash.digest('hex');
 }
 export async function prepareLocalCSV(path:string,output:string,directory:string){return datasetJob<PreparedCSV>('prepare',{path,output,directory},env.DATASET_PREPARE_SECONDS);}
@@ -34,25 +34,25 @@ async function prepare(database:Kysely<DB>,source:Selectable<DB['dataset_source'
     const heartbeat=setInterval(()=>{void database.updateTable('dataset_source').set({lease_until:new Date(Date.now()+(env.DATASET_PREPARE_SECONDS+60)*1000)}).where('id','=',source.id).where('lease_token','=',token).execute().catch(()=>{});},15000);
     try{
         release=await preparationSlot();
-        directory=await mkdtemp(join(tmpdir(),'ca-dataset-'));const path=join(directory,'input.csv');
+        directory=await mkdtemp(join(tmpdir(),'ca-dataset-'));const path=join(directory,'input');
         let etag:string|null=null,lastModified:string|null=null,hash:string;
         if(source.source_url){
-            const remote=await openRemoteFile(source.source_url,{maxBytes:datasetLimits().bytes,accept:'text/csv, text/plain;q=0.9',label:'el CSV',etag:source.snapshot_id?source.etag:null,lastModified:source.snapshot_id?source.last_modified:null});
+            const remote=await openRemoteFile(source.source_url,{maxBytes:datasetLimits().bytes,accept:source.source_format==='json'?'application/json, text/plain;q=0.9':'text/csv, text/plain;q=0.9',label:source.source_format==='json'?'el JSON':'el CSV',etag:source.snapshot_id?source.etag:null,lastModified:source.snapshot_id?source.last_modified:null});
             if(!remote.response){
                 await database.updateTable('dataset_source').set({checked_at:new Date(),status:'ready',error:null,etag:remote.etag??source.etag,last_modified:remote.lastModified??source.last_modified,lease_token:null,lease_until:null}).where('id','=',source.id).where('lease_token','=',token).execute();console.info(JSON.stringify({event:'dataset_source_unchanged',sourceId:source.id}));return;
             }
             etag=remote.etag??null;lastModified=remote.lastModified??null;
-            hash=await copyCSV(remote.response,path);
+            hash=await copyDatasetInput(remote.response,path);
         }else{
             const file=await database.selectFrom('file').selectAll().where('id','=',source.file_id!).executeTakeFirstOrThrow();
-            const response=await fetch(await storage.signedUrl(file,'inline','text/csv'),{signal:AbortSignal.timeout(30000)});
+            const response=await fetch(await storage.signedUrl(file,'inline',source.source_format==='json'?'application/json':'text/csv'),{signal:AbortSignal.timeout(30000)});
             if(!response.ok||!response.body)throw new Error('No pudimos leer el archivo en R2.');
-            hash=await copyCSV(response.body as unknown as AsyncIterable<Uint8Array>,path);
+            hash=await copyDatasetInput(response.body as unknown as AsyncIterable<Uint8Array>,path);
         }
         const previous=source.snapshot_id ? await database.selectFrom('dataset_snapshot').selectAll().where('id','=',source.snapshot_id).executeTakeFirst() : undefined;
         if(previous?.content_hash===hash){await database.updateTable('dataset_source').set({checked_at:new Date(),etag,last_modified:lastModified,status:'ready',error:null,lease_token:null,lease_until:null}).where('id','=',source.id).where('lease_token','=',token).execute();console.info(JSON.stringify({event:'dataset_source_unchanged',sourceId:source.id}));return;}
         await database.updateTable('dataset_source').set({status:'preparing'}).where('id','=',source.id).where('lease_token','=',token).execute();
-        const output=join(directory,'data.parquet');const metadata=await prepareLocalCSV(path,output,directory);
+        const output=join(directory,'data.parquet');const metadata=await datasetJob<PreparedCSV>('prepare',{path,output,directory,format:source.source_format,filter:source.jq_filter,previousColumns:previous?.columns},env.DATASET_PREPARE_SECONDS);
         await publishSnapshot(database,storage,source.id,output,metadata,hash,{etag,lastModified},token);
     }catch(error){await database.updateTable('dataset_source').set({status:'failed',error:error instanceof TopicActionError?error.message:'No pudimos verificar o preparar el dataset. Reintentá.',lease_token:null,lease_until:null}).where('id','=',source.id).where('lease_token','=',token).execute().catch(()=>{});}
     finally{clearInterval(heartbeat);release?.();console.info(JSON.stringify({event:"dataset_preparation_finished",sourceId:source.id,durationMs:Date.now()-started}));if(directory)await rm(directory,{recursive:true,force:true});}
@@ -87,6 +87,6 @@ export async function snapshotPage(snapshot:Snapshot,storage:ObjectStorage,page:
 }
 export async function validateRemoteCSV(url:string){
     const directory=await mkdtemp(join(tmpdir(),'ca-dataset-dry-'));
-    try{const {response}=await openRemoteFile(url,{maxBytes:datasetLimits().bytes,accept:'text/csv',label:'el CSV'});if(!response)throw new Error('Respuesta inválida');const path=join(directory,'data.csv');await copyCSV(response,path);return await prepareLocalCSV(path,join(directory,'data.parquet'),directory);}
+    try{const {response}=await openRemoteFile(url,{maxBytes:datasetLimits().bytes,accept:'text/csv',label:'el CSV'});if(!response)throw new Error('Respuesta inválida');const path=join(directory,'data.csv');await copyDatasetInput(response,path);return await prepareLocalCSV(path,join(directory,'data.parquet'),directory);}
     finally{await rm(directory,{recursive:true,force:true});}
 }

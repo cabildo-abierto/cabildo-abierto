@@ -11,7 +11,7 @@ export function DatasetPreviewTable({topicId,preview,columns,onTypeChange}:{topi
     const [page,setPage]=useState(0);
     const query=useQuery({queryKey:['dataset-preview',preview.snapshotId,page],
         queryFn:({signal})=>preparedDataRequest<DatasetPreview>(`/topics/${encodeURIComponent(topicId)}/datasets/preview`,{
-            method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({fileId:preview.fileId,sourceUrl:preview.sourceUrl,snapshotId:preview.snapshotId,page})}),
+            method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceFormat:preview.sourceFormat,jqFilter:preview.jqFilter,fileId:preview.fileId,sourceUrl:preview.sourceUrl,snapshotId:preview.snapshotId,page})}),
         placeholderData:previous=>previous?.snapshotId===preview.snapshotId?previous:undefined,
         initialData:page===0?preview:undefined,staleTime:Infinity,gcTime:60000,retry:false});
     if(query.error)return <div className={cn('space-y-2 text-xs text-destructive')}><p>{query.error.message}</p><Button type="button" onClick={()=>void query.refetch()}>Reintentar</Button></div>;

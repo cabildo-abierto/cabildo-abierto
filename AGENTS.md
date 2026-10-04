@@ -13,3 +13,4 @@ Code instructions:
 - Don't add tests unless asked explicitly.
 - Always use cn to join class names.
 - Never create or edit migrations unless explicitly asked.
+- Don't update README files unless asked explicitly.

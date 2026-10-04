@@ -1,4 +1,3 @@
-import {existingDatasetSource} from '../datasets/sources.js';
 import {datasetJob} from '../datasets/process.js';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
@@ -20,9 +19,8 @@ import type {SearchSource} from './types.js';
 const execute = promisify(execFile);
 
 export async function extractSearchSource(database: Kysely<DB>, source: SearchSource, getStorage: () => ObjectStorage) {
-    if (source.kind === 'dataset_file' || source.kind === 'dataset_url') {
-        const sourceId = await existingDatasetSource(database,source);
-        const snapshot = await waitSnapshot(database,sourceId,getStorage());
+    if (source.kind === 'dataset') {
+        const snapshot = await waitSnapshot(database,source.dataset_source_id!,getStorage());
         if(snapshot.content_hash === source.content_hash) return {hash:snapshot.content_hash,segments:null};
         const segments=await datasetJob<SearchSegment[]>('search',{url:await getStorage().signedUrl(snapshot,'inline','application/vnd.apache.parquet'),columns:snapshot.columns.map(c=>c.name)},120);
         return {hash:snapshot.content_hash,segments};

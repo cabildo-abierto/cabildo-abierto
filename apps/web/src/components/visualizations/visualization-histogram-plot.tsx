@@ -1,3 +1,4 @@
+import {chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo, useId, useMemo} from "react";
 import {AxisBottom, AxisLeft} from "@visx/axis";
 import {GridRows} from "@visx/grid";
@@ -20,7 +21,8 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
 }) {
     const tooltip = useChartTooltip(rows, width, height);
     const clipId = useId();
-    const margin = preview ? {left: 6, bottom: 6, right: 6, top: 6} : {left: 70, bottom: 70, right: 20, top: 15};
+    const axisLayout = useChartAxisLayout(tooltip.svg, width, height, preview, {left: 70, bottom: 70, right: 20, top: 15}, chart);
+    const {margin} = axisLayout;
     const w = Math.max(1, width - margin.left - margin.right), h = Math.max(1, height - margin.top - margin.bottom);
     const domain = useMemo(() => {
         let min = Infinity, max = -Infinity;
@@ -40,7 +42,6 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
     const x = scaleLinear({domain: zoom.x, range: [0, w]});
     const y = scaleLinear({domain: [0, max || 1], range: [h, 0], nice: true});
     const formatter = (value: number) => formatTableValue(value, chart.yAxis?.format ?? (chart.frequency === "relative" ? {type: "percent"} : undefined));
-    const tickStyle = {fill: "var(--foreground)", fontSize: 10};
     return <><svg ref={tooltip.svg} style={zoom.style} width={width} height={height} role={preview ? "img" : "group"} aria-label="Histograma"
         onPointerLeave={preview ? undefined : event => { if (event.pointerType !== "touch") tooltip.close(); }}>
         <defs><clipPath id={clipId}><rect width={w} height={h}/></clipPath></defs>
@@ -67,13 +68,13 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
                 </g>;
             })}</g>
             {!preview && <>
-                <AxisBottom top={h} scale={x} tickFormat={v => formatTableValue(Number(v), chart.x.format)}
+                <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => formatTableValue(Number(v), chart.x.format)}
                     numTicks={chart.x.tickCount ?? Math.max(2, Math.floor(w / 90))} label={chart.x.label ?? chart.x.field}
                     labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)"
-                    tickLabelProps={{...tickStyle, angle: chart.x.tickLabelAngle ?? 0}}/>
-                <AxisLeft scale={y} tickFormat={v => formatter(Number(v))} numTicks={chart.yAxis?.tickCount ?? 5} label={chart.yAxis?.label}
+                    tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>
+                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => formatter(Number(v))} numTicks={chart.yAxis?.tickCount ?? 5} label={chart.yAxis?.label}
                     labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)"
-                    tickLabelProps={{...tickStyle, angle: chart.yAxis?.tickLabelAngle ?? 0}}/>
+                    tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'left')}/>
             </>}
         </g>
     </svg>{!preview && <VisualizationTooltip data={tooltip.data}/>}</>;

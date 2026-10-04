@@ -1,11 +1,11 @@
 CREATE TABLE __SEARCH_SCHEMA__.search_source (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    kind text NOT NULL CHECK (kind IN ('block_version', 'topic_title', 'comment', 'document_file', 'dataset_file', 'dataset_url')),
+    kind text NOT NULL CHECK (kind IN ('block_version', 'topic_title', 'comment', 'document_file', 'dataset')),
     block_version_id text REFERENCES public.block_version(id) ON DELETE CASCADE,
     title_edit_id text REFERENCES public.edit(id) ON DELETE CASCADE,
     comment_id text REFERENCES public.comment(id) ON DELETE CASCADE,
     file_id text REFERENCES public.file(id) ON DELETE CASCADE,
-    source_url text,
+    dataset_source_id text REFERENCES public.dataset_source(id) ON DELETE CASCADE,
     extractor_version integer NOT NULL DEFAULT 1 CHECK (extractor_version > 0),
     content_hash text,
     indexed_at timestamptz,
@@ -20,14 +20,14 @@ CREATE TABLE __SEARCH_SCHEMA__.search_source (
     last_error text,
     CHECK (generation >= indexed_generation),
     CHECK ((lease_token IS NULL) = (lease_until IS NULL)),
-    CHECK (num_nonnulls(block_version_id, title_edit_id, comment_id, file_id, source_url) = 1),
+    CHECK (num_nonnulls(block_version_id, title_edit_id, comment_id, file_id, dataset_source_id) = 1),
     CHECK ((kind = 'block_version' AND block_version_id IS NOT NULL)
         OR (kind = 'topic_title' AND title_edit_id IS NOT NULL)
         OR (kind = 'comment' AND comment_id IS NOT NULL)
-        OR (kind IN ('document_file', 'dataset_file') AND file_id IS NOT NULL)
-        OR (kind = 'dataset_url' AND source_url IS NOT NULL)),
+        OR (kind = 'document_file' AND file_id IS NOT NULL)
+        OR (kind = 'dataset' AND dataset_source_id IS NOT NULL)),
     UNIQUE (block_version_id), UNIQUE (title_edit_id), UNIQUE (comment_id),
-    UNIQUE (kind, file_id), UNIQUE (source_url)
+    UNIQUE (kind, file_id), UNIQUE (dataset_source_id)
 );
 CREATE INDEX search_source_pending_idx ON __SEARCH_SCHEMA__.search_source(retry_at, id)
     WHERE indexed_generation < generation;

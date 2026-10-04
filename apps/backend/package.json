@@ -40,6 +40,8 @@
     "coverage": "NODE_ENV=test vitest run --coverage",
     "migrate": "tsx src/scripts/apply-migrations.ts",
     "search:reindex": "node dist/scripts/search-reindex.js",
+    "datasets:install-jq": "node src/scripts/install-dataset-jq.mjs",
+    "datasets:check-jq": "tsx src/scripts/check-dataset-jq.ts",
     "datasets:httpfs": "node src/scripts/install-dataset-httpfs.mjs",
     "datasets:prepare": "tsx src/scripts/datasets-prepare.ts"
   },

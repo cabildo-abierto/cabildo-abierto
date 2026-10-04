@@ -1,0 +1,15 @@
+Cabildo dataset isolation profiles
+
+The seccomp profile and AppArmor base are derived from moby/profiles
+revision 2ceae35d351c156cb5a8efc0fdc4a08cf94569d8:
+https://github.com/moby/profiles/tree/2ceae35d351c156cb5a8efc0fdc4a08cf94569d8
+Copyright The Moby Authors. Licensed under Apache-2.0 (see LICENSE.moby).
+
+Cabildo additions allow Bubblewrap namespace creation with CLONE_NEWUSER
+and CLONE_NEWNS, nested user namespaces, and private root setup. AppArmor
+limits the added mount operations to Bubblewrap's scratch root and its
+three read-only files (jq, input.json, filter.jq).
+
+The Docker capability set and host sysctls are not expanded. These profiles
+are configured for the development Compose backend. Install the named
+AppArmor profile on the node with install-dataset-isolation.sh before use.

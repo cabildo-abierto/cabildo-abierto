@@ -312,6 +312,10 @@ rsync -az --delete \
   infra/ "${DEPLOY_SERVER}:${REMOTE_STACK_ROOT}/infra/"
 
 if [ "$ENV" = "dev" ]; then
+  ssh "${SSH_OPTS[@]}" "$DEPLOY_SERVER" "bash '${REMOTE_STACK_ROOT}/infra/scripts/install-dataset-isolation.sh'"
+fi
+
+if [ "$ENV" = "dev" ]; then
   if [ ! -f infra/env/web.dev.env ] || [ ! -f infra/env/backend.dev.env ]; then
     echo "❌ Missing infra/env/web.dev.env or infra/env/backend.dev.env"
     exit 1
@@ -345,6 +349,13 @@ if [ "$DEPLOY_BACKEND" -eq 1 ]; then
     fi
     echo "📦 Pulling backend image for migrations…"
     docker pull "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}"
+    if [ "${ENV}" = "dev" ]; then
+      echo "🔒 Checking JSON dataset isolation before deployment…"
+      docker run --rm --network none \
+        --security-opt apparmor=cabildo-backend-jq \
+        --security-opt "seccomp=${REMOTE_STACK_ROOT}/infra/security/seccomp-cabildo-jq.json" \
+        "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" node dist/scripts/check-dataset-jq.js
+    fi
     echo "🗃️  Applying pending database migrations…"
     if ! docker run --rm --network "\$MIGRATION_NETWORK" --env-file "\$BACKEND_ENV_FILE" \
       "${BACKEND_IMAGE_REPO}:${BACKEND_TAG}" node dist/scripts/apply-migrations.js; then

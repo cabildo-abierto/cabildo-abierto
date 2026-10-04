@@ -35,7 +35,7 @@ export function DocumentFilePicker({fileId, busy, disabled, onSelect, accept = D
             {selectedName ?? <DocumentFileName fileId={fileId}/>}
         </div>}
         <span className={cn("size-4 shrink-0")}>
-            {busy && <Spinner aria-label={accept === ".csv" ? "Cargando CSV" : "Subiendo y preparando el documento"} className={cn("text-muted-foreground")}/>}
+            {busy && <Spinner aria-label={accept.includes(".csv") ? "Cargando dataset" : "Subiendo y preparando el documento"} className={cn("text-muted-foreground")}/>}
         </span>
     </div>;
 }

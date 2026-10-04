@@ -1,4 +1,4 @@
-import type {CSVOptions, DatasetColumnType, DatasetContent, DatasetCell} from '@cabildo-abierto/api';
+import type {CSVOptions, DatasetColumnType, DatasetContent, DatasetCell, DatasetSourceOptions} from '@cabildo-abierto/api';
 
 export const DATASET_TYPES: DatasetColumnType[] = ['text', 'integer', 'decimal', 'boolean', 'date', 'datetime'];
 export const DATASET_TYPE_NAMES: Record<DatasetColumnType, string> = {
@@ -8,6 +8,8 @@ export function isAttachmentBlock(typeId: string) { return typeId === 'documento
 export function parseDatasetBlock(content: string): DatasetContent | null {
     try {
         const v = JSON.parse(content) as DatasetContent;
+        const options = datasetSourceOptions(v);
+        if (!options) return null;
         if (!v || typeof v.title !== 'string' || !v.title.trim() || v.title.length > 200
             || typeof v.description !== 'string' || v.description.length > 5000
             || !Array.isArray(v.columns) || !v.columns.length || v.columns.length > 200000
@@ -18,11 +20,18 @@ export function parseDatasetBlock(content: string): DatasetContent | null {
         const file = typeof v.fileId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.fileId);
         const url = typeof v.sourceUrl === 'string' && v.sourceUrl.length <= 4096 && validDatasetUrl(v.sourceUrl);
         if (file === url || (file && v.sourceUrl !== null) || (url && v.fileId !== null)) return null;
-        return {title: v.title.trim(), description: v.description.trim(), fileId: file ? v.fileId : null,
+        return {...options, title: v.title.trim(), description: v.description.trim(), fileId: file ? v.fileId : null,
             sourceUrl: url ? v.sourceUrl : null, columns: v.columns.map(c => ({name: c.name, type: c.type})),
             csvOptions: {delimiter: v.csvOptions.delimiter, decimal: v.csvOptions.decimal},
             ...(v.rowCount !== undefined && {rowCount: v.rowCount})};
     } catch { return null; }
+}
+export function datasetSourceOptions(value: {sourceFormat?: unknown; jqFilter?: unknown}): DatasetSourceOptions | null {
+    if (value.sourceFormat !== 'csv' && value.sourceFormat !== 'json') return null;
+    if (value.jqFilter !== null && typeof value.jqFilter !== 'string') return null;
+    const jqFilter = typeof value.jqFilter === 'string' ? value.jqFilter.trim() || null : null;
+    if ((jqFilter?.length ?? 0) > 20000 || (value.sourceFormat === 'csv' && jqFilter !== null)) return null;
+    return {sourceFormat: value.sourceFormat, jqFilter};
 }
 export function validDatasetUrl(value: string) {
     try { const u = new URL(value); return ['http:', 'https:'].includes(u.protocol) && !u.username && !u.password; }

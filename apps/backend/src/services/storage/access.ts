@@ -2,9 +2,9 @@ import type {Kysely, Transaction} from 'kysely';
 import type {DB} from '#/db/types.js';
 import {TopicActionError} from '#/services/topic-title-edits.js';
 
-export async function requireFileAccess(database: Kysely<DB> | Transaction<DB>, fileId: string, userId?: string, kind?: 'csv' | 'document' | 'image') {
+export async function requireFileAccess(database: Kysely<DB> | Transaction<DB>, fileId: string, userId?: string, kind?: 'csv' | 'json' | 'document' | 'image') {
     let query = database.selectFrom('file').selectAll().where('id', '=', fileId).where('format', 'is not', null);
-    if (kind === 'document') query = query.where('format', 'not in', ['csv','image']);
+    if (kind === 'document') query = query.where('format', 'not in', ['csv','json','image']);
     else if (kind) query = query.where('format', '=', kind);
     const file = await query.executeTakeFirst();
     if (!file) throw new TopicActionError(404, 'No encontramos ese archivo.');

@@ -35,7 +35,7 @@ export function VisualizationTableOptions({chart, columns, onChange}: {chart: Ta
                     </>}
                 </div>
                 {shown && <>
-                    {!metadata && <p className={cn('text-xs text-destructive')}>Esta columna no está disponible. Ocultala y elegí otra.</p>}
+                    {!!column.field && columns.length > 0 && !metadata && <p className={cn('text-xs text-destructive')}>Esta columna no está disponible. Ocultala y elegí otra.</p>}
                     <Input aria-label={`Encabezado de ${column.field}`} value={column.label ?? ''} placeholder="Encabezado (opcional)" onChange={event => update({...column, label: event.target.value || undefined})}/>
                     <VisualizationFormatOptions type={metadata?.type} format={column.format} onChange={format => update({...column, format})}/>
                 </>}

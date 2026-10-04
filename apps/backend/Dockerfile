@@ -39,7 +39,7 @@ RUN pnpm --filter backend --prod deploy /runtime
 # ============================
 FROM base AS runner
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl poppler-utils libreoffice-writer fonts-noto fonts-liberation && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl bubblewrap util-linux poppler-utils libreoffice-writer fonts-noto fonts-liberation && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -50,6 +50,9 @@ COPY --from=builder /runtime/schema ./schema
 
 COPY --from=builder /repo/apps/backend/src/scripts/install-dataset-httpfs.mjs ./install-dataset-httpfs.mjs
 RUN node install-dataset-httpfs.mjs
+
+COPY --from=builder /repo/apps/backend/src/scripts/install-dataset-jq.mjs ./install-dataset-jq.mjs
+RUN node install-dataset-jq.mjs ./vendor/jq
 
 EXPOSE 8080
 CMD ["node", "dist/index.js"]

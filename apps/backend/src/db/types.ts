@@ -24,7 +24,7 @@ export type DB = {
         id: Generated<string>;
         kind: import('@cabildo-abierto/api').SearchSourceKind;
         block_version_id: Generated<string | null>; title_edit_id: Generated<string | null>;
-        comment_id: Generated<string | null>; file_id: Generated<string | null>; source_url: Generated<string | null>;
+        comment_id: Generated<string | null>; file_id: Generated<string | null>; dataset_source_id: Generated<string | null>;
         extractor_version: Generated<number>; content_hash: Generated<string | null>;
         indexed_at: Generated<Timestamp | null>; last_checked_at: Generated<Timestamp | null>;
         status: Generated<'pending' | 'ready' | 'failed'>;
@@ -134,7 +134,7 @@ export type DB = {
     image_asset: {file_id: string; width: number; height: number};
     image: {id: string; file_id: string; width_percent: number; alignment: string; flow: string; alt: string; caption: string};
     dataset_source: {
-        id: string; file_id: string | null; source_url: string | null; snapshot_id: Generated<string | null>;
+        id: string; file_id: string | null; source_url: string | null; snapshot_id: Generated<string | null>; source_format: 'csv' | 'json'; jq_filter: string | null;
         checked_at: Generated<Timestamp | null>; etag: Generated<string | null>; last_modified: Generated<string | null>;
         status: Generated<string>; error: Generated<string | null>; lease_token: Generated<string | null>; lease_until: Generated<Timestamp | null>;
     };

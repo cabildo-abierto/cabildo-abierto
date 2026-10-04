@@ -34,3 +34,4 @@ src/services/emails/templates
 .turbo
 
 configs/*
+/vendor/

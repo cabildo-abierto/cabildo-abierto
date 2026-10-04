@@ -13,9 +13,9 @@ export async function loadDataset(database:Kysely<DB>,id:string,getStorage:()=>O
     const indices=new Map(snapshot.columns.map((c,i)=>[c.name,i]));
     const rows=raw.map(row=>dataset.columns.map(column=>{
         const index=indices.get(column.name);
-        return index===undefined?{raw:'',value:null,error:'La columna ya no está en el CSV.'}:datasetCell(row[index],column.type,snapshot.csv_options);
+        return index===undefined?{raw:'',value:null,error:'La columna ya no está en el dataset.'}:datasetCell(row[index],column.type,snapshot.csv_options);
     }));
-    return {id:dataset.id,title:dataset.title,description:dataset.description,fileId:dataset.file_id,sourceUrl:dataset.source_url,
+    return {sourceFormat:dataset.source_format,jqFilter:dataset.jq_filter,id:dataset.id,title:dataset.title,description:dataset.description,fileId:dataset.file_id,sourceUrl:dataset.source_url,
         columns:dataset.columns,csvOptions:snapshot.csv_options,rows,rowCount:snapshot.row_count,snapshotId:snapshot.id,page,
         topic:{id:dataset.topicId,title:dataset.topicTitle,slug:dataset.topicSlug}};
 }

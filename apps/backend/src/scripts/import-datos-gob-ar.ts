@@ -236,7 +236,7 @@ function conflict(state: TopicState, blockId: string): string | null {
 }
 
 function sameDataset(left: DatasetContent, right: DatasetContent) {
-    return left.title === right.title && left.description === right.description && left.sourceUrl === right.sourceUrl
+    return left.sourceFormat === right.sourceFormat && left.jqFilter === right.jqFilter && left.title === right.title && left.description === right.description && left.sourceUrl === right.sourceUrl
         && JSON.stringify(left.columns) === JSON.stringify(right.columns)
         && JSON.stringify(left.csvOptions) === JSON.stringify(right.csvOptions);
 }
@@ -274,9 +274,9 @@ async function planImport(database: Kysely<DB>, source: Awaited<ReturnType<typeo
                 continue;
             }
             try {
-                const snapshot = mode === 'apply' ? await waitSnapshot(database,await ensureDatasetSource(database,{file_id:null,source_url:item.url}),new R2Storage(),false) : null;
+                const snapshot = mode === 'apply' ? await waitSnapshot(database,await ensureDatasetSource(database,{file_id:null,source_url:item.url,source_format:'csv',jq_filter:null}),new R2Storage(),false) : null;
                 const parsed = snapshot ? {columns:snapshot.columns,csvOptions:snapshot.csv_options} : await validateRemoteCSV(item.url);
-                const content: DatasetContent = {title: item.title, description: item.description, sourceUrl: item.url,
+                const content: DatasetContent = {sourceFormat: 'csv', jqFilter: null, title: item.title, description: item.description, sourceUrl: item.url,
                     fileId: null, columns: parsed.columns, csvOptions: parsed.csvOptions};
                 if (previousContent && sameDataset(previousContent, content)) {
                     findings.push({kind: 'unchanged', resourceId: id, reason: 'Sin cambios en ficha, URL ni columnas.'});
@@ -349,7 +349,7 @@ async function apply(database: Kysely<DB>, topicId: string, userId: string, expe
             previousBlocks: changes.flatMap(change => change.previousId ? [{id: change.previousId, blockNumber: change.candidate.blockNumber}] : [])});
         const datasets = await Promise.all(changes.map(async (change, index) => ({
             id: versions[index].id, title: change.content.title, description: change.content.description,
-            source_id: await ensureDatasetSource(trx,{file_id:null,source_url:change.content.sourceUrl}),
+            source_id: await ensureDatasetSource(trx,{file_id:null,source_url:change.content.sourceUrl,source_format:'csv',jq_filter:null}),
             columns: JSON.stringify(change.content.columns), csv_options: JSON.stringify(change.content.csvOptions),
         })));
         await insertBatches(datasets, batch => trx.insertInto('dataset').values(batch).execute());

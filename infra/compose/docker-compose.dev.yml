@@ -31,6 +31,9 @@ services:
       SERVICE_NAME: api-dev
       RUN_CRONS: "false"
     command: ["node", "dist/index.js"]
+    security_opt:
+      - apparmor=cabildo-backend-jq
+      - seccomp=${REMOTE_STACK_ROOT:-/opt/cabildo-dev}/infra/security/seccomp-cabildo-jq.json
     ports:
       - "127.0.0.1:8082:8080"
     restart: unless-stopped

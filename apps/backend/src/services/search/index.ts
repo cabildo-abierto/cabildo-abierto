@@ -23,7 +23,7 @@ export function searchPlainText(content: string): string {
 
 const sourceFields = {
     block_version: 'block_version_id', topic_title: 'title_edit_id', comment: 'comment_id',
-    document_file: 'file_id', dataset_file: 'file_id', dataset_url: 'source_url',
+    document_file: 'file_id', dataset: 'dataset_source_id',
 } as const;
 
 export async function ensureSearchSource(database: SearchDatabase, kind: SearchSourceKind, owner: string, schema = 'public'): Promise<string> {
@@ -99,12 +99,12 @@ export async function synchronizeTopicSearch(database: SearchDatabase, topicId: 
         if (block.deleted) continue;
         const attachment = block.type === 'documento' ? parseDocumentBlock(block.content) : block.type === 'dataset' ? parseDatasetBlock(block.content) : null;
         if (attachment) {
-            const kind = block.type === 'documento' ? 'document_file' : attachment.fileId ? 'dataset_file' : 'dataset_url';
-            const owner = attachment.fileId ?? ('sourceUrl' in attachment ? attachment.sourceUrl : null);
+            const kind = block.type === 'documento' ? 'document_file' : 'dataset';
+            const owner = kind === 'document_file' ? attachment.fileId : (await database.selectFrom('dataset').select('source_id').where('id', '=', block.id).executeTakeFirstOrThrow()).source_id;
             if (owner) {
                 const contentId = await ensureSearchSource(database, kind, owner, schema);
                 await addReference(database, contentId, topicId, 'block_version_id', block.id, schema);
-                if (kind === 'dataset_url') await requestUrlIndex(database, owner, schema);
+                if (kind === 'dataset' && 'sourceUrl' in attachment && attachment.sourceUrl) await requestDatasetIndex(database, owner, schema);
             }
         }
     }
@@ -145,9 +145,9 @@ export async function synchronizeTopicSearch(database: SearchDatabase, topicId: 
     if (schema === 'public') await notifySearchPending(database);
 }
 
-export async function requestUrlIndex(database: SearchDatabase, url: string, schema = 'public', refreshSeconds = env.SEARCH_URL_REFRESH_SECONDS) {
+export async function requestDatasetIndex(database: SearchDatabase, sourceId: string, schema = 'public', refreshSeconds = env.SEARCH_URL_REFRESH_SECONDS) {
     const updated = await sql`UPDATE ${searchTable('source', schema)} SET generation = generation + 1, status = 'pending', attempts = 0, retry_at = now()
-        WHERE source_url = ${url} AND (indexed_generation = generation OR (status = 'failed' AND attempts >= 5))
+        WHERE dataset_source_id = ${sourceId} AND (indexed_generation = generation OR (status = 'failed' AND attempts >= 5))
           AND (last_checked_at IS NULL OR last_checked_at < now() - ${refreshSeconds} * interval '1 second') RETURNING id`.execute(database);
     if (schema === 'public' && updated.rows.length) await notifySearchPending(database);
 }

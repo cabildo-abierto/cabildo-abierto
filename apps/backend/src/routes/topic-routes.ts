@@ -383,7 +383,12 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 }
                 for (const block of requestedBlocks.filter(block => block.typeId === "dataset")) {
                     const dataset = parseDatasetBlock(block.content)!;
-                    if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id);
+                    if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id, dataset.sourceFormat);
+                    if (dataset.sourceFormat === 'json') {
+                        const sourceId = await ensureDatasetSource(trx, {file_id: dataset.fileId, source_url: dataset.sourceUrl, source_format: dataset.sourceFormat, jq_filter: dataset.jqFilter});
+                        const source = await trx.selectFrom('dataset_source').select('snapshot_id').where('id', '=', sourceId).executeTakeFirstOrThrow();
+                        if (!source.snapshot_id) throw new TopicEditError(400, 'Prepará la vista previa del JSON antes de guardar el dataset.');
+                    }
                 }
                 for (const block of requestedBlocks.filter(block => block.typeId === "documento")) {
                     await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
@@ -515,7 +520,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     if (block.typeId === "dataset") {
                         const metadata = parseDatasetBlock(block.content)!;
                         datasets.push({id: versionId, title: metadata.title, description: metadata.description,
-                            source_id: await ensureDatasetSource(trx, {file_id: metadata.fileId, source_url: metadata.sourceUrl}),
+                            source_id: await ensureDatasetSource(trx, {file_id: metadata.fileId, source_url: metadata.sourceUrl, source_format: metadata.sourceFormat, jq_filter: metadata.jqFilter}),
                             columns: JSON.stringify(metadata.columns), csv_options: JSON.stringify(metadata.csvOptions)});
                     }
                     if (block.typeId === "documento") {

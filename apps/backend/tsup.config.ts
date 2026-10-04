@@ -2,6 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
     entry: {
+        "scripts/check-dataset-jq": "src/scripts/check-dataset-jq.ts",
         "dataset-prepare-worker": "src/services/datasets/prepare-worker.ts",
         "dataset-search-worker": "src/services/datasets/search-worker.ts",
         "dataset-page-worker": "src/services/datasets/page-worker.ts",

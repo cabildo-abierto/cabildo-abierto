@@ -1,6 +1,6 @@
 import type {BlockType, TopicSummary} from './topic';
 
-export type SearchSourceKind = 'block_version' | 'topic_title' | 'comment' | 'document_file' | 'dataset_file' | 'dataset_url';
+export type SearchSourceKind = 'block_version' | 'topic_title' | 'comment' | 'document_file' | 'dataset';
 export type SearchSnippet = {text: string; highlights: {start: number; end: number}[]};
 export type ContentSearchResult = {
     topic: TopicSummary;

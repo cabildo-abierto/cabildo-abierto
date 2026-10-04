@@ -46,7 +46,7 @@ export function startSearchWorker(ctx: AppContext) {
             const next = await sql<{delay: number | null}>`SELECT extract(epoch FROM (
                 min(greatest(s.retry_at, coalesce(s.lease_until, s.retry_at))) - now()
             )) * 1000 AS delay FROM search_source s
-            WHERE s.kind IN ('document_file', 'dataset_file', 'dataset_url') AND s.indexed_generation < s.generation AND s.attempts < 5
+            WHERE s.kind IN ('document_file', 'dataset') AND s.indexed_generation < s.generation AND s.attempts < 5
                 AND EXISTS (SELECT 1 FROM search_reference r WHERE r.source_id = s.id AND r.is_visible)`.execute(ctx.kysely);
             // A short lower bound prevents spinning when another worker or a rebuild holds a lock.
             delay = Math.min(RECOVERY_INTERVAL_MS, Math.max(1000, Number(next.rows[0].delay ?? RECOVERY_INTERVAL_MS)));
