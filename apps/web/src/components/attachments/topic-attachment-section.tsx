@@ -1,36 +1,48 @@
 "use client";
 
 import {useId, useState, type ReactNode} from "react";
-import type {TopicBlock} from "@cabildo-abierto/api";
-import {parseDatasetBlock, parseDocumentBlock} from "@cabildo-abierto/utils";
-import {CaretLeftIcon, CaretRightIcon, MagnifyingGlassIcon, XIcon} from "@phosphor-icons/react";
+import type {TopicEditableBlock, TopicAttachmentSummary, TopicAttachmentsOutput} from "@cabildo-abierto/api";
+import {keepPreviousData, useQuery} from "@tanstack/react-query";
+import {dataViewRequest} from "@/utils/react/data-view-request";
+import {useDebouncedValue} from "@/hooks/use-debounced-value";
+import {Spinner} from "@/components/ui/spinner";
+import {MagnifyingGlassIcon, XIcon} from "@phosphor-icons/react";
+import {AttachmentPagination} from "./attachment-pagination";
 import {DocumentSection} from "@/components/documents/document-section";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {cn} from "@/lib/utils";
 
 const PAGE_SIZE = 12;
-const normalize = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
 
-export function TopicAttachmentSection({blocks, renderBlock, dataset = false}: {dataset?: boolean; blocks: TopicBlock[]; renderBlock: (block: TopicBlock) => ReactNode}) {
+export function TopicAttachmentSection({topicId, summary, includeDeleted, renderBlock, dataset = false}: {
+    dataset?: boolean; topicId: string; summary: TopicAttachmentSummary; includeDeleted: boolean;
+    renderBlock: (block: TopicEditableBlock) => ReactNode;
+}) {
+    const [expanded, setExpanded] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [page, setPage] = useState(0);
     const searchId = useId();
     const label = dataset ? "conjuntos de datos" : "documentos";
-    const paginated = blocks.length > PAGE_SIZE;
-    const needle = normalize(query.trim());
-    const filtered = paginated && needle ? blocks.filter(block => {
-        const content = dataset ? parseDatasetBlock(block.content) : parseDocumentBlock(block.content);
-        return normalize(`${content?.title ?? ""} ${content?.description ?? ""}`).includes(needle);
-    }) : blocks;
-    const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-    const currentPage = Math.min(page, pages - 1);
-    const visible = paginated ? filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) : filtered;
+    const debouncedQuery = useDebouncedValue(query, 250);
+    const paginated = summary.count + (includeDeleted ? summary.deletedCount : 0) > PAGE_SIZE;
+    const type = dataset ? 'dataset' : 'documento';
+    const result = useQuery({
+        queryKey: ['topic', topicId, 'blocks', 'attachments', type, debouncedQuery, page, includeDeleted, summary.revision],
+        enabled: expanded && query === debouncedQuery,
+        placeholderData: keepPreviousData,
+        queryFn: ({signal}) => {
+            const params = new URLSearchParams({type, search: debouncedQuery, page: String(page), includeDeleted: String(includeDeleted)});
+            return dataViewRequest<TopicAttachmentsOutput>(`/topics/${encodeURIComponent(topicId)}/attachments?${params}`, {signal});
+        },
+    });
+    const loading = result.isPending || result.isPlaceholderData || query !== debouncedQuery;
+    const currentPage = result.data?.page ?? page;
 
-    return <DocumentSection dataset={dataset} endActions={paginated && (searchOpen
+    return <DocumentSection dataset={dataset} onExpandedChange={setExpanded} endActions={(paginated || searchOpen) && (searchOpen
         ? <div className={cn("flex min-w-0 items-center gap-1")}>
-            <Input id={searchId} type="text" autoFocus value={query}
+            <Input id={searchId} type="text" autoFocus value={query} maxLength={500}
                 aria-label={`Buscar ${label}`} placeholder="Buscar..."
                 className={cn("w-56 min-w-0")} onChange={event => {setQuery(event.target.value); setPage(0);}}/>
             <Button type="button" variant="ghost" size="icon-sm" aria-label={`Cerrar búsqueda de ${label}`} title="Cerrar búsqueda"
@@ -39,17 +51,16 @@ export function TopicAttachmentSection({blocks, renderBlock, dataset = false}: {
         : <Button type="button" variant="ghost" size="icon-sm" aria-label={`Buscar ${label}`}
             title={`Buscar ${label}`} aria-expanded={false} aria-controls={searchId}
             onClick={() => setSearchOpen(true)}><MagnifyingGlassIcon/></Button>)}
-        after={paginated && <div className={cn("mt-3 flex items-center justify-end gap-2")}>
-            <span role="status" className={cn("mr-auto text-xs text-muted-foreground")}>{filtered.length} {label}</span>
-            <span className={cn("text-xs text-muted-foreground")}>{currentPage + 1} / {pages}</span>
-            <div className={cn("flex items-center gap-1")}>
-                <Button type="button" variant="ghost" size="icon-sm" aria-label="Página anterior" title="Página anterior"
-                    disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}><CaretLeftIcon/></Button>
-                <Button type="button" variant="ghost" size="icon-sm" aria-label="Página siguiente" title="Página siguiente"
-                    disabled={currentPage + 1 >= pages} onClick={() => setPage(currentPage + 1)}><CaretRightIcon/></Button>
-            </div>
+        after={paginated && result.data && <div className={cn('mt-3')}>
+            <AttachmentPagination total={result.data.total} page={currentPage} pageSize={result.data.pageSize}
+                label={label} disabled={loading || result.isError} onPageChange={setPage}/>
         </div>}>
-        {visible.map(renderBlock)}
-        {visible.length === 0 && <p className={cn("col-span-full py-2 text-sm text-muted-foreground")}>No encontramos {label} para esa búsqueda.</p>}
+
+        {loading ? <div role="status" aria-label={`Cargando ${label}`} className={cn('col-span-full flex justify-center py-6')}><Spinner/></div>
+            : result.isError ? <div className={cn('col-span-full space-y-2')}>
+                <p role="alert" className={cn('text-xs text-destructive')}>{result.error.message}</p>
+                <Button type="button" variant="outline" size="sm" onClick={() => void result.refetch()}>Reintentar</Button>
+            </div> : result.data?.blocks.map(renderBlock)}
+        {!loading && !result.isError && result.data?.total === 0 && <p className={cn("col-span-full py-2 text-sm text-muted-foreground")}>No encontramos {label} para esa búsqueda.</p>}
     </DocumentSection>;
 }

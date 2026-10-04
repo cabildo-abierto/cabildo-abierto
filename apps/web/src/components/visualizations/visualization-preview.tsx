@@ -15,7 +15,7 @@ export const VisualizationPreview = memo(function VisualizationPreview({spec, ta
     const dataChart = useMemo(() => ({type: 'table' as const, columns: table?.columns.map(column => ({field: column.name})) ?? []}), [table]);
     let chartMessage: PreviewMessage | null = null;
     if (table && (!viewMessage || viewMessage.tone === 'loading')) {
-        if (!table.rows.length) chartMessage = {tone: 'help',title: 'La vista es válida, pero no tiene filas',description: mode === 'basic' ? 'Revisá los filtros del formulario o elegí otro conjunto de datos para obtener filas que puedas visualizar.' : 'Revisá las condiciones DONDE / WHERE y los conjuntos de datos de la consulta para obtener filas que puedas visualizar.'};
+        if (!table.rows.length) chartMessage = {tone: 'help',title: 'La vista es válida, pero no tiene filas',description: mode === 'basic' ? 'Revisá los filtros o elegí otro conjunto de datos para obtener filas que puedas visualizar.' : 'Revisá las condiciones DONDE / WHERE y los conjuntos de datos de la consulta para obtener filas que puedas visualizar.'};
         else if (configurationHelp) chartMessage = configurationHelp;
         else if (renderError) chartMessage = {tone: 'system',title: 'No pudimos mostrar la visualización',description: 'Ocurrió un problema al dibujar el gráfico. Reintentá en unos momentos.',detail: renderError};
         else if (prepared.error) chartMessage = {tone: 'help',title: 'Revisá la configuración del gráfico',description: prepared.error};
@@ -23,7 +23,7 @@ export const VisualizationPreview = memo(function VisualizationPreview({spec, ta
     }
     return <section className={cn('min-w-0 space-y-3 p-4')}>
         <h3 className={cn('text-sm font-medium')}>Vista previa</h3>
-        {viewMessage && (viewMessage.tone !== 'loading' || !table) ? <VisualizationPreviewMessage message={viewMessage}/> : !table ? <VisualizationPreviewMessage message={{tone: 'help',title: 'Primero, prepará la vista de datos',description: mode === 'basic' ? 'Elegí un conjunto de datos y completá el formulario para empezar.' : 'Escribí una consulta LCCA que devuelva una tabla para empezar.'}}/> :
+        {viewMessage && (viewMessage.tone !== 'loading' || !table) ? <VisualizationPreviewMessage message={viewMessage}/> : !table ? <VisualizationPreviewMessage message={{tone: 'help',title: 'Primero, prepará la vista de datos',description: mode === 'basic' ? 'Elegí un conjunto de datos y configurá la visualización para empezar.' : 'Escribí una consulta LCCA que devuelva una tabla para empezar.'}}/> :
         <Tabs value={tab} onValueChange={value => onTabChange(String(value))} className={cn('space-y-3')}>
             {viewMessage?.tone === 'loading' && <p role="status" className={cn('text-xs text-muted-foreground')}>Actualizando la vista de datos…</p>}
             <TabsList aria-label="Vista previa"><TabsTrigger value="visualization">Visualización</TabsTrigger><TabsTrigger value="data">Datos</TabsTrigger></TabsList>

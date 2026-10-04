@@ -41,7 +41,7 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
     const y = scaleLinear({domain: [0, max || 1], range: [h, 0], nice: true});
     const formatter = (value: number) => formatTableValue(value, chart.yAxis?.format ?? (chart.frequency === "relative" ? {type: "percent"} : undefined));
     const tickStyle = {fill: "var(--foreground)", fontSize: 10};
-    return <><svg ref={tooltip.svg} width={width} height={height} role={preview ? "img" : "group"} aria-label="Histograma"
+    return <><svg ref={tooltip.svg} style={zoom.style} width={width} height={height} role={preview ? "img" : "group"} aria-label="Histograma"
         onPointerLeave={preview ? undefined : event => { if (event.pointerType !== "touch") tooltip.close(); }}>
         <defs><clipPath id={clipId}><rect width={w} height={h}/></clipPath></defs>
         <g transform={`translate(${margin.left},${margin.top})`}>

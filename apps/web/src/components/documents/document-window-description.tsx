@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {cn} from "@/lib/utils";
 
-export function DocumentWindowDescription({description}: {description: string}) {
+export function DocumentWindowDescription({title, description}: {title: string; description?: string}) {
     const [minimized, setMinimized] = useState(false);
     const contentId = useId();
     return <aside aria-label="Descripción"
@@ -22,7 +22,10 @@ export function DocumentWindowDescription({description}: {description: string}) 
         </header>
         <ScrollArea id={contentId} hidden={minimized} className={cn("min-h-0 max-h-64", minimized && "hidden")}
             viewportClassName={cn("h-full")}>
-            <p className={cn("px-3 pb-3 text-xs leading-relaxed whitespace-pre-wrap break-words text-muted-foreground")}>{description}</p>
+            <div className={cn("space-y-2 px-3 pb-3")}>
+                <h3 className={cn("text-sm font-medium leading-relaxed whitespace-pre-wrap break-words")}>{title}</h3>
+                {description && <p className={cn("text-xs leading-relaxed whitespace-pre-wrap break-words text-muted-foreground")}>{description}</p>}
+            </div>
         </ScrollArea>
     </aside>;
 }

@@ -7,6 +7,7 @@ import {runQueryJob} from '#/services/visualizations/query-process.js';
 import {resolveSources} from '#/services/visualizations/resolve-sources.js';
 import type {LccaAnalysis, DatasetReference} from '@cabildo-abierto/api';
 import {topicConvergence} from '#/services/topic-convergence.js';
+import {topicReading, topicAttachments} from '#/services/topic-attachments.js';
 import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 import {documentBlockContent} from "#/services/documents/block-content.js";
 import {requireDocumentFileAccess} from "#/services/documents/access.js";
@@ -144,6 +145,33 @@ export const topicRoutes = (ctx: AppContext): Router => {
         } catch (error) {
             ctx.logger.pino.error({error, databaseCode: databaseCode(error)}, "topic lookup failed");
             return res.status(500).json({success: false, error: "No pudimos cargar el tema."});
+        }
+    });
+
+    router.get("/topics/:id/reading", async (req, res) => {
+        try {
+            const value = await ctx.kysely.transaction().setIsolationLevel('repeatable read').execute(trx => topicReading(trx, String(req.params.id)));
+            return res.json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error}, 'topic reading failed');
+            return res.status(500).json({success: false, error: 'No pudimos cargar el tema.'});
+        }
+    });
+
+    router.get("/topics/:id/attachments", async (req, res) => {
+        const {type, page = '0', search = '', includeDeleted = 'false'} = req.query;
+        if ((type !== 'documento' && type !== 'dataset') || typeof page !== 'string' || !/^\d+$/.test(page)
+            || !Number.isSafeInteger(Number(page)) || typeof search !== 'string' || search.length > 500
+            || (includeDeleted !== 'true' && includeDeleted !== 'false')) {
+            return res.status(400).json({success: false, error: 'Los parámetros de búsqueda o paginación no son válidos.'});
+        }
+        try {
+            const value = await ctx.kysely.transaction().setIsolationLevel('repeatable read').execute(trx =>
+                topicAttachments(trx, String(req.params.id), type, search, Number(page), includeDeleted === 'true'));
+            return res.json({success: true, value});
+        } catch (error) {
+            ctx.logger.pino.error({error}, 'topic attachments failed');
+            return res.status(500).json({success: false, error: 'No pudimos cargar los documentos o conjuntos de datos.'});
         }
     });
 
@@ -467,7 +495,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     deleted: boolean
                 }> = [];
                 const datasets: Array<{id: string; title: string; description: string; source_id: string; columns: string; csv_options: string}> = [];
-                const visualizations: Array<{id: string; query: string; query_language_version: number; spec: string}> = [];
+                const visualizations: Array<{id: string; query: string; query_mode: 'auto' | 'custom'; query_language_version: number; spec: string}> = [];
                 const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
                 const images: {id:string;file_id:string;width_percent:number;alignment:string;flow:string;alt:string;caption:string}[] = [];
                 const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
@@ -481,7 +509,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     }
                     if (block.typeId === "visualizacion") {
                         const metadata = parseVisualizationBlock(block.content)!;
-                        visualizations.push({id: versionId, query: metadata.query, query_language_version: metadata.queryLanguageVersion, spec: JSON.stringify(metadata.spec)});
+                        visualizations.push({id: versionId, query: metadata.query, query_mode: metadata.queryMode, query_language_version: metadata.queryLanguageVersion, spec: JSON.stringify(metadata.spec)});
                         for (const source of dependencies.get(block.content)!) visualizationDatasets.push({visualization_id: versionId, dataset_topic_id: source.topicId, dataset_block_number: source.blockNumber});
                     }
                     if (block.typeId === "dataset") {

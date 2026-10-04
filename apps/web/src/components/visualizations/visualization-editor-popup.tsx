@@ -3,8 +3,8 @@ import {useCallback, useDeferredValue, useEffect, useMemo, useState} from 'react
 import {Dialog} from '@base-ui/react/dialog';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {ChartBarIcon, XIcon} from '@phosphor-icons/react';
-import type {BasicDataView, DatasetSource, LccaOutput, VisualizationContent, VisualizationSpecV1} from '@cabildo-abierto/api';
-import {basicViewQuery, datasetCell, parseVisualizationBlock, prepareVisualization} from '@cabildo-abierto/utils';
+import type {BasicDataView, DatasetSource, VisualizationContent, VisualizationSpecV1} from '@cabildo-abierto/api';
+import {basicViewQuery, datasetCell, parseVisualizationBlock, prepareVisualization, visualizationColumns} from '@cabildo-abierto/utils';
 import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from '@/hooks/use-debounced-value';
 import {usePreparedVisualization} from '@/hooks/use-prepared-visualization';
@@ -16,50 +16,49 @@ import {Textarea} from '@/components/ui/textarea';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Spinner} from '@/components/ui/spinner';
 import {cn} from '@/lib/utils';
-import {DataViewForm} from './data-view-form';
-import {LccaQueryEditor} from './lcca-query-editor';
+import {VisualizationDataControls} from './visualization-data-controls';
 import {VisualizationPreview} from './visualization-preview';
 import {VisualizationEditorPanels} from './visualization-editor-panels';
 import {dataViewGuidance, visualizationConfigurationHelp} from './visualization-preview-guidance';
-import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/components/ui/tabs';
 import {VisualizationChartOptions, defaultChart} from './visualization-chart-options';
 export function VisualizationEditorPopup({topicId, initialContent, onConfirm, onClose}: {topicId: string; initialContent?: string; onConfirm: (content: string) => void; onClose: () => void}) {
     const initial = useMemo(() => parseVisualizationBlock(initialContent ?? ''), [initialContent]);
     const client = useQueryClient();
-    const initialAnalysis = useLccaAnalysis(initial?.query ?? '');
-    const cachedView = initialAnalysis.data?.basicView ?? null;
-    const cachedQuery = useMemo(() => cachedView ? basicViewQuery(cachedView) : initial?.query ?? '', [cachedView,initial?.query]);
-    const cachedSource = cachedView ? client.getQueryData(['dataset-source', cachedView.source.topicId, cachedView.source.blockNumber]) : true;
-    const cachedResult = client.getQueryData<LccaOutput>(['lcca-query', cachedQuery]);
+    const initialAnalysis = useLccaAnalysis(initial?.queryMode === 'auto' ? initial.query : '');
     const [spec,setSpec] = useState<VisualizationSpecV1>(() => initial?.spec ?? {schemaVersion: 1, chart: defaultChart('table', [])});
-    const [mode,setMode] = useState<'basic' | 'advanced'>(cachedView || !initial ? 'basic' : 'advanced');
-    const [view,setView] = useState<BasicDataView | null>(cachedView);
+    const [queryMode,setQueryMode] = useState<'auto' | 'custom'>(initial?.queryMode ?? 'auto');
+    const mode = queryMode === 'auto' ? 'basic' : 'advanced';
+    const [advanced,setAdvanced] = useState(initial?.queryMode === 'custom');
+    const [view,setView] = useState<BasicDataView | null>(null);
     const [query,setQuery] = useState(initial?.query ?? '');
     const [switchingToBasic,setSwitchingToBasic] = useState(false);
-    const initialLoading = !!initial && initialAnalysis.isPending;
-    const analyzing = switchingToBasic || initialLoading;
-    const [initialReady,setInitialReady] = useState(!initial || (!!initialAnalysis.data && !!cachedSource && !!cachedResult));
+    const [initialReady,setInitialReady] = useState(!initial || initial.queryMode === 'custom');
+    const analyzing = switchingToBasic || !initialReady;
     const [previewTab, setPreviewTab] = useState('visualization');
     const [confirmedError, setConfirmedError] = useState<{chart: VisualizationSpecV1['chart']; table: unknown; message: string} | null>(null);
     const [renderFailure,setRenderFailure] = useState<{spec: unknown; table: unknown; message: string} | null>(null);
-    const [replace,setReplace] = useState(false);
     const [analysisError,setAnalysisError] = useState<string | null>(null);
     useEffect(() => {
-        if (initialAnalysis.data?.basicView) {
-            setView(initialAnalysis.data.basicView);
-            setMode('basic');
+        if (initialReady || initialAnalysis.isPending) return;
+        if (initialAnalysis.data?.basicView) setView(initialAnalysis.data.basicView);
+        else {
+            setAdvanced(true);
+            setAnalysisError(initialAnalysis.error?.message ?? 'No pudimos reconstruir la configuración automática. Editá el texto para conservar una consulta personalizada o elegí nuevamente los datos.');
         }
-        if (initialAnalysis.error) setAnalysisError(initialAnalysis.error.message);
-    }, [initialAnalysis.data,initialAnalysis.error]);
+        setInitialReady(true);
+    }, [initialReady,initialAnalysis.data,initialAnalysis.error,initialAnalysis.isPending]);
     const source = useQuery({queryKey: ['dataset-source', view?.source.topicId, view?.source.blockNumber], enabled: !!view,
         queryFn: async () => {
             const output = await dataViewRequest<DatasetSource>(`/datasets/${encodeURIComponent(view!.source.topicId)}/${encodeURIComponent(view!.source.blockNumber)}`);
             return output;
         }, staleTime: 30000, retry: false});
     const generated = useMemo(() => {
-        if (!view || (view.filters.length && !source.data)) return {query: '', error: null, view: null};
+        if (!view || !source.data) return {query: '', error: null, view: null};
         try {
-            const normalized: BasicDataView = {...view, filters: view.filters.map(filter => {
+            const columns = visualizationColumns(spec.chart);
+            const missing = columns.find(name => !source.data.columns.some(column => column.name === name));
+            if (missing) throw new Error(`No encontramos la columna «${missing}». Revisá la visualización.`);
+            const normalized: BasicDataView = {...view, columns, filters: view.filters.map(filter => {
                 const column = source.data?.columns.find(c => c.name === filter.field);
                 if (!column) throw new Error(`No encontramos la columna «${filter.field}».`);
                 const noValue = filter.operator === 'isNull' || filter.operator === 'isNotNull';
@@ -73,22 +72,15 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
             })};
             return {query: basicViewQuery(normalized), error: null, view: normalized};
         } catch (error) { return {query: '', error: error instanceof Error ? error.message : 'Revisá los filtros.', view: null}; }
-    }, [view, source.data]);
+    }, [view, source.data, spec.chart]);
     const currentQuery = mode === 'basic' ? generated.query : query;
     const result = useLccaQuery(currentQuery, !analyzing, true, true);
+    // Initialize a new table after a custom query first produces columns; never overwrite a saved selection.
     useEffect(() => {
-        if (!initialReady && !initialLoading && !(mode === 'basic' && !!view && source.isPending) && !result.loading) setInitialReady(true);
-    }, [initialReady,initialLoading,mode,view,source.isPending,result.loading]);
-    const viewColumns = result.data?.columns;
-    useEffect(() => {
-        if (!viewColumns || spec.chart.type !== 'table') return;
-        setSpec(current => {
-            const chart = current.chart;
-            if (chart.type !== 'table' || (chart.columns.length === viewColumns.length && chart.columns.every((column,i) => column.field === viewColumns[i].name))) return current;
-            const columns = viewColumns.map(column => chart.columns.find(existing => existing.field === column.name) ?? {field: column.name});
-            return {...current,chart: {...chart,columns}};
-        });
-    }, [viewColumns,spec.chart.type]);
+        if (queryMode !== 'custom' || !result.data?.columns.length) return;
+        setSpec(current => current.chart.type === 'table' && current.chart.columns.every(column => !column.field)
+            ? {...current, chart: defaultChart('table', result.data!.columns)} : current);
+    }, [queryMode,result.data]);
     const previewSpec = useDeferredValue(useDebouncedValue(spec, 250));
     const [previousTable, setPreviousTable] = useState(result.data);
     useEffect(() => { if (result.data) setPreviousTable(result.data); }, [result.data]);
@@ -107,16 +99,24 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
     const canConfirm = !!currentQuery.trim() && !!result.data && !viewMessage && !currentHelp && !confirmationError
         && (previewTab === 'data' || (preparationCurrent && !!prepared.data && !renderError));
     const switchToBasic = async () => {
-        setAnalysisError(null); setReplace(false);
-        if (!query.trim()) { setMode('basic'); return; }
-        setSwitchingToBasic(true);
+        if (queryMode === 'auto' && view) { setAdvanced(false); return; }
+        setAnalysisError(null); setSwitchingToBasic(true);
+        let recovered = view;
         try {
-            const analysis = await client.fetchQuery(lccaAnalysisOptions(query));
-            if (analysis.basicView) { setView(analysis.basicView); setMode('basic'); }
-            else setReplace(true);
-        } catch (cause) {
-            setAnalysisError(cause instanceof Error ? cause.message : 'No pudimos analizar la consulta.');
+            const analysis = query.trim() ? await client.fetchQuery(lccaAnalysisOptions(query)) : null;
+            if (analysis?.basicView) recovered = analysis.basicView;
+            else if (analysis?.sources.length === 1) {
+                const source = analysis.sources[0];
+                if (!view || view.source.topicId !== source.topicId || view.source.blockNumber !== source.blockNumber) {
+                    recovered = {source, columns: [], filters: [], filterMode: 'and', orderBy: []};
+                }
+            }
+        } catch {
+            // An invalid query must not prevent returning to the last automatic configuration.
         } finally {
+            setView(recovered);
+            setQueryMode('auto');
+            setAdvanced(false);
             setSwitchingToBasic(false);
         }
     };
@@ -130,7 +130,7 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
                 return;
             }
         }
-        const content: VisualizationContent = {query: currentQuery, queryLanguageVersion: 1, spec};
+        const content: VisualizationContent = {query: currentQuery, queryMode, queryLanguageVersion: 1, spec};
         if (mode === 'basic' && generated.view) {
             client.setQueryData(lccaAnalysisOptions(currentQuery).queryKey, {
                 basicView: generated.view,
@@ -148,23 +148,16 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
                 <VisualizationEditorPanels>
                     {!initialReady ? <div role="status" aria-label="Cargando editor" className={cn('flex min-h-48 min-w-0 items-center justify-center border-b md:border-b-0')}><Spinner className={cn('size-6')}/></div> : <ScrollArea className={cn('min-h-0 min-w-0 border-b md:border-b-0')} viewportClassName={cn('md:h-full')}>
                         <div className={cn('space-y-5 p-4')}>
-                            <section className={cn('space-y-3')}><h3 className={cn('text-sm font-medium')}>Vista de datos</h3>
-                                <Tabs value={mode} onValueChange={value => {
-                                    setAnalysisError(null); setReplace(false);
-                                    if (value === 'basic' && mode === 'advanced') void switchToBasic();
-                                    if (value === 'advanced' && mode === 'basic') { setQuery(currentQuery); setMode('advanced'); }
-                                }} className={cn('space-y-3')}>
-                                <div className={cn('flex items-center gap-2')}><TabsList aria-label="Editor de la vista de datos"><TabsTrigger value="basic" disabled={analyzing}>Formulario</TabsTrigger><TabsTrigger value="advanced" disabled={analyzing || (mode === 'basic' && !!view && (!currentQuery || !!generated.error))}>LCCA</TabsTrigger></TabsList>{analyzing && <Spinner/>}</div>
-                                {replace && <div className={cn('space-y-2 rounded-md border p-3 text-xs')}><p>Esta consulta no se puede representar con el formulario. Reemplazarla descarta la consulta avanzada.</p><div className={cn('flex gap-2')}><Button type="button" size="xs" variant="outline" onClick={() => setReplace(false)}>Conservar LCCA</Button><Button type="button" size="xs" onClick={() => { setView(null); setMode('basic'); setReplace(false); }}>Reemplazar consulta</Button></div></div>}
-                                {analysisError && <p role="alert" className={cn('text-xs text-muted-foreground')}>{analysisError}</p>}
-                                <TabsContent value="basic"><DataViewForm topicId={topicId} view={view} onChange={setView} onSource={source => setSpec(current => ({...current, chart: defaultChart(current.chart.type,source.columns)}))}/></TabsContent>
-                                <TabsContent value="advanced"><LccaQueryEditor topicId={topicId} query={query} onChange={value => { setQuery(value); setAnalysisError(null); setReplace(false); }}/></TabsContent>
-                                </Tabs>
-                            </section>
+                            <VisualizationDataControls topicId={topicId} advanced={advanced} automatic={queryMode === 'auto'}
+                                query={queryMode === 'auto' && view ? currentQuery : query} view={view} busy={analyzing}
+                                error={analysisError}
+                                onAdvanced={() => setAdvanced(true)} onAutomatic={() => void switchToBasic()}
+                                onQuery={value => { setQuery(value); setQueryMode('custom'); setAnalysisError(null); }}
+                                onView={setView} onSource={source => setSpec(current => ({...current, chart: defaultChart(current.chart.type,source.columns)}))}/>
                             <section className={cn('space-y-3 border-t pt-4')}><h3 className={cn('text-sm font-medium')}>Visualización</h3>
                                 <Input aria-label="Título opcional" placeholder="Título (opcional)" maxLength={200} value={spec.title ?? ''} onChange={event => setSpec({...spec, title: event.target.value || undefined})}/>
                                 <Textarea aria-label="Descripción opcional" placeholder="Descripción (opcional)" maxLength={5000} value={spec.description ?? ''} onChange={event => setSpec({...spec, description: event.target.value || undefined})}/>
-                                <VisualizationChartOptions chart={spec.chart} columns={result.data?.columns ?? []} onChange={chart => setSpec({...spec,chart})}/>
+                                <VisualizationChartOptions chart={spec.chart} columns={(queryMode === 'auto' ? source.data?.columns : (result.data ?? previousTable)?.columns) ?? []} onChange={chart => setSpec({...spec,chart})}/>
                                 <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Relación ancho/alto<Input type="number" min={0.5} max={3} step={0.1} value={spec.layout?.aspectRatio ?? 1.6} onChange={event => setSpec({...spec,layout: {aspectRatio: Number(event.target.value)}})}/></label>
                             </section>
                         </div>

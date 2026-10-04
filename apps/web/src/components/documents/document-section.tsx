@@ -4,10 +4,10 @@ import {useState, type ReactNode} from "react";
 import {cn} from "@/lib/utils";
 import {Accordion, AccordionContent, AccordionHeader, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
-export function DocumentSection({children, dataset = false, actions, endActions, after}: {children: ReactNode; dataset?: boolean; actions?: ReactNode; endActions?: ReactNode; after?: ReactNode}) {
+export function DocumentSection({children, dataset = false, actions, endActions, after, onExpandedChange}: {children: ReactNode; dataset?: boolean; actions?: ReactNode; endActions?: ReactNode; after?: ReactNode; onExpandedChange?: (expanded: boolean) => void}) {
     const [expanded, setExpanded] = useState<string[]>([]);
     return <section className={cn("clear-both mt-6 border-t pt-3")} aria-label={dataset ? "Conjuntos de datos" : "Documentos"}>
-        <Accordion value={expanded} onValueChange={setExpanded}>
+        <Accordion value={expanded} onValueChange={value => {setExpanded(value); onExpandedChange?.(value.length > 0);}}>
             <AccordionItem value={dataset ? "dataset" : "documento"}>
                 <div className={cn("relative flex items-center gap-2 pr-6")}>
                     <AccordionHeader render={<h2/>} className={cn("min-w-0")}>

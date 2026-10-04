@@ -8,7 +8,6 @@ import {cn} from '@/lib/utils';
 import {VisualizationSelect} from './visualization-select';
 import {DatasetSourceSelect} from './dataset-source-select';
 import {DataViewFilter} from './data-view-filter';
-import {DataViewColumns} from './data-view-columns';
 export function DataViewForm({topicId, view, onChange, onSource}: {topicId: string; view: BasicDataView | null; onChange: (view: BasicDataView) => void; onSource: (source: DatasetSource) => void}) {
     const selected = useQuery({queryKey: ['dataset-source', view?.source.topicId, view?.source.blockNumber], enabled: !!view,
         queryFn: async () => {
@@ -20,13 +19,12 @@ export function DataViewForm({topicId, view, onChange, onSource}: {topicId: stri
     const columnOptions = columns.map(c => ({value: c.name, label: c.name}));
     const choose = (source: DatasetSource) => {
         onSource(source);
-        onChange({source: {topicId: source.topicId, blockNumber: source.blockNumber}, columns: source.columns.length > 200 ? source.columns.slice(0,200).map(column => column.name) : [], filters: [], filterMode: 'and', orderBy: []});
+        onChange({source: {topicId: source.topicId, blockNumber: source.blockNumber}, columns: [], filters: [], filterMode: 'and', orderBy: []});
     };
     return <div className={cn('space-y-4')}>
         <DatasetSourceSelect topicId={topicId} value={source ?? null} onChange={choose}/>
         {selected.error && <p role="alert" className={cn('text-xs text-destructive')}>{selected.error.message}</p>}
-        {view && source && <>
-            <DataViewColumns key={JSON.stringify(view.source)} columns={columns.map(column => column.name)} selected={view.columns} onChange={next => onChange({...view, columns: next})}/>
+        {view && source && <div className={cn(view.filters.length === 0 && view.orderBy.length === 0 ? 'flex items-center gap-2' : 'space-y-4')}>
             <div className={cn('space-y-2')}><div className={cn('flex items-center justify-between')}>{view.filters.length > 0 && <span className={cn('text-xs font-medium')}>Filtros</span>}<Button type="button" size="xs" variant="outline" disabled={!columns.length} onClick={() => onChange({...view, filters: [...view.filters, {field: columns[0].name, type: columns[0].type, operator: 'eq', values: ['']}]})}><PlusIcon/>Filtro</Button></div>
                 {view.filters.length > 1 && <VisualizationSelect label="Combinar condiciones" value={view.filterMode} options={[{value: 'and', label: 'Todas (AND)'}, {value: 'or', label: 'Alguna (OR)'}]} onChange={filterMode => onChange({...view, filterMode: filterMode as 'and' | 'or'})}/>}
                 {view.filters.map((filter,i) => <DataViewFilter key={i} filter={filter} columns={columns} onChange={filter => onChange({...view, filters: view.filters.map((current,j) => i === j ? filter : current)})} onRemove={() => onChange({...view, filters: view.filters.filter((_,j) => i !== j)})}/>)}
@@ -38,6 +36,6 @@ export function DataViewForm({topicId, view, onChange, onSource}: {topicId: stri
                     <Button type="button" size="icon-sm" variant="ghost" aria-label="Quitar orden" onClick={() => onChange({...view, orderBy: view.orderBy.filter((_,j) => i !== j)})}><TrashIcon/></Button>
                 </div>)}
             </div>
-        </>}
+        </div>}
     </div>;
 }

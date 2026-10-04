@@ -66,7 +66,7 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
         showLine(xs[index]);
     };
     const tickStyle = {fill: 'var(--foreground)', fontSize: 10};
-    return <><svg ref={tooltip.svg} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label={chart.type === 'line' ? 'Gráfico de líneas' : 'Gráfico de dispersión'}>
+    return <><svg ref={tooltip.svg} style={zoom.style} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label={chart.type === 'line' ? 'Gráfico de líneas' : 'Gráfico de dispersión'}>
         <defs><clipPath id={clipId}><rect width={w} height={h}/></clipPath></defs>
         <g transform={`translate(${margin.left},${margin.top})`}>
             {!preview && chart.showGrid !== false && <GridRows scale={y} width={w} stroke="var(--border)"/>}

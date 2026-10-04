@@ -27,6 +27,7 @@
     "script:create-test-users": "tsx src/scripts/create-test-users.ts",
     "script:create-notification-examples": "tsx src/scripts/create-notification-examples.ts",
     "script:import-datos-gob-ar": "tsx src/scripts/import-datos-gob-ar.ts",
+    "script:copy-r2-to-dev": "tsx src/scripts/copy-r2-to-dev.ts",
     "script:sync-ca-users": "tsx src/scripts/sync-ca-users.ts | pino-pretty",
     "build": "tsup",
     "typecheck": "tsc --noEmit",

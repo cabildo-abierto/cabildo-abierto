@@ -5,7 +5,7 @@ import type {PreviewMessage} from './visualization-preview-message';
 
 export function dataViewGuidance({mode, hasSource, query, loading, formError, requestError}: {mode: 'basic' | 'advanced'; hasSource: boolean; query: string; loading: boolean; formError: string | null; requestError: Error | null}): PreviewMessage | null {
     const basic = mode === 'basic';
-    if (basic && !hasSource) return {tone: 'help',title: 'Elegí un conjunto de datos',description: 'Buscá un conjunto de datos en el formulario para empezar.'};
+    if (basic && !hasSource) return {tone: 'help',title: 'Elegí un conjunto de datos',description: 'Buscá un conjunto de datos para empezar.'};
     if (basic && formError) return {tone: 'help',title: 'Completá la vista de datos',description: formError};
     if (!basic && !query.trim()) return {tone: 'help',title: 'Escribí una consulta LCCA',description: 'Usá SELECCIONAR para elegir las columnas y datos() para indicar el conjunto de datos. Cuando la consulta esté completa, vas a poder armar el gráfico.'};
     if (loading) return {tone: 'loading',title: basic ? 'Preparando la vista de datos' : 'Ejecutando la consulta LCCA',description: 'Cuando los datos estén listos, vas a poder configurar la visualización.'};

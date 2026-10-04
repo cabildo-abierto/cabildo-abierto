@@ -29,8 +29,10 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
     const discussion = useTopicBlockComments(topicId, block.blockNumber);
     const commentCount = discussion.commentCount ?? block.commentCount;
     const dataset = block.typeId === "dataset";
-    const description = (dataset ? parseDatasetBlock(block.content) : parseDocumentBlock(block.content))?.description;
-    const sidePanelVisible = commentsOpen || Boolean(description);
+    const content = dataset ? parseDatasetBlock(block.content) : parseDocumentBlock(block.content);
+    const fullTitle = content?.title ?? title;
+    const description = content?.description;
+    const sidePanelVisible = commentsOpen || Boolean(fullTitle || description);
     const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow(sidePanelVisible ? 332 : 0);
     const closeRef = useRef<HTMLButtonElement>(null);
     const versionId = block.id;
@@ -71,7 +73,7 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
                 {!maximized && <DocumentWindowResizeHandles controls={resizeControls}/>}
             </div>
             <div className={cn("flex h-full w-80 shrink-0 flex-col gap-3", !sidePanelVisible && "hidden")}>
-                {description && <DocumentWindowDescription description={description}/>}
+                {(fullTitle || description) && <DocumentWindowDescription title={fullTitle} description={description}/>}
                 <DocumentWindowComments id={commentsId} block={block} discussion={discussion} open={commentsOpen} className={cn("h-auto min-h-0 flex-1 shrink")}/>
             </div>
         </Dialog.Popup>

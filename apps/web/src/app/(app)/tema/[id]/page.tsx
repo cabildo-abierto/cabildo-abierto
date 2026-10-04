@@ -4,7 +4,7 @@ import {useTopicRoute} from "@/components/topic-route-provider";
 
 import Link from "next/link";
 import {useQuery} from "@tanstack/react-query";
-import type {TopicBlocksOutput} from "@cabildo-abierto/api";
+import type {TopicReadingOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
@@ -32,9 +32,9 @@ export default function TopicPage() {
     const isMobile = useIsMobile();
     const openToolsInPage = useMediaQuery("(max-width: 1535px)");
     const blocksQuery = useQuery({
-        queryKey: ["topic", id, "blocks"],
+        queryKey: ["topic", id, "blocks", "reading"],
         queryFn: async () => {
-            const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`);
+            const result = await get<TopicReadingOutput>(`/topics/${encodeURIComponent(id)}/reading`);
             if ("error" in result) throw new Error(result.error);
             return result.value;
         },
@@ -67,6 +67,6 @@ export default function TopicPage() {
     </AlertDialog>);
 
     return <TopicView topic={topic} connectionMode="reading" action={editButton}>
-        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} openToolsInPage={openToolsInPage !== false}/>
+        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} attachments={blocksQuery.data!.attachments} openToolsInPage={openToolsInPage !== false}/>
     </TopicView>;
 }

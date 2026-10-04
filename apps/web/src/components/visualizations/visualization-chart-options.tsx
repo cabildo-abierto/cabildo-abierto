@@ -4,7 +4,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {VisualizationSelect} from './visualization-select';
 import {VisualizationAxisOptions} from './visualization-axis-options';
-import {VisualizationFormatOptions} from './visualization-format-options';
+import {VisualizationTableOptions} from './visualization-table-options';
 import {VisualizationBinBoundaries} from './visualization-bin-boundaries';
 import {cn} from '@/lib/utils';
 export const chartTypes = [{value: 'bar', label: 'Barras'}, {value: 'line', label: 'Líneas'}, {value: 'scatter', label: 'Dispersión'}, {value: 'histogram', label: 'Histograma'}, {value: 'table', label: 'Tabla'}];
@@ -48,10 +48,7 @@ export function VisualizationChartOptions({chart, columns, onChange}: {chart: Vi
             <VisualizationSelect label="Frecuencia" value={chart.frequency ?? 'count'} options={[{value: 'count', label: 'Cantidad'}, {value: 'relative', label: 'Relativa'}]} onChange={frequency => onChange({...chart, frequency: frequency as typeof chart.frequency})}/>
         </>}
         {chart.type !== 'table' && chart.type !== 'scatter' && <VisualizationAxisOptions label="Eje de valores" value={chart.yAxis ?? {}} numeric onChange={yAxis => onChange({...chart, yAxis})}/>}
-        {chart.type === 'table' && <>
-            {chart.columns.map((column,i) => <div key={column.field} className={cn('space-y-2 rounded-md border p-2')}><span className={cn('block truncate text-xs font-medium')} title={column.field}>{column.field}</span><Input aria-label={`Encabezado de ${column.field}`} value={column.label ?? ''} placeholder="Encabezado (opcional)" onChange={event => onChange({...chart, columns: chart.columns.map((c,j) => i === j ? {...c, label: event.target.value || undefined} : c)})}/><VisualizationFormatOptions type={columns.find(c => c.name === column.field)?.type} format={column.format} onChange={format => onChange({...chart, columns: chart.columns.map((c,j) => i === j ? {...c, format} : c)})}/></div>)}
-            <label className={cn('grid gap-1 text-xs')}>Filas por página<Input type="number" min={10} max={100} value={chart.pageSize ?? 25} onChange={event => onChange({...chart, pageSize: Number(event.target.value)})}/></label>
-        </>}
+        {chart.type === 'table' && <VisualizationTableOptions chart={chart} columns={columns} onChange={onChange}/>}
         {chart.type !== 'table' && <div className={cn('flex flex-wrap gap-2')}>
             <Button type="button" variant={chart.showGrid !== false ? 'secondary' : 'outline'} size="xs" aria-pressed={chart.showGrid !== false} onClick={() => onChange({...chart, showGrid: chart.showGrid === false})}>Grilla</Button>
             {chart.type !== 'histogram' && <Button type="button" variant={chart.showLegend !== false ? 'secondary' : 'outline'} size="xs" aria-pressed={chart.showLegend !== false} onClick={() => onChange({...chart, showLegend: chart.showLegend === false})}>Leyenda</Button>}

@@ -20,7 +20,7 @@ const editMessage = '[datos.gob.ar:sync:v1] Importación de recursos CSV';
 const pageSize = 10;
 
 type Mode = 'full' | 'metadata' | 'apply';
-type Options = {topicId: string; username: string; mode: Mode; limit?: number};
+type Options = {topicId: string; username: string; mode: Mode; limit?: number; resourceId?: string};
 type CatalogResource = {id: string; name?: string; description?: string; format?: string; url?: string};
 type CatalogPackage = {
     id: string; name: string; title?: string; notes?: string; license_title?: string;
@@ -32,7 +32,7 @@ type Finding = {kind: 'omit' | 'conflict' | 'missing' | 'candidate' | 'unchanged
 type TopicState = Awaited<ReturnType<typeof readTopicState>>;
 
 function usage(): never {
-    throw new Error('Uso: pnpm --filter backend run script:import-datos-gob-ar --topic <id> --user <username> [--dry-run=full|--dry-run=metadata|--apply] [--limit N]');
+    throw new Error('Uso: pnpm --filter backend run script:import-datos-gob-ar --topic <id> --user <username> [--dry-run=full|--dry-run=metadata|--apply] [--limit N | --resource ID_CKAN]');
 }
 
 function options(args: string[]): Options {
@@ -41,6 +41,7 @@ function options(args: string[]): Options {
     let mode: Mode = 'full';
     let modeSpecified = false;
     let limit: number | undefined;
+    let resourceId: string | undefined;
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
         if (arg === '--topic' && args[i + 1]) topicId = args[++i];
@@ -50,13 +51,17 @@ function options(args: string[]): Options {
             if (!raw || !/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) usage();
             limit = Number(raw);
         }
+        else if ((arg === '--resource' || arg.startsWith('--resource=')) && resourceId === undefined) {
+            resourceId = (arg === '--resource' ? args[++i] : arg.slice('--resource='.length))?.trim();
+            if (!resourceId || resourceId.startsWith('--')) usage();
+        }
         else if (arg === '--apply' && !modeSpecified) { mode = 'apply'; modeSpecified = true; }
         else if ((arg === '--dry-run' || arg === '--dry-run=full') && !modeSpecified) { mode = 'full'; modeSpecified = true; }
         else if (arg === '--dry-run=metadata' && !modeSpecified) { mode = 'metadata'; modeSpecified = true; }
         else usage();
     }
-    if (!topicId || !username) usage();
-    return {topicId, username, mode, limit};
+    if (!topicId || !username || (resourceId !== undefined && limit !== undefined)) usage();
+    return {topicId, username, mode, limit, resourceId};
 }
 
 function blockNumber(resourceId: string) {
@@ -114,7 +119,7 @@ async function catalogPage(start: number, maximumRows: number): Promise<unknown>
     throw new Error(`No se pudo leer la página ${start} de CKAN: ${message}`);
 }
 
-async function catalog(limit?: number): Promise<{packages: CatalogPackage[]; totalResources: number; csvResources: number; catalogCount: number; limited: boolean}> {
+async function catalog(limit?: number): Promise<{packages: CatalogPackage[]; totalResources: number; csvResources: number; catalogCount: number | null; limited: boolean}> {
     const packages: CatalogPackage[] = [];
     const ids = new Set<string>();
     let count: number | undefined;
@@ -165,6 +170,37 @@ async function catalog(limit?: number): Promise<{packages: CatalogPackage[]; tot
         if (isCsv(resource)) csvResources++;
     }
     return {packages, totalResources, csvResources, catalogCount: count ?? 0, limited: limit !== undefined};
+}
+
+async function ckanRecord(action: 'resource_show' | 'package_show', id: string): Promise<Record<string, unknown>> {
+    const url = new URL(action, catalogUrl);
+    url.searchParams.set('id', id);
+    const response = await fetch(url, {signal: AbortSignal.timeout(30_000)});
+    if (response.status === 404) throw new Error(`No se encontró ${id} en CKAN (${action}).`);
+    if (!response.ok) throw new Error(`No se pudo consultar ${action} en CKAN: HTTP ${response.status}.`);
+    const body: unknown = await response.json();
+    if (!body || typeof body !== 'object' || !('success' in body) || body.success !== true
+        || !('result' in body) || !body.result || typeof body.result !== 'object' || Array.isArray(body.result)) {
+        throw new Error(`CKAN devolvió una respuesta inválida para ${action}: ${id}.`);
+    }
+    return body.result as Record<string, unknown>;
+}
+
+async function resourceCatalog(resourceId: string): Promise<Awaited<ReturnType<typeof catalog>>> {
+    const resource = await ckanRecord('resource_show', resourceId);
+    if (resource.id !== resourceId || !clean(resource.package_id)) {
+        throw new Error(`El recurso ${resourceId} no tiene un dataset CKAN válido.`);
+    }
+    const value = await ckanRecord('package_show', clean(resource.package_id));
+    if (value.id !== resource.package_id || typeof value.name !== 'string' || !Array.isArray(value.resources)
+        || value.resources.some(item => !item || typeof item !== 'object')) {
+        throw new Error(`El dataset CKAN del recurso ${resourceId} tiene un formato inesperado.`);
+    }
+    const pkg = value as unknown as CatalogPackage;
+    const selected = pkg.resources.find(item => item.id === resourceId);
+    if (!selected) throw new Error(`El recurso ${resourceId} ya no figura en su dataset CKAN. Reintentá.`);
+    if (!isCsv(selected)) throw new Error(`El recurso ${resourceId} no es CSV (formato: ${clean(selected.format) || 'desconocido'}).`);
+    return {packages: [{...pkg, resources: [selected]}], totalResources: 1, csvResources: 1, catalogCount: null, limited: true};
 }
 
 async function readTopicState(database: Kysely<DB>, topicId: string) {
@@ -271,7 +307,7 @@ function report(source: Awaited<ReturnType<typeof catalog>>, result: Awaited<Ret
         console.log(`${kind} ${id}: ${detail}\n  URL: ${url || '(sin URL en el catálogo actual)'}`);
     };
     console.log(source.limited
-        ? `Muestra parcial: ${source.csvResources} recursos CSV de ${source.packages.length} datasets; CKAN informa ${source.catalogCount} datasets en total.`
+        ? `Muestra parcial: ${source.csvResources} recursos CSV de ${source.packages.length} datasets${source.catalogCount === null ? '' : `; CKAN informa ${source.catalogCount} datasets en total`}.`
         : `Catálogo: ${source.packages.length} datasets, ${source.totalResources} recursos, ${source.csvResources} CSV.`);
     console.log(`Resultado: ${result.changes.filter(c => c.kind === 'add').length} altas, ${result.changes.filter(c => c.kind === 'update').length} actualizaciones, ${count('unchanged')} sin cambios, ${count('candidate')} candidatos, ${count('omit')} CSV omitidos, ${count('conflict')} conflictos, ${count('missing')} ausentes conservados${source.limited ? '' : `, ${withoutCsv.length} datasets sin CSV, ${source.totalResources - source.csvResources} recursos no CSV`}.`);
     for (const change of result.changes) logCsv(change.kind === 'add' ? 'ALTA' : 'ACTUALIZAR',
@@ -324,7 +360,7 @@ async function apply(database: Kysely<DB>, topicId: string, userId: string, expe
 }
 
 async function main() {
-    const {topicId, username, mode, limit} = options(process.argv.slice(2));
+    const {topicId, username, mode, limit, resourceId} = options(process.argv.slice(2));
     const database = setupKysely(env.DIRECT_URL || env.DATABASE_URL, 1);
     try {
         const [topic, user] = await Promise.all([
@@ -333,8 +369,8 @@ async function main() {
         ]);
         if (!topic) throw new Error(`No existe el tema ${topicId}.`);
         if (!user) throw new Error(`No existe el usuario ${username}.`);
-        console.log(`Tema: ${topic.title} (${topic.id}); autor: ${user.username}; modo: ${mode}${limit === undefined ? '' : `; límite: ${limit} CSV`}.`);
-        const [source, state] = await Promise.all([catalog(limit), readTopicState(database, topicId)]);
+        console.log(`Tema: ${topic.title} (${topic.id}); autor: ${user.username}; modo: ${mode}${limit === undefined ? '' : `; límite: ${limit} CSV`}${resourceId ? `; recurso: ${resourceId}` : ''}.`);
+        const [source, state] = await Promise.all([resourceId ? resourceCatalog(resourceId) : catalog(limit), readTopicState(database, topicId)]);
         const result = await planImport(database, source, state, mode);
         report(source, result, mode);
         if (mode === 'apply') {

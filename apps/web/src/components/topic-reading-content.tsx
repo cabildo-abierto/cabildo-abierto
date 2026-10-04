@@ -7,7 +7,7 @@ import {compareContentBlocks, isAttachmentBlock} from "@cabildo-abierto/utils";
 import {TopicAttachmentSection} from "@/components/attachments/topic-attachment-section";
 
 import {useEffect, useState} from "react";
-import type {TopicBlock} from "@cabildo-abierto/api";
+import type {TopicBlock, TopicEditableBlock, TopicReadingOutput} from "@cabildo-abierto/api";
 import {cn} from "@/lib/utils";
 import {TopicBlockView} from "@/components/topic-block";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
@@ -19,10 +19,11 @@ import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
-export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks, openToolsInPage}: {
+export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks, attachments, openToolsInPage}: {
     topicId: string;
     latestBlocks: TopicBlock[];
     latestDeletedBlocks: TopicBlock[];
+    attachments: TopicReadingOutput['attachments'];
     openToolsInPage: boolean;
 }) {
     const [displayedBlocks, setDisplayedBlocks] = useState(latestBlocks);
@@ -31,8 +32,8 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const realtimeChange = useTopicRealtimeChange(topicId);
     const blockSectionProps = useTopicBlockSection();
     const deletingVersion = useTopicLocalConvergence(topicId, blocks => {
-        setDisplayedBlocks(blocks.filter(block => !block.deleted));
-        setDisplayedDeletedBlocks(blocks.filter(block => block.deleted));
+        setDisplayedBlocks(blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId)));
+        setDisplayedDeletedBlocks(blocks.filter(block => block.deleted && !isAttachmentBlock(block.typeId)));
     });
 
     useEffect(() => {
@@ -53,7 +54,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const blocksToRender = [...displayedBlocks, ...(showDeleted ? effectiveDeletedBlocks : [])]
         .sort(compareContentBlocks);
     const {footnotes, numberById} = topicFootnotes(displayedBlocks);
-    const renderAttachment = (block: TopicBlock) => displayedDeletedNumbers.has(block.blockNumber)
+    const renderAttachment = (block: TopicEditableBlock) => block.deleted
         ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
         : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>;
     return <TopicFootnoteProvider topicId={topicId} blocks={displayedBlocks}>
@@ -61,8 +62,8 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
             setDisplayedBlocks(latestBlocks);
             setDisplayedDeletedBlocks(latestDeletedBlocks);
         }}/>}
-        <TopicDeletedBlocks topicId={topicId} count={displayedDeletedBlocks.length} open={showDeleted} onToggle={() => setShowDeleted(value => !value)}/>
-        {blocksToRender.length === 0
+        <TopicDeletedBlocks topicId={topicId} count={displayedDeletedBlocks.length + attachments.documento.deletedCount + attachments.dataset.deletedCount} open={showDeleted} onToggle={() => setShowDeleted(value => !value)}/>
+        {blocksToRender.length === 0 && !Object.values(attachments).some(summary => summary.count + (showDeleted ? summary.deletedCount : 0) > 0)
             ? <p className="py-2 text-sm text-muted-foreground">Este tema está vacío.</p>
             : <TopicContentFlow>{blocksToRender.filter(block => !isAttachmentBlock(block.typeId)).map(block => displayedDeletedNumbers.has(block.blockNumber)
                 ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage}
@@ -77,9 +78,9 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
                 />)}
                 <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>
                 {(["documento", "dataset"] as const).map(type => {
-                    const blocks = blocksToRender.filter(block => block.typeId === type);
-                    return blocks.length > 0 && <div key={type} className={cn("clear-both")}>
-                        <TopicAttachmentSection dataset={type === "dataset"} blocks={blocks} renderBlock={renderAttachment}/>
+                    const summary = attachments[type];
+                    return summary.count + (showDeleted ? summary.deletedCount : 0) > 0 && <div key={type} className={cn("clear-both")}>
+                        <TopicAttachmentSection dataset={type === "dataset"} topicId={topicId} summary={summary} includeDeleted={showDeleted} renderBlock={renderAttachment}/>
                     </div>;
                 })}
                 </TopicContentFlow>}

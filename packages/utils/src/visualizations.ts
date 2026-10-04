@@ -46,9 +46,23 @@ export function parseVisualizationBlock(content: string): VisualizationContent |
     try {
         const value = JSON.parse(content);
         if (!value || typeof value !== 'object' || Array.isArray(value)
-            || Object.keys(value).some(key => !['query', 'queryLanguageVersion', 'spec'].includes(key))
+            || Object.keys(value).some(key => !['query', 'queryMode', 'queryLanguageVersion', 'spec'].includes(key))
             || typeof value.query !== 'string' || !value.query.trim() || value.query.length > 20000
+            || !['auto', 'custom'].includes(value.queryMode)
             || value.queryLanguageVersion !== 1 || !validateVisualizationSpec(value.spec)) return null;
-        return {query: value.query, queryLanguageVersion: 1, spec: value.spec};
+        return {query: value.query, queryMode: value.queryMode, queryLanguageVersion: 1, spec: value.spec};
     } catch { return null; }
+}
+
+/** Columns consumed by the chart, in stable presentation order. */
+export function visualizationColumns(chart: VisualizationSpecV1['chart']): string[] {
+    let fields: string[];
+    switch (chart.type) {
+        case 'table': fields = chart.columns.map(column => column.field); break;
+        case 'bar': case 'line': fields = [chart.x.field, ...chart.series.map(series => series.field), ...(chart.seriesBy ? [chart.seriesBy.field] : [])]; break;
+        case 'scatter': fields = [chart.x.field, chart.y.field, ...(chart.color ? [chart.color.field] : []), ...(chart.size ? [chart.size.field] : [])]; break;
+        case 'histogram': fields = [chart.x.field]; break;
+    }
+    if (!fields.length || fields.some(field => !field)) throw new Error('Elegí las columnas de la visualización.');
+    return [...new Set(fields)];
 }

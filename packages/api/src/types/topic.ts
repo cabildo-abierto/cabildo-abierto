@@ -71,6 +71,19 @@ export type TopicEditableBlock = TopicBlock & {
     deleted: boolean
 }
 
+export type TopicAttachmentSummary = {count: number; deletedCount: number; revision: string}
+export type TopicReadingOutput = {
+    blocks: TopicBlock[]
+    deletedBlocks: TopicBlock[]
+    attachments: Record<'documento' | 'dataset', TopicAttachmentSummary>
+}
+export type TopicAttachmentsOutput = {
+    blocks: TopicEditableBlock[]
+    total: number
+    page: number
+    pageSize: number
+}
+
 export type TopicEditorDataOutput = {
     blocks: TopicEditableBlock[]
     blockTypes: BlockType[]

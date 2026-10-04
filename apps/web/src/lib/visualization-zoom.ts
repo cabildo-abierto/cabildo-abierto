@@ -17,6 +17,12 @@ export function zoomPlotDomain(current: PlotDomain, full: PlotDomain, factor: nu
     return [bounded, bounded + span];
 }
 
+export function panPlotDomain(current: PlotDomain, full: PlotDomain, offset: number): PlotDomain {
+    const span = Math.min(current[1] - current[0], full[1] - full[0]);
+    const lower = Math.max(full[0], Math.min(full[1] - span, current[0] + offset));
+    return [lower, lower + span];
+}
+
 export function visibleLineDomain(series: PlotSeries[], x: PlotDomain): PlotDomain {
     let min = Infinity, max = -Infinity;
     const include = (value: number) => { min = Math.min(min, value); max = Math.max(max, value); };
