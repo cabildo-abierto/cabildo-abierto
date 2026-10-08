@@ -10,6 +10,7 @@ import {Button} from "@/components/ui/button";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools} from "@/components/topic-block-tools";
 import type {TopicBlockSectionProps} from "@/hooks/use-topic-block-section";
+import {cn} from '@/lib/utils';
 
 export function TopicDeletedBlocks({topicId, count, open, onToggle}: {
     topicId: string;
@@ -21,9 +22,9 @@ export function TopicDeletedBlocks({topicId, count, open, onToggle}: {
     useEffect(() => setContainer(document.getElementById(`topic-status-actions-${topicId}`)), [topicId]);
     if (count === 0) return null;
     if (!container) return null;
-    return createPortal(<Button type="button" variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={onToggle} aria-expanded={open}
+    return createPortal(<Button type="button" variant="ghost" size="sm" className={cn('gap-2 text-muted-foreground')} onClick={onToggle} aria-expanded={open}
         aria-label={`${open ? "Ocultar" : "Ver"} bloques eliminados (${count})`}>
-        <ClockCounterClockwiseIcon/>{open ? "Ocultar bloques eliminados" : "Ver bloques eliminados"}
+        <ClockCounterClockwiseIcon/><span className={cn('sm:hidden')}>{open ? 'Ocultar eliminados' : 'Ver eliminados'}</span><span className={cn('hidden sm:inline')}>{open ? 'Ocultar bloques eliminados' : 'Ver bloques eliminados'}</span>
     </Button>, container);
 }
 

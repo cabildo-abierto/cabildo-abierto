@@ -10,9 +10,9 @@ export function VisualizationTooltip({data}: {data: ChartTooltipState | null}) {
     return <Tooltip.Root open={!!data}>
         <Tooltip.Portal><Tooltip.Positioner anchor={anchor} side="top" sideOffset={12} collisionPadding={12} className={cn('pointer-events-none z-[100]')}>
             <Tooltip.Popup data-attachment-editor-popup className={cn('max-w-[min(22rem,calc(100vw-2rem))] rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md')}>
-                {data && <><p className={cn('mb-1 truncate font-medium')} title={data.title}>{data.title}</p><dl className={cn('space-y-1')}>{data.rows.map((row,i) => <div key={i} className={cn('flex items-start justify-between gap-4')}>
-                    <dt className={cn('flex min-w-0 flex-1 items-center gap-1.5')}>{row.color && <span className={cn('size-2 shrink-0 rounded-full')} style={{backgroundColor: row.color}}/>}<span className={cn('min-w-0 max-w-48 truncate')} title={row.label}>{row.label}</span></dt>
-                    <dd className={cn('shrink-0 font-medium tabular-nums')}>{row.value}</dd>
+                {data && <><p className={cn('mb-1 break-words font-medium')} title={data.title}>{data.title}</p><dl className={cn('space-y-1')}>{data.rows.map((row,i) => <div key={i} className={cn('flex items-start justify-between gap-4')}>
+                    <dt className={cn('flex min-w-0 flex-1 items-start gap-1.5')}>{row.color && <span className={cn('mt-1 size-2 shrink-0 rounded-full')} style={{backgroundColor: row.color}}/>}<span className={cn('min-w-0 max-w-48 break-words')} title={row.label}>{row.label}</span></dt>
+                    <dd className={cn('min-w-0 max-w-[50%] break-words text-right font-medium tabular-nums')}>{row.value}</dd>
                 </div>)}</dl></>}
             </Tooltip.Popup>
         </Tooltip.Positioner></Tooltip.Portal>

@@ -37,7 +37,8 @@ export default function RootLayout({
             <script dangerouslySetInnerHTML={{__html: themeScript}}/>
             <script defer src="https://cloud.umami.is/script.js" data-website-id="594aea65-e040-4cbf-8a84-b08df698307a"></script>
         </head>
-        <body>
+        {/* Browser extensions can add attributes to body before React hydrates. */}
+        <body suppressHydrationWarning>
             <QueryProvider>
                 <ToastProvider><AuthProvider>{children}</AuthProvider></ToastProvider>
             </QueryProvider>

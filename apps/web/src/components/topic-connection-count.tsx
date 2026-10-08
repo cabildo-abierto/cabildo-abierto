@@ -9,13 +9,13 @@ export function TopicConnectionCount({topicId, mode, className}: {topicId: strin
     const connections = useTopicConnections(topicId, mode);
     if (!connections) return null;
 
-    return <div className={cn("mt-3 flex items-center gap-2 text-xs text-muted-foreground", className)} aria-live="polite">
-        <span className="inline-flex items-center gap-1" title={`${connections.reading} leyendo`}>
-            <EyeIcon className="size-3.5"/>{connections.reading} leyendo
+    return <div className={cn("mt-3 flex shrink-0 flex-wrap items-center gap-2 text-xs text-muted-foreground", className)} aria-live="polite">
+        <span className={cn('inline-flex items-center gap-1 whitespace-nowrap')} title={`${connections.reading} leyendo`}>
+            <EyeIcon className={cn('size-3.5 shrink-0')}/>{connections.reading} leyendo
         </span>
         <span aria-hidden="true">·</span>
-        <span className="inline-flex items-center gap-1" title={`${connections.editing} editando`}>
-            <PencilSimpleIcon className="size-3.5"/>{connections.editing} editando
+        <span className={cn('inline-flex items-center gap-1 whitespace-nowrap')} title={`${connections.editing} editando`}>
+            <PencilSimpleIcon className={cn('size-3.5 shrink-0')}/>{connections.editing} editando
         </span>
     </div>;
 }

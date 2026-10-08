@@ -1,4 +1,4 @@
-import {chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
+import {chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo, useMemo, useId, type PointerEvent} from 'react';
 import {AxisBottom, AxisLeft} from '@visx/axis';
 import {GridRows} from '@visx/grid';
@@ -15,6 +15,7 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
     const tooltip = useChartTooltip(series,width,height);
     const axisLayout = useChartAxisLayout(tooltip.svg, width, height, preview, {left: 70, bottom: 70, right: 20, top: 15}, chart);
     const {margin} = axisLayout;
+    const markerScale = !preview && axisLayout.compact ? 0.75 : 1;
     const w = Math.max(1,width-margin.left-margin.right), h = Math.max(1,height-margin.top-margin.bottom);
     const clipId = useId();
     const extent = useMemo(() => {
@@ -76,7 +77,7 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                 {chart.type === 'line' && <LinePath data={s.points} x={point => x(point.x)} y={point => y(point.y ?? 0)} defined={point => point.y !== null} stroke={plotColors[i % plotColors.length]} strokeWidth={2}/>}
                 {(chart.type === 'scatter' || (!preview && chart.showPoints)) && s.points.map((point,j) => {
                     if (point.y === null || point.x < zoom.x[0] || point.x > zoom.x[1] || (chart.type === 'scatter' && (point.y < zoom.y![0] || point.y > zoom.y![1]))) return null;
-                    const radius = point.size === undefined ? (preview ? 2 : 3.5) : Math.sqrt(preview ? 4+25*point.size/maxSize : 9+100*point.size/maxSize);
+                    const radius = markerScale * (point.size === undefined ? (preview ? 2 : 3.5) : Math.sqrt(preview ? 4+25*point.size/maxSize : 9+100*point.size/maxSize));
                     const color = plotColors[i % plotColors.length];
                     const details = {title: s.label || 'Punto',rows: [
                         {label: chart.x.label ?? chart.x.field,value: xFormat(point.x)},
@@ -86,9 +87,9 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                     ]};
                     return <g key={j}>
                         <circle cx={x(point.x)} cy={y(point.y)} r={radius} fill={color} fillOpacity={0.8} pointerEvents="none"/>
-                        {!preview && chart.type === 'scatter' && <circle cx={x(point.x)} cy={y(point.y)} r={Math.max(8,radius)} fill="transparent" tabIndex={0} role="img"
+                        {!preview && chart.type === 'scatter' && <circle cx={x(point.x)} cy={y(point.y)} r={Math.max(axisLayout.compact ? 12 : 8,radius)} fill="transparent" data-chart-hit tabIndex={0} role="img"
                             aria-label={details.rows.map(row => `${row.label}: ${row.value}`).join(' · ')}
-                            onPointerMove={event => tooltip.show({...details,clientX: event.clientX,clientY: event.clientY})}
+                            onPointerMove={event => { if (event.pointerType !== 'touch') tooltip.show({...details,clientX: event.clientX,clientY: event.clientY}); }}
                             onPointerDown={event => tooltip.show({...details,clientX: event.clientX,clientY: event.clientY})}
                             onFocus={() => tooltip.show({...details,...tooltip.position(margin.left+x(point.x),margin.top+y(point.y!))})} onBlur={tooltip.close}/>}
                     </g>;
@@ -97,10 +98,10 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
             {!preview && chart.type === 'line' && <>
                 {tooltip.data?.selectedX !== undefined && <g pointerEvents="none">
                     <line x1={x(tooltip.data.selectedX)} x2={x(tooltip.data.selectedX)} y1={0} y2={h} stroke="var(--muted-foreground)" strokeDasharray="3 3"/>
-                    {linePoints.byX.get(tooltip.data.selectedX)?.map((value,i) => <circle key={i} cx={x(value.point.x)} cy={y(value.point.y!)} r={4.5} fill={value.color} stroke="var(--background)" strokeWidth={2}/>)}
+                    {linePoints.byX.get(tooltip.data.selectedX)?.map((value,i) => <circle key={i} cx={x(value.point.x)} cy={y(value.point.y!)} r={4.5 * markerScale} fill={value.color} stroke="var(--background)" strokeWidth={2 * markerScale}/>)}
                 </g>}
-                <rect width={w} height={h} fill="transparent" tabIndex={0} role="group" aria-label="Consultar valores de las líneas; usá las flechas izquierda y derecha"
-                    onPointerMove={pointAtPointer} onPointerDown={pointAtPointer} onFocus={event => { if (event.currentTarget.matches(':focus-visible') && linePoints.xs.length) showLine(linePoints.xs[0]); }} onBlur={tooltip.close}
+                <rect width={w} height={h} fill="transparent" data-chart-hit tabIndex={0} role="group" aria-label="Consultar valores de las líneas; usá las flechas izquierda y derecha"
+                    onPointerMove={event => { if (event.pointerType !== 'touch') pointAtPointer(event); }} onPointerDown={pointAtPointer} onFocus={event => { if (event.currentTarget.matches(':focus-visible') && linePoints.xs.length) showLine(linePoints.xs[0]); }} onBlur={tooltip.close}
                     onKeyDown={event => {
                         if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key) || !linePoints.xs.length) return;
                         event.preventDefault(); event.stopPropagation();
@@ -109,8 +110,8 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                     }}/>
             </>}
             </g>
-            {!preview && <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chart.x.tickCount ?? Math.max(2,Math.floor(w/90))} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>}
-            {!preview && <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => yFormat(Number(v))} numTicks={yAxis?.tickCount ?? 5} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(yAxis?.tickLabelAngle ?? 0, 'left')}/>}
+            {!preview && <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chartTickCount(chart.x.tickCount, Math.max(2,Math.floor(w/90)), w, axisLayout.compact)} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>}
+            {!preview && <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => yFormat(Number(v))} numTicks={chartTickCount(yAxis?.tickCount, 5, h, axisLayout.compact, false)} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(yAxis?.tickLabelAngle ?? 0, 'left')}/>}
         </g>
     </svg>{!preview && <VisualizationTooltip data={tooltip.data}/>}</>;
 });

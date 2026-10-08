@@ -14,6 +14,7 @@ import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
 import {TopicBlockHistory} from "@/components/topic-block-history";
 import {VisualizationSourcesPanel} from "@/components/visualizations/visualization-sources-panel";
+import {VisualizationExpandButton} from '@/components/visualizations/visualization-expand-button';
 import {TopicBlockPanel} from "@/components/topic-block-panel";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
@@ -224,6 +225,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
                 if (!sourcesOpen) onSectionOpen?.("sources");
                 setSourcesOpen(!sourcesOpen);
             }}><TableIcon className={cn("size-4")}/></Button>
+        <VisualizationExpandButton block={block}/>
         {actions}
     </div>;
     if (openInPage && !attachmentTools && !hideDiscussion) return <>{visualizationControls}<div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>

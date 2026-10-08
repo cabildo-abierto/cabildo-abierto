@@ -6,16 +6,16 @@ import {cn} from "@/lib/utils";
 
 export function TopicView({topic, connectionMode, action, children}: {topic: TopicSummary; connectionMode: TopicConnectionMode; action?: ReactNode; children?: ReactNode}) {
     return <div className={cn("mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-[682px] flex-col gap-4 p-6 pb-64")}>
-        <div className="flex items-start justify-between gap-4">
-            <div>
+        <div className={cn('flex items-start justify-between gap-4')}>
+            <div className={cn('min-w-0')}>
                 <TopicTitle topic={topic} editing={connectionMode === "editing"}/>
-                <p className="mt-1 text-xs text-muted-foreground">{topic.slug}</p>
+                <p className={cn('mt-1 break-words text-xs text-muted-foreground')}>{topic.slug}</p>
             </div>
             {action}
         </div>
-        <div className="flex min-h-8 items-center justify-between gap-3">
+        <div className={cn('flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-2')}>
             <TopicConnectionCount topicId={topic.id} mode={connectionMode} className="mt-0"/>
-            <div id={`topic-status-actions-${topic.id}`} className="ml-auto flex shrink-0 items-center justify-end"/>
+            <div id={`topic-status-actions-${topic.id}`} className={cn('ml-auto flex items-center justify-end')}/>
         </div>
         {children}
     </div>;

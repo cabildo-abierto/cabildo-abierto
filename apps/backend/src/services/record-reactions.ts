@@ -1,4 +1,4 @@
-import {sql, type Kysely, type Transaction} from "kysely";
+import {sql, type Kysely, type Transaction, type RawBuilder} from "kysely";
 import type {DB} from "#/db/types.js";
 
 type RejectTreeRow = {
@@ -10,9 +10,8 @@ type RejectTreeRow = {
     depth: number;
 };
 
-export async function rejectTree(database: Kysely<DB> | Transaction<DB>, recordIds: string[]): Promise<RejectTreeRow[]> {
-    if (recordIds.length === 0) return [];
-    const result = await sql<RejectTreeRow>`
+export function rejectTreeQuery(recordIds: RawBuilder<unknown>) {
+    return sql<RejectTreeRow>`
         WITH RECURSIVE reject_tree AS (
             SELECT reaction.id,
                    reaction.subject_id AS "recordId",
@@ -23,7 +22,7 @@ export async function rejectTree(database: Kysely<DB> | Transaction<DB>, recordI
                    ARRAY[reaction.id] AS path
             FROM reaction
             WHERE reaction.type = 'reject'
-              AND reaction.subject_id IN (${sql.join(recordIds.map(id => sql`${id}`))})
+              AND reaction.subject_id IN (${recordIds})
             UNION ALL
             SELECT child.id,
                    reject_tree."recordId",
@@ -40,7 +39,12 @@ export async function rejectTree(database: Kysely<DB> | Transaction<DB>, recordI
         )
         SELECT id, "recordId", "rootReactionId", "subjectId", "reasonId", depth
         FROM reject_tree
-    `.execute(database);
+    `;
+}
+
+export async function rejectTree(database: Kysely<DB> | Transaction<DB>, recordIds: string[]): Promise<RejectTreeRow[]> {
+    if (recordIds.length === 0) return [];
+    const result = await rejectTreeQuery(sql.join(recordIds.map(id => sql`${id}`))).execute(database);
     return result.rows;
 }
 
@@ -100,4 +104,3 @@ export async function deleteReactionTree(database: Transaction<DB>, rootReaction
     await database.deleteFrom("reaction").where("id", "in", ids).execute();
     await database.deleteFrom("record").where("id", "in", ids).execute();
 }
-

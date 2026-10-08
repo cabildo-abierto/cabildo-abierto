@@ -20,10 +20,16 @@ export function chartTickLabelProps(angle: number, orientation: 'bottom' | 'left
         verticalAnchor: orientation === 'bottom' ? 'start' as const : 'middle' as const};
 }
 
+export function chartTickCount(requested: number | undefined, fallback: number, span: number, compact: boolean, horizontal = true) {
+    const count = requested ?? fallback;
+    return compact ? Math.min(count, Math.max(2, Math.floor(span / (horizontal ? 90 : 55)))) : count;
+}
+
 export function useChartAxisLayout(svg: RefObject<SVGSVGElement | null>, width: number, height: number, preview: boolean, base: Margin, resetKey: unknown) {
     const key = useMemo(() => ({resetKey, width, height, preview}), [resetKey, width, height, preview]);
-    const [left, right] = fitMargins(base.left, base.right, width);
-    const [top, bottom] = fitMargins(base.top, base.bottom, height);
+    const compact = width < 480;
+    const [left, right] = fitMargins(compact ? Math.min(base.left, base.left > 70 ? 90 : 46) : base.left, compact ? 12 : base.right, width);
+    const [top, bottom] = fitMargins(base.top, compact ? 48 : base.bottom, height);
     const initial = {key, margin: {left, right, top, bottom}, bottomLabelOffset: 8, leftLabelOffset: 36};
     const [layout, setLayout] = useState(initial);
     const current = layout.key === key ? layout : initial;
@@ -65,5 +71,5 @@ export function useChartAxisLayout(svg: RefObject<SVGSVGElement | null>, width: 
             setLayout({key, margin: next, bottomLabelOffset, leftLabelOffset});
         }
     });
-    return {...current, margin};
+    return {...current, margin, compact};
 }

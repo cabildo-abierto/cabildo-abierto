@@ -3,7 +3,7 @@ import type {Transaction} from 'kysely';
 import type {DB} from '#/db/types.js';
 import type {TopicAttachmentsOutput, TopicReadingOutput} from '@cabildo-abierto/api';
 import {isAttachmentBlock} from '@cabildo-abierto/utils';
-import {loadConvergedBlocks, topicConvergenceReferences} from './topic-convergence.js';
+import {loadConvergedBlocks, topicConvergenceReferences, topicConvergencePage} from './topic-convergence.js';
 import {searchAttachments} from './search/attachments.js';
 
 export async function topicReading(database: Transaction<DB>, topicId: string): Promise<TopicReadingOutput> {
@@ -27,9 +27,6 @@ export async function topicAttachments(database: Transaction<DB>, topicId: strin
         const references = results.map(({id, blockNumber, typeId, order, deleted}) => ({id, blockNumber, typeId, order, deleted}));
         return {...pagination, blocks: await loadConvergedBlocks(database, references)};
     }
-    const pageSize = 12;
-    const references = (await topicConvergenceReferences(database, topicId, type)).filter(block => includeDeleted || !block.deleted);
-    const total = references.length;
-    const page = Math.min(requestedPage, Math.max(0, Math.ceil(total / pageSize) - 1));
-    return {blocks: await loadConvergedBlocks(database, references.slice(page * pageSize, (page + 1) * pageSize)), total, page, pageSize};
+    const {references, ...pagination} = await topicConvergencePage(database,topicId,type,requestedPage,includeDeleted);
+    return {blocks: await loadConvergedBlocks(database, references), ...pagination};
 }

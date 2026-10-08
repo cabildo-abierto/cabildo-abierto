@@ -10,7 +10,10 @@ export function useChartTooltip(resetKey: unknown, width: number, height: number
     const visible = !!data;
     useEffect(() => {
         if (!visible) return;
-        const dismiss = (event: PointerEvent) => { if (!svg.current?.contains(event.target as Node)) close(); };
+        const dismiss = (event: PointerEvent) => {
+            const target = event.target;
+            if (!(target instanceof Element) || !svg.current?.contains(target) || !target.closest('[data-chart-hit]')) close();
+        };
         const escape = (event: KeyboardEvent) => {
             if (event.key !== 'Escape') return;
             event.preventDefault(); event.stopPropagation(); close();

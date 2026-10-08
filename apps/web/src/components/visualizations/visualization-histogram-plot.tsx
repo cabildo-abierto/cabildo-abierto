@@ -1,4 +1,4 @@
-import {chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
+import {chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo, useId, useMemo} from "react";
 import {AxisBottom, AxisLeft} from "@visx/axis";
 import {GridRows} from "@visx/grid";
@@ -60,8 +60,8 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
                     <Bar x={bx + gap / 2} y={by} width={bw} height={bh} fill={plotColors[0]} pointerEvents="none"/>
                     {!preview && visibleRight > visibleLeft && <rect x={visibleLeft} y={Math.max(0, Math.min(by, h - 8))}
                         width={visibleRight - visibleLeft} height={Math.min(h, Math.max(8, bh))} fill="transparent"
-                        tabIndex={0} role="img" aria-label={`${title} · Frecuencia: ${formatter(value)}`}
-                        onPointerMove={event => tooltip.show({...details, clientX: event.clientX, clientY: event.clientY})}
+                        data-chart-hit tabIndex={0} role="img" aria-label={`${title} · Frecuencia: ${formatter(value)}`}
+                        onPointerMove={event => { if (event.pointerType !== 'touch') tooltip.show({...details, clientX: event.clientX, clientY: event.clientY}); }}
                         onPointerDown={event => tooltip.show({...details, clientX: event.clientX, clientY: event.clientY})}
                         onFocus={() => tooltip.show({...details, ...tooltip.position(margin.left + (visibleLeft + visibleRight) / 2, margin.top + by)})}
                         onBlur={tooltip.close}/>}
@@ -69,10 +69,10 @@ export const VisualizationHistogramPlot = memo(function VisualizationHistogramPl
             })}</g>
             {!preview && <>
                 <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => formatTableValue(Number(v), chart.x.format)}
-                    numTicks={chart.x.tickCount ?? Math.max(2, Math.floor(w / 90))} label={chart.x.label ?? chart.x.field}
+                    numTicks={chartTickCount(chart.x.tickCount, Math.max(2, Math.floor(w / 90)), w, axisLayout.compact)} label={chart.x.label ?? chart.x.field}
                     labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)"
                     tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>
-                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => formatter(Number(v))} numTicks={chart.yAxis?.tickCount ?? 5} label={chart.yAxis?.label}
+                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => formatter(Number(v))} numTicks={chartTickCount(chart.yAxis?.tickCount, 5, h, axisLayout.compact, false)} label={chart.yAxis?.label}
                     labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)"
                     tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'left')}/>
             </>}

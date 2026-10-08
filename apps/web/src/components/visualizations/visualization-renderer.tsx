@@ -9,7 +9,7 @@ import {VisualizationPointPlot} from './visualization-point-plot';
 import {VisualizationTablePreview} from './visualization-table-preview';
 import {VisualizationTable} from './visualization-table';
 import {VisualizationLegend} from './visualization-legend';
-export const VisualizationRenderer = memo(function VisualizationRenderer({spec, table, preview = false, prepared, showDimensions = true}: {spec: VisualizationSpecV1; table: TypedTable; preview?: boolean; prepared?: PreparedVisualization; showDimensions?: boolean}) {
+export const VisualizationRenderer = memo(function VisualizationRenderer({spec, table, preview = false, prepared, showDimensions = true, expanded = false}: {spec: VisualizationSpecV1; table: TypedTable; preview?: boolean; prepared?: PreparedVisualization; showDimensions?: boolean; expanded?: boolean}) {
     const ref = useRef<HTMLDivElement>(null);
     const [width,setWidth] = useState(0);
     useEffect(() => {
@@ -21,11 +21,11 @@ export const VisualizationRenderer = memo(function VisualizationRenderer({spec, 
     const computed = usePreparedVisualization(spec, table, !prepared);
     const {data, error, empty} = prepared ?? computed;
     const aspectRatio = spec.layout?.aspectRatio ?? 1.6;
-    const height = preview ? 120 : Math.max(180,width/aspectRatio);
+    const height = preview ? 120 : Math.max(width < 480 ? 260 : 180, expanded ? Math.min(600,width/aspectRatio) : width/aspectRatio);
     const labels = data?.kind === 'bar' ? data.labels : data?.kind === 'line' || data?.kind === 'scatter' ? data.series.map(s => s.label) : [];
     const legend = spec.chart.type !== 'table' && spec.chart.type !== 'histogram' && spec.chart.showLegend !== false && (spec.chart.type === 'scatter' ? !!spec.chart.color : labels.length > 1);
     return <div ref={ref} aria-label={preview ? 'Vista previa de la visualización' : undefined} className={cn('w-full min-w-0 space-y-2',preview && 'overflow-hidden rounded-md border bg-background p-2')}>
-        {spec.title && <h4 title={preview ? spec.title : undefined} className={cn('text-sm font-medium',preview && 'truncate text-xs')}>{spec.title}</h4>}
+        {!expanded && spec.title && <h4 title={preview ? spec.title : undefined} className={cn('text-sm font-medium',preview && 'truncate text-xs')}>{spec.title}</h4>}
         {!preview && spec.description && <p className={cn('whitespace-pre-wrap text-xs text-muted-foreground')}>{spec.description}</p>}
         {error ? <p role="alert" className={cn('rounded-md border border-destructive/30 p-3 text-sm text-destructive',preview && 'p-2 text-xs')}>{error}</p> : empty ? <p className={cn('py-8 text-center text-sm text-muted-foreground',preview && 'py-4 text-xs')}>Sin datos para esta configuración.</p> : <>
             {data?.kind === 'table' && spec.chart.type === 'table' && (preview ? <VisualizationTablePreview chart={spec.chart} table={table}/> : <VisualizationTable key={JSON.stringify(spec.chart)} chart={spec.chart} table={table} aspectRatio={aspectRatio} showDimensions={showDimensions}/>)}
