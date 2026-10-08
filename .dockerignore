@@ -9,6 +9,7 @@ out/
 
 # Development files
 .env*
+infra/env/*.env
 !.env.example
 apps/web/public/dev/
 *.log

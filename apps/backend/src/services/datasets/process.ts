@@ -1,15 +1,23 @@
+import {PersistentWorker} from '../workers/persistent-worker.js';
 import {env} from '#/lib/env.js';
 import {fork} from 'node:child_process';
 import {TopicActionError} from '../topic-title-edits.js';
+const dev = import.meta.url.endsWith('.ts');
+function workerFile(worker: 'prepare' | 'page' | 'search') {
+    return new URL(dev ? `./${worker}-worker.ts` : `${import.meta.url.includes('/scripts/') ? '../' : './'}dataset-${worker}-worker.js`, import.meta.url);
+}
+const pageWorker = new PersistentWorker(workerFile('page'), dev ? process.execArgv : [],
+    'La preparación o lectura del dataset superó el tiempo permitido.');
+export function warmDatasetPageWorker() { pageWorker.warm(); }
 let active = 0;
 const queue: (()=>void)[] = [];
 export async function datasetJob<T>(worker:'prepare'|'page'|'search',job:object,seconds:number):Promise<T> {
+    if (worker === 'page') return pageWorker.run<T>(job, seconds * 1000);
     if (queue.length >= 20) throw new TopicActionError(429,'Hay demasiados datasets en preparación. Reintentá en unos segundos.');
     await new Promise<void>(resolve=>{ const start=()=>{active++;resolve();}; if(active<2) start(); else queue.push(start); });
     try {
         return await new Promise<T>((resolve,reject)=>{
-            const dev=import.meta.url.endsWith('.ts');
-            const child=fork(new URL(dev ? `./${worker}-worker.ts` : `${import.meta.url.includes('/scripts/') ? '../' : './'}dataset-${worker}-worker.js`,import.meta.url),[],{execArgv:[...(dev ? process.execArgv : []), ...(worker === 'prepare' ? [`--max-old-space-size=${env.DATASET_PREPARE_MEMORY_MB}`] : [])],stdio:['ignore','ignore','ignore','ipc']});
+            const child=fork(workerFile(worker),[],{execArgv:[...(dev ? process.execArgv : []), ...(worker === 'prepare' ? [`--max-old-space-size=${env.DATASET_PREPARE_MEMORY_MB}`] : [])],stdio:['ignore','ignore','ignore','ipc']});
             let done=false;
             const finish=(error?:Error,value?:T)=>{if(done)return;done=true;clearTimeout(timer);child.kill('SIGKILL');if(error)reject(error);else resolve(value!);};
             const timer=setTimeout(()=>finish(new TopicActionError(408,'La preparación o lectura del dataset superó el tiempo permitido.')),seconds*1000);

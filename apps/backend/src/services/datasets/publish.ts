@@ -2,14 +2,13 @@ import {randomUUID} from 'node:crypto';
 import {stat} from 'node:fs/promises';
 import {sql,type Kysely} from 'kysely';
 import type {DB} from '#/db/types.js';
-import {env} from '#/lib/env.js';
-import type {ObjectStorage} from '../storage/storage.js';
+import {storageBucket, type ObjectStorage} from '../storage/storage.js';
 import {lockSearchMutation} from '../search/schema.js';
 import {notifySearchPending} from '../search/notifications.js';
 import type {PreparedCSV} from './snapshots.js';
 
 export async function publishSnapshot(database:Kysely<DB>,storage:ObjectStorage,sourceId:string,path:string,metadata:PreparedCSV,hash:string,validators:{etag:string|null;lastModified:string|null},token?:string){
-    const id=randomUUID(),object={bucket:env.CLOUDFLARE_BUCKET,key:`datasets/${sourceId}/${id}.parquet`};
+    const id=randomUUID(),object={bucket:storageBucket(),key:`datasets/${sourceId}/${id}.parquet`};
     const size=(await stat(path)).size;
     await storage.put(object,path,'application/vnd.apache.parquet',size,AbortSignal.timeout(30000));
     try{

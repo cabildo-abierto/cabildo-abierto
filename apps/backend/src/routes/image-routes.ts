@@ -2,11 +2,11 @@ import express from 'express';
 import type {AppContext} from '#/setup.js';
 import {currentUser, requiredUser, requireSession, withSession} from '#/auth/middleware.js';
 import {TopicActionError} from '#/services/topic-title-edits.js';
-import {R2Storage, type ObjectStorage} from '#/services/storage/storage.js';
+import {S3Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {requireFileAccess} from '#/services/storage/access.js';
 import {downloadRemoteFile} from '#/services/storage/download.js';
 import {storeImage, IMAGE_MAX_BYTES} from '#/services/images/upload.js';
-export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new R2Storage()) {
+export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new S3Storage()) {
     const router = express.Router();
     let storage: ObjectStorage | undefined;
     const getStorage = () => storage ??= createStorage();
@@ -37,7 +37,7 @@ export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage 
         try {
             const file = await requireFileAccess(ctx.kysely,String(req.params.fileId),currentUser(req)?.id,'image');
             const asset = await ctx.kysely.selectFrom('image_asset').select(['width','height']).where('file_id','=',file.id).executeTakeFirstOrThrow();
-            const url = await getStorage().signedUrl(file,'inline',file.mime);
+            const url = await getStorage().signedUrl(file,'inline',file.mime,'public');
             return res.set('Cache-Control','no-store').json({success:true,value:{fileId:file.id,fileName:file.name,...asset,url,expiresAt:Date.now()+900000}});
         } catch(error) { return fail(res,error); }
     });

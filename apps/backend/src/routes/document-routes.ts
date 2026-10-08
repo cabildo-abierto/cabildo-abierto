@@ -5,7 +5,7 @@ import type {DocumentFormat, DocumentOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {TopicActionError} from "#/services/topic-title-edits.js";
-import {R2Storage, type ObjectStorage} from "#/services/storage/storage.js";
+import {S3Storage, type ObjectStorage} from "#/services/storage/storage.js";
 import {requireDocumentAccess} from "#/services/documents/access.js";
 import {uploadDocument} from "#/services/documents/upload.js";
 import {convertOfficeFile} from "#/services/documents/conversion.js";
@@ -14,7 +14,7 @@ import {deleteDiscussionComment, discussionComments, mutateDiscussion, publishDi
 export function documentRoutes(ctx: AppContext) {
     const router = express.Router();
     let storage: ObjectStorage | undefined;
-    const getStorage = () => storage ??= new R2Storage();
+    const getStorage = () => storage ??= new S3Storage();
     const fail = (res: Response, error: unknown) => {
         if (error instanceof TopicActionError) return res.status(error.status).json({success: false, error: error.message});
         ctx.logger.pino.error({error}, 'document request failed');
@@ -64,7 +64,7 @@ export function documentRoutes(ctx: AppContext) {
             if (!fileId) throw new TopicActionError(404, 'La vista previa todavía no está disponible.');
             const file = await ctx.kysely.selectFrom('file').selectAll().where('id', '=', fileId).executeTakeFirstOrThrow();
             const disposition = preview && file.mime === 'application/pdf' ? 'inline' : 'attachment';
-            const url = await getStorage().signedUrl(file, `${disposition}; filename*=UTF-8''${encodeURIComponent(file.name).replace(/'/g, '%27')}`, file.mime);
+            const url = await getStorage().signedUrl(file, `${disposition}; filename*=UTF-8''${encodeURIComponent(file.name).replace(/'/g, '%27')}`, file.mime, 'public');
             res.setHeader('Cache-Control', 'private, no-store');
             return res.redirect(url);
         } catch (error) { return fail(res, error); }

@@ -1,3 +1,4 @@
+import {serveWorker} from '../workers/serve-worker.js';
 import {datasetError} from '../datasets/errors.js';
 import {DuckDBInstance} from '@duckdb/node-api';
 import type {DatasetColumnType, LccaOutput, TableValue} from '@cabildo-abierto/api';
@@ -32,7 +33,7 @@ function outputValue(value: unknown, type: DatasetColumnType): TableValue {
     }
     return text;
 }
-process.once('message', async (job: QueryJob) => {
+serveWorker(async (job: QueryJob) => {
     let instance: DuckDBInstance | undefined;
     try {
         const remote = job.type === 'execute' ? await remoteDuckDB(job.tables!.map(t=>t.url)) : null;
@@ -42,7 +43,7 @@ process.once('message', async (job: QueryJob) => {
             const ast = await parseQuery(connection, job.query);
             const sources = analyzeAST(ast);
             if (job.type === 'analyze') {
-                process.send?.({success: true, value: {sources, basicView: await basicViewFromAST(connection, ast)}});
+                return {success: true, value: {sources, basicView: await basicViewFromAST(connection, ast)}};
             } else {
                 const sourceTable = (source: typeof sources[number]) => job.tables!.find(table => table.topicId === (job.resolvedTopicIds?.[source.topicId] ?? source.topicId) && table.blockNumber === source.blockNumber);
                 const select = ast.statements[0].node;
@@ -105,9 +106,9 @@ process.once('message', async (job: QueryJob) => {
                 }));
                 const value: LccaOutput = {columns, rows, sources: [...resolvedSources.values()]};
                 if (Buffer.byteLength(JSON.stringify(value)) > env.DATASET_RESULT_MAX_MB * 1024 * 1024) throw new Error('El resultado supera los 10 MiB permitidos.');
-                process.send?.({success: true, value, metrics:{inputCells,inputBytes,resultRows:rows.length,resultColumns:columns.length,resultBytes:bytes}});
+                return {success: true, value, metrics:{inputCells,inputBytes,resultRows:rows.length,resultColumns:columns.length,resultBytes:bytes}};
             }
         } finally { connection.closeSync(); }
-    } catch (error) { process.send?.({success: false, error: datasetError(error)}); }
-    finally { instance?.closeSync(); process.disconnect?.(); }
+    } catch (error) { return {success: false, error: datasetError(error)}; }
+    finally { instance?.closeSync(); }
 });

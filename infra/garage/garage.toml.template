@@ -1,0 +1,24 @@
+metadata_dir = "/storage/meta"
+data_dir = "/storage/data"
+metadata_snapshots_dir = "/storage/snapshots"
+db_engine = "sqlite"
+replication_factor = 1
+metadata_fsync = true
+data_fsync = true
+metadata_auto_snapshot_interval = "6h"
+block_size = "1M"
+block_ram_buffer_max = "32MiB"
+block_max_concurrent_reads = 4
+block_max_concurrent_writes_per_request = 2
+rpc_bind_addr = "127.0.0.1:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "@RPC_SECRET@"
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "0.0.0.0:3900"
+
+[admin]
+api_bind_addr = "127.0.0.1:3903"
+admin_token = "@ADMIN_TOKEN@"
+metrics_token = "@METRICS_TOKEN@"

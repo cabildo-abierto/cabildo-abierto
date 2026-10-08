@@ -1,37 +1,15 @@
-import {fork} from 'node:child_process';
+import {PersistentWorker} from '../workers/persistent-worker.js';
 import type {DatasetColumn, CSVOptions, DatasetReference, LccaAnalysis, LccaOutput} from '@cabildo-abierto/api';
-import {TopicActionError} from '../topic-title-edits.js';
 export type QueryTable = DatasetReference & {versionId: string; columns: DatasetColumn[]; snapshotId: string; url: string; sourceColumns: DatasetColumn[]; csvOptions: CSVOptions; rowCount: number; columnBytes: number[]};
 export type QueryJob = {type: 'analyze' | 'execute'; query: string; tables?: QueryTable[]; resolvedTopicIds?: Record<string,string>};
-let active = 0;
-const queue: (() => void)[] = [];
+const dev = import.meta.url.endsWith('.ts');
+const worker = new PersistentWorker(new URL(dev ? './query-worker.ts' : './lcca-worker.js', import.meta.url),
+    dev ? process.execArgv : [], 'La consulta excedió los 15 segundos permitidos.');
+export function warmQueryWorker() { worker.warm(); }
 export async function runQueryJob<T extends LccaAnalysis | LccaOutput>(job: QueryJob): Promise<T> {
-    if (queue.length >= 20) throw new TopicActionError(429, 'Hay demasiadas consultas en curso. Reintentá en unos segundos.');
-    await new Promise<void>(resolve => {
-        const acquire = () => { active++; resolve(); };
-        if (active < 2) acquire(); else queue.push(acquire);
-    });
     const started = Date.now();
-    try {
-        return await new Promise<T>((resolve, reject) => {
-            const dev = import.meta.url.endsWith('.ts');
-            const child = fork(new URL(dev ? './query-worker.ts' : './lcca-worker.js', import.meta.url), [], {execArgv: dev ? process.execArgv : [], stdio: ['ignore', 'ignore', 'pipe', 'ipc']});
-            child.stderr?.resume();
-            let settled = false;
-            const finish = (error?: Error, value?: T) => {
-                if (settled) return;
-                settled = true; clearTimeout(timer); child.kill('SIGKILL');
-                if (error) reject(error); else resolve(value!);
-            };
-            const timer = setTimeout(() => finish(new TopicActionError(408, 'La consulta excedió los 15 segundos permitidos.')), 15000);
-            child.once('error', error => finish(error));
-            child.once('exit', () => finish(new Error('El proceso de consulta terminó inesperadamente.')));
-            child.once('message', (result: any) => {
-                if(result.metrics) console.info(JSON.stringify({event:'dataset_query',...result.metrics}));
-                finish(result.success ? undefined : new TopicActionError(400, result.error), result.value);
-            });
-            child.send(job, error => { if (error) finish(error); });
-        });
-    } finally { active--; queue.shift()?.();
-        if(job.type==='execute')console.info(JSON.stringify({event:'dataset_query_finished',durationMs:Date.now()-started})); }
+    try { return await worker.run<T>(job, 15000); }
+    finally {
+        if (job.type === 'execute') console.info(JSON.stringify({event: 'dataset_query_finished', durationMs: Date.now() - started}));
+    }
 }

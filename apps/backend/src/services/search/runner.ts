@@ -2,7 +2,7 @@ import {Client} from 'pg';
 import {sql} from 'kysely';
 import {env} from '#/lib/env.js';
 import type {AppContext} from '#/setup.js';
-import {R2Storage, type ObjectStorage} from '../storage/storage.js';
+import {S3Storage, type ObjectStorage} from '../storage/storage.js';
 import {claimSearchSource, processSearchSource} from './worker.js';
 import {notifySearchPending, SEARCH_NOTIFICATION_CHANNEL} from './notifications.js';
 import type {SearchSource} from './types.js';
@@ -19,7 +19,7 @@ export function startSearchWorker(ctx: AppContext) {
     let draining: Promise<void> | null = null;
     let wakeRequested = false;
     const active = new Set<Promise<void>>();
-    const getStorage = () => storage ??= new R2Storage();
+    const getStorage = () => storage ??= new S3Storage();
     const logError = (error: unknown, message: string) => ctx.logger.pino.error({error}, message);
 
     async function process(source: SearchSource) {

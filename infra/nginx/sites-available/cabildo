@@ -72,6 +72,22 @@ server {
     ssl_certificate     /etc/ssl/certs/cabildo-origin.pem;
     ssl_certificate_key /etc/ssl/private/cabildo-origin.key;
 
+    # Garage S3 endpoint for production objects. Signed URLs keep their original path.
+    location ~ ^/cabildoabierto-prod(?:/|$) {
+        client_max_body_size 512m;
+        proxy_pass http://127.0.0.1:3900;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header Connection "";
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "private, no-store" always;
+        access_log off;
+    }
+
     location = /api {
         return 308 /api/;
     }

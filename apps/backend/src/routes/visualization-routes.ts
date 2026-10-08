@@ -5,14 +5,15 @@ import type {AppContext} from '#/setup.js';
 import {requireSession} from '#/auth/middleware.js';
 import {datasetCatalog} from '#/services/datasets/catalog.js';
 import {TopicActionError} from '#/services/topic-title-edits.js';
-import {R2Storage, type ObjectStorage} from '#/services/storage/storage.js';
+import {S3Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {readySnapshot,DatasetPending} from '#/services/datasets/snapshots.js';
 import {requireDatasetAccess} from '#/services/datasets/access.js';
-import {runQueryJob, type QueryTable} from '#/services/visualizations/query-process.js';
+import {runQueryJob, warmQueryWorker, type QueryTable} from '#/services/visualizations/query-process.js';
 import {resolveSources} from '#/services/visualizations/resolve-sources.js';
 import {datasetSourceBlocks} from '#/services/visualizations/source-blocks.js';
 
-export function visualizationRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new R2Storage()) {
+export function visualizationRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new S3Storage()) {
+    warmQueryWorker();
     const router = express.Router();
     router.use((_req,res,next)=>{res.set('Cache-Control','no-store');next();});
     let storage: ObjectStorage | undefined;

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import {env} from '#/lib/env.js';
 import {setupKysely} from '#/setup.js';
-import {R2Storage, type ObjectStorage} from '#/services/storage/storage.js';
+import {S3Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {reindexSearch} from '#/services/search/reindex.js';
 
 async function main() {
@@ -9,7 +9,7 @@ async function main() {
     const database = setupKysely(env.DIRECT_URL, 1);
     let storage: ObjectStorage | undefined;
     try {
-        await reindexSearch(database, () => storage ??= new R2Storage(), console.log);
+        await reindexSearch(database, () => storage ??= new S3Storage(), console.log);
     } finally { await database.destroy(); }
 }
 

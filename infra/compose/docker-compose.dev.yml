@@ -30,6 +30,9 @@ services:
       PORT: "8080"
       SERVICE_NAME: api-dev
       RUN_CRONS: "false"
+    networks:
+      - default
+      - storage
     command: ["node", "dist/index.js"]
     security_opt:
       - apparmor=cabildo-backend-jq
@@ -45,3 +48,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 15s
+
+networks:
+  storage:
+    external: true
+    name: cabildo-storage

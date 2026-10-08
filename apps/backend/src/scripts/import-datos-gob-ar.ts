@@ -7,7 +7,7 @@ import type {DB} from '#/db/types.js';
 import {env} from '#/lib/env.js';
 import {setupKysely} from '#/setup.js';
 import {validateRemoteCSV,waitSnapshot} from '#/services/datasets/snapshots.js';
-import {R2Storage} from '#/services/storage/storage.js';
+import {S3Storage} from '#/services/storage/storage.js';
 import {topicConvergence} from '#/services/topic-convergence.js';
 import {lockSearchTopic} from '#/services/search/schema.js';
 import {synchronizeTopicSearch} from '#/services/search/index.js';
@@ -274,7 +274,7 @@ async function planImport(database: Kysely<DB>, source: Awaited<ReturnType<typeo
                 continue;
             }
             try {
-                const snapshot = mode === 'apply' ? await waitSnapshot(database,await ensureDatasetSource(database,{file_id:null,source_url:item.url,source_format:'csv',jq_filter:null}),new R2Storage(),false) : null;
+                const snapshot = mode === 'apply' ? await waitSnapshot(database,await ensureDatasetSource(database,{file_id:null,source_url:item.url,source_format:'csv',jq_filter:null}),new S3Storage(),false) : null;
                 const parsed = snapshot ? {columns:snapshot.columns,csvOptions:snapshot.csv_options} : await validateRemoteCSV(item.url);
                 const content: DatasetContent = {sourceFormat: 'csv', jqFilter: null, title: item.title, description: item.description, sourceUrl: item.url,
                     fileId: null, columns: parsed.columns, csvOptions: parsed.csvOptions};

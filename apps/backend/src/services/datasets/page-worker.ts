@@ -1,7 +1,8 @@
+import {serveWorker} from '../workers/serve-worker.js';
 import {datasetError} from './errors.js';
 import {sqlString} from '@cabildo-abierto/utils';
 import {remoteDuckDB} from './duckdb.js';
-process.once('message',async ({url,page,width}: {url:string;page:number;width:number})=>{
+serveWorker(async ({url,page,width}: {url:string;page:number;width:number})=>{
     let db: Awaited<ReturnType<typeof remoteDuckDB>> | undefined;
     try {
         db=await remoteDuckDB([url]);
@@ -12,7 +13,7 @@ process.once('message',async ({url,page,width}: {url:string;page:number;width:nu
             if(bytes>10*1024*1024)throw new Error('La página supera los 10 MiB permitidos.');
             rows.push(values);
         }
-        process.send?.({success:true,value:rows});
-    } catch(error){process.send?.({success:false,error:datasetError(error)});}
-    finally {db?.connection.closeSync();db?.instance.closeSync();process.disconnect?.();}
+        return {success:true,value:rows};
+    } catch(error){return {success:false,error:datasetError(error)};}
+    finally {db?.connection.closeSync();db?.instance.closeSync();}
 });

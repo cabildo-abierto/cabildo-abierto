@@ -14,7 +14,8 @@ type StoredTopicBlock = {
     deleted: boolean;
 };
 
-export async function topicConvergenceReferences(database: Kysely<DB> | Transaction<DB>, topicId: string, typeId?: "documento" | "dataset") {
+export async function topicConvergenceReferences(database: Kysely<DB> | Transaction<DB>, topicId: string, typeId?: "documento" | "dataset", blockNumbers?: string[]) {
+    if (blockNumbers?.length === 0) return [];
     const blockResult = await sql<StoredTopicBlock>`
         SELECT block_version.id,
                block_version.edit_id AS "editId",
@@ -31,6 +32,7 @@ export async function topicConvergenceReferences(database: Kysely<DB> | Transact
         WHERE block_version.topic_id = ${topicId}
           AND record.deleted = false
           ${typeId ? sql`AND block.type_id = ${typeId}` : sql``}
+          ${blockNumbers ? sql`AND block_version.block_number IN (${sql.join(blockNumbers.map(number => sql`${number}`))})` : sql``}
         ORDER BY block_version.block_number, record.created_at DESC, record.id DESC
     `.execute(database);
     const rejectCounts = activeRejectCounts(await rejectTree(database, [...new Set(blockResult.rows.map(block => block.editId))]));

@@ -1,0 +1,30 @@
+name: cabildo-garage-probe
+services:
+  garage:
+    image: dxflrs/garage:v2.3.0@sha256:866bd13ed2038ba7e7190e840482bc27234c4afaf77be8cfa439ae088c1e4690
+    container_name: cabildo-garage-probe
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    networks:
+      - storage
+    ports:
+      - "127.0.0.1:3900:3900"
+    env_file: /mnt/cabildo-storage/garage/bootstrap.env
+    volumes:
+      - /mnt/cabildo-storage/garage/garage.toml:/etc/garage.toml:ro
+      - /mnt/cabildo-storage/garage/meta:/storage/meta
+      - /mnt/cabildo-storage/garage/data:/storage/data
+      - /mnt/cabildo-storage/garage/snapshots:/storage/snapshots
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.50
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  storage:
+    external: true
+    name: cabildo-storage

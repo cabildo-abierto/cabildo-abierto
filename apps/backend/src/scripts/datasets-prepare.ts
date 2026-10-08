@@ -1,5 +1,5 @@
 import {setupKysely} from '#/setup.js';
-import {R2Storage} from '#/services/storage/storage.js';
+import {S3Storage} from '#/services/storage/storage.js';
 import {waitSnapshot} from '#/services/datasets/snapshots.js';
 
 const database=setupKysely();
@@ -7,7 +7,7 @@ try {
     const args=process.argv.slice(2);const limitIndex=args.indexOf('--limit');
     const limit=limitIndex<0?Number.MAX_SAFE_INTEGER:Number(args[limitIndex+1]);
     if(!Number.isSafeInteger(limit)||limit<1)throw new Error('Usá --limit con un entero positivo.');
-    const storage=new R2Storage();
+    const storage=new S3Storage();
     if(args.includes('--cleanup')){
         const retired=await database.selectFrom('dataset_snapshot').selectAll().where('retired_at','<',new Date(Date.now()-86400000)).limit(limit).execute();
         for(const snapshot of retired){await storage.remove(snapshot);await database.deleteFrom('dataset_snapshot').where('id','=',snapshot.id).execute();}

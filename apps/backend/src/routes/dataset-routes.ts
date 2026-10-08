@@ -8,9 +8,9 @@ import {datasetSourceOptions, validDatasetUrl} from '@cabildo-abierto/utils';
 import type {AppContext} from '#/setup.js';
 import {requireSession, requiredUser} from '#/auth/middleware.js';
 import {TopicActionError} from '#/services/topic-title-edits.js';
-import {R2Storage, type ObjectStorage} from '#/services/storage/storage.js';
+import {S3Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {storeFile, removeUnattachedFile} from '#/services/storage/files.js';
-import {datasetJob} from '#/services/datasets/process.js';
+import {datasetJob, warmDatasetPageWorker} from '#/services/datasets/process.js';
 import {env} from '#/lib/env.js';
 import {datasetLimits} from '#/services/datasets/csv.js';
 import {readySnapshot, snapshotPage, DatasetPending, prepareLocalCSV} from '#/services/datasets/snapshots.js';
@@ -18,7 +18,8 @@ import {publishSnapshot} from '#/services/datasets/publish.js';
 import {requireDatasetAccess} from '#/services/datasets/access.js';
 import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 
-export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new R2Storage()) {
+export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new S3Storage()) {
+    warmDatasetPageWorker();
     const router = express.Router();
     router.use((_req,res,next)=>{res.set('Cache-Control','no-store');next();});
     let storage: ObjectStorage | undefined;
