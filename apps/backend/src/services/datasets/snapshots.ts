@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {type Kysely,type Selectable} from 'kysely';
 import type {DB} from '#/db/types.js';
-import type {CSVOptions,DatasetColumn} from '@cabildo-abierto/api';
+import type {CSVOptions,DatasetColumn,DatasetSourceOptions} from '@cabildo-abierto/api';
 import {env} from '#/lib/env.js';
 import type {ObjectStorage} from '../storage/storage.js';
 import {openRemoteFile} from '../storage/download.js';
@@ -85,8 +85,19 @@ export async function snapshotPage(snapshot:Snapshot,storage:ObjectStorage,page:
     const rows=await datasetJob<string[][]>('page',{url:await storage.signedUrl(snapshot,'inline','application/vnd.apache.parquet'),page,width:snapshot.columns.length},15);
     cacheDatasetPage(key,rows);return rows;
 }
-export async function validateRemoteCSV(url:string){
-    const directory=await mkdtemp(join(tmpdir(),'ca-dataset-dry-'));
-    try{const {response}=await openRemoteFile(url,{maxBytes:datasetLimits().bytes,accept:'text/csv',label:'el CSV'});if(!response)throw new Error('Respuesta inválida');const path=join(directory,'data.csv');await copyDatasetInput(response,path);return await prepareLocalCSV(path,join(directory,'data.parquet'),directory);}
-    finally{await rm(directory,{recursive:true,force:true});}
+export async function validateRemoteDataset(url: string, options: DatasetSourceOptions) {
+    const directory = await mkdtemp(join(tmpdir(), 'ca-dataset-dry-'));
+    const json = options.sourceFormat === 'json';
+    try {
+        const {response} = await openRemoteFile(url, {maxBytes: datasetLimits().bytes,
+            accept: json ? 'application/json, text/plain;q=0.9' : 'text/csv', label: json ? 'el JSON' : 'el CSV'});
+        if (!response) throw new Error('Respuesta inválida');
+        const path = join(directory, json ? 'data.json' : 'data.csv');
+        await copyDatasetInput(response, path);
+        return await datasetJob<PreparedCSV>('prepare', {path, output: join(directory, 'data.parquet'), directory,
+            format: options.sourceFormat, filter: options.jqFilter}, env.DATASET_PREPARE_SECONDS);
+    } finally { await rm(directory, {recursive: true, force: true}); }
+}
+export async function validateRemoteCSV(url: string) {
+    return validateRemoteDataset(url, {sourceFormat: 'csv', jqFilter: null});
 }

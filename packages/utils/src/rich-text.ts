@@ -1,6 +1,7 @@
+import type {LccaInput} from "@cabildo-abierto/api";
 import {parseFootnoteAttrs, type FootnoteAttrs} from "./footnotes.js";
 export const RICH_TEXT_FORMAT = "cabildo-rich-text";
-export const RICH_TEXT_VERSION = 2;
+export const RICH_TEXT_VERSION = 3;
 
 export type RichTextMark =
     | {type: "bold"}
@@ -8,8 +9,17 @@ export type RichTextMark =
     | {type: "internal_link"; attrs: {topicId: string}}
     | {type: "external_link"; attrs: {href: string}};
 
+export type LccaValueAttrs = LccaInput;
+
+export function parseLccaValueAttrs(value: unknown): LccaValueAttrs | null {
+    return object(value) && exactKeys(value, ["query", "queryLanguageVersion"])
+        && typeof value.query === "string" && !!value.query.trim() && value.query.length <= 20_000
+        && value.queryLanguageVersion === 1 ? {query: value.query, queryLanguageVersion: 1} : null;
+}
+
 export type RichTextInlineNode =
     | {type: "text"; text: string; marks?: RichTextMark[]}
+    | {type: "lcca_value"; attrs: LccaValueAttrs}
     | {type: "hard_break"}
     | {type: "footnote"; attrs: FootnoteAttrs | {id: string; content: string}};
 
@@ -27,7 +37,7 @@ export type RichTextDocument = {
 
 export type RichTextContent = {
     format: typeof RICH_TEXT_FORMAT
-    version: 1 | typeof RICH_TEXT_VERSION
+    version: 1 | 2 | typeof RICH_TEXT_VERSION
     doc: RichTextDocument
 };
 
@@ -65,6 +75,7 @@ function validMark(value: unknown): value is RichTextMark {
 
 function validInlineNode(value: unknown): value is RichTextInlineNode {
     if (!object(value) || typeof value.type !== "string") return false;
+    if (value.type === "lcca_value") return exactKeys(value, ["type", "attrs"]) && !!parseLccaValueAttrs(value.attrs);
     if (value.type === "hard_break") return exactKeys(value, ["type"]);
     if (value.type === "footnote") return exactKeys(value, ["type", "attrs"]) && !!parseFootnoteAttrs(value.attrs);
     if (value.type !== "text" || !exactKeys(value, ["type", "text", "marks"])
@@ -92,11 +103,12 @@ function validBlockNode(value: unknown, depth = 0): value is RichTextBlockNode {
 
 export function isRichTextContent(value: unknown): value is RichTextContent {
     if (!object(value) || !exactKeys(value, ["format", "version", "doc"])
-        || value.format !== RICH_TEXT_FORMAT || (value.version !== 1 && value.version !== RICH_TEXT_VERSION) || !object(value.doc)
+        || value.format !== RICH_TEXT_FORMAT || (value.version !== 1 && value.version !== 2 && value.version !== RICH_TEXT_VERSION) || !object(value.doc)
         || !exactKeys(value.doc, ["type", "content"]) || value.doc.type !== "doc"
         || !Array.isArray(value.doc.content) || !value.doc.content.length) return false;
     if (value.version === 1 && (value.doc.content.length !== 1 || !object(value.doc.content[0]) || value.doc.content[0].type !== "paragraph")) return false;
-    return value.doc.content.every(node => validBlockNode(node));
+    return value.doc.content.every(node => validBlockNode(node))
+        && (value.version === 3 || !richTextInlineNodes(value.doc as RichTextDocument).some(node => node.type === "lcca_value"));
 }
 
 export function richTextInlineNodes(doc: RichTextDocument): RichTextInlineNode[] {
@@ -134,13 +146,13 @@ export function claimsRichTextFormat(content: string): boolean {
 export function richTextPlainText(content: string): string {
     const richText = parseRichTextContent(content);
     if (!richText) return content;
-    return richTextParagraphs(richText.doc).map(paragraph => (paragraph.content ?? []).map(node => node.type === "text" ? node.text : node.type === "hard_break" ? "\n" : "").join("")).join("\n");
+    return richTextParagraphs(richText.doc).map(paragraph => (paragraph.content ?? []).map(node => node.type === "text" ? node.text : node.type === "hard_break" ? "\n" : node.type === "lcca_value" ? "[Dato LCCA]" : "").join("")).join("\n");
 }
 
 export function isRichTextEmpty(content: string): boolean {
     const richText = parseRichTextContent(content);
     if (!richText) return content.trim().length === 0;
-    return !richTextInlineNodes(richText.doc).some(node => node.type === "footnote"
+    return !richTextInlineNodes(richText.doc).some(node => node.type === "lcca_value" || node.type === "footnote"
         || (node.type === "text" && node.text.trim().length > 0));
 }
 

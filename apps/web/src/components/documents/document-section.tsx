@@ -4,7 +4,7 @@ import {useState, type ReactNode} from "react";
 import {cn} from "@/lib/utils";
 import {Accordion, AccordionContent, AccordionHeader, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
-export function DocumentSection({children, dataset = false, actions, endActions, after, onExpandedChange}: {children: ReactNode; dataset?: boolean; actions?: ReactNode; endActions?: ReactNode; after?: ReactNode; onExpandedChange?: (expanded: boolean) => void}) {
+export function DocumentSection({children, dataset = false, actions, endActions, after, onExpandedChange}: {children: ReactNode | (() => ReactNode); dataset?: boolean; actions?: ReactNode; endActions?: ReactNode; after?: ReactNode; onExpandedChange?: (expanded: boolean) => void}) {
     const [expanded, setExpanded] = useState<string[]>([]);
     return <section className={cn("clear-both mt-6 border-t pt-3")} aria-label={dataset ? "Conjuntos de datos" : "Documentos"}>
         <Accordion value={expanded} onValueChange={value => {setExpanded(value); onExpandedChange?.(value.length > 0);}}>
@@ -16,11 +16,11 @@ export function DocumentSection({children, dataset = false, actions, endActions,
                     {expanded.length > 0 && actions}
                     {expanded.length > 0 && endActions && <div className={cn("ml-auto min-w-0")}>{endActions}</div>}
                 </div>
-                <AccordionContent keepMounted>
-                    <div className={cn("relative grid grid-cols-2 items-start gap-x-6 gap-y-3 lg:grid-cols-3 [&>*]:min-w-0 [&>*]:2xl:static [&>*>article]:2xl:static [&>*:has(fieldset)]:col-span-full")}>
-                        {children}
+                <AccordionContent>
+                    <div data-topic-attachment-grid className={cn("relative grid grid-cols-2 items-start gap-x-6 gap-y-3 lg:grid-cols-3 [&>*]:min-w-0 [&>*:has(fieldset)]:col-span-full")}>
+                        {expanded.length > 0 && (typeof children === "function" ? children() : children)}
                     </div>
-                    {after}
+                    {expanded.length > 0 && after}
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

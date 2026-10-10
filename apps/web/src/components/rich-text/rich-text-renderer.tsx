@@ -1,3 +1,4 @@
+import {LccaValue} from "./lcca-value";
 import Link from "next/link";
 import {Fragment, type ReactNode} from "react";
 import {footnoteLabel, parseFootnoteAttrs, parseRichTextContent, type RichTextMark, type RichTextBlockNode, type RichTextInlineNode} from "@cabildo-abierto/utils";
@@ -23,7 +24,8 @@ function externalHref(node: {type: string; marks?: RichTextMark[]} | undefined):
     return node.marks?.find(mark => mark.type === "external_link")?.attrs.href ?? null;
 }
 
-export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = linksEnabled, footnoteNumbers}: {
+export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = linksEnabled, footnoteNumbers, refreshOnMount = true}: {
+    refreshOnMount?: boolean
     content: string
     linksEnabled: boolean
     showExternalLinkIcon?: boolean
@@ -33,6 +35,7 @@ export function RichTextRenderer({content, linksEnabled, showExternalLinkIcon = 
     if (!richText) return content;
     let localFootnoteNumber = 0;
     const renderInline = (nodes: RichTextInlineNode[]) => nodes.map((node, index) => {
+        if (node.type === "lcca_value") return <LccaValue key={index} attrs={node.attrs} refreshOnMount={refreshOnMount}/>;
         if (node.type === "hard_break") return <br key={index}/>;
         if (node.type === "footnote") {
             localFootnoteNumber += 1;

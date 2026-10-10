@@ -1,3 +1,4 @@
+import {TextWithLinks} from "@/components/ui/text-with-links";
 import {DownloadSimpleIcon, FileTextIcon} from "@phosphor-icons/react";
 import {BackToTopicButton} from "@/components/back-to-topic-button";
 import type {DocumentOutput} from "@cabildo-abierto/api";
@@ -15,7 +16,7 @@ export function DocumentPageHeader({document}: {document: DocumentOutput}) {
         <div className={cn("space-y-2")}>
             <div className={cn("flex items-center gap-1.5 text-xs text-muted-foreground")}><FileTextIcon aria-hidden="true" className={cn("size-3.5")}/><span>Documento · {documentFormatNames[document.format]}</span></div>
             <h1 className={cn("text-2xl font-semibold tracking-tight break-words")}>{document.title}</h1>
-            {document.description && <p className={cn("whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground")}>{document.description}</p>}
+            {document.description && <p className={cn("whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground")}><TextWithLinks text={document.description}/></p>}
         </div>
         <div className={cn("flex flex-wrap items-center justify-between gap-2")}>
             <p className={cn("min-w-0 text-xs text-muted-foreground break-all")}>{document.fileName} <span className={cn("whitespace-nowrap")}>· {size}</span></p>

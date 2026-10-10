@@ -12,5 +12,5 @@ export function TopicBlockContent({block, linksEnabled = true, showExternalLinkI
     if (isAttachmentBlock(block.typeId)) return <DocumentCard block={block} linksEnabled={linksEnabled} refreshOnMount={refreshOnMount} preview={preview}/>;
     if (block.typeId === "h1") return <h2 className={cn("font-semibold", preview ? "text-base" : "text-xl")}>{block.content}</h2>;
     if (block.typeId === "h2") return <h3 className={cn("font-semibold", preview ? "text-sm" : "text-base")}>{block.content}</h3>;
-    return <div className={cn("rich-text-content m-0 whitespace-pre-wrap p-0 leading-relaxed", preview ? "text-xs" : "text-sm")}><RichTextRenderer content={block.content} linksEnabled={linksEnabled} showExternalLinkIcon={showExternalLinkIcon} footnoteNumbers={footnoteNumbers}/></div>;
+    return <div className={cn("rich-text-content m-0 whitespace-pre-wrap p-0 leading-relaxed", preview ? "text-xs" : "text-sm")}><RichTextRenderer refreshOnMount={refreshOnMount} content={block.content} linksEnabled={linksEnabled} showExternalLinkIcon={showExternalLinkIcon} footnoteNumbers={footnoteNumbers}/></div>;
 }

@@ -1,16 +1,15 @@
 "use client";
 
-import {useId, useState, type ReactNode} from "react";
+import {useState, type ReactNode} from "react";
 import type {TopicEditableBlock, TopicAttachmentSummary, TopicAttachmentsOutput} from "@cabildo-abierto/api";
 import {keepPreviousData, useQuery} from "@tanstack/react-query";
 import {dataViewRequest} from "@/utils/react/data-view-request";
 import {useDebouncedValue} from "@/hooks/use-debounced-value";
 import {Spinner} from "@/components/ui/spinner";
-import {MagnifyingGlassIcon, XIcon} from "@phosphor-icons/react";
+import {AttachmentSearch} from "./attachment-search";
 import {AttachmentPagination} from "./attachment-pagination";
 import {DocumentSection} from "@/components/documents/document-section";
 import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
 import {cn} from "@/lib/utils";
 
 const PAGE_SIZE = 12;
@@ -20,10 +19,8 @@ export function TopicAttachmentSection({topicId, summary, includeDeleted, render
     renderBlock: (block: TopicEditableBlock) => ReactNode;
 }) {
     const [expanded, setExpanded] = useState(false);
-    const [searchOpen, setSearchOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [page, setPage] = useState(0);
-    const searchId = useId();
     const label = dataset ? "conjuntos de datos" : "documentos";
     const debouncedQuery = useDebouncedValue(query, 250);
     const paginated = summary.count + (includeDeleted ? summary.deletedCount : 0) > PAGE_SIZE;
@@ -40,17 +37,8 @@ export function TopicAttachmentSection({topicId, summary, includeDeleted, render
     const loading = result.isPending || result.isPlaceholderData || query !== debouncedQuery;
     const currentPage = result.data?.page ?? page;
 
-    return <DocumentSection dataset={dataset} onExpandedChange={setExpanded} endActions={(paginated || searchOpen) && (searchOpen
-        ? <div className={cn("flex min-w-0 items-center gap-1")}>
-            <Input id={searchId} type="text" autoFocus value={query} maxLength={500}
-                aria-label={`Buscar ${label}`} placeholder="Buscar..."
-                className={cn("w-56 min-w-0")} onChange={event => {setQuery(event.target.value); setPage(0);}}/>
-            <Button type="button" variant="ghost" size="icon-sm" aria-label={`Cerrar búsqueda de ${label}`} title="Cerrar búsqueda"
-                onClick={() => {setSearchOpen(false); setQuery(""); setPage(0);}}><XIcon/></Button>
-        </div>
-        : <Button type="button" variant="ghost" size="icon-sm" aria-label={`Buscar ${label}`}
-            title={`Buscar ${label}`} aria-expanded={false} aria-controls={searchId}
-            onClick={() => setSearchOpen(true)}><MagnifyingGlassIcon/></Button>)}
+    return <DocumentSection dataset={dataset} onExpandedChange={setExpanded} endActions={<AttachmentSearch dataset={dataset} available={paginated} value={query}
+        onChange={value => {setQuery(value); setPage(0);}}/>}
         after={paginated && result.data && <div className={cn('mt-3')}>
             <AttachmentPagination total={result.data.total} page={currentPage} pageSize={result.data.pageSize}
                 label={label} disabled={loading || result.isError} onPageChange={setPage}/>

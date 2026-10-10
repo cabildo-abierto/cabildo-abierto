@@ -1,6 +1,6 @@
 import {orderedList, bulletList, listItem} from "prosemirror-schema-list";
 import {Schema, type Node as ProseMirrorNode} from "prosemirror-model";
-import {footnoteLabel, parseFootnoteAttrs, RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent, richTextInlineNodes, isRichTextEmpty} from "@cabildo-abierto/utils";
+import {parseLccaValueAttrs, footnoteLabel, parseFootnoteAttrs, RICH_TEXT_FORMAT, RICH_TEXT_VERSION, parseRichTextContent, type RichTextContent, richTextInlineNodes, isRichTextEmpty} from "@cabildo-abierto/utils";
 
 export const richTextSchema = new Schema({
     nodes: {
@@ -11,6 +11,15 @@ export const richTextSchema = new Schema({
         list_item: {...listItem, content: "paragraph block*"},
         text: {group: "inline"},
         hard_break: {inline: true, group: "inline", selectable: false, toDOM: () => ["br"], parseDOM: [{tag: "br"}]},
+        lcca_value: {
+            inline: true, group: "inline", atom: true,
+            attrs: {query: {}, queryLanguageVersion: {default: 1}},
+            toDOM: node => ["span", {"data-lcca-value": JSON.stringify(node.attrs), class: "rounded bg-primary/10 px-1"}, "[Dato LCCA]"],
+            parseDOM: [{tag: "[data-lcca-value]", getAttrs: element => {
+                try { return parseLccaValueAttrs(JSON.parse((element as HTMLElement).dataset.lccaValue ?? "")) ?? false; }
+                catch { return false; }
+            }}],
+        },
         footnote: {
             inline: true,
             group: "inline",
@@ -107,6 +116,8 @@ export function serializeRichTextDocument(doc: ProseMirrorNode): string {
         doc: doc.toJSON() as RichTextContent["doc"],
     };
     for (const node of richTextInlineNodes(content.doc)) {
+        // Marks spanning surrounding text must not change the value atom's wire format.
+        if (node.type === "lcca_value" && "marks" in node) delete node.marks;
         if (node.type === "footnote") node.attrs = footnoteNodeAttrs(node.attrs);
     }
     const serialized = JSON.stringify(content);

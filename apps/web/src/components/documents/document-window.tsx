@@ -1,13 +1,14 @@
 "use client";
 
 import {DatasetPage} from '@/components/datasets/dataset-page';
+import {useDocumentWindowPanelVisibility} from "./document-window-panel-transition";
 import {DocumentWindowDescription} from './document-window-description';
 import {parseDatasetBlock, parseDocumentBlock} from '@cabildo-abierto/utils';
 
 import {useId, useRef, useState, type RefObject} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
 import {Dialog} from "@base-ui/react/dialog";
-import {ArrowUpRightIcon, ArrowsOutSimpleIcon, ChatCircleIcon, CornersInIcon, FileTextIcon, TableIcon, XIcon} from "@phosphor-icons/react";
+import {ArrowUpRightIcon, ArrowsOutSimpleIcon, ChatCircleIcon, CornersInIcon, FileTextIcon, InfoIcon, TableIcon, XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {useDocumentWindow} from "@/hooks/use-document-window";
 import {useDocument} from "@/hooks/use-document";
@@ -23,7 +24,11 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
     block: TopicBlock; title: string; returnFocus: RefObject<HTMLAnchorElement | null>; topicId?: string;
 }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
+    const [descriptionOpen, setDescriptionOpen] = useState(true);
     const commentsId = useId();
+    const descriptionId = useId();
+    const commentsButtonRef = useRef<HTMLButtonElement>(null);
+    const descriptionButtonRef = useRef<HTMLButtonElement>(null);
     const {id: routeTopicId} = useTopicRoute();
     const topicId = sourceTopicId ?? routeTopicId;
     const discussion = useTopicBlockComments(topicId, block.blockNumber);
@@ -32,7 +37,16 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
     const content = dataset ? parseDatasetBlock(block.content) : parseDocumentBlock(block.content);
     const fullTitle = content?.title ?? title;
     const description = content?.description;
-    const sidePanelVisible = commentsOpen || Boolean(fullTitle || description);
+    const hasDescription = Boolean(fullTitle || description);
+    const sidePanelVisible = useDocumentWindowPanelVisibility(commentsOpen || (descriptionOpen && hasDescription));
+    const closeComments = () => {
+        setCommentsOpen(false);
+        requestAnimationFrame(() => commentsButtonRef.current?.focus());
+    };
+    const closeDescription = () => {
+        setDescriptionOpen(false);
+        requestAnimationFrame(() => descriptionButtonRef.current?.focus());
+    };
     const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow(sidePanelVisible ? 332 : 0);
     const closeRef = useRef<HTMLButtonElement>(null);
     const versionId = block.id;
@@ -55,10 +69,14 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
                         <Dialog.Title className={cn("truncate text-sm font-medium")}>{document?.title ?? title}</Dialog.Title>
                         {(document || dataset) && <span className={cn("shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground")}>{dataset ? "CSV" : document && documentFormatNames[document.format]}</span>}
                     </div>
-                    <Button type="button" variant="ghost" size="sm" aria-expanded={commentsOpen} aria-controls={commentsId}
-                        aria-label={`${commentsOpen ? "Ocultar" : "Mostrar"} comentarios (${commentCount})`} title="Comentarios"
-                        className={cn("gap-1 tabular-nums", commentsOpen && "bg-muted")}
-                        onClick={() => setCommentsOpen(current => !current)}><ChatCircleIcon/><span>{commentCount}</span></Button>
+                    <Button ref={commentsButtonRef} type="button" variant="ghost" size="sm" aria-expanded={commentsOpen} aria-pressed={commentsOpen} aria-controls={commentsId}
+                        aria-label={`${commentsOpen ? "Cerrar" : "Mostrar"} comentarios (${commentCount})`} title={commentsOpen ? "Cerrar comentarios" : "Mostrar comentarios"}
+                        className={cn("gap-1 tabular-nums", commentsOpen && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary")}
+                        onClick={() => setCommentsOpen(current => !current)}><ChatCircleIcon weight={commentsOpen ? "fill" : "regular"}/><span>{commentCount}</span></Button>
+                    {hasDescription && <Button ref={descriptionButtonRef} type="button" variant="ghost" size="icon-sm" aria-expanded={descriptionOpen} aria-pressed={descriptionOpen} aria-controls={descriptionId}
+                        className={cn(descriptionOpen && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary")}
+                        aria-label={descriptionOpen ? "Cerrar descripción" : "Mostrar descripción"} title={descriptionOpen ? "Cerrar descripción" : "Mostrar descripción"}
+                        onClick={() => setDescriptionOpen(current => !current)}><InfoIcon weight={descriptionOpen ? "fill" : "regular"} className={cn("size-4")}/></Button>}
                     <Button nativeButton={false} render={<a href={externalUrl} target="_blank" rel="noopener noreferrer"/>}
                         variant="ghost" size="icon-sm" aria-label="Abrir en otra pestaña" title="Abrir en otra pestaña"><ArrowUpRightIcon/></Button>
                     <Button type="button" variant="ghost" size="icon-sm" onClick={toggleMaximized}
@@ -73,8 +91,8 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
                 {!maximized && <DocumentWindowResizeHandles controls={resizeControls}/>}
             </div>
             <div className={cn("flex h-full w-80 shrink-0 flex-col gap-3", !sidePanelVisible && "hidden")}>
-                {(fullTitle || description) && <DocumentWindowDescription title={fullTitle} description={description}/>}
-                <DocumentWindowComments id={commentsId} block={block} discussion={discussion} open={commentsOpen} className={cn("h-auto min-h-0 flex-1 shrink")}/>
+                {hasDescription && <DocumentWindowDescription open={descriptionOpen} id={descriptionId} title={fullTitle} description={description} onClose={closeDescription}/>}
+                <DocumentWindowComments id={commentsId} block={block} discussion={discussion} open={commentsOpen} onClose={closeComments} className={cn("h-auto min-h-0 flex-1 shrink")}/>
             </div>
         </Dialog.Popup>
     </>;

@@ -16,7 +16,7 @@ import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInlineNodes, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
@@ -368,31 +368,23 @@ export const topicRoutes = (ctx: AppContext): Router => {
 
         try {
             const dependencies = new Map<string, DatasetReference[]>();
+            const collectDependencies = async (key: string, query: string) => {
+                if (dependencies.has(key)) return;
+                const analysis = await runQueryJob<LccaAnalysis>({type: 'analyze', query});
+                dependencies.set(key, analysis.sources);
+            };
             for (const block of requestedBlocks.filter(block => block.typeId === "visualizacion")) {
-                const metadata = parseVisualizationBlock(block.content)!;
-                if (!dependencies.has(block.content)) {
-                    const analysis = await runQueryJob<LccaAnalysis>({type: 'analyze', query: metadata.query});
-                    dependencies.set(block.content, analysis.sources);
+                await collectDependencies(block.content, parseVisualizationBlock(block.content)!.query);
+            }
+            for (const block of requestedBlocks.filter(block => !block.deleted && block.typeId === "parrafo")) {
+                const richText = parseRichTextContent(block.content);
+                for (const node of richText ? richTextInlineNodes(richText.doc) : []) {
+                    if (node.type === "lcca_value") await collectDependencies(`lcca-inline:${node.attrs.query}`, node.attrs.query);
                 }
             }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
                 await lockSearchTopic(trx, topicId);
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
-                for (const block of requestedBlocks.filter(block => block.typeId === "imagen")) {
-                    await requireFileAccess(trx, parseImageBlock(block.content)!.fileId, user.id, 'image');
-                }
-                for (const block of requestedBlocks.filter(block => block.typeId === "dataset")) {
-                    const dataset = parseDatasetBlock(block.content)!;
-                    if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id, dataset.sourceFormat);
-                    if (dataset.sourceFormat === 'json') {
-                        const sourceId = await ensureDatasetSource(trx, {file_id: dataset.fileId, source_url: dataset.sourceUrl, source_format: dataset.sourceFormat, jq_filter: dataset.jqFilter});
-                        const source = await trx.selectFrom('dataset_source').select('snapshot_id').where('id', '=', sourceId).executeTakeFirstOrThrow();
-                        if (!source.snapshot_id) throw new TopicEditError(400, 'Prepará la vista previa del JSON antes de guardar el dataset.');
-                    }
-                }
-                for (const block of requestedBlocks.filter(block => block.typeId === "documento")) {
-                    await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
-                }
                 for (const [content,sources] of dependencies) {
                     const {analysis} = await resolveSources(trx,{sources,basicView: null});
                     dependencies.set(content,analysis.sources);
@@ -429,6 +421,22 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     return block.deleted !== current.deleted || block.content !== current.content || (!isAttachmentBlock(block.typeId) && block.order !== current.order);
                 });
                 const newInputs = requestedBlocks.filter(block => block.blockNumber === null);
+                const blocksToValidate = [...changedExisting, ...newInputs].filter(block => !block.deleted);
+                for (const block of blocksToValidate.filter(block => block.typeId === "imagen")) {
+                    await requireFileAccess(trx, parseImageBlock(block.content)!.fileId, user.id, 'image');
+                }
+                for (const block of blocksToValidate.filter(block => block.typeId === "dataset")) {
+                    const dataset = parseDatasetBlock(block.content)!;
+                    if (dataset.fileId) await requireDatasetFileAccess(trx, dataset.fileId, user.id, dataset.sourceFormat);
+                    if (dataset.sourceFormat === 'json') {
+                        const sourceId = await ensureDatasetSource(trx, {file_id: dataset.fileId, source_url: dataset.sourceUrl, source_format: dataset.sourceFormat, jq_filter: dataset.jqFilter});
+                        const source = await trx.selectFrom('dataset_source').select('snapshot_id').where('id', '=', sourceId).executeTakeFirstOrThrow();
+                        if (!source.snapshot_id) throw new TopicEditError(400, 'Prepará la vista previa del JSON antes de guardar el dataset.');
+                    }
+                }
+                for (const block of blocksToValidate.filter(block => block.typeId === "documento")) {
+                    await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
+                }
                 const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => block.typeId === "parrafo"
                     ? richTextInternalTopicIds(block.content)
                     : []))];

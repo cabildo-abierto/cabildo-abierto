@@ -1,6 +1,8 @@
 "use client";
 
-import {footnoteLabel} from "@cabildo-abierto/utils";
+import {lccaValueNodeView, type LccaValueMount} from "./lcca-value-node-view";
+import {LccaValue} from "./lcca-value";
+import {parseLccaValueAttrs, footnoteLabel} from "@cabildo-abierto/utils";
 import {footnoteNodeAttrs} from "./rich-text-schema";
 
 import {useEffect, useRef, useState} from "react";
@@ -32,8 +34,14 @@ function selectedLink(view: EditorView, from: number, to: number): RichTextToolb
 
 function toolbarState(view: EditorView): RichTextToolbarState | null {
     const {from, to} = view.state.selection;
+    if (view.state.selection instanceof NodeSelection && view.state.selection.node.type === richTextSchema.nodes.lcca_value) {
+        return {from, to, hasSelection: false, bold: false, italic: false, listType: null, link: null, footnote: null,
+            lccaValue: parseLccaValueAttrs(view.state.selection.node.attrs), openLccaValueEditor: false,
+            openLinkPicker: false, openFootnoteEditor: false};
+    }
     if (view.state.selection instanceof NodeSelection && view.state.selection.node.type === richTextSchema.nodes.footnote) {
         return {
+            lccaValue: null, openLccaValueEditor: false,
             from,
             to,
             hasSelection: false,
@@ -50,6 +58,7 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     const hasSelection = from !== to;
     const marks = hasSelection ? null : view.state.storedMarks ?? view.state.selection.$from.marks();
     return {
+        lccaValue: null, openLccaValueEditor: false,
         from,
         to,
         hasSelection,
@@ -67,7 +76,8 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     };
 }
 
-export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+    topicId?: string
     content: string
     footnoteNumbers?: ReadonlyMap<string, number>
     onInsertImage?: () => void
@@ -84,6 +94,7 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
     const onChangeRef = useRef(onChange);
     const onDeleteEmptyRef = useRef(onDeleteEmpty);
     const footnoteNumbersRef = useRef(footnoteNumbers);
+    const [lccaViews, setLccaViews] = useState<LccaValueMount[]>([]);
     const [view, setView] = useState<EditorView | null>(null);
     const [toolbar, setToolbar] = useState<RichTextToolbarState | null>(null);
     onChangeRef.current = onChange;
@@ -140,6 +151,13 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
                 "aria-label": "Contenido del párrafo",
             },
             nodeViews: {
+                lcca_value: lccaValueNodeView(mount => setLccaViews(current => {
+                    const index = current.findIndex(item => item.dom === mount.dom);
+                    return index < 0 ? [...current, mount] : current.map((item, i) => i === index ? mount : item);
+                }), dom => setLccaViews(current => current.filter(item => item.dom !== dom)), () => {
+                    const nextToolbar = toolbarState(editor);
+                    if (nextToolbar) setToolbar({...nextToolbar, openLccaValueEditor: true});
+                }),
                 footnote: node => {
                     // Keep the atom on the text baseline; only its label is superscript.
                     const dom = document.createElement("span");
@@ -228,7 +246,9 @@ export function RichTextEditor({content, footnoteNumbers, toolbarContainer, onCh
         {isRichTextEmpty(content) && (!view || (view.state.doc.childCount === 1 && view.state.doc.firstChild?.type === richTextSchema.nodes.paragraph))
             && <span className={cn("pointer-events-none absolute inset-x-0 top-0 text-sm text-muted-foreground")}>Escribí un párrafo...</span>}
         <div ref={mountRef} className="relative"/>
+        {lccaViews.map(item => createPortal(<LccaValue attrs={item.attrs} onSelect={topicId ? item.select : undefined}/>, item.dom, item.id))}
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
+            topicId={topicId}
             view={view}
             state={toolbar}
             documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage}

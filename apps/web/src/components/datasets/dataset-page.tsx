@@ -1,5 +1,6 @@
 "use client";
 
+import {TextWithLinks} from "@/components/ui/text-with-links";
 import {useDataset} from '@/hooks/use-dataset';
 import {Spinner} from '@/components/ui/spinner';
 import {Button} from '@/components/ui/button';
@@ -18,7 +19,7 @@ export function DatasetPage({versionId, inWindow = false}: {versionId: string; i
         {!inWindow && <header className={cn('space-y-3')}>
             <BackToTopicButton href={`/tema/${encodeURIComponent(query.data.topic.slug)}`}/>
             <h1 className={cn('text-2xl font-semibold')}>{query.data.title}</h1>
-            {query.data.description && <p className={cn('whitespace-pre-wrap text-sm text-muted-foreground')}>{query.data.description}</p>}
+            {query.data.description && <p className={cn('whitespace-pre-wrap text-sm text-muted-foreground')}><TextWithLinks text={query.data.description}/></p>}
         </header>}
         <DatasetTable columns={query.data.columns} rows={query.data.rows} rowCount={query.data.rowCount} page={query.page} loading={query.isFetching} onPageChange={query.setPage} fillHeight={inWindow}/>
     </article>;

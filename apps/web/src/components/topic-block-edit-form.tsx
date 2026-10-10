@@ -14,7 +14,8 @@ function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
 }
 
-export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function TopicBlockEditForm({topicId, block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+    topicId: string
     block: TopicBlock
     isNew: boolean
     blockTypes: BlockType[]
@@ -34,7 +35,7 @@ export function TopicBlockEditForm({block, isNew, blockTypes, footnoteNumbers, t
     };
 
     return <div className="relative -mx-3 px-3 py-2">
-        {block.typeId === "parrafo" ? <RichTextEditor key={block.blockNumber} content={block.content} footnoteNumbers={footnoteNumbers} toolbarContainer={toolbarContainer}
+        {block.typeId === "parrafo" ? <RichTextEditor topicId={topicId} key={block.blockNumber} content={block.content} footnoteNumbers={footnoteNumbers} toolbarContainer={toolbarContainer}
             documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage} onChange={content => onChange({...block, content})} onDeleteEmpty={onDeleteEmpty}/> : <Input
             value={block.content}
             onChange={event => onChange({...block, content: event.target.value})}

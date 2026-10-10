@@ -14,6 +14,7 @@ export function searchPlainText(content: string): string {
     if (!richText) return content;
     return richTextParagraphs(richText.doc).map(paragraph => (paragraph.content ?? []).map(node => {
         if (node.type === 'text') return node.text;
+        if (node.type === 'lcca_value') return ' [Dato LCCA] ';
         if (node.type === 'hard_break') return '\n';
         const attrs = node.attrs;
         if (!('kind' in attrs) || attrs.kind === 'text') return ` ${attrs.content} `;

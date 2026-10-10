@@ -1,5 +1,6 @@
 "use client";
 
+import {blockIsEmpty, blockContentIsInvalid} from "@/components/topic-block-content-validation";
 import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-context";
 import {ImageEditorPopup} from "@/components/images/image-editor-popup";
 import {EditableImageBlock} from "@/components/images/editable-image-block";
@@ -14,7 +15,7 @@ import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useToast} from "@/components/ui/toast";
 import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {compareContentBlocks, parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, isRichTextEmpty, orderBetween, richTextPlainText} from "@cabildo-abierto/utils";
+import {compareContentBlocks, isAttachmentBlock, orderBetween} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
 import {TopicDocumentEditor} from "@/components/documents/topic-document-editor";
 import {TopicBlockContent} from "@/components/topic-block-content";
@@ -44,14 +45,6 @@ type TopicEditState = {
     message: string
 };
 type ChangeKind = "new" | "content" | "order" | null;
-
-function blockIsEmpty(block: Pick<TopicBlock, "typeId" | "content">): boolean {
-    if (block.typeId === "imagen") return !parseImageBlock(block.content);
-    if (block.typeId === "visualizacion") return !parseVisualizationBlock(block.content);
-    if (block.typeId === "dataset") return !parseDatasetBlock(block.content);
-    if (block.typeId === "documento") return !parseDocumentBlock(block.content);
-    return block.typeId === "parrafo" ? isRichTextEmpty(block.content) : !block.content.trim();
-}
 
 function newAttachmentBlock(typeId: "documento" | "dataset", id: string, content: string): WorkingBlock {
     return {id, blockNumber: id, typeId, content, order: "n", commentCount: 0, isNew: true, deleted: false};
@@ -189,9 +182,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
     const requiresMessage = affectedBlockCount > 1;
     const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
-    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && block.typeId === "visualizacion" && changeKind(block, savedByNumber) !== null && validVisualizations.get(block.blockNumber) !== block.content) || edit.blocks.some(block => !block.deleted && (blockIsEmpty(block)
-        || (block.typeId === "parrafo" && (richTextPlainText(block.content).length > 20_000 || block.content.length > 100_000))
-        || ((block.typeId === "h1" || block.typeId === "h2") && /[\r\n]/.test(block.content))));
+    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && block.typeId === "visualizacion" && changeKind(block, savedByNumber) !== null && validVisualizations.get(block.blockNumber) !== block.content) || edit.blocks.some(block => !block.deleted && blockContentIsInvalid(block));
     const convergenceChanged = !saving && !deletingVersion && !sameConvergence(edit.savedBlocks, initialBlocks);
 
     useEffect(() => {
@@ -487,7 +478,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             })}/>
                             <TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
                         </div>
-                        : active ? <TopicBlockEditForm block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
+                        : active ? <TopicBlockEditForm topicId={topicId} block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
                             documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setInlinePopup({typeId: "visualizacion", after: block.blockNumber})} onInsertImage={() => setInlinePopup({typeId: "imagen", after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"

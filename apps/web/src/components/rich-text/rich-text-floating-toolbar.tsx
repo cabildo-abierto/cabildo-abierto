@@ -1,19 +1,23 @@
 "use client"
 
-import type {FootnoteAttrs, FootnoteContent} from "@cabildo-abierto/utils";
+import type {LccaValueAttrs, FootnoteAttrs, FootnoteContent} from "@cabildo-abierto/utils";
 import {useEffect, useState} from "react";
+import {TextSelection} from "prosemirror-state";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
-import {ListBulletsIcon, ListNumbersIcon, AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
+import {CalculatorIcon, ListBulletsIcon, ListNumbersIcon, AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {RichTextLinkPicker, type RichTextLink} from "@/components/rich-text/rich-text-link-picker";
 import {toggleList, type RichTextListType} from "./rich-text-lists";
 import {richTextSchema} from "@/components/rich-text/rich-text-schema";
 import {cn} from "@/lib/utils";
 import {AttachmentInsertionPicker, type AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
+import {RichTextLccaValueEditor} from "./rich-text-lcca-value-editor";
 import {RichTextFootnoteEditor} from "@/components/rich-text/rich-text-footnote-editor";
 
 export type RichTextToolbarState = {
+    lccaValue: LccaValueAttrs | null
+    openLccaValueEditor: boolean
     from: number
     to: number
     hasSelection: boolean
@@ -36,7 +40,8 @@ function applyLink(view: EditorView, state: RichTextToolbarState, link: RichText
     view.focus();
 }
 
-export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function RichTextFloatingToolbar({topicId, view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+    topicId?: string
     onInsertImage?: () => void
     onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
@@ -45,6 +50,8 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
     state: RichTextToolbarState
     toolbarRef: (element: HTMLDivElement | null) => void
 }) {
+    const [lccaEditorOpen, setLccaEditorOpen] = useState(state.openLccaValueEditor);
+    useEffect(() => { if (state.openLccaValueEditor) setLccaEditorOpen(true); }, [state.openLccaValueEditor]);
     const [attachmentPicker, setAttachmentPicker] = useState<"documento" | "dataset" | null>(null);
     const [linkPickerOpen, setLinkPickerOpen] = useState(state.openLinkPicker);
     const [footnoteEditorOpen, setFootnoteEditorOpen] = useState(state.openFootnoteEditor);
@@ -87,7 +94,16 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
         setFootnoteEditorOpen(false);
     };
     const insertionAction = attachmentPicker === "dataset" ? datasetInsertion : documentInsertion;
-    const panelOpen = linkPickerOpen || footnoteEditorOpen || attachmentPicker !== null;
+    const closeLccaEditor = () => { setLccaEditorOpen(false); view.focus(); };
+    const saveLccaValue = (attrs: LccaValueAttrs) => {
+        const transaction = state.lccaValue
+            ? view.state.tr.setNodeMarkup(state.from, richTextSchema.nodes.lcca_value, attrs)
+            : view.state.tr.insert(state.to, richTextSchema.nodes.lcca_value.create(attrs));
+        const cursor = (state.lccaValue ? state.from : state.to) + 1;
+        view.dispatch(transaction.setSelection(TextSelection.create(transaction.doc, cursor)).scrollIntoView());
+        closeLccaEditor();
+    };
+    const panelOpen = lccaEditorOpen || linkPickerOpen || footnoteEditorOpen || attachmentPicker !== null;
 
     return <div ref={toolbarRef} className="flex justify-start"
         onMouseDown={event => event.stopPropagation()}>
@@ -98,14 +114,17 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
                 aria-label="Itálica" title="Itálica" onMouseDown={event => event.preventDefault()} onClick={() => toggle("italic")}><TextItalicIcon className="size-4"/></Button>
             {([['bullet_list', 'Lista con viñetas', ListBulletsIcon], ['ordered_list', 'Lista numerada', ListNumbersIcon]] as const).map(([type, label, Icon]) =>
                 <Button key={type} type="button" variant="ghost" size="icon-sm" className={cn(state.listType === type && "bg-muted")}
-                    aria-pressed={state.listType === type} aria-label={label} title={label} disabled={!!state.footnote}
+                    aria-pressed={state.listType === type} aria-label={label} title={label} disabled={!!state.footnote || !!state.lccaValue}
                     onMouseDown={event => event.preventDefault()} onClick={() => { toggleList(type)(view.state, view.dispatch); view.focus(); }}><Icon className={cn("size-4")}/></Button>)}
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.link && "bg-muted")} aria-expanded={false}
                 aria-label="Agregar o editar link" title={state.hasSelection ? "Link" : "Seleccioná texto para agregar un link"}
                 disabled={!state.hasSelection} onMouseDown={event => event.preventDefault()} onClick={() => setLinkPickerOpen(true)}><LinkSimpleIcon className="size-4"/></Button>
             <Button type="button" variant="ghost" size="icon-sm" className={cn(state.footnote && "bg-muted")}
                 aria-label="Agregar o editar nota al pie" title="Nota al pie" onMouseDown={event => event.preventDefault()}
-                onClick={() => setFootnoteEditorOpen(true)}><AsteriskIcon className="size-4"/></Button>
+                disabled={!!state.lccaValue} onClick={() => setFootnoteEditorOpen(true)}><AsteriskIcon className="size-4"/></Button>
+            {topicId && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar o editar valor LCCA" title="Valor LCCA"
+                className={cn(state.lccaValue && "bg-muted")} disabled={!!state.footnote} onMouseDown={event => event.preventDefault()}
+                onClick={() => setLccaEditorOpen(true)}><CalculatorIcon className={cn("size-4")}/></Button>}
             {onInsertImage && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar imagen" title="Insertar imagen" onMouseDown={event => event.preventDefault()} onClick={onInsertImage}><ImageIcon className={cn("size-4")}/></Button>}
             {onInsertVisualization && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar visualización" title="Insertar visualización" onMouseDown={event => event.preventDefault()} onClick={onInsertVisualization}><ChartBarIcon className={cn("size-4")}/></Button>}
             {documentInsertion && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar documento" title="Insertar documento"
@@ -125,6 +144,11 @@ export function RichTextFloatingToolbar({view, state, toolbarRef, documentInsert
             onApply={link => finishLink(link)}
             onRemove={() => finishLink(null)}
         />}
+        {lccaEditorOpen && topicId && <RichTextLccaValueEditor topicId={topicId} initial={state.lccaValue}
+            onSave={saveLccaValue} onCancel={closeLccaEditor} onDelete={() => {
+                if (state.lccaValue) view.dispatch(view.state.tr.delete(state.from, state.to));
+                closeLccaEditor();
+            }}/>}
         {footnoteEditorOpen && <RichTextFootnoteEditor
             initial={state.footnote ?? {kind: "text", content: ""}}
             editing={state.footnote !== null}
