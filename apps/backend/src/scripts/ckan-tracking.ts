@@ -19,7 +19,7 @@ export function ckanTracking({baseUrl, filename, title, description}: {baseUrl: 
             const id = clean(resource.id);
             if (!id || ids.has(id)) throw new Error(`ID de recurso CKAN ausente o duplicado: ${id || pkg.name}.`);
             ids.add(id);
-            const outcome = outcomes.get(id) ?? {status: 'no_csv', detail: 'Formato no CSV; no se intentó obtener los datos.'};
+            const outcome = outcomes.get(id) ?? {status: 'no_csv', detail: 'Formato no CSV/ZIP; no se intentó obtener los datos.'};
             return [pkg.id, pkg.name, pkg.title, pkg.organization?.title, pkg.license_title, pkg.notes,
                 `${baseUrl}/dataset/${encodeURIComponent(pkg.name)}`, id, resource.name,
                 resource.description, resource.format, resource.url, outcome.status, outcome.detail, processedAt].map(clean);

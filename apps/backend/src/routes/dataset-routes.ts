@@ -13,7 +13,8 @@ import {storeFile, removeUnattachedFile} from '#/services/storage/files.js';
 import {datasetJob, warmDatasetPageWorker} from '#/services/datasets/process.js';
 import {env} from '#/lib/env.js';
 import {datasetLimits} from '#/services/datasets/csv.js';
-import {readySnapshot, snapshotPage, DatasetPending, prepareLocalCSV} from '#/services/datasets/snapshots.js';
+import {readySnapshot, snapshotPage, snapshotCSVOptions, DatasetPending, prepareLocalCSV} from '#/services/datasets/snapshots.js';
+import {datasetUpdate} from '#/services/datasets/update.js';
 import {publishSnapshot} from '#/services/datasets/publish.js';
 import {requireDatasetAccess} from '#/services/datasets/access.js';
 import {requireDatasetFileAccess} from '#/services/datasets/access.js';
@@ -39,7 +40,7 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
             if (!req.is('application/octet-stream')) throw new TopicActionError(400, 'Enviá el archivo como contenido binario.');
             const topic = await ctx.kysely.selectFrom('topic').select('id').where('id', '=', String(req.params.id)).executeTakeFirst();
             if (!topic) throw new TopicActionError(404, 'No encontramos ese tema.');
-            const max = datasetLimits().bytes;
+            const max = datasetLimits(format).bytes;
             if (Number(req.headers['content-length']) > max) throw new TopicActionError(413, 'El archivo supera el tamaño permitido.');
             directory = await mkdtemp(join(tmpdir(), 'ca-csv-'));
             const path = join(directory, `upload.${format}`);
@@ -53,7 +54,7 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
             } finally { await output.close(); }
             const parquetPath=join(directory,'data.parquet');
             const metadata=format==='csv'?await prepareLocalCSV(path,parquetPath,directory):null;
-            if(format==='json') await datasetJob('prepare',{path,validateOnly:true},env.DATASET_PREPARE_SECONDS);
+            if(format==='json') await datasetJob('prepare',{path,format,validateOnly:true},env.DATASET_PREPARE_SECONDS);
             const file = await storeFile(ctx, getStorage(), path, name, format==='json'?'application/json':'text/csv', requiredUser(req).id); fileId = file.id;
             await ctx.kysely.updateTable('file').set({format, preview_status: 'ready'}).where('id','=', file.id).execute();
             if(metadata){
@@ -85,7 +86,7 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
             const sourceId=await ensureDatasetSource(ctx.kysely,{file_id:hasFile?body.fileId:null,source_url:hasUrl?body.sourceUrl:null,source_format:options.sourceFormat,jq_filter:options.jqFilter});
             const snapshot = await readySnapshot(ctx.kysely,sourceId,getStorage(),{snapshotId:body.snapshotId,retry:body.retry===true});
             const page=body.page??0;
-            res.json({success:true,value:{...options,columns:snapshot.columns,csvOptions:snapshot.csv_options,rows:await snapshotPage(snapshot,getStorage(),page),rowCount:snapshot.row_count,snapshotId:snapshot.id,page,fileId:hasFile?body.fileId:null,sourceUrl:hasUrl?body.sourceUrl:null,fileName}});
+            res.json({success:true,value:{...options,columns:snapshot.columns,csvOptions:snapshotCSVOptions(snapshot),rows:await snapshotPage(snapshot,getStorage(),page),rowCount:snapshot.row_count,snapshotId:snapshot.id,page,fileId:hasFile?body.fileId:null,sourceUrl:hasUrl?body.sourceUrl:null,fileName}});
         } catch(error) { return fail(res,error); }
     });
     router.get('/dataset-versions/:id', async (req,res) => {
@@ -100,6 +101,12 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
             const source=await ctx.kysely.selectFrom('dataset_source').innerJoin('dataset_snapshot','dataset_snapshot.id','dataset_source.snapshot_id')
                 .select(['row_count','checked_at']).where('dataset_source.id','=',dataset.source_id).executeTakeFirst();
             res.json({success:true,value:{title:dataset.title,description:dataset.description,rowCount:source?.row_count,checkedAt:source?.checked_at}});
+        } catch(error){return fail(res,error);}
+    });
+    router.get('/dataset-versions/:id/update',async(req,res)=>{
+        try {
+            const dataset=await requireDatasetAccess(ctx.kysely,String(req.params.id));
+            res.json({success:true,value:await datasetUpdate(ctx.kysely,dataset.source_id)});
         } catch(error){return fail(res,error);}
     });
     return router;

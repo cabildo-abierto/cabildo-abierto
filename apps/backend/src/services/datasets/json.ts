@@ -5,14 +5,14 @@ import {datasetLimits} from './csv.js';
 import {env} from '#/lib/env.js';
 
 export async function readDatasetJSON(path: string): Promise<unknown> {
-    if ((await stat(path)).size > datasetLimits().bytes) throw new Error('El JSON supera el tamaño permitido.');
+    if ((await stat(path)).size > datasetLimits('json').bytes) throw new Error('El JSON supera el tamaño permitido.');
     try { return JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(await readFile(path))); }
     catch { throw new Error('El archivo debe contener un único documento JSON válido en UTF-8.'); }
 }
 
 export async function inspectJSON(path: string, directory: string, filter: string | null, previousColumns: DatasetColumn[] = []) {
     await readDatasetJSON(path);
-    const output = await transformJSON(path, filter, directory, {bytes: datasetLimits().bytes, memoryMB: env.DATASET_PREPARE_MEMORY_MB, seconds: env.DATASET_PREPARE_SECONDS});
+    const output = await transformJSON(path, filter, directory, {bytes: datasetLimits('json').bytes, memoryMB: env.DATASET_PREPARE_MEMORY_MB, seconds: env.DATASET_PREPARE_SECONDS});
     const data = await readDatasetJSON(output);
     if (!Array.isArray(data)) throw new Error('La transformación debe devolver un único array de objetos planos.');
     const types = new Map<string, DatasetColumnType | null>();

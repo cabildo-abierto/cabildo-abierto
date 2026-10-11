@@ -6,6 +6,7 @@ import {useLccaQuery} from "@/hooks/use-lcca-query";
 import {LccaQueryEditor} from "@/components/visualizations/lcca-query-editor";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
+import {LccaValueLoading} from "./lcca-value-loading";
 import {LccaValueDialog} from "./lcca-value-dialog";
 
 export function RichTextLccaValueEditor({topicId, initial, onSave, onDelete, onCancel}: {
@@ -26,7 +27,7 @@ export function RichTextLccaValueEditor({topicId, initial, onSave, onDelete, onC
             <LccaQueryEditor topicId={topicId} query={query} onChange={setQuery}/>
             <p className={cn("text-xs text-muted-foreground")}>La consulta debe devolver exactamente una fila y una columna.</p>
             {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}
-            {result.loading && <p role="status" className={cn("text-sm text-muted-foreground")}>Cargando…</p>}
+            {result.loading && <p className={cn("text-sm text-muted-foreground")}><LccaValueLoading/></p>}
             {canSave && <p role="status" className={cn("text-sm")}>Vista previa: <span className={cn("rounded bg-primary/10 px-1")}>{formatLccaValue(scalar.value) || "Texto vacío"}</span></p>}
             <div className={cn("flex flex-wrap justify-end gap-2")}>
                 {initial && <Button type="button" size="sm" variant="destructive" onClick={onDelete}>Eliminar</Button>}

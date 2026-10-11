@@ -19,7 +19,7 @@ function fileUrl(commit: string, path: string, raw: boolean) {
         : `https://github.com/${argendataRepository}/blob/${commit}/${encoded}`;
 }
 
-async function fetchText(url: string, maxBytes = datasetLimits().bytes) {
+async function fetchText(url: string, maxBytes = datasetLimits('json').bytes) {
     const headers: Record<string, string> = {'User-Agent': 'CabildoAbierto-Argendata'};
     let lastError: unknown;
     for (let attempt = 0; attempt < 2; attempt++) {

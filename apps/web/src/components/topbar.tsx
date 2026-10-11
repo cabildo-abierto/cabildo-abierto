@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {HouseIcon, PlusIcon, SignOutIcon, UserCircleIcon} from "@phosphor-icons/react";
+import {HouseIcon, SignOutIcon, UserCircleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {ThemePicker} from "@/components/theme-picker";
 import {useAuth} from "@/components/auth-provider";
+import {NewTopicButton} from "@/components/new-topic-button";
 import {NotificationBell} from "@/components/notification-bell";
 
 export function Topbar() {
@@ -31,10 +32,7 @@ export function Topbar() {
         <div className="flex items-center gap-1">
             <ThemePicker/>
             <NotificationBell/>
-            <Button nativeButton={false} render={<Link href="/nuevo-tema"/>} variant="ghost" size="sm">
-                <PlusIcon/>
-                Nuevo tema
-            </Button>
+            <NewTopicButton/>
             {user ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger render={<Button variant="ghost" size="sm"/>}>

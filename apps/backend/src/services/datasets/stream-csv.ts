@@ -53,12 +53,13 @@ export async function* csvRows(path: string, delimiter: ',' | ';', encoding: CSV
     finally { parser.destroy(); await feeding; }
     if(failure)throw failure;
 }
-export async function inspectCSV(path: string) {
+export async function inspectCSV(path: string, visit?: (row: string[], ordinal: number) => Promise<void>) {
     const encoding = await csvEncoding(path);
     const {names,delimiter} = await csvHeader(path, encoding);
     const candidates = names.map(() => ({'.':new Set(DATASET_TYPES.filter(t=>t!=='text')), ',':new Set(DATASET_TYPES.filter(t=>t!=='text')), nonempty:false, leading:false}));
     let commas = 0, dots = 0, rowCount = 0;
     for await (const row of csvRows(path,delimiter,encoding)) {
+        if (visit) await visit(row, rowCount);
         rowCount++;
         row.forEach((raw,i) => {
             const value = raw.trim(), state = candidates[i];

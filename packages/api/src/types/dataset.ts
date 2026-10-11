@@ -15,5 +15,7 @@ export type DatasetPreview = DatasetSourceOptions & {
 };
 export type DatasetOutput = DatasetContent & {
     id: string; topic: TopicSummary; rows: DatasetCell[][]; rowCount: number; snapshotId: string; page: number;
+    update?: DatasetUpdate;
 };
+export type DatasetUpdate = {state: 'ready' | 'checking' | 'preparing' | 'failed'; snapshotId: string | null; error: string | null};
 export type DatasetMetadata = Pick<DatasetContent, 'title' | 'description'> & {rowCount?: number; checkedAt?: string | null};

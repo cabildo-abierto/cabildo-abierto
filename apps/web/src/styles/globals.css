@@ -194,3 +194,26 @@
   from { height: var(--accordion-panel-height); overflow: hidden; }
   to { height: 0; overflow: hidden; }
 }
+
+.lcca-value-loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 40%, color-mix(in srgb, var(--foreground) 45%, transparent) 50%, transparent 60%);
+    animation: lcca-value-reflection 1.2s linear infinite;
+    animation-delay: -0.6s;
+}
+
+@keyframes lcca-value-reflection {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+.lcca-value-matrix-stream {
+    animation: lcca-value-matrix-rain 1.2s steps(6, end) infinite;
+}
+
+@keyframes lcca-value-matrix-rain {
+    from { transform: translateY(-50%); }
+    to { transform: translateY(0); }
+}

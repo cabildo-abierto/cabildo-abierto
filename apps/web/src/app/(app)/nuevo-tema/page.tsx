@@ -1,6 +1,6 @@
 "use client"
 
-import {type FormEvent, useState} from "react";
+import {type FormEvent, useEffect, useState} from "react";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {CreateTopicInput, CreateTopicOutput} from "@cabildo-abierto/api";
@@ -11,12 +11,15 @@ import {Input} from "@/components/ui/input";
 import {post} from "@/utils/react/fetch";
 import {canonicalizeTopicId} from "@cabildo-abierto/utils";
 import {useAuth} from "@/components/auth-provider";
-import Link from "next/link";
+import {cn} from "@/lib/utils";
 import {Spinner} from "@/components/ui/spinner";
 
 export default function NewTopicPage() {
     const {user, loading} = useAuth();
     const router = useRouter();
+    useEffect(() => {
+        if (!loading && !user) router.replace("/iniciar-sesion");
+    }, [loading, user, router]);
     const queryClient = useQueryClient();
     const [title, setTitle] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -42,8 +45,8 @@ export default function NewTopicPage() {
         }
     };
 
-    if (loading) return <p className="p-6 text-sm text-muted-foreground">Comprobando sesión…</p>;
-    if (!user) return <p className="p-6 text-sm">Para crear un tema, <Link href="/iniciar-sesion" className="underline">iniciá sesión</Link>.</p>;
+    if (loading) return <p className={cn("p-6 text-sm text-muted-foreground")}>Comprobando sesión…</p>;
+    if (!user) return null;
 
     return <div className="flex min-h-[calc(100vh-3rem)] items-center justify-center p-4">
         <Card className="w-full max-w-lg">

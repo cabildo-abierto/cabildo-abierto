@@ -27,8 +27,8 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         throw new Error(`Uso: pnpm --filter backend run ${scriptName} --topic <id> --user <username> [--dry-run=full|--dry-run=metadata|--apply] [--limit N | --resource ID_CKAN]`);
     }
 
-    function isCsv(resource: CatalogResource) {
-        return /^(csv|text\/csv)$/i.test(clean(resource.format));
+    function isSupportedCSV(resource: CatalogResource) {
+        return /^(csv|text\/csv|zip|application\/zip|application\/x-zip-compressed)$/i.test(clean(resource.format));
     }
 
     function candidate(pkg: CatalogPackage, resource: CatalogResource): Candidate | null {
@@ -105,7 +105,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
                 scanned++;
                 if (limit === undefined) packages.push(pkg);
                 else {
-                    const resources = pkg.resources.filter(isCsv)
+                    const resources = pkg.resources.filter(isSupportedCSV)
                         .sort((left, right) => clean(left.id).localeCompare(clean(right.id)))
                         .slice(0, limit - selected);
                     if (resources.length) packages.push({...pkg, resources});
@@ -113,7 +113,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
                     if (selected === limit) break;
                 }
             }
-            console.log(`Catálogo: ${scanned}/${count} datasets leídos${limit === undefined ? '' : `; ${selected}/${limit} CSV seleccionados`}.`);
+            console.log(`Catálogo: ${scanned}/${count} datasets leídos${limit === undefined ? '' : `; ${selected}/${limit} CSV/ZIP seleccionados`}.`);
             start += result.results.length;
         }
         if ((limit === undefined && scanned !== count) || (limit !== undefined && selected < limit && scanned !== count)) {
@@ -122,7 +122,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         let totalResources = 0, csvResources = 0;
         for (const pkg of packages) for (const resource of pkg.resources) {
             totalResources++;
-            if (isCsv(resource)) csvResources++;
+            if (isSupportedCSV(resource)) csvResources++;
         }
         return {packages, totalResources, csvResources, catalogCount: count ?? 0, limited: limit !== undefined};
     }
@@ -154,7 +154,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         const pkg = value as unknown as CatalogPackage;
         const selected = pkg.resources.find(item => item.id === resourceId);
         if (!selected) throw new Error(`El recurso ${resourceId} ya no figura en su dataset CKAN. Reintentá.`);
-        if (!isCsv(selected)) throw new Error(`El recurso ${resourceId} no es CSV (formato: ${clean(selected.format) || 'desconocido'}).`);
+        if (!isSupportedCSV(selected)) throw new Error(`El recurso ${resourceId} no es CSV ni ZIP (formato: ${clean(selected.format) || 'desconocido'}).`);
         return {packages: [{...pkg, resources: [selected]}], totalResources: 1, csvResources: 1, catalogCount: null, limited: true};
     }
 
@@ -164,7 +164,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         const seen = new Set<string>();
         const seenBlockNumbers = new Set<string>();
         const items = source.packages.flatMap(pkg => pkg.resources
-            .filter(isCsv)
+            .filter(isSupportedCSV)
             .map(resource => ({pkg, resource})));
         let next = 0, processed = 0;
         async function worker() {
@@ -187,7 +187,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
                     const metadataChanged = !previousContent || previousContent.title !== item.title
                         || previousContent.description !== item.description || previousContent.sourceUrl !== item.url;
                     findings.push({kind: metadataChanged ? 'candidate' : 'unchanged', resourceId: id,
-                        reason: metadataChanged ? 'Requiere descargar el CSV para confirmar el cambio.' : 'Metadatos sin cambios; columnas sin verificar.'});
+                        reason: metadataChanged ? 'Requiere descargar el CSV o ZIP para confirmar el cambio.' : 'Metadatos sin cambios; columnas sin verificar.'});
                     continue;
                 }
                 try {
@@ -196,7 +196,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
                         findings.push({kind: 'unchanged', resourceId: id, reason: 'Sin cambios en ficha, URL ni columnas.'});
                     } else changes.push({kind: previous ? 'update' : 'add', candidate: item, content, previousId: previous?.id});
                 } catch (error) {
-                    findings.push({kind: 'omit', resourceId: id, reason: error instanceof Error ? error.message : 'No se pudo validar el CSV.'});
+                    findings.push({kind: 'omit', resourceId: id, reason: error instanceof Error ? error.message : 'No se pudo validar el CSV o ZIP.'});
                 }
                 processed++;
                 if (processed % 100 === 0) console.log(`CSV: ${processed}/${items.length} validados.`);
@@ -205,7 +205,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         await Promise.all(Array.from({length: Math.min(4, items.length)}, () => worker()));
         if (!source.limited) for (const number of state.stored.keys()) {
             if (number === trackingBlockNumber || seenBlockNumbers.has(number)) continue;
-            findings.push({kind: 'missing', resourceId: number, reason: 'Ya no figura como recurso CSV en el catálogo; se conserva.'});
+            findings.push({kind: 'missing', resourceId: number, reason: 'Ya no figura como recurso CSV/ZIP en el catálogo; se conserva.'});
         }
         changes.sort((a, b) => a.candidate.blockNumber.localeCompare(b.candidate.blockNumber));
         findings.sort((a, b) => a.resourceId.localeCompare(b.resourceId));
@@ -215,7 +215,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
     function resourceOutcomes(result: Awaited<ReturnType<typeof planImport>>, mode: Mode) {
         const outcomes = new Map<string, ResourceOutcome>();
         for (const change of result.changes) outcomes.set(change.candidate.resourceId, {
-            status: 'obtenido', detail: change.kind === 'add' ? 'CSV obtenido y preparado para importar.' : 'CSV obtenido y preparado para actualizar.',
+            status: 'obtenido', detail: change.kind === 'add' ? 'Recurso obtenido y preparado para importar.' : 'Recurso obtenido y preparado para actualizar.',
         });
         for (const finding of result.findings) {
             if (finding.kind === 'missing') continue;
@@ -228,22 +228,22 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
 
     function report(source: Awaited<ReturnType<typeof catalog>>, result: Awaited<ReturnType<typeof planImport>>, mode: Mode) {
         const count = (kind: Finding['kind']) => result.findings.filter(item => item.kind === kind).length;
-        const withoutCsv = source.limited ? [] : source.packages.filter(pkg => !pkg.resources.some(isCsv));
-        const csvUrls = new Map(source.packages.flatMap(pkg => pkg.resources.filter(isCsv)
+        const withoutCsv = source.limited ? [] : source.packages.filter(pkg => !pkg.resources.some(isSupportedCSV));
+        const csvUrls = new Map(source.packages.flatMap(pkg => pkg.resources.filter(isSupportedCSV)
             .map(resource => [clean(resource.id), clean(resource.url)] as const)));
         const logCsv = (kind: string, id: string, detail: string, url: string | undefined) => {
             console.log(`${kind} ${id}: ${detail}\n  URL: ${url || '(sin URL en el catálogo actual)'}`);
         };
         console.log(source.limited
-            ? `Muestra parcial: ${source.csvResources} recursos CSV de ${source.packages.length} datasets${source.catalogCount === null ? '' : `; CKAN informa ${source.catalogCount} datasets en total`}.`
-            : `Catálogo: ${source.packages.length} datasets, ${source.totalResources} recursos, ${source.csvResources} CSV.`);
-        console.log(`Resultado: ${result.changes.filter(c => c.kind === 'add').length} altas, ${result.changes.filter(c => c.kind === 'update').length} actualizaciones, ${count('unchanged')} sin cambios, ${count('candidate')} candidatos, ${count('omit')} CSV omitidos, ${count('conflict')} conflictos, ${count('missing')} ausentes conservados${source.limited ? '' : `, ${withoutCsv.length} datasets sin CSV, ${source.totalResources - source.csvResources} recursos no CSV`}.`);
+            ? `Muestra parcial: ${source.csvResources} recursos CSV/ZIP de ${source.packages.length} datasets${source.catalogCount === null ? '' : `; CKAN informa ${source.catalogCount} datasets en total`}.`
+            : `Catálogo: ${source.packages.length} datasets, ${source.totalResources} recursos, ${source.csvResources} CSV/ZIP.`);
+        console.log(`Resultado: ${result.changes.filter(c => c.kind === 'add').length} altas, ${result.changes.filter(c => c.kind === 'update').length} actualizaciones, ${count('unchanged')} sin cambios, ${count('candidate')} candidatos, ${count('omit')} CSV/ZIP omitidos, ${count('conflict')} conflictos, ${count('missing')} ausentes conservados${source.limited ? '' : `, ${withoutCsv.length} datasets sin CSV/ZIP, ${source.totalResources - source.csvResources} recursos no CSV/ZIP`}.`);
         for (const change of result.changes) logCsv(change.kind === 'add' ? 'ALTA' : 'ACTUALIZAR',
             change.candidate.resourceId, change.content.title, change.candidate.url);
         for (const finding of result.findings) logCsv(finding.kind.toUpperCase(), finding.resourceId,
             finding.reason, csvUrls.get(finding.resourceId));
         for (const pkg of withoutCsv) console.log(`SIN_CSV ${pkg.name}`);
-        for (const pkg of source.limited ? [] : source.packages) for (const resource of pkg.resources.filter(item => !isCsv(item))) {
+        for (const pkg of source.limited ? [] : source.packages) for (const resource of pkg.resources.filter(item => !isSupportedCSV(item))) {
             console.log(`NO_CSV ${clean(resource.id) || pkg.name}: ${clean(resource.format) || 'formato desconocido'}`);
         }
         if (mode === 'metadata') console.log('Dry-run rápido: los candidatos y las columnas requieren validación completa.');
@@ -260,7 +260,7 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
             ]);
             if (!topic) throw new Error(`No existe el tema ${topicId}.`);
             if (!user) throw new Error(`No existe el usuario ${username}.`);
-            console.log(`Tema: ${topic.title} (${topic.id}); autor: ${user.username}; modo: ${mode}${limit === undefined ? '' : `; límite: ${limit} CSV`}${resourceId ? `; recurso: ${resourceId}` : ''}.`);
+            console.log(`Tema: ${topic.title} (${topic.id}); autor: ${user.username}; modo: ${mode}${limit === undefined ? '' : `; límite: ${limit} CSV/ZIP`}${resourceId ? `; recurso: ${resourceId}` : ''}.`);
             const [source, state] = await Promise.all([resourceId ? resourceCatalog(resourceId) : catalog(limit), readTopicState(database, topicId)]);
             const trackingConflict = conflict(state, trackingBlockNumber);
             if (trackingConflict) throw new Error(`No se puede actualizar el seguimiento: ${trackingConflict}`);

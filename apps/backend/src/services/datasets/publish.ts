@@ -16,7 +16,7 @@ export async function publishSnapshot(database:Kysely<DB>,storage:ObjectStorage,
             await lockSearchMutation(trx);
             const source=await trx.selectFrom('dataset_source').selectAll().where('id','=',sourceId).forUpdate().executeTakeFirstOrThrow();
             if(token && source.lease_token!==token)throw new Error('La preparación fue reemplazada.');
-            await trx.insertInto('dataset_snapshot').values({id,source_id:sourceId,...object,content_hash:hash,columns:JSON.stringify(metadata.columns),csv_options:JSON.stringify(metadata.csvOptions),row_count:metadata.rowCount,size_bytes:size,column_bytes:JSON.stringify(metadata.columnBytes)}).execute();
+            await trx.insertInto('dataset_snapshot').values({id,source_id:sourceId,...object,content_hash:hash,columns:JSON.stringify(metadata.columns),csv_options:JSON.stringify({...metadata.csvOptions,inputBytes:metadata.inputBytes}),row_count:metadata.rowCount,size_bytes:size,column_bytes:JSON.stringify(metadata.columnBytes)}).execute();
             await trx.updateTable('dataset_source').set({snapshot_id:id,checked_at:new Date(),etag:validators.etag,last_modified:validators.lastModified,status:'ready',error:null,lease_token:null,lease_until:null}).where('id','=',sourceId).execute();
             if(source.snapshot_id)await trx.updateTable('dataset_snapshot').set({retired_at:new Date()}).where('id','=',source.snapshot_id).execute();
             await sql`UPDATE search_source SET generation=generation+1,retry_at=now(),attempts=0 WHERE kind = 'dataset' AND dataset_source_id=${source.id}`.execute(trx);

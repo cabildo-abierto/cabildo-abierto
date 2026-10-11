@@ -7,6 +7,7 @@ import {LccaSyntax} from "@/components/visualizations/lcca-syntax";
 import {LccaSourcesPanel} from "@/components/visualizations/lcca-sources-panel";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
+import {LccaValueLoading} from "./lcca-value-loading";
 import {LccaValueDialog} from "./lcca-value-dialog";
 
 export function LccaValue({attrs, refreshOnMount = true, onSelect}: {attrs: LccaValueAttrs; refreshOnMount?: boolean; onSelect?: () => void}) {
@@ -16,16 +17,17 @@ export function LccaValue({attrs, refreshOnMount = true, onSelect}: {attrs: Lcca
     const label = result.loading ? "Cargando…" : error || !scalar ? "Dato no disponible" : formatLccaValue(scalar.value);
     const [open, setOpen] = useState(false);
     return <>
-        <button type="button" className={cn("inline cursor-pointer rounded bg-primary/10 px-1 py-0 text-inherit underline-offset-2 hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30", error && "bg-destructive/10")}
+        <button type="button" className={cn("inline cursor-pointer rounded px-1 py-0 text-inherit underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30", !result.loading && "bg-primary/10 hover:bg-primary/20", !result.loading && error && "bg-destructive/10")}
+            aria-busy={result.loading}
             aria-label={`${label || 'Texto vacío'}. ${onSelect ? 'Editar valor LCCA' : 'Ver consulta y fuentes'}`}
             onMouseDown={event => event.stopPropagation()}
             onKeyDown={event => event.stopPropagation()}
             onClick={event => { event.stopPropagation(); if (onSelect) onSelect(); else setOpen(true); }}>
-            {label || "Texto vacío"}
+            {result.loading ? <LccaValueLoading/> : label || "Texto vacío"}
         </button>
         {open && <LccaValueDialog title="Valor LCCA" onClose={() => setOpen(false)}>
             <div className={cn("space-y-3")}>
-                <p className={cn("text-sm")} role="status">{label || "Texto vacío"}</p>
+                <p className={cn("text-sm")} role="status">{result.loading ? <LccaValueLoading/> : label || "Texto vacío"}</p>
                 {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}
                 <pre className={cn("overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs whitespace-pre-wrap break-words")}><LccaSyntax query={attrs.query}/></pre>
                 <LccaSourcesPanel query={attrs.query}/>

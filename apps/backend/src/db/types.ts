@@ -141,7 +141,7 @@ export type DB = {
     dataset_snapshot: {
         id: string; source_id: string; bucket: string; key: string; content_hash: string;
         columns: ColumnType<import('@cabildo-abierto/api').DatasetColumn[], string, string>;
-        csv_options: ColumnType<import('@cabildo-abierto/api').CSVOptions, string, string>;
+        csv_options: ColumnType<import('@cabildo-abierto/api').CSVOptions & {inputBytes?: number}, string, string>;
         column_bytes: ColumnType<number[], string, string>;
         row_count: number; size_bytes: number; created_at: Generated<Timestamp>; retired_at: Generated<Timestamp | null>;
     };
