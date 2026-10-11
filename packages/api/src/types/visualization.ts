@@ -8,6 +8,7 @@ export type TypedTable = {columns: DatasetColumn[]; rows: TableValue[][]};
 export type DatasetReference = {topicId: string; blockNumber: string};
 export type VisualizationContent = {query: string; queryMode: 'auto' | 'custom'; queryLanguageVersion: 1; spec: VisualizationSpecV1};
 export type DatasetSource = DatasetReference & {versionId: string; title: string; rowCount?: number; columns: DatasetColumn[]; topic: TopicSummary};
+export type DatasetSourceDetails = DatasetSource & {block: TopicBlock};
 export type DatasetCatalogOutput = {sources: DatasetSource[]};
 export type ViewFilterOperator = 'eq' | 'ne' | 'lt' | 'lte' | 'gt' | 'gte' | 'in' | 'notIn' | 'contains' | 'isNull' | 'isNotNull';
 export type ViewFilter = {field: string; type: DatasetColumnType; operator: ViewFilterOperator; values: Exclude<TableValue, null>[]};

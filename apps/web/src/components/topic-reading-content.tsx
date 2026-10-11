@@ -19,10 +19,11 @@ import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
 import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
-export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks, attachments, openToolsInPage}: {
+export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks, footnoteAttachments = [], attachments, openToolsInPage}: {
     topicId: string;
     latestBlocks: TopicBlock[];
     latestDeletedBlocks: TopicBlock[];
+    footnoteAttachments?: TopicBlock[];
     attachments: TopicReadingOutput['attachments'];
     openToolsInPage: boolean;
 }) {
@@ -57,7 +58,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     const renderAttachment = (block: TopicEditableBlock) => block.deleted
         ? <TopicDeletedBlockItem key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} toolsProps={blockSectionProps(block.blockNumber)}/>
         : <TopicBlockView key={block.blockNumber} topicId={topicId} block={block} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>;
-    return <TopicFootnoteProvider topicId={topicId} blocks={displayedBlocks}>
+    return <TopicFootnoteProvider topicId={topicId} blocks={[...displayedBlocks, ...footnoteAttachments]}>
         {!deletingVersion && convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setDisplayedBlocks(latestBlocks);
             setDisplayedDeletedBlocks(latestDeletedBlocks);

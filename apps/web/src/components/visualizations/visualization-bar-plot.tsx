@@ -1,4 +1,4 @@
-import {chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
+import {chartAxisLabelProps, chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo} from 'react';
 import {AxisBottom, AxisLeft} from '@visx/axis';
 import {GridColumns, GridRows} from '@visx/grid';
@@ -9,7 +9,7 @@ import {formatTableValue, type BarRow} from '@cabildo-abierto/utils';
 import {plotColors} from './visualization-legend';
 import {VisualizationTooltip} from './visualization-tooltip';
 import {useChartTooltip} from '@/hooks/use-chart-tooltip';
-export const VisualizationBarPlot = memo(function VisualizationBarPlot({chart, rows, labels, width, height, preview = false}: {chart: BarChart; rows: BarRow[]; labels: string[]; width: number; height: number; preview?: boolean}) {
+export const VisualizationBarPlot = memo(function VisualizationBarPlot({chart, rows, labels, width, height, preview = false, ariaLabel = 'Gráfico de barras'}: {chart: BarChart; rows: BarRow[]; labels: string[]; width: number; height: number; preview?: boolean; ariaLabel?: string}) {
     const tooltip = useChartTooltip(rows,width,height);
     const horizontal = chart.orientation === 'horizontal';
     const stacked = chart.layout === 'stacked';
@@ -23,7 +23,7 @@ export const VisualizationBarPlot = memo(function VisualizationBarPlot({chart, r
     const valueScale = scaleLinear({domain: [min,max === min ? min + 1 : max], range: horizontal ? [0,w] : [h,0], nice: true});
     const formatter = (value: number) => formatTableValue(value, chart.yAxis?.format);
     const categoryLabel = (key: string) => { const label = rows.find(row => row.key === key)?.label ?? ''; return label.length > 22 ? label.slice(0,21) + '…' : label; };
-    return <><svg ref={tooltip.svg} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label="Gráfico de barras">
+    return <><svg ref={tooltip.svg} width={width} height={height} role={preview ? "img" : "group"} onPointerLeave={preview ? undefined : event => { if (event.pointerType !== 'touch') tooltip.close(); }} aria-label={ariaLabel}>
         <g transform={`translate(${margin.left},${margin.top})`}>
             {!preview && chart.showGrid !== false && (horizontal ? <GridColumns scale={valueScale} height={h} stroke="var(--border)"/> : <GridRows scale={valueScale} width={w} stroke="var(--border)"/>)}
             {rows.flatMap(row => {
@@ -52,11 +52,11 @@ export const VisualizationBarPlot = memo(function VisualizationBarPlot({chart, r
                 });
             })}
             {!preview && (horizontal ? <>
-                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={category} tickFormat={categoryLabel} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" numTicks={chartTickCount(chart.x.tickCount, rows.length, h, axisLayout.compact, false)} tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'left')}/>
-                <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={valueScale} tickFormat={v => formatter(Number(v))} numTicks={chartTickCount(chart.yAxis?.tickCount, 5, horizontal ? w : h, axisLayout.compact, horizontal)} label={chart.yAxis?.label} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'bottom')}/>
+                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={category} tickFormat={categoryLabel} label={chart.x.label ?? chart.x.field} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" numTicks={chartTickCount(chart.x.tickCount, rows.length, h, axisLayout.compact, false, chart.x.tickLabelAngle)} tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'left')}/>
+                <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={valueScale} tickFormat={v => formatter(Number(v))} numTicks={chartTickCount(chart.yAxis?.tickCount, 5, horizontal ? w : h, axisLayout.compact, horizontal, chart.yAxis?.tickLabelAngle)} label={chart.yAxis?.label} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'bottom')}/>
             </> : <>
-                <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={category} tickFormat={categoryLabel} numTicks={chartTickCount(chart.x.tickCount, Math.max(2,Math.floor(w / 70)), w, axisLayout.compact)} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>
-                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={valueScale} tickFormat={v => formatter(Number(v))} numTicks={chartTickCount(chart.yAxis?.tickCount, 5, horizontal ? w : h, axisLayout.compact, horizontal)} label={chart.yAxis?.label} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'left')}/>
+                <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={category} tickFormat={categoryLabel} numTicks={chartTickCount(chart.x.tickCount, Math.max(2,Math.floor(w / 70)), w, axisLayout.compact, true, chart.x.tickLabelAngle)} label={chart.x.label ?? chart.x.field} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>
+                <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={valueScale} tickFormat={v => formatter(Number(v))} numTicks={chartTickCount(chart.yAxis?.tickCount, 5, horizontal ? w : h, axisLayout.compact, horizontal, chart.yAxis?.tickLabelAngle)} label={chart.yAxis?.label} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.yAxis?.tickLabelAngle ?? 0, 'left')}/>
             </>)}
         </g>
     </svg>{!preview && <VisualizationTooltip data={tooltip.data}/>}</>;

@@ -11,7 +11,7 @@ import {VisualizationRenderer} from './visualization-renderer';
 export function VisualizationBlock({block, onValidityChange, refreshOnMount = true, preview = false}: {block: TopicBlock; onValidityChange?: (valid: boolean) => void; refreshOnMount?: boolean; preview?: boolean}) {
     const content = useMemo(() => parseVisualizationBlock(block.content), [block.content]);
     const [renderFailure, setRenderFailure] = useState<{content: string; table: unknown} | null>(null);
-    const result = useLccaQuery(content?.query ?? '', !!content,refreshOnMount);
+    const result = useLccaQuery(content?.query ?? '', !!content, refreshOnMount, true);
     const resetKey = useMemo(() => ({content: block.content, table: result.data}), [block.content,result.data]);
     const prepared = usePreparedVisualization(content?.spec ?? {schemaVersion: 1, chart: {type: 'bar', x: {field: ''}, series: [{field: ''}]}}, result.data, !!content);
     const valid = !(renderFailure?.content === block.content && renderFailure?.table === result.data) && !!content && !!result.data && !result.loading && !result.error && !!prepared.data;

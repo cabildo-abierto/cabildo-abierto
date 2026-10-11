@@ -9,6 +9,9 @@ function literal(value: Exclude<TableValue, null>, type: ViewFilter['type']) {
 export function lccaDatasetReference(topicId: string, blockNumber: string) {
     return `datos(${sqlString(topicId)}, ${sqlString(blockNumber)})`;
 }
+export function validDatasetBlockNumber(blockNumber: string) {
+    return /^ds-(?:[1-9]\d*|(?:datos-gob-ar|argendata|buenos-aires-data|diputados|senado)-(?:[a-f0-9]{64}|catalog))$/.test(blockNumber);
+}
 export function basicViewQuery(view: BasicDataView) {
     const source = lccaDatasetReference(view.source.topicId, view.source.blockNumber);
     const filters = view.filters.map(filter => {

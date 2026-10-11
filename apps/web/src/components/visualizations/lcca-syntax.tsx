@@ -1,7 +1,8 @@
 import {lccaReservedWord, nextLccaToken, tokenizeLcca} from '@cabildo-abierto/utils';
 import {cn} from '@/lib/utils';
+import type {LccaDatasetReference} from '@/lib/lcca-dataset-references';
 
-export function LccaSyntax({query}: {query: string}) {
+export function LccaSyntax({query, datasetReferences = []}: {query: string; datasetReferences?: LccaDatasetReference[]}) {
     const tokens = tokenizeLcca(query);
     return <>{tokens.map((token, index) => {
         const reserved = token.kind === 'word' && lccaReservedWord(token.text);
@@ -11,6 +12,7 @@ export function LccaSyntax({query}: {query: string}) {
             : reserved ? 'text-blue-700 dark:text-blue-400'
             : token.kind === 'number' ? 'text-amber-700 dark:text-amber-400'
             : token.kind === 'word' && nextLccaToken(tokens, index)?.text === '(' ? 'text-violet-700 dark:text-violet-400' : '';
-        return <span key={token.start} className={cn(color)}>{token.text}</span>;
+        const reference = datasetReferences.find(reference => token.start >= reference.start && token.end <= reference.end);
+        return <span key={token.start} data-lcca-dataset={reference?.start} className={cn(color)}>{token.text}</span>;
     })}</>;
 }

@@ -12,7 +12,9 @@ export function useLccaQuery(query: string, enabled = true, refreshOnMount = tru
     const result = useQuery({
         queryKey: ['lcca-query', debounced], enabled: enabled && !!debounced.trim() && debounced === query,
         queryFn: ({signal}) => preparedDataRequest<LccaOutput>('/lcca/query', {method: 'POST', signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: debounced, queryLanguageVersion: 1, retry: true})}),
-        staleTime: 0, gcTime: cacheResults ? 5 * 60 * 1000 : 0, retry: false, refetchOnMount: refreshOnMount ? 'always' : false, refetchOnWindowFocus: false, refetchOnReconnect: false,
+        // Cached results remain valid until source-version checks invalidate them.
+        staleTime: cacheResults ? Infinity : 0, gcTime: cacheResults ? 5 * 60 * 1000 : 0, retry: false,
+        refetchOnMount: refreshOnMount ? (cacheResults ? true : 'always') : false, refetchOnWindowFocus: false, refetchOnReconnect: false,
     });
     const sources = result.data?.sources ?? [];
     const checks = useQueries({queries: sources.map(source => ({

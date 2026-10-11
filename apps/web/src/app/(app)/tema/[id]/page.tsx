@@ -67,6 +67,6 @@ export default function TopicPage() {
     </AlertDialog>);
 
     return <TopicView topic={topic} connectionMode="reading" action={editButton}>
-        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} attachments={blocksQuery.data!.attachments} openToolsInPage={openToolsInPage !== false}/>
+        <TopicReadingContent topicId={topic.id} latestBlocks={blocks} latestDeletedBlocks={deletedBlocks} footnoteAttachments={blocksQuery.data!.footnoteAttachments} attachments={blocksQuery.data!.attachments} openToolsInPage={openToolsInPage !== false}/>
     </TopicView>;
 }

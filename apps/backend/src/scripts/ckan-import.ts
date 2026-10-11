@@ -74,14 +74,58 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
         throw new Error(`No se pudo leer la página ${start} de CKAN: ${message}`);
     }
 
+    async function ckanAction(action: 'package_list' | 'resource_show' | 'package_show', id?: string): Promise<unknown> {
+        const url = new URL(action, catalogUrl);
+        if (id !== undefined) url.searchParams.set('id', id);
+        for (let attempt = 0; ; attempt++) {
+            try {
+                const response = await fetch(url, {signal: AbortSignal.timeout(30_000)});
+                if (response.status === 404) throw new Error(`No se encontró ${id ?? action} en CKAN (${action}).`);
+                if (!response.ok) throw new Error(`No se pudo consultar ${action} en CKAN: HTTP ${response.status}.`);
+                const body: unknown = await response.json();
+                if (!body || typeof body !== 'object' || !('success' in body) || body.success !== true || !('result' in body)) {
+                    throw new Error(`CKAN devolvió una respuesta inválida para ${action}${id ? `: ${id}` : ''}.`);
+                }
+                return body.result;
+            } catch (error) {
+                if (attempt === 2) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1_000 * (attempt + 1)));
+            }
+        }
+    }
+
     async function catalog(limit?: number): Promise<{packages: CatalogPackage[]; totalResources: number; csvResources: number; catalogCount: number | null; limited: boolean}> {
         const packages: CatalogPackage[] = [];
         const ids = new Set<string>();
+        let packageNames: string[] | undefined;
         let count: number | undefined;
         let scanned = 0, selected = 0;
         for (let start = 0; (count === undefined || start < count) && (limit === undefined || selected < limit);) {
             const rows = Math.min(pageSize, limit === undefined ? pageSize : limit - selected);
-            const body = await catalogPage(start, rows);
+            let body: unknown;
+            if (packageNames === undefined) {
+                try { body = await catalogPage(start, rows); }
+                catch (error) {
+                    if (start !== 0) throw error;
+                    console.warn(`${error instanceof Error ? error.message : String(error)}; intentando package_list y package_show.`);
+                    const names = await ckanAction('package_list');
+                    if (!Array.isArray(names) || names.some(name => typeof name !== 'string' || !name.trim())
+                        || new Set(names).size !== names.length) {
+                        throw new Error('CKAN devolvió una lista de datasets inválida.');
+                    }
+                    packageNames = (names as string[]).sort();
+                }
+            }
+            if (packageNames !== undefined) {
+                const names = packageNames.slice(start, start + rows);
+                const results = [];
+                for (const name of names) {
+                    const pkg = await ckanRecord('package_show', name);
+                    if (pkg.name !== name) throw new Error(`CKAN devolvió otro dataset al consultar ${name}.`);
+                    results.push(pkg);
+                }
+                body = {success: true, result: {count: packageNames.length, results}};
+            }
             if (!body || typeof body !== 'object' || !('success' in body) || body.success !== true || !('result' in body)) {
                 throw new Error(`CKAN devolvió un error en la página ${start}.`);
             }
@@ -128,17 +172,11 @@ export function ckanImporter({baseUrl, blockPrefix, editMessage, scriptName, tra
     }
 
     async function ckanRecord(action: 'resource_show' | 'package_show', id: string): Promise<Record<string, unknown>> {
-        const url = new URL(action, catalogUrl);
-        url.searchParams.set('id', id);
-        const response = await fetch(url, {signal: AbortSignal.timeout(30_000)});
-        if (response.status === 404) throw new Error(`No se encontró ${id} en CKAN (${action}).`);
-        if (!response.ok) throw new Error(`No se pudo consultar ${action} en CKAN: HTTP ${response.status}.`);
-        const body: unknown = await response.json();
-        if (!body || typeof body !== 'object' || !('success' in body) || body.success !== true
-            || !('result' in body) || !body.result || typeof body.result !== 'object' || Array.isArray(body.result)) {
+        const result = await ckanAction(action, id);
+        if (!result || typeof result !== 'object' || Array.isArray(result)) {
             throw new Error(`CKAN devolvió una respuesta inválida para ${action}: ${id}.`);
         }
-        return body.result as Record<string, unknown>;
+        return result as Record<string, unknown>;
     }
 
     async function resourceCatalog(resourceId: string): Promise<Awaited<ReturnType<typeof catalog>>> {

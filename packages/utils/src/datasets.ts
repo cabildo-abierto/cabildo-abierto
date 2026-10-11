@@ -46,6 +46,12 @@ function dateValue(raw: string): string | null {
     const d = new Date(0); d.setUTCFullYear(year, month - 1, day); d.setUTCHours(0, 0, 0, 0);
     return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day ? parts.join('-') : null;
 }
+function validDateTime(raw: string, requireZone: boolean): boolean {
+    const match = /^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?$/.exec(raw);
+    return !!match && (!requireZone || !!match[4]) && !!dateValue(raw.slice(0, 10))
+        && Number(match[1]) < 24 && Number(match[2]) < 60 && Number(match[3] ?? 0) < 60
+        && Number.isFinite(Date.parse(match[4] ? raw : raw + 'Z'));
+}
 export function datasetCell(raw: string, type: DatasetColumnType, options: CSVOptions): DatasetCell {
     const s = raw.trim();
     const result = (value: DatasetCell['value'], error: string | null = null): DatasetCell => ({raw, value, error});
@@ -63,14 +69,14 @@ export function datasetCell(raw: string, type: DatasetColumnType, options: CSVOp
         if (['true', 'sí', 'si', '1'].includes(s.toLowerCase())) return result(true);
         if (['false', 'no', '0'].includes(s.toLowerCase())) return result(false);
     }
-    if (type === 'date') { const value = dateValue(s); if (value) return result(value); }
-    if (type === 'datetime' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(s)
-        && dateValue(s.slice(0, 10)) && Number(s.slice(11, 13)) < 24 && Number(s.slice(14, 16)) < 60
-        && (!s.slice(16).startsWith(':') || Number(s.slice(17, 19)) < 60) && Number.isFinite(Date.parse(s))) return result(s);
+    if (type === 'date') { const value = dateValue(s) ?? (validDateTime(s, false) ? s.slice(0, 10) : null); if (value) return result(value); }
+    if (type === 'datetime' && validDateTime(s, true)) return result(s);
     return result(null, `No se puede interpretar como ${DATASET_TYPE_NAMES[type].toLowerCase()}.`);
 }
 export function inferDatasetType(values: string[], options: CSVOptions): DatasetColumnType {
     const nonEmpty = values.filter(v => v.trim());
     if (!nonEmpty.length || nonEmpty.some(v => /^[+-]?0\d/.test(v.trim()))) return 'text';
-    return DATASET_TYPES.filter(t => t !== 'text').find(t => nonEmpty.every(v => !datasetCell(v, t, options).error)) ?? 'text';
+    // Prefer datetime before date now that date also accepts timestamps.
+    const candidates: DatasetColumnType[] = ['integer', 'decimal', 'boolean', 'datetime', 'date'];
+    return candidates.find(t => nonEmpty.every(v => !datasetCell(v, t, options).error)) ?? 'text';
 }

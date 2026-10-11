@@ -161,7 +161,7 @@ export const visualizationSchema = {
         "tickCount": {
           "type": "integer",
           "minimum": 2,
-          "maximum": 20,
+          "maximum": 50,
           "description": "Cantidad orientativa de marcas; el renderer puede reducirla para evitar solapamientos."
         },
         "tickLabelAngle": {
@@ -194,7 +194,7 @@ export const visualizationSchema = {
         "tickCount": {
           "type": "integer",
           "minimum": 2,
-          "maximum": 20,
+          "maximum": 50,
           "description": "Cantidad orientativa de marcas; el renderer puede reducirla para evitar solapamientos."
         },
         "tickLabelAngle": {
@@ -450,7 +450,7 @@ export const visualizationSchema = {
     },
     "histogramChart": {
       "title": "HistogramChart",
-      "description": "Distribución de una columna numérica por intervalos; excluye valores nulos.",
+      "description": "Distribución de una columna: agrupa valores numéricos por intervalos y cuenta cada valor distinto de columnas no numéricas; excluye valores nulos.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -465,7 +465,8 @@ export const visualizationSchema = {
           "$ref": "#/definitions/axisField"
         },
         "bins": {
-          "$ref": "#/definitions/histogramBins"
+          "$ref": "#/definitions/histogramBins",
+          "description": "Intervalos para columnas numéricas; se ignoran para columnas no numéricas."
         },
         "frequency": {
           "type": "string",
@@ -475,6 +476,16 @@ export const visualizationSchema = {
           ],
           "description": "count cuenta valores; relative divide por el total de valores no nulos de la columna de la tabla recibida.",
           "default": "count"
+        },
+        "categoryOrder": {
+          "type": "string",
+          "enum": [
+            "appearance",
+            "frequency-desc",
+            "frequency-asc"
+          ],
+          "default": "appearance",
+          "description": "Orden de las categorías no numéricas: aparición en los datos o frecuencia descendente/ascendente. Se ignora para intervalos numéricos."
         },
         "yAxis": {
           "$ref": "#/definitions/axis"

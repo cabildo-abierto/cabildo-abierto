@@ -1,4 +1,4 @@
-import {chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
+import {chartAxisLabelProps, chartTickCount, chartTickLabelProps, useChartAxisLayout} from '@/hooks/use-chart-axis-layout';
 import {memo, useMemo, useId, type PointerEvent} from 'react';
 import {AxisBottom, AxisLeft} from '@visx/axis';
 import {GridRows} from '@visx/grid';
@@ -110,8 +110,8 @@ export const VisualizationPointPlot = memo(function VisualizationPointPlot({char
                     }}/>
             </>}
             </g>
-            {!preview && <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chartTickCount(chart.x.tickCount, Math.max(2,Math.floor(w/90)), w, axisLayout.compact)} label={chart.x.label ?? chart.x.field} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>}
-            {!preview && <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => yFormat(Number(v))} numTicks={chartTickCount(yAxis?.tickCount, 5, h, axisLayout.compact, false)} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={{fill: "var(--foreground)", fontSize: 11}} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(yAxis?.tickLabelAngle ?? 0, 'left')}/>}
+            {!preview && <AxisBottom top={h} labelOffset={axisLayout.bottomLabelOffset} scale={x} tickFormat={v => xFormat(Number(v))} numTicks={chartTickCount(chart.x.tickCount, Math.max(2,Math.floor(w/90)), w, axisLayout.compact, true, chart.x.tickLabelAngle)} label={chart.x.label ?? chart.x.field} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(chart.x.tickLabelAngle ?? 0, 'bottom')}/>}
+            {!preview && <AxisLeft labelOffset={axisLayout.leftLabelOffset} scale={y} tickFormat={v => yFormat(Number(v))} numTicks={chartTickCount(yAxis?.tickCount, 5, h, axisLayout.compact, false, yAxis?.tickLabelAngle)} label={yAxis?.label ?? (chart.type === 'scatter' ? chart.y.field : undefined)} labelProps={chartAxisLabelProps} stroke="var(--border)" tickStroke="var(--border)" tickLabelProps={chartTickLabelProps(yAxis?.tickLabelAngle ?? 0, 'left')}/>}
         </g>
     </svg>{!preview && <VisualizationTooltip data={tooltip.data}/>}</>;
 });

@@ -10,7 +10,7 @@ import {cn} from '@/lib/utils';
 export const chartTypes = [{value: 'bar', label: 'Barras'}, {value: 'line', label: 'Líneas'}, {value: 'scatter', label: 'Dispersión'}, {value: 'histogram', label: 'Histograma'}];
 export function defaultChart(type: VisualizationChart['type'], columns: DatasetColumn[]): VisualizationChart {
     const numeric = columns.filter(c => c.type === 'integer' || c.type === 'decimal');
-    const x = {field: (type === 'line' ? columns.find(c => c.type === 'date' || c.type === 'datetime') ?? numeric[0] : type === 'bar' ? columns.find(c => c.type === 'text') ?? columns[0] : numeric[0])?.name ?? ''};
+    const x = {field: (type === 'line' ? columns.find(c => c.type === 'date' || c.type === 'datetime') ?? numeric[0] : type === 'bar' ? columns.find(c => c.type === 'text') ?? columns[0] : type === 'histogram' ? numeric[0] ?? columns[0] : numeric[0])?.name ?? ''};
     if (type === 'scatter') return {type, x, y: {field: numeric[1]?.name ?? numeric[0]?.name ?? ''}};
     if (type === 'histogram') return {type, x};
     return {type, x, series: [{field: numeric[0]?.name ?? ''}]};
@@ -19,10 +19,16 @@ export function VisualizationChartOptions({chart, columns, onChange}: {chart: Vi
     const typeSelect = <VisualizationSelect prominent label="Tipo de visualización" value={chart?.type ?? ''} options={chartTypes} onChange={type => onChange(defaultChart(type as VisualizationChart['type'], columns))}/>;
     if (!chart) return typeSelect;
     const numeric = columns.filter(c => c.type === 'integer' || c.type === 'decimal');
+    const categoricalHistogram = chart.type === 'histogram' && !!chart.x.field && !numeric.some(column => column.name === chart.x.field);
     const opts = (columns: DatasetColumn[]) => columns.map(c => ({value: c.name, label: c.name}));
+    const changeXAxis = (value: AxisField) => {
+        if (chart.type === 'histogram' && value.field !== chart.x.field) {
+            onChange({...chart, x: {...value, format: undefined}, bins: numeric.some(column => column.name === value.field) ? chart.bins : undefined});
+        } else onChange({...chart, x: value});
+    };
     return <div className={cn('space-y-3')}>
         {typeSelect}
-        <VisualizationAxisOptions label="Eje X" value={chart.x} columns={chart.type === 'bar' ? columns : chart.type === 'line' ? columns.filter(c => ['integer','decimal','date','datetime'].includes(c.type)) : numeric} onChange={x => onChange({...chart, x: x as AxisField})}/>
+        <VisualizationAxisOptions label="Eje X" value={chart.x} columns={chart.type === 'bar' || chart.type === 'histogram' ? columns : chart.type === 'line' ? columns.filter(c => ['integer','decimal','date','datetime'].includes(c.type)) : numeric} onChange={x => changeXAxis(x as AxisField)}/>
         {(chart.type === 'bar' || chart.type === 'line') && <>
             <fieldset className={cn('space-y-2')}><legend className={cn('mb-2 text-xs font-medium')}>Series</legend>
                 {chart.series.map((series,i) => <div key={i} className={cn('space-y-2 rounded-md border p-2')}><div className={cn('flex items-end gap-1')}>
@@ -43,10 +49,13 @@ export function VisualizationChartOptions({chart, columns, onChange}: {chart: Vi
             <VisualizationSelect label="Tamaño por" optional value={chart.size?.field ?? ''} options={opts(numeric)} onChange={field => onChange({...chart, size: field ? {field} : undefined})}/>
         </>}
         {chart.type === 'histogram' && <>
+            {categoricalHistogram ? null : <>
             <VisualizationSelect label="Intervalos" value={chart.bins?.mode ?? 'auto'} options={[{value: 'auto', label: 'Automáticos'}, {value: 'count', label: 'Cantidad'}, {value: 'boundaries', label: 'Límites explícitos'}]} onChange={mode => onChange({...chart, bins: mode === 'count' ? {mode, count: 10} : mode === 'boundaries' ? {mode, boundaries: [0,1]} : {mode: 'auto'}})}/>
             {chart.bins?.mode === 'count' && <NumberInput aria-label="Cantidad de intervalos" min={1} max={100} value={chart.bins.count} onValueChange={count => {if (count !== null) onChange({...chart, bins: {mode: 'count', count}});}}/>}
             {chart.bins?.mode === 'boundaries' && <VisualizationBinBoundaries boundaries={chart.bins.boundaries} onChange={boundaries => onChange({...chart, bins: {mode: 'boundaries', boundaries}})}/>}
+            </>}
             <VisualizationSelect label="Frecuencia" value={chart.frequency ?? 'count'} options={[{value: 'count', label: 'Cantidad'}, {value: 'relative', label: 'Relativa'}]} onChange={frequency => onChange({...chart, frequency: frequency as typeof chart.frequency})}/>
+            {categoricalHistogram && <VisualizationSelect label="Orden de las categorías" value={chart.categoryOrder ?? 'appearance'} options={[{value: 'appearance', label: 'Orden de aparición'}, {value: 'frequency-desc', label: 'Mayor frecuencia primero'}, {value: 'frequency-asc', label: 'Menor frecuencia primero'}]} onChange={categoryOrder => onChange({...chart, categoryOrder: categoryOrder as typeof chart.categoryOrder})}/>}
         </>}
         {chart.type !== 'scatter' && <VisualizationAxisOptions label="Eje de valores" value={chart.yAxis ?? {}} numeric onChange={yAxis => onChange({...chart, yAxis})}/>}
         <div className={cn('flex flex-wrap gap-2')}>

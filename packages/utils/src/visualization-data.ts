@@ -32,9 +32,28 @@ export function prepareVisualization(spec: VisualizationSpecV1, table: TypedTabl
         return value;
     }
     if (table.rows.some(row => row.length !== table.columns.length)) throw new Error('La tabla tiene filas inconsistentes.');
-    const x = field(chart.x.field, chart.type === 'line' ? ['integer', 'decimal', 'date', 'datetime'] : chart.type === 'bar' ? undefined : ['integer', 'decimal'], chart.x.format);
+    const x = field(chart.x.field, chart.type === 'line' ? ['integer', 'decimal', 'date', 'datetime'] : chart.type === 'scatter' ? ['integer', 'decimal'] : undefined, chart.x.format);
     if (chart.type !== 'scatter' && chart.yAxis?.format?.type === 'date') throw new Error('El eje de valores necesita un formato numérico.');
     if (chart.type === 'histogram') {
+        if (!numeric(table.columns[x].type)) {
+            const categories = new Map<string, BarRow>();
+            let total = 0;
+            for (const row of table.rows) {
+                if (row[x] === null) continue;
+                const key = JSON.stringify(row[x]);
+                const category = categories.get(key);
+                if (category) category.values[0] = (category.values[0] ?? 0) + 1;
+                else categories.set(key, {key, label: formatTableValue(row[x], chart.x.format), values: [1]});
+                total++;
+            }
+            const rows = [...categories.values()];
+            if (chart.categoryOrder === 'frequency-desc' || chart.categoryOrder === 'frequency-asc') {
+                const direction = chart.categoryOrder === 'frequency-desc' ? -1 : 1;
+                rows.sort((a, b) => direction * (a.values[0]! - b.values[0]!));
+            }
+            if (chart.frequency === 'relative') for (const row of rows) row.values[0] = row.values[0]! / total;
+            return {kind: 'bar', rows, labels: ['Frecuencia']};
+        }
         const values = table.rows.map(row => number(row[x])).filter((value): value is number => value !== null);
         if (!values.length) return {kind: 'bar', rows: [], labels: ['Frecuencia']};
         let min = Infinity, max = -Infinity;

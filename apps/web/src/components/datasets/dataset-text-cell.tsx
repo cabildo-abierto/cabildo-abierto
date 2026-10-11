@@ -5,7 +5,8 @@ import {cn} from '@/lib/utils';
 
 export function DatasetTextCell({text}: {text: string}) {
     return <Tooltip.Root>
-        <Tooltip.Trigger delay={300} className={cn('block w-full min-w-0 cursor-default text-left')}>
+        <Tooltip.Trigger render={<span/>} delay={300} className={cn('block w-full min-w-0 cursor-text text-left select-text')}
+            onMouseDown={event => event.stopPropagation()}>
             <span className={cn('line-clamp-5 whitespace-pre-wrap wrap-anywhere')}>{text}</span>
         </Tooltip.Trigger>
         <Tooltip.Portal>

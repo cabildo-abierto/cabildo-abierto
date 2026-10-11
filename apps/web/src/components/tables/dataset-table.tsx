@@ -15,7 +15,7 @@ import {cn} from '@/lib/utils';
 export function DatasetTable({value}: {value: DatasetTableContent}) {
     const query = useTablePage(value);
     const data = query.data;
-    const rows = useMemo(() => data?.rows.map(row => row.map(cell => <span title={cell.error ?? undefined} className={cn(cell.error && 'text-destructive')}><DatasetTextCell text={cell.raw}/></span>)) ?? [], [data?.rows]);
+    const rows = useMemo(() => data?.rows.map(row => row.map((cell, columnIndex) => <span key={columnIndex} title={cell.error ?? undefined} className={cn(cell.error && 'text-destructive')}><DatasetTextCell text={cell.raw}/></span>)) ?? [], [data?.rows]);
     return <div className={cn('min-w-0 space-y-2')}>
         {data && <DatasetUpdateNotice update={query.update} error={query.updateError} snapshotId={data.snapshotId} onReload={query.reload} loading={query.loading}/>}
         {query.error && <div role="alert" className={cn('flex items-center gap-2 text-xs text-destructive')}><span>{query.error.message}</span><Button type="button" size="sm" variant="outline" disabled={query.loading} onClick={query.reload}>Reintentar</Button></div>}

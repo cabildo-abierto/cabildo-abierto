@@ -16,6 +16,9 @@ export type VisualizationLabel = string;
  * Formato compatible con el tipo de la columna de la tabla recibida.
  */
 export type ValueFormat = NumberFormat | PercentFormat | DateFormat;
+/**
+ * Intervalos para columnas numéricas; se ignoran para columnas no numéricas.
+ */
 export type HistogramBins = AutoBins | CountBins | BoundaryBins;
 
 /**
@@ -198,7 +201,7 @@ export interface FieldReference2 {
   label?: VisualizationLabel;
 }
 /**
- * Distribución de una columna numérica por intervalos; excluye valores nulos.
+ * Distribución de una columna: agrupa valores numéricos por intervalos y cuenta cada valor distinto de columnas no numéricas; excluye valores nulos.
  */
 export interface HistogramChart {
   type: "histogram";
@@ -208,6 +211,10 @@ export interface HistogramChart {
    * count cuenta valores; relative divide por el total de valores no nulos de la columna de la tabla recibida.
    */
   frequency?: "count" | "relative";
+  /**
+   * Orden de las categorías no numéricas: aparición en los datos o frecuencia descendente/ascendente. Se ignora para intervalos numéricos.
+   */
+  categoryOrder?: "appearance" | "frequency-desc" | "frequency-asc";
   yAxis?: AxisOptions;
   /**
    * Mostrar grilla del eje de frecuencias.

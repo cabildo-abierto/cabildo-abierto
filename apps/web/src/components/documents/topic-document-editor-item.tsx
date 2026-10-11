@@ -34,7 +34,7 @@ export function TopicDocumentEditorItem({topicId, block, isNew, disabled, onChan
         <Button type="button" variant="ghost" size="sm" className={cn("text-muted-foreground")} disabled={disabled} aria-label={dataset ? "Quitar conjunto de datos" : "Quitar documento"} title="Quitar" onClick={onRemove}><TrashIcon className={cn("size-4")}/></Button>
     </>;
     return <div className={cn("py-2")}>
-        <DocumentCard block={block} linksEnabled={false}/>
+        <DocumentCard block={block} linksEnabled={false} openEnabled={!isNew}/>
         {isNew ? <div className={cn("flex items-center justify-end gap-1")}>{actions}</div>
             : <TopicBlockTools topicId={topicId} block={block} actions={actions}/>}
         {editing && <AttachmentEditorPopup type={dataset ? "dataset" : "documento"} topicId={topicId} content={block.content} disabled={disabled}

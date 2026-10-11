@@ -20,10 +20,10 @@ export function dataViewGuidance({mode, hasSource, query, loading, formError, re
 export function visualizationConfigurationHelp(spec: VisualizationSpecV1, table: TypedTable): PreviewMessage | null {
     const help = (description: string): PreviewMessage => ({tone: 'help', title: 'Los datos están listos. Podés editar la visualización', description});
     const chart = spec.chart;
-    if (!table.columns.some(column => column.type === 'integer' || column.type === 'decimal')) return help('Este gráfico necesita una columna numérica. Incluila en la vista de datos.');
-        if (!chart.x.field) return help(chart.type === 'histogram' ? 'Elegí una columna numérica para armar los intervalos del histograma.' : 'Elegí una columna para el eje X.');
-        if (chart.type === 'scatter' && !chart.y.field) return help('Elegí una columna numérica para el eje Y.');
-        if ((chart.type === 'bar' || chart.type === 'line') && (!chart.series.length || chart.series.some(series => !series.field))) return help('Elegí al menos una columna numérica para las series del gráfico.');
+    if (chart.type !== 'histogram' && !table.columns.some(column => column.type === 'integer' || column.type === 'decimal')) return help('Este gráfico necesita una columna numérica. Incluila en la vista de datos.');
+    if (!chart.x.field) return help(chart.type === 'histogram' ? 'Elegí una columna para contar sus categorías o armar los intervalos del histograma.' : 'Elegí una columna para el eje X.');
+    if (chart.type === 'scatter' && !chart.y.field) return help('Elegí una columna numérica para el eje Y.');
+    if ((chart.type === 'bar' || chart.type === 'line') && (!chart.series.length || chart.series.some(series => !series.field))) return help('Elegí al menos una columna numérica para las series del gráfico.');
     const invalid = visualizationSpecValidationHelp(spec);
     if (invalid) return {tone: 'help', title: 'Hay un parámetro inválido en la visualización', description: invalid};
     return null;

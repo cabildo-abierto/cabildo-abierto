@@ -13,16 +13,28 @@ function fitMargins(start: number, end: number, size: number, previousStart = 0,
     return [previousStart + Math.floor(extraStart * ratio), previousEnd + Math.floor(extraEnd * ratio)];
 }
 
+export const chartAxisLabelProps = {fill: 'var(--foreground)', fontSize: 11, fontFamily: 'inherit'};
+
 // Anchor rotated labels away from the plot, instead of rotating around their center.
 export function chartTickLabelProps(angle: number, orientation: 'bottom' | 'left') {
-    return {fill: 'var(--foreground)', fontSize: 10, angle, dx: 0, dy: 0,
+    return {fill: 'var(--foreground)', fontSize: 10, fontFamily: 'inherit', angle, dx: 0, dy: 0,
         textAnchor: orientation === 'left' || angle < 0 ? 'end' as const : angle > 0 ? 'start' as const : 'middle' as const,
         verticalAnchor: orientation === 'bottom' ? 'start' as const : 'middle' as const};
 }
 
-export function chartTickCount(requested: number | undefined, fallback: number, span: number, compact: boolean, horizontal = true) {
-    const count = requested ?? fallback;
-    return compact ? Math.min(count, Math.max(2, Math.floor(span / (horizontal ? 90 : 55)))) : count;
+export function chartTickCount(requested: number | undefined, fallback: number, span: number, compact: boolean, horizontal = true, angle = 0) {
+    const radians = Math.abs(angle) * Math.PI / 180;
+    // Rotated labels can overlap in projection without touching. Separation along
+    // either local text axis is enough to keep their rectangles apart.
+    const projectedSpacing = (spacing: number) => {
+        const along = Math.max(0, spacing - 6);
+        const across = horizontal ? 12 : 90;
+        const cosine = Math.abs(Math.cos(radians)), sine = Math.abs(Math.sin(radians));
+        return Math.max(18, Math.min(cosine > 1e-6 ? along / cosine : Infinity, sine > 1e-6 ? across / sine : Infinity) + 6);
+    };
+    const automatic = angle === 0 ? fallback : Math.max(2, Math.floor(span / projectedSpacing(span / Math.max(2, fallback))));
+    const count = requested ?? Math.min(50, automatic);
+    return compact ? Math.min(count, Math.max(2, Math.floor(span / projectedSpacing(horizontal ? 90 : 55)))) : count;
 }
 
 export function useChartAxisLayout(svg: RefObject<SVGSVGElement | null>, width: number, height: number, preview: boolean, base: Margin, resetKey: unknown) {

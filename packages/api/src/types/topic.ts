@@ -75,6 +75,7 @@ export type TopicAttachmentSummary = {count: number; deletedCount: number; revis
 export type TopicReadingOutput = {
     blocks: TopicBlock[]
     deletedBlocks: TopicBlock[]
+    footnoteAttachments: TopicBlock[]
     attachments: Record<'documento' | 'dataset', TopicAttachmentSummary>
 }
 export type TopicAttachmentsOutput = {

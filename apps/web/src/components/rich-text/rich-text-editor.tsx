@@ -18,7 +18,6 @@ import {isRichTextEmpty, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
 import {RichTextFloatingToolbar, type RichTextToolbarState} from "@/components/rich-text/rich-text-floating-toolbar";
 import {richTextDocumentFromString, richTextSchema, serializeRichTextDocument} from "@/components/rich-text/rich-text-schema";
-import {cn} from '@/lib/utils';
 
 function selectedLink(view: EditorView, from: number, to: number): RichTextToolbarState["link"] {
     let link: RichTextToolbarState["link"] = null;

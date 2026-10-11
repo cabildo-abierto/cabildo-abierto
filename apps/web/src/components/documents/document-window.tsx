@@ -20,8 +20,8 @@ import {DocumentPage} from "./document-page";
 import {DocumentWindowResizeHandles} from "./document-window-resize-handles";
 import {DocumentWindowComments} from "./document-window-comments";
 
-export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicId}: {
-    block: TopicBlock; title: string; returnFocus: RefObject<HTMLAnchorElement | null>; topicId?: string;
+export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicId, aboveModal = false}: {
+    block: TopicBlock; title: string; returnFocus: RefObject<HTMLElement | null>; topicId?: string; aboveModal?: boolean;
 }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [descriptionOpen, setDescriptionOpen] = useState(true);
@@ -57,9 +57,10 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
         : `/documento/${encodeURIComponent(versionId)}`;
 
     return <>
-        <Dialog.Backdrop className={cn("fixed inset-0 z-50 bg-black/40")}/>
-        <Dialog.Popup style={style} initialFocus={closeRef} finalFocus={returnFocus}
-            className={cn("fixed z-50 flex gap-3 outline-none")}>
+        <Dialog.Backdrop data-attachment-editor-popup className={cn("fixed inset-0 bg-black/40", aboveModal ? "z-[110]" : "z-50")}/>
+        <Dialog.Popup data-attachment-editor-popup style={style} initialFocus={closeRef} finalFocus={returnFocus}
+            className={cn("fixed flex gap-3 outline-none", aboveModal ? "z-[110]" : "z-50")}
+            onMouseDown={event => event.stopPropagation()}>
             <div className={cn("relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border bg-background text-foreground shadow-2xl")}>
                 <header className={cn("flex shrink-0 items-center gap-1 border-b bg-muted/50 px-3 py-1.5")}>
                     <div role="button" tabIndex={0} aria-label="Mover ventana; usá las flechas del teclado o arrastrá"

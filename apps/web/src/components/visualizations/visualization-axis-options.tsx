@@ -13,7 +13,7 @@ export function VisualizationAxisOptions({label, value, columns, onChange, numer
         <Input aria-label={`Etiqueta de ${label}`} placeholder="Etiqueta del eje (opcional)" value={value.label ?? ''} onChange={event => onChange({...value, label: event.target.value || undefined})}/>
         <VisualizationFormatOptions type={type} format={value.format} onChange={format => onChange({...value, format})}/>
         <div className={cn('grid grid-cols-2 gap-2')}>
-            <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Marcas<NumberInput min={2} max={20} value={value.tickCount ?? null} placeholder="Auto" onValueChange={tickCount => onChange({...value, tickCount: tickCount ?? undefined})}/></label>
+            <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Marcas<NumberInput min={2} max={50} value={value.tickCount ?? null} placeholder="Auto" onValueChange={tickCount => onChange({...value, tickCount: tickCount ?? undefined})}/></label>
             <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Rotación<VisualizationAngleInput label={label} value={value.tickLabelAngle ?? 0} onChange={tickLabelAngle => onChange({...value, tickLabelAngle})}/></label>
         </div>
     </fieldset>;
