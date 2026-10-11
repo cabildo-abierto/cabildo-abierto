@@ -15,7 +15,7 @@ export function DatasetUpdateNotice({update, error, snapshotId, onReload, loadin
     return <div role={failure ? 'alert' : 'status'} className={cn('flex shrink-0 flex-wrap items-center gap-2 rounded-md border p-2 text-xs', failure ? 'text-destructive' : 'text-muted-foreground')}>
         {active && <Spinner className={cn('size-3')} aria-hidden="true"/>}
         <p className={cn('min-w-0 flex-1')}>{failure ? <>Se conserva la última versión guardada. {failure}</>
-            : active ? 'Mostrando la última versión guardada. Actualizando…' : 'Hay una nueva versión disponible.'}</p>
+            : active ? 'Actualizando conjunto de datos…' : 'Hay una nueva versión disponible.'}</p>
         {(failure || available) && <Button type="button" variant="outline" size="sm" disabled={loading} onClick={onReload}>
             {available && !failure ? 'Cargar versión actualizada' : 'Reintentar actualización'}
         </Button>}

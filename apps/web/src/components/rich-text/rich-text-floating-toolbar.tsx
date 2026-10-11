@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {TextSelection} from "prosemirror-state";
 import type {EditorView} from "prosemirror-view";
 import {toggleMark} from "prosemirror-commands";
-import {CalculatorIcon, ListBulletsIcon, ListNumbersIcon, AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon} from "@phosphor-icons/react";
+import {CalculatorIcon, ListBulletsIcon, ListNumbersIcon, AsteriskIcon, ImageIcon, ChartBarIcon, FileTextIcon, LinkSimpleIcon, TextBIcon, TextItalicIcon, TableIcon, DatabaseIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {RichTextLinkPicker, type RichTextLink} from "@/components/rich-text/rich-text-link-picker";
 import {toggleList, type RichTextListType} from "./rich-text-lists";
@@ -40,8 +40,9 @@ function applyLink(view: EditorView, state: RichTextToolbarState, link: RichText
     view.focus();
 }
 
-export function RichTextFloatingToolbar({topicId, view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function RichTextFloatingToolbar({topicId, view, state, toolbarRef, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage, onInsertTable}: {
     topicId?: string
+    onInsertTable?: () => void
     onInsertImage?: () => void
     onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
@@ -126,11 +127,12 @@ export function RichTextFloatingToolbar({topicId, view, state, toolbarRef, docum
                 className={cn(state.lccaValue && "bg-muted")} disabled={!!state.footnote} onMouseDown={event => event.preventDefault()}
                 onClick={() => setLccaEditorOpen(true)}><CalculatorIcon className={cn("size-4")}/></Button>}
             {onInsertImage && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar imagen" title="Insertar imagen" onMouseDown={event => event.preventDefault()} onClick={onInsertImage}><ImageIcon className={cn("size-4")}/></Button>}
+            {onInsertTable && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar tabla" title="Insertar tabla" onMouseDown={event => event.preventDefault()} onClick={onInsertTable}><TableIcon className={cn("size-4")}/></Button>}
             {onInsertVisualization && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar visualización" title="Insertar visualización" onMouseDown={event => event.preventDefault()} onClick={onInsertVisualization}><ChartBarIcon className={cn("size-4")}/></Button>}
             {documentInsertion && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar documento" title="Insertar documento"
                 onMouseDown={event => event.preventDefault()} onClick={() => setAttachmentPicker("documento")}><FileTextIcon className={cn("size-4")}/></Button>}
             {datasetInsertion && <Button type="button" variant="ghost" size="icon-sm" aria-label="Insertar conjunto de datos" title="Insertar conjunto de datos"
-                onMouseDown={event => event.preventDefault()} onClick={() => setAttachmentPicker("dataset")}><TableIcon className={cn("size-4")}/></Button>}
+                onMouseDown={event => event.preventDefault()} onClick={() => setAttachmentPicker("dataset")}><DatabaseIcon className={cn("size-4")}/></Button>}
         </div>}
         {attachmentPicker && insertionAction && <AttachmentInsertionPicker type={attachmentPicker}
             action={{...insertionAction, onInsert: async content => {

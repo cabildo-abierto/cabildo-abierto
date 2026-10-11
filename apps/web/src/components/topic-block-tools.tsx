@@ -9,12 +9,14 @@ import {useId, useState, type MouseEvent, type ReactNode} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type {CreateBlockCommentInput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {ChatCircleIcon, GitDiffIcon, TableIcon} from "@phosphor-icons/react";
+import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
 import {TopicBlockHistory} from "@/components/topic-block-history";
 import {VisualizationSourcesPanel} from "@/components/visualizations/visualization-sources-panel";
+import {VisualizationSourcesButton} from '@/components/visualizations/visualization-sources-button';
 import {VisualizationExpandButton} from '@/components/visualizations/visualization-expand-button';
+import {TableExpandButton} from '@/components/tables/table-expand-button';
 import {TopicBlockPanel} from "@/components/topic-block-panel";
 import {del, get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
@@ -44,6 +46,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
     const sourcesId = useId();
     const attachmentTools = isAttachmentBlock(block.typeId) || block.typeId === "imagen";
     const visualization = block.typeId === "visualizacion";
+    const expandable = visualization || block.typeId === "tabla";
     const [localSourcesOpen, setLocalSourcesOpen] = useState(false);
     const sourcesOpen = controlledSourcesOpen ?? localSourcesOpen;
     const setSourcesOpen = (open: boolean) => {
@@ -217,18 +220,15 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
             if (!voting) cancelReactionMutation.mutate({version, deleteReason});
         }}/>;
     const sourcesSection = visualization && sourcesOpen && <VisualizationSourcesPanel block={block} id={sourcesId}/>;
-    const visualizationControls = visualization && <div className={cn("flex items-center justify-end gap-1")}>
-        <Button type="button" variant="ghost" size="sm" className={cn("text-muted-foreground", sourcesOpen && "bg-muted")}
-            aria-label={sourcesOpen ? "Ocultar conjuntos de datos" : "Ver conjuntos de datos"} aria-expanded={sourcesOpen}
-            aria-controls={sourcesId} title="Conjuntos de datos" onClick={event => {
-                event.stopPropagation();
-                if (!sourcesOpen) onSectionOpen?.("sources");
-                setSourcesOpen(!sourcesOpen);
-            }}><TableIcon className={cn("size-4")}/></Button>
-        <VisualizationExpandButton block={block}/>
+    const expandedControls = expandable && <div className={cn("flex items-center justify-end gap-1")}>
+        {visualization && <VisualizationSourcesButton content={block.content} open={sourcesOpen} panelId={sourcesId} onToggle={() => {
+            if (!sourcesOpen) onSectionOpen?.("sources");
+            setSourcesOpen(!sourcesOpen);
+        }}/>}
+        {visualization ? <VisualizationExpandButton block={block}/> : <TableExpandButton block={block}/>}
         {actions}
     </div>;
-    if (openInPage && !attachmentTools && !hideDiscussion) return <>{visualizationControls}<div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    if (openInPage && !attachmentTools && !hideDiscussion) return <>{expandedControls}<div className={cn("flex items-center justify-end gap-1", buttonClassName)} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
         <Button nativeButton={false} render={<Link href={`/tema/${encodeURIComponent(topicSlug)}/bloque/${encodeURIComponent(block.blockNumber)}?seccion=comentarios`}/>} type="button" variant="ghost" size="sm"
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label={`Ver comentarios (${commentCount})`} title="Comentarios">
             <ChatCircleIcon className="size-3.5"/>{commentCount > 0 && <span>{commentCount}</span>}
@@ -237,11 +237,11 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
             className="h-7 gap-1 px-1.5 text-xs text-muted-foreground" aria-label="Ver historial de versiones" title="Historial de versiones">
             <GitDiffIcon className="size-3.5"/>
         </Button>
-        {!visualization && actions}
+        {!expandable && actions}
     </div><TopicBlockPanel sources={sourcesSection} history={null} comments={null} pageLayout={pageLayout}/></>;
     return <div className={cn(pageLayout ? "relative mt-4" : "")} draggable={false} onDragStart={event => event.stopPropagation()} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-        {visualizationControls}
-        {hideDiscussion && !visualization && actions && <div className={cn("flex items-center justify-end gap-1")}>{actions}</div>}
+        {expandedControls}
+        {hideDiscussion && !expandable && actions && <div className={cn("flex items-center justify-end gap-1")}>{actions}</div>}
         {!hideDiscussion && <div className={cn(pageLayout ? "flex items-center gap-1" : attachmentTools ? "flex items-center justify-end gap-1" : "absolute top-2 left-full ml-5 flex items-center gap-1", buttonClassName)}>
             <Button type="button" variant="ghost" size="sm"
                 className={cn(
@@ -260,7 +260,7 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
                 aria-expanded={historyOpen} title="Historial de versiones" onClick={toggleHistory}>
                 <GitDiffIcon className="size-4"/>
             </Button>
-            {!visualization && actions}
+            {!expandable && actions}
         </div>}
         <TopicBlockPanel sources={sourcesSection} history={historySection} comments={commentsSection} pageLayout={pageLayout}/>
     </div>;

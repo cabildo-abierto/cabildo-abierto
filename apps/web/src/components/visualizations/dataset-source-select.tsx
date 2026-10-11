@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import {Combobox} from '@base-ui/react/combobox';
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
-import {CaretDownIcon, CheckIcon, TableIcon} from '@phosphor-icons/react';
+import {CaretDownIcon, CheckIcon, DatabaseIcon} from '@phosphor-icons/react';
 import type {DatasetSource, DatasetCatalogOutput} from '@cabildo-abierto/api';
 import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from '@/hooks/use-debounced-value';
@@ -31,7 +31,7 @@ export function DatasetSourceSelect({topicId, value, onChange, label: fieldLabel
             onValueChange={source => { if (source) onChange(source); }} onOpenChange={open => {setOpen(open); if (open) setSearch('');}}>
             <Combobox.Label className={cn(iconOnly && 'sr-only')}>{fieldLabel}</Combobox.Label>
             <Combobox.Trigger render={<Button type="button" variant="outline" size={iconOnly ? 'icon-sm' : 'default'} title={iconOnly ? fieldLabel : undefined} aria-label={iconOnly ? fieldLabel : undefined} className={cn(iconOnly ? 'bg-popover' : 'w-full min-w-0 justify-between font-normal')}/>}>
-                {iconOnly ? <TableIcon/> : <><span className={cn('min-w-0 truncate')} title={value?.title}>{value ? label(value) : placeholder}</span><CaretDownIcon/></>}
+                {iconOnly ? <DatabaseIcon/> : <><span className={cn('min-w-0 truncate')} title={value?.title}>{value ? label(value) : placeholder}</span><CaretDownIcon/></>}
             </Combobox.Trigger>
             <Combobox.Portal><Combobox.Positioner sideOffset={4} align={iconOnly ? 'end' : 'start'} className={cn('z-50')}>
                 <Combobox.Popup data-attachment-editor-popup className={cn(iconOnly ? 'w-96' : 'w-(--anchor-width)', 'max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10')}>

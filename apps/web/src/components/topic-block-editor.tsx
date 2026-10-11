@@ -1,4 +1,5 @@
 "use client";
+import {TableEditorPopup} from '@/components/tables/table-editor-popup';
 
 import {blockIsEmpty, blockContentIsInvalid} from "@/components/topic-block-content-validation";
 import {TopicFootnoteProvider} from "@/components/rich-text/topic-footnote-context";
@@ -158,7 +159,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         const blocks = persistedBlocks(initialBlocks);
         return {...stateFromSaved(blocks), showDeleted: false, message: ""};
     });
-    const [inlinePopup, setInlinePopup] = useState<{typeId: "imagen" | "visualizacion"; blockNumber?: string; after?: string; content?: string} | null>(null);
+    const [inlinePopup, setInlinePopup] = useState<{typeId: "imagen" | "visualizacion" | "tabla"; blockNumber?: string; after?: string; content?: string} | null>(null);
     const [validVisualizations, setValidVisualizations] = useState<Map<string,string>>(new Map());
     const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
@@ -275,7 +276,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const inlineActions = (block: WorkingBlock) => {
         const props = {
             disabled: saving,
-            onEdit: () => setInlinePopup({typeId: block.typeId as "imagen" | "visualizacion", blockNumber: block.blockNumber, content: block.content}),
+            onEdit: () => setInlinePopup({typeId: block.typeId as "imagen" | "visualizacion" | "tabla", blockNumber: block.blockNumber, content: block.content}),
             onRemove: () => removeInlineBlock(block.blockNumber),
         };
         return <VisualizationEditActions {...props}/>;
@@ -433,6 +434,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
     return <TopicFootnoteProvider topicId={topicId} blocks={edit.blocks}><div className="flex flex-1 flex-col gap-3">
         {inlinePopup?.typeId === "visualizacion" && <VisualizationEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
+        {inlinePopup?.typeId === "tabla" && <TableEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {inlinePopup?.typeId === "imagen" && <ImageEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
             setEdit(current => mergeConvergence(current, initialBlocks));
@@ -478,8 +480,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             })}/>
                             <TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
                         </div>
+                        : block.typeId === "tabla" ? <div className={cn("min-w-0 py-2")}><TopicBlockContent block={block} footnoteNumbers={numberById}/><TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/></div>
                         : active ? <TopicBlockEditForm topicId={topicId} block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
-                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setInlinePopup({typeId: "visualizacion", after: block.blockNumber})} onInsertImage={() => setInlinePopup({typeId: "imagen", after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
+                            documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setInlinePopup({typeId: "visualizacion", after: block.blockNumber})} onInsertImage={() => setInlinePopup({typeId: "imagen", after: block.blockNumber})} onInsertTable={() => setInlinePopup({typeId: "tabla", after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article
                             className="group/edit relative -mx-3 cursor-text rounded-lg px-3 py-2 outline-none hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
                             role="button"
@@ -499,7 +502,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <PencilSimpleIcon className="pointer-events-none absolute top-3 right-3 size-4 text-muted-foreground opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100"/>
                         </article>}
                     </div>
-                    {((active && block.typeId === "parrafo") || (singleChangedBlockNumber === block.blockNumber && (active || kind === "order" || block.typeId === "visualizacion" || block.typeId === "imagen"))) && <div
+                    {((active && block.typeId === "parrafo") || (singleChangedBlockNumber === block.blockNumber && (active || kind === "order" || block.typeId === "visualizacion" || block.typeId === "imagen" || block.typeId === "tabla"))) && <div
                         className="flex items-start justify-between gap-2 pt-2 pb-2" draggable={false}
                         data-topic-editor-block={block.blockNumber}
                         onDragStart={event => event.stopPropagation()}>
@@ -511,7 +514,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             <TopicEditActionButtons saving={saving || uploading.size > 0} saveDisabled={hasInvalidBlock} onCancel={cancel} onSave={() => void save()}/>
                         </div>}
                     </div>}
-                    {!block.isNew && !block.deleted && block.typeId !== "visualizacion" && block.typeId !== "imagen" && <TopicBlockTools
+                    {!block.isNew && !block.deleted && block.typeId !== "visualizacion" && block.typeId !== "imagen" && block.typeId !== "tabla" && <TopicBlockTools
                         topicId={topicId}
                         block={block}
                         openInPage={openToolsInPage}

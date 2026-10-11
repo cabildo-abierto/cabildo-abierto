@@ -6,7 +6,7 @@ export function visualizationSpecValidationHelp(spec: VisualizationSpecV1): stri
     const chartType = spec.chart.type;
     if (validateVisualizationSpec(spec)) return null;
     const errors = (validateVisualizationSpec.errors ?? []).filter(error => {
-        const variant = error.schemaPath.match(/^#\/definitions\/(bar|line|scatter|histogram|table)Chart\//)?.[1];
+        const variant = error.schemaPath.match(/^#\/definitions\/(bar|line|scatter|histogram)Chart\//)?.[1];
         return !variant || variant === chartType;
     });
     const error = errors.find(error => ['minimum', 'maximum', 'minLength', 'maxLength', 'minItems', 'maxItems'].includes(error.keyword))
@@ -58,7 +58,6 @@ export function parseVisualizationBlock(content: string): VisualizationContent |
 export function visualizationColumns(chart: VisualizationSpecV1['chart']): string[] {
     let fields: string[];
     switch (chart.type) {
-        case 'table': fields = chart.columns.map(column => column.field); break;
         case 'bar': case 'line': fields = [chart.x.field, ...chart.series.map(series => series.field), ...(chart.seriesBy ? [chart.seriesBy.field] : [])]; break;
         case 'scatter': fields = [chart.x.field, chart.y.field, ...(chart.color ? [chart.color.field] : []), ...(chart.size ? [chart.size.field] : [])]; break;
         case 'histogram': fields = [chart.x.field]; break;

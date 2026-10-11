@@ -11,6 +11,7 @@ import {usePreparedVisualization} from '@/hooks/use-prepared-visualization';
 import {lccaAnalysisOptions, useLccaAnalysis} from '@/hooks/use-lcca-analysis';
 import {useLccaQuery} from '@/hooks/use-lcca-query';
 import {Button} from '@/components/ui/button';
+import {NumberInput} from '@/components/ui/number-input';
 import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {ScrollArea} from '@/components/ui/scroll-area';
@@ -25,7 +26,8 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
     const initial = useMemo(() => parseVisualizationBlock(initialContent ?? ''), [initialContent]);
     const client = useQueryClient();
     const initialAnalysis = useLccaAnalysis(initial?.queryMode === 'auto' ? initial.query : '');
-    const [spec,setSpec] = useState<VisualizationSpecV1>(() => initial?.spec ?? {schemaVersion: 1, chart: defaultChart('table', [])});
+    const [chartSelected, setChartSelected] = useState(!!initial);
+    const [spec,setSpec] = useState<VisualizationSpecV1>(() => initial?.spec ?? {schemaVersion: 1, chart: defaultChart('bar', [])});
     const [queryMode,setQueryMode] = useState<'auto' | 'custom'>(initial?.queryMode ?? 'auto');
     const mode = queryMode === 'auto' ? 'basic' : 'advanced';
     const [advanced,setAdvanced] = useState(initial?.queryMode === 'custom');
@@ -53,7 +55,7 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
             return output;
         }, staleTime: 30000, retry: false});
     const generated = useMemo(() => {
-        if (!view || !source.data) return {query: '', error: null, view: null};
+        if (!chartSelected || !view || !source.data) return {query: '', error: null, view: null};
         try {
             const columns = visualizationColumns(spec.chart);
             const missing = columns.find(name => !source.data.columns.some(column => column.name === name));
@@ -72,20 +74,20 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
             })};
             return {query: basicViewQuery(normalized), error: null, view: normalized};
         } catch (error) { return {query: '', error: error instanceof Error ? error.message : 'Revisá los filtros.', view: null}; }
-    }, [view, source.data, spec.chart]);
+    }, [view, source.data, spec.chart, chartSelected]);
     const currentQuery = mode === 'basic' ? generated.query : query;
     const result = useLccaQuery(currentQuery, !analyzing, true, true);
-    // Initialize a new table after a custom query first produces columns; never overwrite a saved selection.
+    // Initialize an unconfigured chart after a custom query produces columns.
     useEffect(() => {
-        if (queryMode !== 'custom' || !result.data?.columns.length) return;
-        setSpec(current => current.chart.type === 'table' && current.chart.columns.every(column => !column.field)
-            ? {...current, chart: defaultChart('table', result.data!.columns)} : current);
-    }, [queryMode,result.data]);
+        if (!chartSelected || queryMode !== 'custom' || !result.data?.columns.length) return;
+        setSpec(current => !current.chart.x.field
+            ? {...current, chart: defaultChart(current.chart.type, result.data!.columns)} : current);
+    }, [queryMode,result.data,chartSelected]);
     const previewSpec = useDeferredValue(useDebouncedValue(spec, 250));
     const [previousTable, setPreviousTable] = useState(result.data);
     useEffect(() => { if (result.data) setPreviousTable(result.data); }, [result.data]);
     const previewTable = result.data ?? (result.loading ? previousTable : undefined);
-    const prepared = usePreparedVisualization(previewSpec, previewTable, previewTab === 'visualization');
+    const prepared = usePreparedVisualization(previewSpec, previewTable, chartSelected && previewTab === 'visualization');
     const renderError = renderFailure?.spec === previewSpec && renderFailure?.table === previewTable ? renderFailure.message : null;
     const onRenderError = useCallback((cause: Error) => setRenderFailure({spec: previewSpec, table: previewTable, message: cause.message}), [previewSpec, previewTable]);
     const viewMessage = useMemo(() => dataViewGuidance({mode,hasSource: !!view,query: currentQuery,
@@ -96,7 +98,7 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
     const currentHelp = useMemo(() => result.data ? visualizationConfigurationHelp(spec,result.data) : null, [spec,result.data]);
     const confirmationError = confirmedError?.chart === spec.chart && confirmedError?.table === result.data ? confirmedError.message : null;
     const preparationCurrent = previewSpec.chart === spec.chart && previewTable === result.data;
-    const canConfirm = !!currentQuery.trim() && !!result.data && !viewMessage && !currentHelp && !confirmationError
+    const canConfirm = chartSelected && !!currentQuery.trim() && !!result.data && !viewMessage && !currentHelp && !confirmationError
         && (previewTab === 'data' || (preparationCurrent && !!prepared.data && !renderError));
     const switchToBasic = async () => {
         if (queryMode === 'auto' && view) { setAdvanced(false); return; }
@@ -153,16 +155,16 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
                                 error={analysisError}
                                 onAdvanced={() => setAdvanced(true)} onAutomatic={() => void switchToBasic()}
                                 onQuery={value => { setQuery(value); setQueryMode('custom'); setAnalysisError(null); }}
-                                onView={setView} onSource={source => setSpec(current => ({...current, chart: defaultChart(current.chart.type,source.columns)}))}/>
+                                onView={setView} onSource={source => {if (chartSelected) setSpec(current => ({...current, chart: defaultChart(current.chart.type,source.columns)}));}}/>
                             <section className={cn('space-y-3 border-t pt-4')}><h3 className={cn('text-sm font-medium')}>Visualización</h3>
                                 <Input aria-label="Título opcional" placeholder="Título (opcional)" maxLength={200} value={spec.title ?? ''} onChange={event => setSpec({...spec, title: event.target.value || undefined})}/>
                                 <Textarea aria-label="Descripción opcional" placeholder="Descripción (opcional)" maxLength={5000} value={spec.description ?? ''} onChange={event => setSpec({...spec, description: event.target.value || undefined})}/>
-                                <VisualizationChartOptions chart={spec.chart} columns={(queryMode === 'auto' ? source.data?.columns : (result.data ?? previousTable)?.columns) ?? []} onChange={chart => setSpec({...spec,chart})}/>
-                                <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Relación ancho/alto<Input type="number" min={0.5} max={3} step={0.1} value={spec.layout?.aspectRatio ?? 1.6} onChange={event => setSpec({...spec,layout: {aspectRatio: Number(event.target.value)}})}/></label>
+                                <VisualizationChartOptions chart={chartSelected ? spec.chart : null} columns={(queryMode === 'auto' ? source.data?.columns : (result.data ?? previousTable)?.columns) ?? []} onChange={chart => {setChartSelected(true); setSpec({...spec, chart});}}/>
+                                {chartSelected && <label className={cn('grid gap-1 text-xs text-muted-foreground')}>Relación ancho/alto<NumberInput min={0.5} max={3} step={0.1} value={spec.layout?.aspectRatio ?? 1.6} onValueChange={aspectRatio => {if (aspectRatio !== null) setSpec({...spec, layout: {aspectRatio}});}}/></label>}
                             </section>
                         </div>
                     </ScrollArea>}
-                    <ScrollArea className={cn('min-h-0 min-w-0')} viewportClassName={cn('md:h-full')}><VisualizationPreview spec={previewSpec} table={previewTable} mode={mode} viewMessage={viewMessage} configurationHelp={configurationHelp} renderError={renderError} onRenderError={onRenderError} prepared={prepared} tab={previewTab} onTabChange={setPreviewTab} updating={previewSpec !== spec || result.loading || analyzing || (mode === 'basic' && !!view && source.isPending)}/></ScrollArea>
+                    <ScrollArea className={cn('min-h-0 min-w-0')} viewportClassName={cn('md:h-full')}><VisualizationPreview spec={previewSpec} table={previewTable} mode={mode} viewMessage={!chartSelected && (view || currentQuery.trim()) ? {tone: 'help', title: 'Elegí un tipo de visualización', description: 'Seleccioná cómo querés representar los datos para configurar el gráfico.'} : viewMessage} configurationHelp={configurationHelp} renderError={renderError} onRenderError={onRenderError} prepared={prepared} tab={previewTab} onTabChange={setPreviewTab} updating={previewSpec !== spec || result.loading || analyzing || (mode === 'basic' && !!view && source.isPending)}/></ScrollArea>
                 </VisualizationEditorPanels>
                 <footer className={cn('flex shrink-0 justify-end gap-2 border-t px-4 py-3')}><Button type="button" size="sm" variant="outline" onClick={onClose}>Cancelar</Button><Button type="button" size="sm" disabled={!canConfirm} onClick={confirm}>{initial ? 'Confirmar cambios' : 'Agregar visualización'}</Button></footer>
             </Dialog.Popup>

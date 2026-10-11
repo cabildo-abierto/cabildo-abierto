@@ -11,3 +11,5 @@ export * from './visualization';
 export * from './image';
 export * from './search';
 export * from './notification';
+
+export * from "./table";

@@ -70,3 +70,5 @@ export * from "./minimum-block-orders.js";
 export * from "./footnotes.js";
 
 export * from "./lcca-value.js";
+
+export * from "./tables.js";

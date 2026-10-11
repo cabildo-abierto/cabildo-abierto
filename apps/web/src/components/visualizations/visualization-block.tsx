@@ -13,7 +13,7 @@ export function VisualizationBlock({block, onValidityChange, refreshOnMount = tr
     const [renderFailure, setRenderFailure] = useState<{content: string; table: unknown} | null>(null);
     const result = useLccaQuery(content?.query ?? '', !!content,refreshOnMount);
     const resetKey = useMemo(() => ({content: block.content, table: result.data}), [block.content,result.data]);
-    const prepared = usePreparedVisualization(content?.spec ?? {schemaVersion: 1, chart: {type: 'table', columns: []}}, result.data, !!content);
+    const prepared = usePreparedVisualization(content?.spec ?? {schemaVersion: 1, chart: {type: 'bar', x: {field: ''}, series: [{field: ''}]}}, result.data, !!content);
     const valid = !(renderFailure?.content === block.content && renderFailure?.table === result.data) && !!content && !!result.data && !result.loading && !result.error && !!prepared.data;
     const validityCallback = useRef(onValidityChange);
     validityCallback.current = onValidityChange;

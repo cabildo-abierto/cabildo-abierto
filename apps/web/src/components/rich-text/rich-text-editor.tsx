@@ -76,10 +76,11 @@ function toolbarState(view: EditorView): RichTextToolbarState | null {
     };
 }
 
-export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage, onInsertTable}: {
     topicId?: string
     content: string
     footnoteNumbers?: ReadonlyMap<string, number>
+    onInsertTable?: () => void
     onInsertImage?: () => void
     onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
@@ -243,15 +244,13 @@ export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContai
     }, []);
 
     return <div className="relative" draggable={false} onDragStart={event => event.stopPropagation()} onMouseDown={event => event.stopPropagation()}>
-        {isRichTextEmpty(content) && (!view || (view.state.doc.childCount === 1 && view.state.doc.firstChild?.type === richTextSchema.nodes.paragraph))
-            && <span className={cn("pointer-events-none absolute inset-x-0 top-0 text-sm text-muted-foreground")}>Escribí un párrafo...</span>}
         <div ref={mountRef} className="relative"/>
         {lccaViews.map(item => createPortal(<LccaValue attrs={item.attrs} onSelect={topicId ? item.select : undefined}/>, item.dom, item.id))}
         {view && toolbar && toolbarContainer && createPortal(<RichTextFloatingToolbar
             topicId={topicId}
             view={view}
             state={toolbar}
-            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage}
+            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage} onInsertTable={onInsertTable}
             toolbarRef={element => { toolbarElementRef.current = element; }}
         />, toolbarContainer)}
     </div>;

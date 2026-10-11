@@ -13,14 +13,14 @@ export async function remoteDuckDB(paths: string[]) {
         return {instance,connection};
     } catch (error) { instance.closeSync(); throw error; }
 }
-export function registerDatasetTypes(connection: DuckDBConnection) {
+export function registerDatasetTypes(connection: DuckDBConnection, tolerateInvalid = false) {
     for (const type of DATASET_TYPES) for (const decimal of ['.',','] as const) {
         const fn = DuckDBScalarFunction.create({name:`ca_${type}_${decimal === '.' ? 'dot' : 'comma'}`, returnType:VARCHAR, parameterTypes:[VARCHAR],
             mainFunction(info,input,output) {
                 const values = input.getColumnVector(0);
                 for (let i=0;i<input.rowCount;i++) {
                     const cell = datasetCell(String(values.getItem(i) ?? ''),type,{delimiter:',',decimal});
-                    if (cell.error) { info.setError(cell.error); return; }
+                    if (cell.error) { if (tolerateInvalid) { output.setItem(i, null); continue; } info.setError(cell.error); return; }
                     output.setItem(i,cell.value === null ? null : String(cell.value));
                 }
                 output.flush();

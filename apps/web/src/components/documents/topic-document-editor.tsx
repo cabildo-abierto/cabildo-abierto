@@ -2,6 +2,7 @@
 
 import {useMemo, useState, type ReactNode} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
+import {AttachmentPagination} from "@/components/attachments/attachment-pagination";
 import {AttachmentSearch} from "@/components/attachments/attachment-search";
 import {attachmentSearchMatcher} from "@/components/attachments/attachment-search-matches";
 import {useDebouncedValue} from "@/hooks/use-debounced-value";
@@ -12,6 +13,8 @@ import type {AttachmentInsertionAction} from "@/components/attachments/attachmen
 import {TopicDeletedBlockItem} from "@/components/topic-deleted-blocks";
 import {cn} from "@/lib/utils";
 
+const PAGE_SIZE = 12;
+
 type EditableDocumentBlock = TopicBlock & {isNew: boolean; deleted: boolean};
 export function TopicDocumentEditor({topicId, blocks, disabled, onChange, onRemove, onRestore, onBusyChange, renderActions, insertionAction, dataset = false}: {
     dataset?: boolean; topicId: string; blocks: EditableDocumentBlock[]; disabled: boolean;
@@ -21,18 +24,27 @@ export function TopicDocumentEditor({topicId, blocks, disabled, onChange, onRemo
     onRemove: (blockNumber: string) => void; onRestore: (blockNumber: string) => void;
     onBusyChange: (blockNumber: string, busy: boolean) => void;
 }) {
+    const [page, setPage] = useState(0);
     const [query, setQuery] = useState("");
     const [editingBlockNumber, setEditingBlockNumber] = useState<string | null>(null);
     const debouncedQuery = useDebouncedValue(query, 250);
     const matchesSearch = useMemo(() => attachmentSearchMatcher(debouncedQuery), [debouncedQuery]);
     const label = dataset ? "conjuntos de datos" : "documentos";
+    const matches = blocks.filter(block => block.blockNumber === editingBlockNumber || matchesSearch(block));
+    const editingIndex = matches.findIndex(block => block.blockNumber === editingBlockNumber);
+    const requestedPage = editingIndex >= 0 ? Math.floor(editingIndex / PAGE_SIZE) : page;
+    const currentPage = Math.min(requestedPage, Math.max(0, Math.ceil(matches.length / PAGE_SIZE) - 1));
+    const pageBlocks = matches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
     if (blocks.length === 0) return null;
     return <DocumentSection dataset={dataset} actions={<AttachmentSectionAddButton type={dataset ? "dataset" : "documento"} action={insertionAction} disabled={disabled}/>}
-        endActions={<AttachmentSearch dataset={dataset} value={query} onChange={setQuery}/>}>
+        endActions={<AttachmentSearch dataset={dataset} value={query} onChange={value => {setQuery(value); setPage(0);}}/>}
+        after={blocks.length > PAGE_SIZE && <div className={cn('mt-3')}>
+            <AttachmentPagination total={matches.length} page={currentPage} pageSize={PAGE_SIZE} label={label}
+                disabled={disabled || editingBlockNumber !== null || query !== debouncedQuery} onPageChange={setPage}/>
+        </div>}>
         {() => {
-            const matches = blocks.filter(block => block.blockNumber === editingBlockNumber || matchesSearch(block));
             return matches.length === 0 ? <p className={cn("col-span-full py-2 text-sm text-muted-foreground")}>No encontramos {label} para esa búsqueda.</p>
-                : matches.map(block => <div key={block.blockNumber} className={cn("group/block relative")}>
+                : pageBlocks.map(block => <div key={block.blockNumber} className={cn("group/block relative")}>
                     {block.deleted ? <TopicDeletedBlockItem topicId={topicId} block={block} openInPage={false} onRestore={() => onRestore(block.blockNumber)}/>
                         : <TopicDocumentEditorItem key={block.id} onEditingChange={editing => setEditingBlockNumber(editing ? block.blockNumber : null)} topicId={topicId} block={block} isNew={block.isNew} disabled={disabled}
                             renderActions={onClose => renderActions(block.blockNumber, onClose)}

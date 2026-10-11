@@ -1,3 +1,4 @@
+import {TableBlock} from '@/components/tables/table-block';
 import {ImageBlock} from '@/components/images/image-block';
 import {VisualizationBlock} from '@/components/visualizations/visualization-block';
 import {cn} from "@/lib/utils";
@@ -7,6 +8,7 @@ import type {TopicBlock} from "@cabildo-abierto/api";
 import {RichTextRenderer} from "@/components/rich-text/rich-text-renderer";
 
 export function TopicBlockContent({block, linksEnabled = true, showExternalLinkIcon, footnoteNumbers, refreshOnMount = true, preview = false}: {block: TopicBlock; linksEnabled?: boolean; showExternalLinkIcon?: boolean; footnoteNumbers?: ReadonlyMap<string, number>; refreshOnMount?: boolean; preview?: boolean}) {
+    if (block.typeId === "tabla") return <TableBlock block={block} linksEnabled={linksEnabled} footnoteNumbers={footnoteNumbers} refreshOnMount={refreshOnMount}/>;
     if (block.typeId === "imagen") return <ImageBlock block={block} preview={preview}/>;
     if (block.typeId === "visualizacion") return <VisualizationBlock block={block} refreshOnMount={refreshOnMount} preview={preview}/>;
     if (isAttachmentBlock(block.typeId)) return <DocumentCard block={block} linksEnabled={linksEnabled} refreshOnMount={refreshOnMount} preview={preview}/>;

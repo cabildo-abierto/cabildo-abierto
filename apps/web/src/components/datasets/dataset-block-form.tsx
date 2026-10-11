@@ -72,7 +72,7 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
         <Textarea aria-label="Descripción del conjunto" placeholder="Descripción" rows={1} value={value.description} maxLength={5000} className={cn(fieldClass, 'text-xs text-muted-foreground')}
             onChange={event => update({description: event.target.value})}/>
         <div className={cn('flex gap-2')}>
-            {(['file','url'] as const).map(mode => <Button key={mode} type="button" size="sm" variant={source === mode ? 'secondary' : 'ghost'} aria-pressed={source === mode}
+            {(['file','url'] as const).map(mode => <Button key={mode} type="button" size="sm" variant={source === mode ? 'secondary' : 'ghost'} highlightPressed aria-pressed={source === mode}
                 onClick={() => { if (mode === source) return; setSource(mode); setPreview(null); update({fileId: null, sourceUrl: null, columns: [], rowCount: undefined}); }}>{mode === 'file' ? 'Archivo' : 'URL'}</Button>)}
         </div>
         {source === 'file' ? <DocumentFilePicker fileId={value.fileId ?? ''} accept=".csv,.json" busy={busy} disabled={disabled} onSelect={file => load(file)}/>

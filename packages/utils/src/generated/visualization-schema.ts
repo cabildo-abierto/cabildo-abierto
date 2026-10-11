@@ -40,9 +40,6 @@ export const visualizationSchema = {
         },
         {
           "$ref": "#/definitions/histogramChart"
-        },
-        {
-          "$ref": "#/definitions/tableChart"
         }
       ]
     },
@@ -486,56 +483,6 @@ export const visualizationSchema = {
           "type": "boolean",
           "description": "Mostrar grilla del eje de frecuencias.",
           "default": true
-        }
-      }
-    },
-    "tableColumn": {
-      "title": "TableColumn",
-      "description": "Columna visible; label cambia solo el encabezado y format solo su presentación.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "field"
-      ],
-      "properties": {
-        "field": {
-          "$ref": "#/definitions/fieldName"
-        },
-        "label": {
-          "$ref": "#/definitions/label"
-        },
-        "format": {
-          "$ref": "#/definitions/valueFormat"
-        }
-      }
-    },
-    "tableChart": {
-      "title": "TableChart",
-      "description": "Vista de la tabla tipada recibida. Conserva el orden de las filas; las columnas se muestran en el orden configurado.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type",
-        "columns"
-      ],
-      "properties": {
-        "type": {
-          "const": "table"
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/tableColumn"
-          },
-          "minItems": 1,
-          "maxItems": 200
-        },
-        "pageSize": {
-          "type": "integer",
-          "minimum": 10,
-          "maximum": 100,
-          "description": "Filas de la tabla recibida por página.",
-          "default": 25
         }
       }
     },

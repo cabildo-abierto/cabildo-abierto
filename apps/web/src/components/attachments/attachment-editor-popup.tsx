@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState, type ReactNode} from "react";
 import {Dialog} from "@base-ui/react/dialog";
-import {FileTextIcon, TableIcon, XIcon} from "@phosphor-icons/react";
+import {FileTextIcon, DatabaseIcon, XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {cn} from "@/lib/utils";
@@ -23,7 +23,7 @@ export function AttachmentEditorPopup({type, topicId, content, onChange, onClose
 }) {
     const dataset = type === "dataset";
     const Form = dataset ? DatasetBlockForm : DocumentBlockForm;
-    const Icon = dataset ? TableIcon : FileTextIcon;
+    const Icon = dataset ? DatabaseIcon : FileTextIcon;
     const title = `${inserting ? "Insertar" : "Editar"} ${dataset ? "conjunto de datos" : "documento"}`;
     const [loading, setLoading] = useState(false);
     const busy = disabled || loading;

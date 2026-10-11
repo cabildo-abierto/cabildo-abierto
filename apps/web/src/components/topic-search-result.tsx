@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {ChatCircleIcon, FileTextIcon, TableIcon} from '@phosphor-icons/react';
+import {ChatCircleIcon, FileTextIcon, TableIcon, DatabaseIcon} from '@phosphor-icons/react';
 import type {ContentSearchResult, TopicSummary} from "@cabildo-abierto/api";
 import {Card, CardContent} from "@/components/ui/card";
 import {SearchSnippet} from '@/components/search/search-snippet';
@@ -12,7 +12,7 @@ type TopicSearchResultProps = {topic: TopicSummary} | {result: ContentSearchResu
 export function TopicSearchResult(props: TopicSearchResultProps) {
     const result = 'result' in props ? props.result : null;
     const topic = 'topic' in props ? props.topic : props.result.topic;
-    const ResultIcon = result?.kind === 'comment' ? ChatCircleIcon : result?.blockType === 'dataset' ? TableIcon : FileTextIcon;
+    const ResultIcon = result?.kind === 'comment' ? ChatCircleIcon : result?.blockType === 'dataset' ? DatabaseIcon : result?.blockType === 'tabla' ? TableIcon : FileTextIcon;
     const resultType = result?.kind === 'comment' ? 'Comentario' : result?.blockType === 'dataset' ? 'Conjunto de datos' : 'Documento';
     return <Link href={`/tema/${encodeURIComponent(topic.slug)}`} className={cn("block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>
         <Card className={cn("py-0 transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-sm active:translate-y-0 motion-reduce:transition-none")}>

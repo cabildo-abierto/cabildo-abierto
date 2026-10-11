@@ -1,3 +1,4 @@
+import {parseTableBlock} from '@cabildo-abierto/utils';
 import {sql, type Kysely, type Transaction} from 'kysely';
 import type {BlockType, TopicEditableBlock} from '@cabildo-abierto/api';
 import type {DB} from '#/db/types.js';
@@ -115,7 +116,7 @@ export async function loadConvergedBlocks(database: Kysely<DB> | Transaction<DB>
         const row = contents.get(block.id);
         if (!row) throw new Error('Cambió la versión del bloque durante la lectura. Reintentá.');
         const content = row.content;
-        return {...block, commentCount: row.commentCount, content: block.typeId === "imagen" ? JSON.stringify(parseImageBlock(content)) : block.typeId === "visualizacion" ? JSON.stringify(parseVisualizationBlock(content)) : block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(content)) : content};
+        return {...block, commentCount: row.commentCount, content: block.typeId === "tabla" ? JSON.stringify(parseTableBlock(content)) : block.typeId === "imagen" ? JSON.stringify(parseImageBlock(content)) : block.typeId === "visualizacion" ? JSON.stringify(parseVisualizationBlock(content)) : block.typeId === "documento" ? JSON.stringify(parseDocumentBlock(content)) : block.typeId === "dataset" ? JSON.stringify(parseDatasetBlock(content)) : content};
     });
 }
 

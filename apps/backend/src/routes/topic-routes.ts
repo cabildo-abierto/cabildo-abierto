@@ -4,6 +4,7 @@ import {synchronizeTopicSearch} from "#/services/search/index.js";
 import {resolveTopicFootnotes} from "#/services/topic-footnotes.js";
 import {requireFileAccess} from '#/services/storage/access.js';
 import {runQueryJob} from '#/services/visualizations/query-process.js';
+import {datasetSourceBlocks} from '#/services/visualizations/source-blocks.js';
 import {resolveSources} from '#/services/visualizations/resolve-sources.js';
 import type {LccaAnalysis, DatasetReference} from '@cabildo-abierto/api';
 import {topicConvergence} from '#/services/topic-convergence.js';
@@ -16,7 +17,7 @@ import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
 import type {BlockType, CreateTopicInput, CreateTopicOutput, SaveTopicEditBlockInput, SaveTopicEditInput, SaveTopicEditOutput, SearchTopicsOutput, TopicBlocksOutput, TopicBlockVersionsOutput, TopicEditableBlock, TopicEditorDataOutput, TopicOutput} from "@cabildo-abierto/api";
-import {parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInlineNodes, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
+import {parseTableBlock, blockRichTextContents, parseImageBlock, parseVisualizationBlock, parseDocumentBlock, parseDatasetBlock, isAttachmentBlock, claimsRichTextFormat, isOrder, isRichTextEmpty, parseRichTextContent, richTextInlineNodes, richTextInternalTopicIds, richTextPlainText} from "@cabildo-abierto/utils";
 import type {AppContext} from "#/setup.js";
 import {currentUser, requireSession, requiredUser, withSession} from "#/auth/middleware.js";
 import {canonicalizeTopicId} from "#/topics/canonicalize-topic-id.js";
@@ -24,7 +25,7 @@ import {activeRejectCounts, rejectTree, visibleRejectCounts} from "#/services/re
 import {notifyTopicChanged} from "#/services/topic-connections.js";
 import {notifyPreviousBlockAuthors} from "#/services/notifications.js";
 
-const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v", imagen: "i"};
+const BLOCK_PREFIXES: Record<BlockType["id"], string> = {parrafo: "p", h1: "h1", h2: "h2", documento: "d", dataset: "ds", visualizacion: "v", imagen: "i", tabla: "t"};
 
 function databaseCode(error: unknown): string | undefined {
     if (!error || typeof error !== "object" || !("code" in error)) return undefined;
@@ -54,6 +55,10 @@ class TopicEditError extends Error {
 }
 
 function blockContent(input: Partial<SaveTopicEditBlockInput>): {typeId: BlockType["id"]; content: string} | null {
+    if (input.typeId === "tabla") {
+        const table = typeof input.content === "string" ? parseTableBlock(input.content) : null;
+        return table ? {typeId: "tabla", content: JSON.stringify(table)} : null;
+    }
     if (input.typeId === "imagen") {
         const image = typeof input.content === "string" ? parseImageBlock(input.content) : null;
         return image ? {typeId: "imagen", content: JSON.stringify(image)} : null;
@@ -181,7 +186,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen", "tabla"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -203,7 +208,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 topicConvergence(ctx.kysely, String(req.params.id)),
                 ctx.kysely.selectFrom("block_type")
                     .select(["id", "name"])
-                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"])
+                    .where("id", "in", ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen", "tabla"])
                     .orderBy("id", "asc")
                     .execute(),
             ]);
@@ -376,10 +381,14 @@ export const topicRoutes = (ctx: AppContext): Router => {
             for (const block of requestedBlocks.filter(block => block.typeId === "visualizacion")) {
                 await collectDependencies(block.content, parseVisualizationBlock(block.content)!.query);
             }
-            for (const block of requestedBlocks.filter(block => !block.deleted && block.typeId === "parrafo")) {
-                const richText = parseRichTextContent(block.content);
-                for (const node of richText ? richTextInlineNodes(richText.doc) : []) {
-                    if (node.type === "lcca_value") await collectDependencies(`lcca-inline:${node.attrs.query}`, node.attrs.query);
+            for (const block of requestedBlocks.filter(block => !block.deleted)) {
+                const table = block.typeId === "tabla" ? parseTableBlock(block.content) : null;
+                if (table?.mode === "dataset") dependencies.set(`table:${block.content}`, [table.source]);
+                for (const content of blockRichTextContents(block)) {
+                    const richText = parseRichTextContent(content);
+                    for (const node of richText ? richTextInlineNodes(richText.doc) : []) {
+                        if (node.type === "lcca_value") await collectDependencies(`lcca-inline:${node.attrs.query}`, node.attrs.query);
+                    }
                 }
             }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
@@ -437,9 +446,17 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 for (const block of blocksToValidate.filter(block => block.typeId === "documento")) {
                     await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
                 }
-                const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => block.typeId === "parrafo"
-                    ? richTextInternalTopicIds(block.content)
-                    : []))];
+                for (const block of blocksToValidate.filter(block => block.typeId === "tabla")) {
+                    const table = parseTableBlock(block.content)!;
+                    if (table.mode !== "dataset") continue;
+                    const reference = dependencies.get(`table:${block.content}`)![0];
+                    table.source = reference;
+                    const {sources: [source]} = await datasetSourceBlocks(trx, [reference]);
+                    const dataset = parseDatasetBlock(source.block.content)!;
+                    if (table.columns.some(column => !dataset.columns.some(item => item.name === column.field))) throw new TopicEditError(400, "La tabla usa columnas que no están disponibles en el conjunto de datos.");
+                    block.content = JSON.stringify(table);
+                }
+                const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => blockRichTextContents(block).flatMap(richTextInternalTopicIds)))];
                 if (linkedTopicIds.length > 0) {
                     const existingTopics = await trx.selectFrom("topic").select("id").where("id", "in", linkedTopicIds).execute();
                     if (existingTopics.length !== linkedTopicIds.length) {
@@ -463,7 +480,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 await trx.insertInto("edit").values({id: editId, topic_id: topicId, message: changedBlockCount > 1 ? message : null}).execute();
 
                 const nextNumberByType = new Map<BlockType["id"], number>();
-                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen"] as const) {
+                for (const typeId of ["parrafo", "h1", "h2", "documento", "dataset", "visualizacion", "imagen", "tabla"] as const) {
                     if (!newInputs.some(block => block.typeId === typeId)) continue;
                     const prefix = BLOCK_PREFIXES[typeId];
                     await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:${prefix}`}))`.execute(trx);

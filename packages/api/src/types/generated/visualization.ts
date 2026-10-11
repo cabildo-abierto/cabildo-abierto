@@ -3,7 +3,7 @@
 /**
  * Variante discriminada por type.
  */
-export type VisualizationChart = BarChart | LineChart | ScatterChart | HistogramChart | TableChart;
+export type VisualizationChart = BarChart | LineChart | ScatterChart | HistogramChart;
 /**
  * Nombre exacto de una columna de la tabla tipada recibida. No es una expresión ni una ruta.
  */
@@ -240,29 +240,6 @@ export interface BoundaryBins {
    * @maxItems 101
    */
   boundaries: number[];
-}
-/**
- * Vista de la tabla tipada recibida. Conserva el orden de las filas; las columnas se muestran en el orden configurado.
- */
-export interface TableChart {
-  type: "table";
-  /**
-   * @minItems 1
-   * @maxItems 200
-   */
-  columns: TableColumn[];
-  /**
-   * Filas de la tabla recibida por página.
-   */
-  pageSize?: number;
-}
-/**
- * Columna visible; label cambia solo el encabezado y format solo su presentación.
- */
-export interface TableColumn {
-  field: FieldName;
-  label?: VisualizationLabel;
-  format?: ValueFormat;
 }
 /**
  * Tamaño adaptable al ancho disponible. Tipografía, márgenes y paleta se resuelven desde el tema de Cabildo.

@@ -4,7 +4,7 @@ import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/components/ui/tabs';
 import type {PreparedVisualization} from '@/hooks/use-prepared-visualization';
 import {cn} from '@/lib/utils';
 import {VisualizationRenderer} from './visualization-renderer';
-import {VisualizationTable} from './visualization-table';
+import {QueryResultTable} from './query-result-table';
 import {VisualizationDatasetDescriptions} from './visualization-dataset-descriptions';
 import {VisualizationErrorBoundary} from './visualization-error-boundary';
 import {VisualizationUpdatingFrame} from './visualization-updating-frame';
@@ -12,7 +12,6 @@ import {VisualizationPreviewMessage, type PreviewMessage} from './visualization-
 
 export const VisualizationPreview = memo(function VisualizationPreview({spec, table, mode, viewMessage, configurationHelp, renderError, onRenderError, prepared, tab, onTabChange, updating}: {spec: VisualizationSpecV1; table?: LccaOutput; mode: 'basic' | 'advanced'; viewMessage: PreviewMessage | null; configurationHelp: PreviewMessage | null; renderError: string | null; onRenderError: (error: Error) => void; prepared: PreparedVisualization; tab: string; onTabChange: (tab: string) => void; updating: boolean}) {
     const resetKey = useMemo(() => ({spec,table}), [spec,table]);
-    const dataChart = useMemo(() => ({type: 'table' as const, columns: table?.columns.map(column => ({field: column.name})) ?? []}), [table]);
     let chartMessage: PreviewMessage | null = null;
     if (table && (!viewMessage || viewMessage.tone === 'loading')) {
         if (!table.rows.length) chartMessage = {tone: 'help',title: 'La vista es válida, pero no tiene filas',description: mode === 'basic' ? 'Revisá los filtros o elegí otro conjunto de datos para obtener filas que puedas visualizar.' : 'Revisá las condiciones DONDE / WHERE y los conjuntos de datos de la consulta para obtener filas que puedas visualizar.'};
@@ -30,14 +29,13 @@ export const VisualizationPreview = memo(function VisualizationPreview({spec, ta
                 <TabsContent value="visualization">
                     {tab === 'visualization' && (
                     chartMessage ? <VisualizationPreviewMessage message={chartMessage}/> : <VisualizationUpdatingFrame updating={updating}>
-                        <VisualizationErrorBoundary resetKey={resetKey} onError={onRenderError}><VisualizationRenderer spec={spec} table={table} prepared={prepared} showDimensions={false}/></VisualizationErrorBoundary>
+                        <VisualizationErrorBoundary resetKey={resetKey} onError={onRenderError}><VisualizationRenderer spec={spec} table={table} prepared={prepared}/></VisualizationErrorBoundary>
                     </VisualizationUpdatingFrame>
                     )}
-                    {tab === 'visualization' && spec.chart.type === 'table' && !chartMessage && <VisualizationDatasetDescriptions sources={table.sources}/>}
                 </TabsContent>
                 <TabsContent value="data">
                     {tab === 'data' && <>
-                        <VisualizationTable chart={dataChart} table={table} aspectRatio={1.6}/>
+                        <QueryResultTable table={table}/>
                         <VisualizationDatasetDescriptions sources={table.sources}/>
                     </>}
                 </TabsContent>

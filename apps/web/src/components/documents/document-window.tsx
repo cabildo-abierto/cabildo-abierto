@@ -8,7 +8,7 @@ import {parseDatasetBlock, parseDocumentBlock} from '@cabildo-abierto/utils';
 import {useId, useRef, useState, type RefObject} from "react";
 import type {TopicBlock} from "@cabildo-abierto/api";
 import {Dialog} from "@base-ui/react/dialog";
-import {ArrowUpRightIcon, ArrowsOutSimpleIcon, ChatCircleIcon, CornersInIcon, FileTextIcon, InfoIcon, TableIcon, XIcon} from "@phosphor-icons/react";
+import {ArrowUpRightIcon, ArrowsOutSimpleIcon, ChatCircleIcon, CornersInIcon, FileTextIcon, InfoIcon, DatabaseIcon, XIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {useDocumentWindow} from "@/hooks/use-document-window";
 import {useDocument} from "@/hooks/use-document";
@@ -51,7 +51,7 @@ export function DocumentWindow({block, title, returnFocus, topicId: sourceTopicI
     const closeRef = useRef<HTMLButtonElement>(null);
     const versionId = block.id;
     const {data: document} = useDocument(versionId, !dataset);
-    const Icon = dataset ? TableIcon : FileTextIcon;
+    const Icon = dataset ? DatabaseIcon : FileTextIcon;
     const externalUrl = dataset ? `/conjunto-de-datos/${encodeURIComponent(versionId)}` : document && (document.format === "pdf" || document.format === "office") && document.previewStatus === "ready"
         ? documentPreviewUrl(document.id)
         : `/documento/${encodeURIComponent(versionId)}`;

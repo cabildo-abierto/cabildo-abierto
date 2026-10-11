@@ -3,7 +3,7 @@ import {validateVisualizationSpec} from './visualizations.js';
 export type PlotPoint = {x: number; y: number | null; size?: number};
 export type PlotSeries = {label: string; points: PlotPoint[]};
 export type BarRow = {key: string; label: string; values: (number | null)[]; interval?: [number, number]};
-export type VisualizationData = {kind: 'bar'; rows: BarRow[]; labels: string[]} | {kind: 'line' | 'scatter'; series: PlotSeries[]; temporal: boolean} | {kind: 'table'};
+export type VisualizationData = {kind: 'bar'; rows: BarRow[]; labels: string[]} | {kind: 'line' | 'scatter'; series: PlotSeries[]; temporal: boolean};
 export function formatTableValue(value: TableValue, format?: ValueFormat): string {
     if (value === null) return '';
     if (format?.type === 'date') {
@@ -32,11 +32,6 @@ export function prepareVisualization(spec: VisualizationSpecV1, table: TypedTabl
         return value;
     }
     if (table.rows.some(row => row.length !== table.columns.length)) throw new Error('La tabla tiene filas inconsistentes.');
-    if (chart.type === 'table') {
-        if (new Set(chart.columns.map(c => c.field)).size !== chart.columns.length) throw new Error('No repitas columnas visibles.');
-        chart.columns.forEach(c => field(c.field, undefined, c.format));
-        return {kind: 'table'};
-    }
     const x = field(chart.x.field, chart.type === 'line' ? ['integer', 'decimal', 'date', 'datetime'] : chart.type === 'bar' ? undefined : ['integer', 'decimal'], chart.x.format);
     if (chart.type !== 'scatter' && chart.yAxis?.format?.type === 'date') throw new Error('El eje de valores necesita un formato numérico.');
     if (chart.type === 'histogram') {

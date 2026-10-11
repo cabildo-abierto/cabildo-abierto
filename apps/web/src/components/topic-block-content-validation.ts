@@ -1,5 +1,5 @@
 import type {TopicBlock} from "@cabildo-abierto/api";
-import {isRichTextEmpty, parseDatasetBlock, parseDocumentBlock, parseImageBlock, parseVisualizationBlock, richTextPlainText} from "@cabildo-abierto/utils";
+import {parseTableBlock, isRichTextEmpty, parseDatasetBlock, parseDocumentBlock, parseImageBlock, parseVisualizationBlock, richTextPlainText} from "@cabildo-abierto/utils";
 
 type BlockContent = Pick<TopicBlock, "typeId" | "content">;
 type ContentValidation = {empty: boolean; invalid: boolean};
@@ -11,7 +11,8 @@ function contentValidation(block: BlockContent): ContentValidation {
     const cached = validations.get(block);
     if (cached) return cached;
     let empty: boolean;
-    if (block.typeId === "imagen") empty = !parseImageBlock(block.content);
+    if (block.typeId === "tabla") empty = !parseTableBlock(block.content);
+    else if (block.typeId === "imagen") empty = !parseImageBlock(block.content);
     else if (block.typeId === "visualizacion") empty = !parseVisualizationBlock(block.content);
     else if (block.typeId === "dataset") empty = !parseDatasetBlock(block.content);
     else if (block.typeId === "documento") empty = !parseDocumentBlock(block.content);

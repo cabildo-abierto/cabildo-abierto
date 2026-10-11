@@ -41,12 +41,13 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  highlightPressed = false,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { highlightPressed?: boolean }) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), highlightPressed && props["aria-pressed"] === true && "border-primary bg-primary text-primary-foreground hover:bg-primary/80 dark:bg-primary dark:hover:bg-primary/80", className)}
       {...props}
     />
   )

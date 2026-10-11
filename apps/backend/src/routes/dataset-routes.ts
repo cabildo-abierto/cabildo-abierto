@@ -1,3 +1,4 @@
+import {loadTablePage} from '#/services/tables/load.js';
 import {ensureDatasetSource} from '#/services/datasets/sources.js';
 import {loadDataset} from '#/services/datasets/load.js';
 import express from 'express';
@@ -88,6 +89,10 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
             const page=body.page??0;
             res.json({success:true,value:{...options,columns:snapshot.columns,csvOptions:snapshotCSVOptions(snapshot),rows:await snapshotPage(snapshot,getStorage(),page),rowCount:snapshot.row_count,snapshotId:snapshot.id,page,fileId:hasFile?body.fileId:null,sourceUrl:hasUrl?body.sourceUrl:null,fileName}});
         } catch(error) { return fail(res,error); }
+    });
+    router.post('/dataset-versions/:id/table-page', async (req, res) => {
+        try { res.json({success: true, value: await loadTablePage(ctx.kysely, String(req.params.id), req.body ?? {}, getStorage())}); }
+        catch (error) { return fail(res, error); }
     });
     router.get('/dataset-versions/:id', async (req,res) => {
         try {

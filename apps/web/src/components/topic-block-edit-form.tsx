@@ -14,12 +14,13 @@ function BlockTypeIcon({typeId}: {typeId: BlockType["id"]}) {
     return <span className="inline-flex size-4 items-center justify-center text-sm font-semibold leading-none" aria-hidden="true">P</span>;
 }
 
-export function TopicBlockEditForm({topicId, block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage}: {
+export function TopicBlockEditForm({topicId, block, isNew, blockTypes, footnoteNumbers, toolbarContainer, onChange, onDeleteEmpty, documentInsertion, datasetInsertion, onInsertVisualization, onInsertImage, onInsertTable}: {
     topicId: string
     block: TopicBlock
     isNew: boolean
     blockTypes: BlockType[]
     footnoteNumbers?: ReadonlyMap<string, number>
+    onInsertTable?: () => void
     onInsertImage?: () => void
     onInsertVisualization?: () => void
     datasetInsertion?: AttachmentInsertionAction
@@ -36,7 +37,7 @@ export function TopicBlockEditForm({topicId, block, isNew, blockTypes, footnoteN
 
     return <div className="relative -mx-3 px-3 py-2">
         {block.typeId === "parrafo" ? <RichTextEditor topicId={topicId} key={block.blockNumber} content={block.content} footnoteNumbers={footnoteNumbers} toolbarContainer={toolbarContainer}
-            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage} onChange={content => onChange({...block, content})} onDeleteEmpty={onDeleteEmpty}/> : <Input
+            documentInsertion={documentInsertion} datasetInsertion={datasetInsertion} onInsertVisualization={onInsertVisualization} onInsertImage={onInsertImage} onInsertTable={onInsertTable} onChange={content => onChange({...block, content})} onDeleteEmpty={onDeleteEmpty}/> : <Input
             value={block.content}
             onChange={event => onChange({...block, content: event.target.value})}
             onKeyDown={event => { if (event.key === "Backspace" && block.content === "") onDeleteEmpty(); }}
@@ -54,7 +55,7 @@ export function TopicBlockEditForm({topicId, block, isNew, blockTypes, footnoteN
                     <SelectValue><BlockTypeIcon typeId={block.typeId}/></SelectValue>
                 </SelectTrigger>
                 <SelectContent className="w-max min-w-48">
-                    {blockTypes.filter(type => !isAttachmentBlock(type.id) && type.id !== "visualizacion" && type.id !== "imagen").map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
+                    {blockTypes.filter(type => !isAttachmentBlock(type.id) && type.id !== "visualizacion" && type.id !== "imagen" && type.id !== "tabla").map(type => <SelectItem key={type.id} value={type.id} className="cursor-pointer" aria-label={type.name} title={type.name}>
                         <BlockTypeIcon typeId={type.id}/>
                         <span>{type.name}</span>
                     </SelectItem>)}

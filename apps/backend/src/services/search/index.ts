@@ -1,3 +1,4 @@
+import {blockRichTextContents, parseTableBlock, richTextPlainText} from '@cabildo-abierto/utils';
 import {env} from "#/lib/env.js";
 import {sql} from 'kysely';
 import {parseRichTextContent, richTextParagraphs, parseDocumentBlock, parseDatasetBlock, parseImageBlock, parseVisualizationBlock} from '@cabildo-abierto/utils';
@@ -67,6 +68,9 @@ function blockSegment(type: BlockType['id'], content: string): SearchSegment {
     } else if (type === 'visualizacion') {
         const value = parseVisualizationBlock(content);
         title = value?.spec.title ?? ''; text = value?.spec.description ?? '';
+    } else if (type === 'tabla') {
+        const table = parseTableBlock(content);
+        text = table?.mode === 'static' ? blockRichTextContents({typeId: type, content}).map(richTextPlainText).join('\n') : table?.columns.map(column => column.label || column.field).join('\n') ?? '';
     } else if (type === 'imagen') {
         const value = parseImageBlock(content);
         text = [value?.caption, value?.alt].filter(Boolean).join('\n');
