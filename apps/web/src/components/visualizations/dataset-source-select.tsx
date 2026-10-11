@@ -8,10 +8,12 @@ import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from '@/hooks/use-debounced-value';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
+import {ScrollArea} from '@/components/ui/scroll-area';
 import {Spinner} from '@/components/ui/spinner';
+import {DatasetSearchResult} from '@/components/datasets/dataset-search-result';
 import {cn} from '@/lib/utils';
 
-const label = (source: DatasetSource) => `${source.title} · ${source.topic.title} · ${source.blockNumber}`;
+const label = (source: DatasetSource) => `${source.title} · ${source.topic.title}`;
 export function DatasetSourceSelect({topicId, value, onChange, label: fieldLabel = 'Conjunto de datos', placeholder = 'Elegir…', iconOnly = false}: {topicId: string; value: DatasetSource | null; onChange: (source: DatasetSource) => void; label?: string; placeholder?: string; iconOnly?: boolean}) {
     const [search,setSearch] = useState('');
     const [open,setOpen] = useState(false);
@@ -29,7 +31,7 @@ export function DatasetSourceSelect({topicId, value, onChange, label: fieldLabel
             onValueChange={source => { if (source) onChange(source); }} onOpenChange={open => {setOpen(open); if (open) setSearch('');}}>
             <Combobox.Label className={cn(iconOnly && 'sr-only')}>{fieldLabel}</Combobox.Label>
             <Combobox.Trigger render={<Button type="button" variant="outline" size={iconOnly ? 'icon-sm' : 'default'} title={iconOnly ? fieldLabel : undefined} aria-label={iconOnly ? fieldLabel : undefined} className={cn(iconOnly ? 'bg-popover' : 'w-full min-w-0 justify-between font-normal')}/>}>
-                {iconOnly ? <TableIcon/> : <><span className={cn('min-w-0 truncate')} title={value ? label(value) : undefined}>{value ? label(value) : placeholder}</span><CaretDownIcon/></>}
+                {iconOnly ? <TableIcon/> : <><span className={cn('min-w-0 truncate')} title={value?.title}>{value ? label(value) : placeholder}</span><CaretDownIcon/></>}
             </Combobox.Trigger>
             <Combobox.Portal><Combobox.Positioner sideOffset={4} align={iconOnly ? 'end' : 'start'} className={cn('z-50')}>
                 <Combobox.Popup data-attachment-editor-popup className={cn(iconOnly ? 'w-96' : 'w-(--anchor-width)', 'max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10')}>
@@ -37,12 +39,12 @@ export function DatasetSourceSelect({topicId, value, onChange, label: fieldLabel
                     {loading && <div className={cn('flex justify-center p-2')}><Spinner/></div>}
                     {catalog.error && <p role="alert" className={cn('p-3 text-xs text-destructive')}>{catalog.error.message}</p>}
                     <Combobox.Empty>{!loading && !catalog.error && <p className={cn('p-3 text-xs text-muted-foreground')}>No encontramos conjuntos de datos publicados.</p>}</Combobox.Empty>
-                    <Combobox.List className={cn('max-h-60 overflow-y-auto p-1')}>
+                    <ScrollArea className={cn('max-h-60')}><Combobox.List className={cn('p-1 pr-3')}>
                         {(source: DatasetSource) => <Combobox.Item key={JSON.stringify([source.topicId,source.blockNumber])} value={source} className={cn('flex cursor-default items-center gap-2 rounded-md px-2 py-2 text-xs outline-none data-highlighted:bg-accent data-highlighted:text-accent-foreground')}>
-                            <span className={cn('min-w-0 flex-1')}><span className={cn('block truncate font-medium')}>{source.title}</span><span className={cn('block truncate text-muted-foreground')}>{source.topic.title} · {source.blockNumber}</span></span>
+                            <DatasetSearchResult title={source.title} rowCount={source.rowCount} columnCount={source.columns.length} topicTitle={source.topic.title}/>
                             <Combobox.ItemIndicator><CheckIcon/></Combobox.ItemIndicator>
                         </Combobox.Item>}
-                    </Combobox.List>
+                    </Combobox.List></ScrollArea>
                 </Combobox.Popup>
             </Combobox.Positioner></Combobox.Portal>
         </Combobox.Root>

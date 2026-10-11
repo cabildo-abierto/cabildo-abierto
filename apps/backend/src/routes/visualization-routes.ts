@@ -40,7 +40,7 @@ export function visualizationRoutes(ctx: AppContext, createStorage: () => Object
             const {sources: [{topic,block}]} = await datasetSourceBlocks(ctx.kysely,[{topicId: String(req.params.topicId),blockNumber: String(req.params.blockNumber)}]);
             const topicId = topic.id;
             const data = parseDatasetBlock(block.content)!;
-            const value: DatasetSource = {topic, topicId, blockNumber: block.blockNumber, versionId: block.id, title: data.title, columns: data.columns};
+            const value: DatasetSource = {topic, topicId, blockNumber: block.blockNumber, versionId: block.id, title: data.title, rowCount: data.rowCount, columns: data.columns};
             res.set('Cache-Control', 'no-store').json({success: true, value});
         } catch (error) { fail(res,error); }
     });
