@@ -1,9 +1,8 @@
 "use client";
 
-import {useRef, useState} from "react";
+import {useState} from "react";
 import {DOCUMENT_ACCEPT} from "@cabildo-abierto/utils";
-import {Button} from "@/components/ui/button";
-import {Spinner} from "@/components/ui/spinner";
+import {FileDropzone} from "@/components/ui/file-dropzone";
 import {DocumentFileName} from "./document-file-name";
 import {cn} from "@/lib/utils";
 
@@ -14,28 +13,19 @@ export function DocumentFilePicker({fileId, busy, disabled, onSelect, accept = D
     disabled: boolean;
     onSelect: (file: File) => Promise<void>;
 }) {
-    const inputRef = useRef<HTMLInputElement>(null);
     const [selectedName, setSelectedName] = useState<string | null>(null);
 
-    return <div className={cn("flex items-center gap-2")}>
-        <input ref={inputRef} type="file" accept={accept} hidden disabled={disabled || busy}
-            onChange={async event => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (!file) return;
+    return <div className={cn("min-w-0 space-y-2")}>
+        <FileDropzone accept={accept} busy={busy} disabled={disabled}
+            label={fileId ? "Arrastrá un archivo para reemplazarlo o hacé clic para elegir" : "Arrastrá un archivo acá o hacé clic para elegir"}
+            hint={accept === DOCUMENT_ACCEPT ? undefined : accept.split(',').map(extension => extension.replace(/^\./, '').toUpperCase()).join(' · ')}
+            onSelect={async file => {
                 setSelectedName(file.name);
                 try { await onSelect(file); }
                 finally { setSelectedName(null); }
             }}/>
-        <Button type="button" variant="secondary" size="sm" disabled={disabled || busy}
-            className={cn("border-border")} onClick={() => inputRef.current?.click()}>
-            {fileId ? "Reemplazar archivo" : "Elegir archivo"}
-        </Button>
         {(selectedName || fileId) && <div className={cn("min-w-0 text-xs text-muted-foreground break-words")}>
             {selectedName ?? <DocumentFileName fileId={fileId}/>}
         </div>}
-        <span className={cn("size-4 shrink-0")}>
-            {busy && <Spinner aria-label={accept.includes(".csv") ? "Cargando dataset" : "Subiendo y preparando el documento"} className={cn("text-muted-foreground")}/>}
-        </span>
     </div>;
 }

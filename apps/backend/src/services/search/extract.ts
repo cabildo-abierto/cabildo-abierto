@@ -14,6 +14,7 @@ import type {SearchSegment} from './types.js';
 import {convertOfficePath} from '../documents/conversion.js';
 import {searchPlainText} from './index.js';
 import {segmentSearchText} from './segments.js';
+import {htmlPlainText} from '../documents/html.js';
 import type {SearchSource} from './types.js';
 
 const execute = promisify(execFile);
@@ -29,6 +30,7 @@ export async function extractSearchSource(database: Kysely<DB>, source: SearchSo
     const data = await getStorage().read(file!);
     const hash = createHash('sha256').update(data).digest('hex');
     if (hash === source.content_hash) return {hash, segments:null};
+    if (file!.format === 'html') return {hash, segments: segmentSearchText(htmlPlainText(new TextDecoder('utf-8', {fatal: true}).decode(data)), 'documento')};
     if (file!.format === 'text' || file!.format === 'markdown') {
         return {hash, segments: segmentSearchText(new TextDecoder('utf-8', {fatal: true}).decode(data), 'documento')};
     }

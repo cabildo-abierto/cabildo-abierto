@@ -1,8 +1,10 @@
 import type {TopicSummary} from "./topic";
 
-export type DocumentFormat = "pdf" | "office" | "text" | "markdown" | "ca";
+export type DocumentFormat = "pdf" | "office" | "text" | "markdown" | "ca" | "html";
 export type DocumentUploadOutput = {fileId: string; fileName: string; previewError: string | null};
+export type DocumentImportOutput = DocumentUploadOutput & {format: DocumentFormat; sourceUrl: string};
 export type DocumentOutput = {
+    sourceUrl?: string | null;
     id: string;
     versionId: string;
     title: string;

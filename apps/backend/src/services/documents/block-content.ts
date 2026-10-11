@@ -3,7 +3,7 @@ import {sql} from "kysely";
 /** Expose structured block metadata through the existing block content API without duplicating stored data. */
 export function documentBlockContent() {
     return sql<string>`case when document.id is not null then json_build_object(
-        'fileId', document.file_id, 'title', document.title, 'description', document.description
+        'fileId', document.file_id, 'sourceUrl', document.source_url, 'title', document.title, 'description', document.description
     )::text else coalesce((select json_build_object(
         'sourceFormat', dataset_source.source_format, 'jqFilter', dataset_source.jq_filter, 'fileId', dataset_source.file_id, 'sourceUrl', dataset_source.source_url, 'title', dataset.title,
         'description', dataset.description, 'columns', dataset.columns, 'csvOptions', dataset.csv_options

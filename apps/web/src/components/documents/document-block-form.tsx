@@ -2,7 +2,9 @@
 
 import {useState} from "react";
 import type {DocumentUploadOutput} from "@cabildo-abierto/api";
-import {DOCUMENT_ACCEPT} from "@cabildo-abierto/utils";
+import {DOCUMENT_ACCEPT, type DocumentBlockContent} from "@cabildo-abierto/utils";
+import {Button} from '@/components/ui/button';
+import {DocumentUrlPicker} from './document-url-picker';
 import {DocumentFilePicker} from "./document-file-picker";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -11,7 +13,7 @@ import {cn} from "@/lib/utils";
 
 const transparentFieldClass = "h-auto min-h-0 rounded-none border-0 bg-transparent p-0 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent";
 
-function draft(content: string): {title: string; description: string; fileId: string} {
+function draft(content: string): DocumentBlockContent {
     try { return {...{title: "", description: "", fileId: ""}, ...JSON.parse(content)}; }
     catch { return {title: "", description: "", fileId: ""}; }
 }
@@ -20,6 +22,7 @@ export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyC
     topicId: string; content: string; disabled: boolean; embedded?: boolean; onChange: (content: string) => void; onBusyChange: (busy: boolean) => void;
 }) {
     const value = draft(content);
+    const [source, setSource] = useState<'file' | 'url'>(() => value.sourceUrl != null ? 'url' : 'file');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const upload = async (file: File) => {
@@ -34,7 +37,7 @@ export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyC
             });
             const result: {success: boolean; value: DocumentUploadOutput; error: string} = await response.json();
             if (!response.ok || !result.success) throw new Error(result.error || 'No pudimos subir el archivo.');
-            onChange(JSON.stringify({...value, fileId: result.value.fileId, title: value.title || file.name.replace(/\.[^.]+$/, '')}));
+            onChange(JSON.stringify({...value, sourceUrl: null, fileId: result.value.fileId, title: value.title || file.name.replace(/\.[^.]+$/, '')}));
             setError(result.value.previewError);
         } catch (error) { setError(error instanceof Error ? error.message : 'No pudimos subir el archivo.'); }
         finally { setBusy(false); onBusyChange(false); }
@@ -46,7 +49,13 @@ export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyC
             <Textarea rows={1} className={cn(transparentFieldClass, "text-xs leading-relaxed text-muted-foreground md:text-xs/relaxed")} aria-label="Descripción" placeholder="Descripción" value={value.description} maxLength={5000}
                 onChange={event => onChange(JSON.stringify({...value, description: event.target.value}))}/>
         </div>
-        <DocumentFilePicker fileId={value.fileId} busy={busy} disabled={disabled} onSelect={upload}/>
+        <div className={cn('flex gap-1')}>
+            {(['file', 'url'] as const).map(mode => <Button key={mode} type="button" size="xs" variant={source === mode ? 'secondary' : 'outline'} aria-pressed={source === mode}
+                onClick={() => {if (source === mode) return; setSource(mode); setError(null); onChange(JSON.stringify({...value, fileId: '', sourceUrl: mode === 'url' ? '' : null}));}}>{mode === 'file' ? 'Archivo' : 'URL'}</Button>)}
+        </div>
+        {source === 'url' ? <DocumentUrlPicker topicId={topicId} value={value} onChange={next => onChange(JSON.stringify(next))}
+            onBusyChange={next => {setBusy(next); onBusyChange(next);}}/>
+            : <DocumentFilePicker fileId={value.fileId} busy={busy} disabled={disabled} onSelect={upload}/>}
         {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}
     </fieldset>;
 }

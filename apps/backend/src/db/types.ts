@@ -156,7 +156,7 @@ export type DB = {
     };
     visualization_dataset: {visualization_id: string; dataset_topic_id: string; dataset_block_number: string};
     document: {
-        id: string; file_id: string; title: string; description: string;
+        id: string; file_id: string; source_url: Generated<string | null>; title: string; description: string;
     };
     document_block: {
         id: string; file_id: string; position: number; type_id: string; content: string;

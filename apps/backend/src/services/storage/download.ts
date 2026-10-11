@@ -28,20 +28,23 @@ async function addresses(hostname: string, deadline: number) {
         ]);
     } finally { if (timer) clearTimeout(timer); }
 }
-export type RemoteOptions = {maxBytes: number; accept: string; label: string; etag?: string | null; lastModified?: string | null};
+export type RemoteOptions = {maxBytes: number; accept: string; label: string; userAgent?: string; etag?: string | null; lastModified?: string | null};
+export async function publicRemoteUrl(location: string, deadline = Date.now() + 30000) {
+    if (!validDatasetUrl(location) || location.length > 4096) throw new TopicActionError(400, 'La URL debe ser HTTP o HTTPS y no contener credenciales.');
+    const url = new URL(location);
+    const resolved = await addresses(url.hostname, deadline);
+    if (!resolved.length || resolved.some(a => !publicRemoteAddress(a.address))) throw new TopicActionError(400, 'La URL debe apuntar a un servidor público.');
+    return {url, address: resolved[0]};
+}
 export async function openRemoteFile(source: string, options: RemoteOptions) {
     const deadline = Date.now() + 30000;
     const signal = AbortSignal.timeout(30000);
     let location = source;
     for (let redirects = 0; redirects <= 3; redirects++) {
-        if (!validDatasetUrl(location) || location.length > 4096) throw new TopicActionError(400, 'La URL debe ser HTTP o HTTPS y no contener credenciales.');
-        const url = new URL(location);
-        const resolved = await addresses(url.hostname, deadline);
-        if (!resolved.length || resolved.some(a => !publicRemoteAddress(a.address))) throw new TopicActionError(400, 'La URL debe apuntar a un servidor público.');
-        const address = resolved[0];
+        const {url, address} = await publicRemoteUrl(location, deadline);
         const response = await new Promise<http.IncomingMessage>((resolve, reject) => {
             const request = (url.protocol === 'https:' ? https : http).get(url, {
-                agent: false, signal, headers: {Accept: options.accept, 'Accept-Encoding': 'identity', ...(options.etag ? {'If-None-Match': options.etag} : options.lastModified ? {'If-Modified-Since': options.lastModified} : {})},
+                agent: false, signal, headers: {Accept: options.accept, 'Accept-Encoding': 'identity', ...(options.userAgent ? {'User-Agent': options.userAgent} : {}), ...(options.etag ? {'If-None-Match': options.etag} : options.lastModified ? {'If-Modified-Since': options.lastModified} : {})},
                 lookup: (_host, options, callback) => {
                     if (typeof options === 'object' && options.all) callback(null, [address]);
                     else callback(null, address.address, address.family);
@@ -63,7 +66,7 @@ export async function openRemoteFile(source: string, options: RemoteOptions) {
         }
         const max = options.maxBytes;
         if (Number(response.headers['content-length']) > max) { response.destroy(); throw new TopicActionError(413, `El archivo remoto supera el tamaño permitido.`); }
-        return {response, etag: response.headers.etag, lastModified: response.headers['last-modified']};
+        return {response, finalUrl: location, etag: response.headers.etag, lastModified: response.headers['last-modified']};
     }
     throw new TopicActionError(400, `No pudimos descargar ${options.label}.`);
 }

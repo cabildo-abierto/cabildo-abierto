@@ -16,15 +16,15 @@ const formats: Record<string, {format: DocumentFormat; mime: string}> = {
     '.markdown': {format: 'markdown', mime: 'text/markdown'},
     '.json': {format: 'ca', mime: 'application/json'},
 };
-export function documentFileType(name: string) {
+export function documentFileType(name: string, html = false) {
     const extension = extname(name).toLowerCase();
-    const type = formats[extension];
+    const type = html && ['.html', '.htm'].includes(extension) ? {format: 'html' as const, mime: 'text/html'} : formats[extension];
     if (!type) throw new TopicActionError(400, "El formato no está admitido. Podés subir PDF, DOC, DOCX, ODT, RTF, TXT, Markdown o CA.");
     return {...type, extension, maxBytes: (type.format === 'pdf' || type.format === 'office' ? env.DOCUMENT_MAX_MB : env.DOCUMENT_TEXT_MAX_MB) * 1024 * 1024};
 }
 
-export async function validateDocumentFile(path: string, name: string) {
-    const type = documentFileType(name);
+export async function validateDocumentFile(path: string, name: string, html = false) {
+    const type = documentFileType(name, html);
     const data = await readFile(path);
     if (!data.length || data.length > type.maxBytes) throw new TopicActionError(400, "El archivo está vacío o supera el tamaño permitido.");
     const invalid = () => { throw new TopicActionError(400, "El contenido no corresponde al formato del archivo."); };
@@ -38,7 +38,7 @@ export async function validateDocumentFile(path: string, name: string) {
         if (type.extension === '.odt' && !data.includes(Buffer.from('application/vnd.oasis.opendocument.text'))) invalid();
     }
     let text: string | null = null;
-    if (['text', 'markdown', 'ca'].includes(type.format)) {
+    if (['text', 'markdown', 'ca', 'html'].includes(type.format)) {
         try { text = new TextDecoder('utf-8', {fatal: true}).decode(data); } catch { invalid(); }
         if (text!.includes('\0')) invalid();
     }
@@ -48,4 +48,8 @@ export async function validateDocumentFile(path: string, name: string) {
         if (!ca) throw new TopicActionError(400, "El archivo no es un documento CA válido.");
     }
     return {...type, ca};
+}
+
+export function documentExtensionForMime(mime: string): string | undefined {
+    return Object.entries(formats).find(([, type]) => type.mime === mime)?.[0];
 }

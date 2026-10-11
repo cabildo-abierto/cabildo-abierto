@@ -12,6 +12,7 @@ import {topicReading, topicAttachments} from '#/services/topic-attachments.js';
 import {requireDatasetFileAccess} from '#/services/datasets/access.js';
 import {documentBlockContent} from "#/services/documents/block-content.js";
 import {requireDocumentFileAccess} from "#/services/documents/access.js";
+import {publicRemoteUrl} from '#/services/storage/download.js';
 import {TopicActionError} from "#/services/topic-title-edits.js";
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
@@ -444,7 +445,10 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     }
                 }
                 for (const block of blocksToValidate.filter(block => block.typeId === "documento")) {
-                    await requireDocumentFileAccess(trx, parseDocumentBlock(block.content)!.fileId, user.id);
+                    const metadata = parseDocumentBlock(block.content)!;
+                    const file = await requireDocumentFileAccess(trx, metadata.fileId, user.id);
+                    if (file.format === 'html' && !metadata.sourceUrl) throw new TopicEditError(400, 'La página necesita una URL de origen.');
+                    if (metadata.sourceUrl) await publicRemoteUrl(metadata.sourceUrl);
                 }
                 for (const block of blocksToValidate.filter(block => block.typeId === "tabla")) {
                     const table = parseTableBlock(block.content)!;
@@ -528,7 +532,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                 const visualizations: Array<{id: string; query: string; query_mode: 'auto' | 'custom'; query_language_version: number; spec: string}> = [];
                 const visualizationDatasets: Array<{visualization_id: string; dataset_topic_id: string; dataset_block_number: string}> = [];
                 const images: {id:string;file_id:string;width_percent:number;alignment:string;flow:string;alt:string;caption:string}[] = [];
-                const documents: Array<{id: string; file_id: string; title: string; description: string}> = [];
+                const documents: Array<{id: string; file_id: string; source_url: string | null; title: string; description: string}> = [];
                 for (const block of resolvedBlocks) {
                     const blockNumber = block.blockNumber!;
                     if (!newNumbers.has(blockNumber) && !changedExisting.some(changed => changed.blockNumber === blockNumber)) continue;
@@ -550,7 +554,7 @@ export const topicRoutes = (ctx: AppContext): Router => {
                     }
                     if (block.typeId === "documento") {
                         const metadata = parseDocumentBlock(block.content)!;
-                        documents.push({id: versionId, file_id: metadata.fileId, title: metadata.title, description: metadata.description});
+                        documents.push({id: versionId, file_id: metadata.fileId, source_url: metadata.sourceUrl ?? null, title: metadata.title, description: metadata.description});
                     }
                     versions.push({
                         id: versionId,

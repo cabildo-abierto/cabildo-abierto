@@ -450,6 +450,11 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         {visibleBlocks.map((block, index) => {
             const kind = changeKind(block, savedByNumber);
             const active = edit.activeBlockNumber === block.blockNumber;
+            const last = index === visibleBlocks.length - 1;
+            const insertAfterImage = block.typeId === "imagen" && !last;
+            const insertButton = !saving && !block.deleted && !blockIsEmpty(block) && (block.typeId === "imagen" || last || !blockIsEmpty(visibleBlocks[index + 1]))
+                ? <TopicBlockInsertButton reserveSpace={block.typeId === "imagen"} className={cn(block.typeId === "imagen" && last && "clear-both")} onClick={() => startNewBlock(block.blockNumber)}/>
+                : null;
             const changeIndicator = kind && <span className={cn("absolute -left-3 w-1 rounded-full", block.typeId === "imagen" ? "inset-y-0" : "top-2 bottom-2", changeBarClass(kind))} aria-hidden="true"/>;
             return <div key={block.blockNumber} className="contents">
                 <TopicBlockFrame block={block}><div className={cn("group/block relative")}>
@@ -520,10 +525,10 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                         openInPage={openToolsInPage}
                         {...blockSectionProps(block.blockNumber)}
                     />}
-                </div></TopicBlockFrame>
-                {!saving && block.typeId !== "imagen" && !block.deleted && !blockIsEmpty(block) && (index < visibleBlocks.length - 1
-                    ? !blockIsEmpty(visibleBlocks[index + 1]) && <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>
-                    : <TopicBlockInsertButton onClick={() => startNewBlock(block.blockNumber)}/>)}
+                </div>
+                    {insertAfterImage && insertButton}
+                </TopicBlockFrame>
+                {!insertAfterImage && insertButton}
             </div>;
         })}
         <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>

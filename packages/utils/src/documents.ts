@@ -1,3 +1,4 @@
+import {validDatasetUrl} from "./datasets.js";
 import {claimsRichTextFormat, parseRichTextContent, isRichTextContent, isRichTextEmpty, richTextPlainText, type RichTextContent} from "./rich-text.js";
 
 export type CADocument = {
@@ -5,7 +6,7 @@ export type CADocument = {
     version: 1;
     blocks: Array<{typeId: "parrafo"; content: string | RichTextContent} | {typeId: "h1" | "h2"; content: string}>;
 };
-export type DocumentBlockContent = {fileId: string; title: string; description: string};
+export type DocumentBlockContent = {sourceUrl?: string | null; fileId: string; title: string; description: string};
 export const DOCUMENT_ACCEPT = ".pdf,.doc,.docx,.odt,.rtf,.txt,.md,.markdown,.json";
 
 export function parseDocumentBlock(content: string): DocumentBlockContent | null {
@@ -14,8 +15,9 @@ export function parseDocumentBlock(content: string): DocumentBlockContent | null
         if (!value || typeof value !== "object" || Array.isArray(value)
             || typeof value.fileId !== "string" || !/^[0-9a-f-]{36}$/i.test(value.fileId)
             || typeof value.title !== "string" || !value.title.trim() || value.title.length > 200
+            || (value.sourceUrl != null && (typeof value.sourceUrl !== "string" || value.sourceUrl.length > 4096 || !validDatasetUrl(value.sourceUrl)))
             || typeof value.description !== "string" || value.description.length > 5_000) return null;
-        return {fileId: value.fileId, title: value.title.trim(), description: value.description.trim()};
+        return {...(value.sourceUrl ? {sourceUrl: value.sourceUrl} : {}), fileId: value.fileId, title: value.title.trim(), description: value.description.trim()};
     } catch { return null; }
 }
 

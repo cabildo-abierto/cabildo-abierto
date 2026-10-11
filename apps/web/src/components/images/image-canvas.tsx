@@ -3,6 +3,7 @@ import {useState,type ReactNode} from 'react';
 import type {ImageContent} from '@cabildo-abierto/api';
 import {useImageAsset} from '@/hooks/use-image-asset';
 import {Spinner} from '@/components/ui/spinner';
+import {TextWithLinks} from '@/components/ui/text-with-links';
 import {cn} from '@/lib/utils';
 import {ImageResizeBorder} from './image-resize-border';
 import {useImageSelection} from '@/hooks/use-image-selection';
@@ -23,13 +24,13 @@ export function ImageCanvas({value,preview=false,onWidthChange,disabled=false,in
             if(retried!==value.fileId){setRetried(value.fileId);void asset.refetch().then(result=>{if(result.data?.url===asset.data!.url)setFailed(asset.data!.url);});}
             else setFailed(asset.data!.url);
         }}/>;
-    return <figure className={cn('m-0 min-w-0 py-2')}>
+    return <figure className={cn('m-0 min-w-0 py-1')}>
         <div ref={selection.ref} className={cn('relative rounded-md',onWidthChange&&selected&&'ring-2 ring-primary')}>
             {changeIndicator}
             {enlarge?<button type="button" aria-label="Ampliar imagen" className={cn('block w-full cursor-zoom-in rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring')} onClick={()=>setOpen(true)}>{image}</button>:onWidthChange?<button type="button" aria-label="Seleccionar imagen" aria-pressed={selected} disabled={disabled} className={cn("block w-full rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring")} onClick={()=>{selection.select();onSelect?.();}}>{image}</button>:image}
             {onWidthChange&&selected&&<ImageResizeBorder value={value} onChange={onWidthChange} disabled={disabled}/>}
         </div>
-        {value.caption&&<figcaption className={cn('mt-2 whitespace-pre-wrap text-xs text-muted-foreground wrap-anywhere',preview&&'line-clamp-2')}>{value.caption}</figcaption>}
+        {value.caption&&<figcaption className={cn('mt-2 whitespace-pre-wrap text-xs text-muted-foreground wrap-anywhere',preview&&'line-clamp-2')}><TextWithLinks text={value.caption} linksEnabled={interactive}/></figcaption>}
         {enlarge&&<ImageViewer value={value} url={asset.data.url} open={open} onClose={()=>setOpen(false)}/>}
     </figure>;
 }

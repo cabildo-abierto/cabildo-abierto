@@ -8,6 +8,7 @@ import {TopicActionError} from "#/services/topic-title-edits.js";
 import {S3Storage, type ObjectStorage} from "#/services/storage/storage.js";
 import {requireDocumentAccess} from "#/services/documents/access.js";
 import {uploadDocument} from "#/services/documents/upload.js";
+import {importDocument} from '#/services/documents/import.js';
 import {convertOfficeFile} from "#/services/documents/conversion.js";
 import {deleteDiscussionComment, discussionComments, mutateDiscussion, publishDiscussionComment, type DiscussionTarget} from "#/services/discussions.js";
 
@@ -20,18 +21,30 @@ export function documentRoutes(ctx: AppContext) {
         ctx.logger.pino.error({error}, 'document request failed');
         return res.status(500).json({success: false, error: 'No pudimos completar la operación del documento.'});
     };
+    const prepare = async (uploaded: Awaited<ReturnType<typeof uploadDocument>>) => {
+        if (uploaded.format === 'office') {
+            try { await convertOfficeFile(ctx, getStorage(), uploaded.id); }
+            catch (error) {
+                if (!(error instanceof TopicActionError)) throw error;
+                await ctx.kysely.updateTable('file').set({preview_status: 'failed', preview_error: error.message}).where('id', '=', uploaded.id).execute();
+            }
+        }
+        const file = await ctx.kysely.selectFrom('file').select('preview_error').where('id', '=', uploaded.id).executeTakeFirstOrThrow();
+        return {fileId: uploaded.id, fileName: uploaded.fileName, previewError: file.preview_error};
+    };
+    router.post('/topics/:id/documents/import', requireSession(ctx), async (req, res) => {
+        try {
+            const url = req.body?.url;
+            if (typeof url !== 'string' || !url.trim() || url.length > 4096) throw new TopicActionError(400, 'La URL no es válida.');
+            const sourceUrl = url.trim();
+            const uploaded = await importDocument(ctx, getStorage(), String(req.params.id), requiredUser(req).id, sourceUrl);
+            res.status(201).json({success: true, value: {...await prepare(uploaded), format: uploaded.format, sourceUrl}});
+        } catch (error) { return fail(res, error); }
+    });
     router.post('/topics/:id/documents', requireSession(ctx), async (req, res) => {
         try {
             const uploaded = await uploadDocument(ctx, getStorage(), req, String(req.params.id), requiredUser(req).id);
-            if (uploaded.format === 'office') {
-                try { await convertOfficeFile(ctx, getStorage(), uploaded.id); }
-                catch (error) {
-                    if (!(error instanceof TopicActionError)) throw error;
-                    await ctx.kysely.updateTable('file').set({preview_status: 'failed', preview_error: error.message}).where('id', '=', uploaded.id).execute();
-                }
-            }
-            const result = await ctx.kysely.selectFrom('file').select('preview_error').where('id', '=', uploaded.id).executeTakeFirstOrThrow();
-            return res.status(201).json({success: true, value: {fileId: uploaded.id, fileName: uploaded.fileName, previewError: result.preview_error}});
+            return res.status(201).json({success: true, value: await prepare(uploaded)});
         } catch (error) { return fail(res, error); }
     });
     router.get('/document-files/:id', withSession(ctx), async (req, res) => {
@@ -49,7 +62,7 @@ export function documentRoutes(ctx: AppContext) {
                 .where('file_id', '=', doc.file_id).orderBy('position').execute();
             const text = doc.format === 'text' || doc.format === 'markdown' ? new TextDecoder().decode(await getStorage().read(file)) : null;
             const value: DocumentOutput = {id: doc.id, versionId: doc.id, title: doc.title, description: doc.description,
-                topic, format: doc.format as DocumentFormat, fileName: file.name, size: file.size,
+                topic, sourceUrl: doc.source_url, format: doc.format as DocumentFormat, fileName: file.name, size: file.size,
                 previewStatus: doc.preview_status as DocumentOutput['previewStatus'], previewError: doc.preview_error,
                 canRetry: currentUser(req)?.id === doc.author_id, text,
                 blocks: blocks.map(block => ({id: block.id, typeId: block.type_id as 'parrafo' | 'h1' | 'h2', content: block.content, commentCount: block.commentCount}))};

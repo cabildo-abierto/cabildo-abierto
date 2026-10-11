@@ -10,8 +10,10 @@ import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 import {CADocumentBlock} from "./ca-document-block";
 import {documentPreviewUrl} from "@/lib/document-display";
 import {cn} from "@/lib/utils";
+import {DocumentHtmlViewer} from './document-html-viewer';
 
 export function DocumentViewer({document, inWindow = false}: {document: DocumentOutput; inWindow?: boolean}) {
+    if (document.format === 'html') return document.sourceUrl ? <DocumentHtmlViewer key={document.sourceUrl} url={document.sourceUrl} title={document.title} inWindow={inWindow}/> : <p role="alert">No encontramos la URL de la página.</p>;
     if (document.format === 'ca') {
         const {footnotes, numberById} = topicFootnotes(document.blocks.map(block => ({...block, blockNumber: block.id, order: 'n'})));
         return <div>{document.blocks.map(block => <CADocumentBlock key={block.id} block={block} documentId={document.id} versionId={document.versionId} footnoteNumbers={numberById}/>)}

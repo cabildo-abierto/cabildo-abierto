@@ -52,7 +52,7 @@ export function HomeSearch() {
             </div>
         </section>
         <section className={cn('mt-8 w-full space-y-4')} aria-live="polite" aria-busy={loading}>
-            {loading && <div className={cn('flex justify-center')}><Spinner className={cn('size-8')}/></div>}
+            {loading && <div role="status" className={cn('flex justify-center')}><Spinner className={cn('size-8')}/><span className={cn('sr-only')}>Cargando…</span></div>}
             {error && <p className={cn('text-center text-sm text-destructive')}>{error}</p>}
             {!loading && !error && empty && <p className={cn('text-center text-sm text-muted-foreground')}>{query ? 'No encontramos resultados para esta búsqueda.' : 'Todavía no hay temas.'}</p>}
             {!error && !empty && <ul className={cn('grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3')}>

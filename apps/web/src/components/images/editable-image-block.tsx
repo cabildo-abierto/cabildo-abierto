@@ -24,7 +24,7 @@ export function EditableImageBlock({block, onChange, onEdit, onRemove, disabled,
     if (!value) return <p role="alert" className={cn("text-xs text-destructive")}>La configuración de la imagen no es válida.</p>;
     const update = (next: typeof value) => onChange({...block, content: JSON.stringify(next)});
 
-    return <div ref={selection.ref} className={cn("py-2")}>
+    return <div ref={selection.ref} className={cn("py-1")}>
         <ImageCanvas changeIndicator={changeIndicator} key={value.fileId} value={value} selected={selection.selected} onSelect={selection.select}
             onWidthChange={widthPercent => update({...value, widthPercent})} disabled={disabled}/>
         <TopicBlockTools {...toolsProps} block={block} actions={<>

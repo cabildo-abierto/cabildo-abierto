@@ -6,8 +6,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useRef} from "react";
 import {useQuery} from "@tanstack/react-query";
 import type {TopicEditorDataOutput} from "@cabildo-abierto/api";
-import {XIcon} from "@phosphor-icons/react";
-import {Button} from "@/components/ui/button";
+import {TopicEditingBadge} from "@/components/topic-editing-badge";
 import {BackToTopicButton} from "@/components/back-to-topic-button";
 import {TopicView} from "@/components/topic-view";
 import {TopicBlockEditor, type TopicBlockEditorHandle} from "@/components/topic-block-editor";
@@ -50,19 +49,12 @@ export default function EditTopicPage() {
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
     if (blocksQuery.isPending) return <TopicLoading/>;
 
-    return <TopicView topic={topic} connectionMode="editing" action={
-        <div className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 py-0.5 pr-1 pl-2.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-            <span>Modo edición</span>
-            <Button type="button" variant="ghost" size="icon-xs"
-                className="rounded-full text-current hover:bg-amber-500/15 hover:text-current dark:hover:bg-amber-300/15"
-                onClick={() => {
-                    if (editorRef.current?.canFinishEditing() ?? true) router.push(`/tema/${encodeURIComponent(topic.slug)}`);
-                }}
-                aria-label="Salir del modo edición" title="Salir del modo edición">
-                <XIcon weight="bold"/>
-            </Button>
-        </div>
-    }>
-        <TopicBlockEditor ref={editorRef} topicId={topic.id} initialBlocks={blocks} blockTypes={blockTypes}/>
-    </TopicView>;
+    return <>
+        <TopicEditingBadge onExit={() => {
+            if (editorRef.current?.canFinishEditing() ?? true) router.push(`/tema/${encodeURIComponent(topic.slug)}`);
+        }}/>
+        <TopicView topic={topic} connectionMode="editing">
+            <TopicBlockEditor ref={editorRef} topicId={topic.id} initialBlocks={blocks} blockTypes={blockTypes}/>
+        </TopicView>
+    </>;
 }

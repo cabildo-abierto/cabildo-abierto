@@ -1,5 +1,5 @@
 "use client";
-import {useRef,useState} from 'react';
+import {useState} from 'react';
 import {Dialog} from '@base-ui/react/dialog';
 import {ImageIcon,XIcon} from '@phosphor-icons/react';
 import type {ImageContent,ImageAssetOutput} from '@cabildo-abierto/api';
@@ -10,6 +10,7 @@ import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Spinner} from '@/components/ui/spinner';
+import {FileDropzone} from '@/components/ui/file-dropzone';
 import {cn} from '@/lib/utils';
 import {ImageCanvas} from './image-canvas';
 import {ImageBlockFrame} from './image-block-frame';
@@ -21,7 +22,6 @@ export function ImageEditorPopup({topicId,initialContent,onConfirm,onClose}: {to
     const [url,setUrl]=useState('');
     const [busy,setBusy]=useState(false);
     const [error,setError]=useState<string|null>(null);
-    const input=useRef<HTMLInputElement>(null);
     const load=async(file?:File)=>{
         setBusy(true);setError(null);
         try {
@@ -38,8 +38,10 @@ export function ImageEditorPopup({topicId,initialContent,onConfirm,onClose}: {to
             <Dialog.Description className={cn('sr-only')}>Elegí una imagen y configurá cómo se muestra en el tema.</Dialog.Description>
             <ScrollArea className={cn('min-h-0 flex-1')} viewportClassName={cn('max-h-[calc(90dvh-8rem)]')}><div className={cn('space-y-4 p-4')}>
                 <div className={cn('flex gap-2')}><Button variant={mode==='upload'?'secondary':'ghost'} size="sm" disabled={busy} highlightPressed aria-pressed={mode === 'upload'} onClick={()=>setMode('upload')}>Archivo</Button><Button variant={mode==='import'?'secondary':'ghost'} size="sm" disabled={busy} highlightPressed aria-pressed={mode === 'import'} onClick={()=>setMode('import')}>Importar desde URL</Button></div>
-                {mode==='upload'?<><input ref={input} type="file" accept="image/png,image/jpeg,image/webp" className={cn('hidden')} onChange={event=>{const file=event.target.files?.[0];if(file)void load(file);event.target.value='';}}/><Button variant="outline" size="sm" disabled={busy} onClick={()=>input.current?.click()}>{value.fileId?'Reemplazar imagen':'Elegir imagen'}</Button></>:<div className={cn('flex gap-2')}><Input type="url" aria-label="URL de la imagen" placeholder="https://…" value={url} disabled={busy} onChange={event=>setUrl(event.target.value)}/><Button size="sm" disabled={busy||!/^https?:\/\//i.test(url)} onClick={()=>void load()}>Importar</Button></div>}
-                {busy&&<div role="status" aria-label="Preparando imagen" className={cn('flex justify-center py-4')}><Spinner/></div>}
+                {mode==='upload'?<FileDropzone accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" busy={busy} onSelect={load}
+                    label={value.fileId?'Arrastrá una imagen para reemplazarla o hacé clic para elegir':'Arrastrá una imagen acá o hacé clic para elegir'} hint="PNG · JPG · WebP"/>
+                    :<div className={cn('flex gap-2')}><Input type="url" aria-label="URL de la imagen" placeholder="https://…" value={url} disabled={busy} onChange={event=>setUrl(event.target.value)}/><Button size="sm" disabled={busy||!/^https?:\/\//i.test(url)} onClick={()=>void load()}>Importar</Button></div>}
+                {busy&&mode==='import'&&<div role="status" aria-label="Preparando imagen" className={cn('flex justify-center py-4')}><Spinner/></div>}
                 {error&&<p role="alert" className={cn('text-xs text-destructive')}>{error}</p>}
                 <Input aria-label="Texto alternativo" placeholder="Texto alternativo (opcional)" maxLength={1000} value={value.alt} disabled={busy} onChange={event=>setValue({...value,alt:event.target.value})}/>
                 <Textarea aria-label="Epígrafe" placeholder="Epígrafe (opcional)" maxLength={5000} value={value.caption} disabled={busy} onChange={event=>setValue({...value,caption:event.target.value})}/>

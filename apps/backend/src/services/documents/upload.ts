@@ -21,8 +21,6 @@ export async function uploadDocument(ctx: AppContext, storage: ObjectStorage, re
     const topic = await ctx.kysely.selectFrom('topic').select('id').where('id', '=', topicId).executeTakeFirst();
     if (!topic) throw new TopicActionError(404, 'No encontramos ese tema.');
     const directory = await mkdtemp(join(tmpdir(), 'ca-upload-'));
-    let fileId: string | undefined;
-    let committed = false;
     try {
         const path = join(directory, 'upload');
         let size = 0;
@@ -31,22 +29,30 @@ export async function uploadDocument(ctx: AppContext, storage: ObjectStorage, re
             callback(size > type.maxBytes ? new TopicActionError(413, 'El archivo supera el tamaño permitido.') : null, chunk);
         }});
         await pipeline(req, limiter, createWriteStream(path));
-        const validated = await validateDocumentFile(path, name);
+        return await saveDocumentPath(ctx, storage, path, name, authorId);
+    } finally {
+        await rm(directory, {recursive: true, force: true});
+    }
+}
+
+export async function saveDocumentPath(ctx: AppContext, storage: ObjectStorage, path: string, name: string, authorId: string, html = false) {
+    const type = await validateDocumentFile(path, name, html);
+    let fileId: string | undefined;
+    try {
         const file = await storeFile(ctx, storage, path, name, type.mime, authorId);
         fileId = file.id;
         await ctx.kysely.transaction().execute(async trx => {
             await trx.updateTable('file').set({format: type.format, preview_status: type.format === 'office' ? 'pending' : 'ready'})
                 .where('id', '=', file.id).execute();
-            if (validated.ca) {
-                const blocks = validated.ca.blocks.map((block, position) => ({id: randomUUID(), file_id: file.id, position,
+            if (type.ca) {
+                const blocks = type.ca.blocks.map((block, position) => ({id: randomUUID(), file_id: file.id, position,
                     type_id: block.typeId, content: typeof block.content === 'string' ? block.content : JSON.stringify(block.content)}));
                 for (let index = 0; index < blocks.length; index += 500) await trx.insertInto('document_block').values(blocks.slice(index, index + 500)).execute();
             }
         });
-        committed = true;
         return {id: file.id, format: type.format, fileName: name};
-    } finally {
-        if (fileId && !committed) await removeUnattachedFile(ctx, storage, fileId).catch(error => ctx.logger.pino.error({error, fileId}, 'upload cleanup failed'));
-        await rm(directory, {recursive: true, force: true});
+    } catch (error) {
+        if (fileId) await removeUnattachedFile(ctx, storage, fileId).catch(cleanupError => ctx.logger.pino.error({cleanupError, fileId}, 'upload cleanup failed'));
+        throw error;
     }
 }

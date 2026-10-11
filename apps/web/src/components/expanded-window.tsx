@@ -2,16 +2,21 @@
 
 import type {ReactNode} from 'react';
 import {Dialog} from '@base-ui/react/dialog';
-import {ArrowsOutSimpleIcon, ChartBarIcon, TableIcon, CornersInIcon, XIcon} from '@phosphor-icons/react';
+import {ArrowsOutSimpleIcon, ChartBarIcon, TableIcon, ImageIcon, CornersInIcon, XIcon} from '@phosphor-icons/react';
 import {Button} from '@/components/ui/button';
 import {DocumentWindowResizeHandles} from '@/components/documents/document-window-resize-handles';
 import {useDocumentWindow} from '@/hooks/use-document-window';
 import {useIsMobile} from '@/hooks/use-is-mobile';
 import {cn} from '@/lib/utils';
 
-export function ExpandedWindow({title, children, kind}: {title?: string; children: ReactNode; kind: "visualization" | "table"}) {
-    const label = kind === "table" ? "tabla" : "visualización";
-    const Icon = kind === "table" ? TableIcon : ChartBarIcon;
+const windowKinds = {
+    visualization: {label: 'visualización', title: 'Visualización', description: 'Vista ampliada del gráfico y sus datos.', Icon: ChartBarIcon},
+    table: {label: 'tabla', title: 'Tabla', description: 'Vista ampliada de la tabla.', Icon: TableIcon},
+    image: {label: 'imagen', title: 'Imagen', description: 'Vista ampliada de la imagen.', Icon: ImageIcon},
+};
+
+export function ExpandedWindow({title, children, kind}: {title?: string; children: ReactNode; kind: keyof typeof windowKinds}) {
+    const {label, title: defaultTitle, description, Icon} = windowKinds[kind];
     const {style, maximized, interacting, toggleMaximized, moveControls, resizeControls} = useDocumentWindow();
     const mobile = useIsMobile() ?? window.innerWidth < 768;
     return <>
@@ -25,7 +30,7 @@ export function ExpandedWindow({title, children, kind}: {title?: string; childre
                     className={cn('flex min-w-0 flex-1 items-center gap-2 rounded-sm outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/30', !mobile && 'touch-none', !mobile && !maximized && 'cursor-move')}
                     {...(!mobile ? moveControls : {})} onDoubleClick={mobile ? undefined : toggleMaximized}>
                     <Icon aria-hidden="true" className={cn('size-4 shrink-0 text-muted-foreground')}/>
-                    <Dialog.Title className={cn('truncate text-sm font-medium')}>{title || (kind === 'table' ? 'Tabla' : 'Visualización')}</Dialog.Title>
+                    <Dialog.Title className={cn('truncate text-sm font-medium')}>{title || defaultTitle}</Dialog.Title>
                 </div>
                 {!mobile && <Button type="button" variant="ghost" size="icon-sm" onClick={toggleMaximized}
                     aria-label={maximized ? 'Restaurar tamaño' : 'Maximizar ventana'} title={maximized ? 'Restaurar tamaño' : 'Maximizar ventana'}>
@@ -33,7 +38,7 @@ export function ExpandedWindow({title, children, kind}: {title?: string; childre
                 </Button>}
                 <Dialog.Close render={<Button type="button" variant="ghost" size="icon-sm" className={cn(mobile && 'size-10')}/>} aria-label={`Cerrar ${label}`} title="Cerrar"><XIcon/></Dialog.Close>
             </header>
-            <Dialog.Description className={cn('sr-only')}>{kind === "table" ? "Vista ampliada de la tabla." : "Vista ampliada del gráfico y sus datos."}</Dialog.Description>
+            <Dialog.Description className={cn('sr-only')}>{description}</Dialog.Description>
             <div className={cn('min-h-0 flex-1 overflow-auto p-3 md:p-5', interacting && 'pointer-events-none select-none')}>{children}</div>
             {!mobile && !maximized && <DocumentWindowResizeHandles controls={resizeControls}/>}
         </Dialog.Popup>

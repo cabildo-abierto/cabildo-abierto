@@ -8,6 +8,7 @@ import {post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 import {DocumentPageHeader} from "./document-page-header";
 import {DocumentViewer} from "./document-viewer";
+import {DocumentSourceLink} from './document-source-link';
 
 export function DocumentPage({versionId, inWindow = false}: {versionId: string; inWindow?: boolean}) {
     const [retrying, setRetrying] = useState(false);
@@ -18,8 +19,9 @@ export function DocumentPage({versionId, inWindow = false}: {versionId: string; 
     </div>;
     if (!query.data) return <p role="alert" className={cn("p-6 text-sm text-destructive")}>{query.error?.message ?? 'No encontramos el documento.'}</p>;
     const document = query.data;
-    return <article className={cn("mx-auto w-full min-w-0", inWindow ? "flex min-h-full flex-col gap-3 p-3" : "space-y-5 p-6", !inWindow && (document.format === "pdf" || document.format === "office" ? "max-w-4xl" : "max-w-[682px]"))}>
+    return <article className={cn("mx-auto w-full min-w-0", inWindow ? "flex min-h-full flex-col gap-3 p-3" : "space-y-5 p-6", !inWindow && (['pdf', 'office', 'html'].includes(document.format) ? "max-w-4xl" : "max-w-[682px]"))}>
         {!inWindow && <DocumentPageHeader document={document}/>}
+        {document.sourceUrl && <DocumentSourceLink url={document.sourceUrl}/>}
         {document.format === 'office' && document.previewStatus !== 'ready' && document.canRetry && <Button variant="outline" size="sm" disabled={retrying} onClick={async () => {
             setRetrying(true); setError(null);
             const result = await post(`/documents/${document.id}/preview`);
