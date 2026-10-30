@@ -30,6 +30,17 @@ if [ -f "$DEPLOY_ENV_FILE" ]; then
   set +a
 fi
 
+# WIP has an isolated image and deployment flow, including the legacy alias.
+if [ "${1:-}" = "wip" ] || { [ "${1:-}" = "prod" ] && [ "${WEB_VIEW:-${4:-app}}" = "wip" ]; }; then
+  bash "${SCRIPT_DIR}/deploy-wip.sh"
+  exit $?
+fi
+
+if [ "${WEB_VIEW:-${4:-app}}" != "app" ]; then
+  echo "WIP is available through '$0 wip' or '$0 prod web min wip'." >&2
+  exit 1
+fi
+
 #############################################
 # Check main
 #############################################
@@ -67,7 +78,6 @@ fi
 ENV="${1:-prod}"        # prod | test | dev
 TARGET="${2:-all}"      # all | frontend | web | backend
 PROFILE="${3:-full}"    # full | min
-WEB_VIEW="${WEB_VIEW:-${4:-app}}" # app | wip
 
 STACK_NAME="cabildo"
 REMOTE_STACK_ROOT="${REMOTE_STACK_ROOT:-/opt/cabildo}"
@@ -105,27 +115,14 @@ case "$TARGET" in
     DEPLOY_BACKEND=1
     ;;
   *)
-    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
+    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min]"
     exit 1
     ;;
 esac
 
 if [ "$PROFILE" != "full" ] && [ "$PROFILE" != "min" ]; then
-  echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
+  echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min]"
   exit 1
-fi
-
-if [ "$WEB_VIEW" != "app" ] && [ "$WEB_VIEW" != "wip" ]; then
-  echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
-  exit 1
-fi
-
-if [ "$WEB_VIEW" = "wip" ]; then
-  echo "ℹ️  WEB_VIEW=wip: forcing target=web and profile=min so backend is not deployed."
-  TARGET="web"
-  PROFILE="min"
-  DEPLOY_WEB=1
-  DEPLOY_BACKEND=0
 fi
 
 case "$ENV" in
@@ -153,7 +150,7 @@ case "$ENV" in
     NEXT_PUBLIC_FRONTEND_URL="$DEV_FRONTEND_URL"
     ;;
   *)
-    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min] [app|wip]"
+    echo "Usage: $0 [prod|test|dev] [all|frontend|web|backend] [full|min]"
     exit 1
     ;;
 esac
@@ -251,7 +248,6 @@ if [ "$DEPLOY_WEB" -eq 1 ]; then
     -f apps/web/Dockerfile \
     --build-arg NEXT_PUBLIC_BACKEND_URL="$NEXT_PUBLIC_BACKEND_URL" \
     --build-arg NEXT_PUBLIC_FRONTEND_URL="$NEXT_PUBLIC_FRONTEND_URL" \
-    --build-arg NEXT_PUBLIC_WEB_VIEW="$WEB_VIEW" \
     -t "${WEB_IMAGE_REPO}:${WEB_TAG}" \
     -t "${WEB_IMAGE_REPO}:${WEB_LATEST}" \
     .
@@ -430,5 +426,4 @@ echo "🎉 Full deployment finished successfully!"
 echo "    Version: ${GIT_SHA}"
 echo "    Target:  ${TARGET}"
 echo "    Profile: ${PROFILE}"
-echo "    Web view: ${WEB_VIEW}"
 echo ""

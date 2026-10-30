@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  --background: rgb(255, 255, 247);
+  --foreground: rgb(26, 26, 26);
+  --heading: black;
+  color-scheme: light;
+}
+:root.dark {
+  --background: rgb(14, 17, 19);
+  --foreground: rgb(229, 229, 229);
+  --heading: white;
+  color-scheme: dark;
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html { overflow-y: scroll; }
+.dark .cabildo-image { filter: invert(1); }

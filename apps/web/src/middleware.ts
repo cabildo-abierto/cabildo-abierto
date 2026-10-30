@@ -11,13 +11,6 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
 
     const segments = url.pathname.split("/").filter(Boolean)
-    const isWipView = process.env.NEXT_PUBLIC_WEB_VIEW === "wip"
-
-    if(isWipView && !["/presentacion", "/health", "/version"].includes(url.pathname)) {
-        url.pathname = "/presentacion"
-        return NextResponse.redirect(url)
-    }
-
     if (segments.length == 4 && segments[0] == "c") {
         const did = segments[1];
         const collection = segments[2];

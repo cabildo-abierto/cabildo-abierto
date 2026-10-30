@@ -18,7 +18,9 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean && rimraf node_modules"
+    "clean": "turbo run clean && rimraf node_modules",
+    "dev:wip": "pnpm --filter wip dev",
+    "deploy:wip": "bash infra/scripts/deploy.sh wip"
   },
   "dependencies": {
     "turbo": "latest"

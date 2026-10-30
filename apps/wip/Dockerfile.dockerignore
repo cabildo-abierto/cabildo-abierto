@@ -1,0 +1,8 @@
+**
+!apps/
+!apps/wip/
+!apps/wip/**
+apps/wip/node_modules/
+apps/wip/.next/
+apps/wip/out/
+apps/wip/*.tsbuildinfo

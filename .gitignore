@@ -2,6 +2,7 @@ node_modules/
 .next/
 .DS_STORE
 .env
+infra/env/*.env
 .idea
 .turbo
 coverage/
@@ -11,3 +12,5 @@ tunnel*.sh
 *.html
 *.txt
 pnpm-lock.yaml
+!apps/wip/pnpm-lock.yaml
+apps/wip/*.tsbuildinfo
