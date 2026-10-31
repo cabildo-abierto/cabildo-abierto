@@ -1,5 +1,6 @@
 import {createDocument, type ZodOpenApiPathsObject} from 'zod-openapi';
 import {apiContract, topicRealtimeEventSchema} from '@cabildo-abierto/api';
+import {env} from '#/lib/env.js';
 
 export function createOpenApiDocument({includeInternal = false}: {includeInternal?: boolean} = {}) {
     const paths: ZodOpenApiPathsObject = {};
@@ -15,7 +16,7 @@ export function createOpenApiDocument({includeInternal = false}: {includeInterna
             version: '1.0.0',
             description: 'Accedé programáticamente a Cabildo Abierto a través de la API REST.',
         },
-        servers: [{url: '/'}],
+        servers: [{url: includeInternal ? '/' : env.PUBLIC_URL.replace(/\/$/, '')}],
         paths,
         components: {schemas: {TopicRealtimeEvent: topicRealtimeEventSchema}, securitySchemes: {sessionCookie: {type: 'apiKey', in: 'cookie', name: 'ca_session'}, apiToken: {type: 'http', scheme: 'bearer', description: 'Token personal generado desde la página /api. No admite crear, listar ni revocar tokens.'}}},
     });

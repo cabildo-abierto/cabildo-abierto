@@ -1,6 +1,6 @@
 "use client";
 
-import {ArrowUpRightIcon, BracketsCurlyIcon} from '@phosphor-icons/react';
+import {ArrowUpRightIcon} from '@phosphor-icons/react';
 import {Button} from '@/components/ui/button';
 import {backendUrl} from '@/lib/fetch';
 import {cn} from '@/lib/utils';
