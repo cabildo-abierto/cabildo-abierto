@@ -1,3 +1,4 @@
+import {requireTopicAccess} from '../topic-access.js';
 import {requireFileAccess} from '#/services/storage/access.js';
 import type {Kysely, Transaction} from 'kysely';
 import type {DB} from '#/db/types.js';
@@ -13,5 +14,6 @@ export async function requireDatasetAccess(database: Kysely<DB>, id: string) {
             'topic.id as topicId','topic.title as topicTitle','topic.slug as topicSlug'])
         .where('dataset.id', '=', id).where('record.deleted', '=', false).where('block_version.deleted', '=', false).executeTakeFirst();
     if (!dataset) throw new TopicActionError(404, 'No encontramos ese conjunto de datos.');
+    await requireTopicAccess(database, dataset.topicId);
     return dataset;
 }

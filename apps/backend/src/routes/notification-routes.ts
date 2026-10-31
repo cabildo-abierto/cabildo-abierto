@@ -1,3 +1,4 @@
+import {visibleTopic} from '#/services/topic-access.js';
 import {createApiRouter} from '../openapi/router.js';
 import express from "express";
 import {sql} from "kysely";
@@ -8,12 +9,15 @@ import {requireSession, requiredUser} from "#/auth/middleware.js";
 export function notificationRoutes(ctx: AppContext): express.Router {
     const router = express.Router();
     const api = createApiRouter(router);
+    const visibleNotification = () => sql<boolean>`(${visibleTopic(sql.ref('notification.topic_id'))}
+        OR (notification.kind = 'topic_invitation' AND EXISTS (SELECT 1 FROM topic_invitation
+            WHERE topic_invitation.id = notification.invitation_id AND topic_invitation.recipient_id = notification.recipient_id)))`;
     router.use("/notifications", requireSession(ctx));
     api.get("/notifications/count", async (req, res) => {
         try {
             const row = await ctx.kysely.selectFrom("notification")
                 .select(sql<number>`count(*)::int`.as("count"))
-                .where("recipient_id", "=", requiredUser(req).id).where("read_at", "is", null).executeTakeFirstOrThrow();
+                .where("recipient_id", "=", requiredUser(req).id).where(visibleNotification()).where("read_at", "is", null).executeTakeFirstOrThrow();
             const value: NotificationCountOutput = {unreadCount: row.count};
             return res.json({success: true, value});
         } catch (error) {
@@ -26,7 +30,8 @@ export function notificationRoutes(ctx: AppContext): express.Router {
             let query = ctx.kysely.selectFrom("notification")
                 .innerJoin("user", "user.id", "notification.actor_id")
                 .innerJoin("topic", "topic.id", "notification.topic_id")
-                .select(["notification.id", "notification.kind", "notification.source_id", "notification.target_id",
+                .leftJoin("topic_invitation", "topic_invitation.id", "notification.invitation_id")
+                .select(["topic_invitation.id as invitationId", "topic_invitation.status as invitationStatus", "topic_invitation.role as invitationRole", "notification.id", "notification.kind", "notification.source_id", "notification.target_id",
                     "notification.block_number", "notification.document_block_id", "notification.created_at", "notification.read_at",
                     "user.id as actorId", "user.username", "topic.id as topicId", "topic.title", "topic.slug",
                     sql<boolean>`coalesce(
@@ -40,7 +45,7 @@ export function notificationRoutes(ctx: AppContext): express.Router {
                         join comment as parent on parent.id = source.reply_to_id
                         where source.id = notification.source_id
                     ), false)`.as("replicaToReplica")])
-                .where("notification.recipient_id", "=", requiredUser(req).id);
+                .where("notification.recipient_id", "=", requiredUser(req).id).where(visibleNotification());
             if (req.query.cursor !== undefined) {
                 if (typeof req.query.cursor !== "string") return res.status(400).json({success: false, error: "El cursor no es válido."});
                 let cursor: unknown;
@@ -54,12 +59,13 @@ export function notificationRoutes(ctx: AppContext): express.Router {
             const [rows, count] = await Promise.all([
                 query.orderBy("notification.created_at", "desc").orderBy("notification.id", "desc").limit(31).execute(),
                 ctx.kysely.selectFrom("notification").select(sql<number>`count(*)::int`.as("count"))
-                    .where("recipient_id", "=", requiredUser(req).id).where("read_at", "is", null).executeTakeFirstOrThrow(),
+                    .where("recipient_id", "=", requiredUser(req).id).where(visibleNotification()).where("read_at", "is", null).executeTakeFirstOrThrow(),
             ]);
             const page = rows.slice(0, 30);
             const last = page.at(-1);
             const value: NotificationsOutput = {
                 notifications: page.map(row => ({
+                    invitation: row.invitationId && row.invitationRole && row.invitationStatus ? {id: row.invitationId, role: row.invitationRole, status: row.invitationStatus} : null,
                     id: row.id, kind: row.kind, sourceId: row.source_id, targetId: row.target_id,
                     blockNumber: row.block_number, documentBlockId: row.document_block_id, targetDeleted: row.targetDeleted,
                     replicaToReplica: row.replicaToReplica,

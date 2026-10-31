@@ -56,6 +56,7 @@ export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 
 type MediaContent = {content?: Record<string, {schema?: z.ZodType}>};
 export type OperationContract = {
     'x-internal'?: boolean;
+    'x-display-order'?: number;
     operationId: string;
     summary: string;
     description?: string;

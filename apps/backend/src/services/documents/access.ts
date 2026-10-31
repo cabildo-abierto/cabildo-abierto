@@ -1,3 +1,4 @@
+import {requireTopicAccess} from '../topic-access.js';
 import {requireFileAccess} from '#/services/storage/access.js';
 import type {Kysely, Transaction} from "kysely";
 import type {DB} from "#/db/types.js";
@@ -16,5 +17,6 @@ export async function requireDocumentAccess(database: Database, id: string) {
             'file.format', 'file.preview_file_id', 'file.preview_status', 'file.preview_error', 'record.author_id'])
         .where('document.id', '=', id).where('record.deleted', '=', false).where('block_version.deleted', '=', false).executeTakeFirst();
     if (!doc) throw new TopicActionError(404, 'No encontramos ese documento.');
+    await requireTopicAccess(database, doc.topic_id);
     return doc;
 }

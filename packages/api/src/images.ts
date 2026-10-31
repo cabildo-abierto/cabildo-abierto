@@ -6,12 +6,14 @@ export const imageAssetSchema = z.object({fileId: z.string(), fileName: z.string
 export const imageUploadSchema = imageAssetSchema.omit({url: true, expiresAt: true});
 export const importImageSchema = z.object({url: z.string()});
 export const imagesContract = {
-    '/images/upload': {post: {operationId: 'uploadImage', summary: 'Cargar una imagen', tags: ['Imágenes'], security: sessionSecurity,
+    '/images/upload': {post: {operationId: 'uploadImage', 'x-display-order': 30, summary: 'Cargar una imagen', tags: ['Imágenes'], security: sessionSecurity,
         description: 'Enviá los bytes con Content-Type application/octet-stream. Admite PNG, JPEG y WebP; máximo 20 MiB.',
         requestBody: binaryBody, responses: {...actionErrors, '201': successResponse(imageUploadSchema, 'Imagen almacenada.')}}},
-    '/images/import': {post: {operationId: 'importImage', summary: 'Importar una imagen por URL', tags: ['Imágenes'], security: sessionSecurity,
+    '/images/import': {post: {operationId: 'importImage', 'x-display-order': 40, summary: 'Importar una imagen por URL', tags: ['Imágenes'], security: sessionSecurity,
         requestBody: jsonBody(importImageSchema), responses: {...actionErrors, '201': successResponse(imageUploadSchema, 'Imagen importada.')}}},
-    '/images/files/:fileId': {get: {operationId: 'getImage', summary: 'Obtener una imagen y su URL temporal', tags: ['Imágenes'], security: optionalSessionSecurity,
+    '/images/files/:fileId/content': {get: {operationId: 'getImageContent', 'x-display-order': 20, summary: 'Descargar una imagen', tags: ['Imágenes'], security: optionalSessionSecurity,
+        requestParams: {path: z.object({fileId: z.string()})}, responses: {...actionErrors, '200': {description: 'Contenido de la imagen.', content: {'image/*': {schema: z.string().meta({format: 'binary'})}}}}}},
+    '/images/files/:fileId': {get: {operationId: 'getImage', 'x-display-order': 10, summary: 'Obtener una imagen y su URL temporal', tags: ['Imágenes'], security: optionalSessionSecurity,
         requestParams: {path: z.object({fileId: z.string()})}, responses: {...actionErrors, '200': successResponse(imageAssetSchema, 'URL temporal con su fecha de expiración.')}}},
 } satisfies ApiContract;
 

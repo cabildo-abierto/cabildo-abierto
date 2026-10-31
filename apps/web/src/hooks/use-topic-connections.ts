@@ -70,6 +70,8 @@ export function useTopicConnections(topicId: string, mode: TopicConnectionMode):
                 // Reconnection will trigger a complete topic refresh.
             }
         };
+        const onRevoked = () => { source.close(); queryClient.clear(); window.location.assign('/'); };
+        source.addEventListener('access.revoked', onRevoked);
         source.addEventListener("open", refreshTopic);
         source.addEventListener("connection.opened", onConnectionOpened);
         source.addEventListener("connections.changed", onConnectionsChanged);

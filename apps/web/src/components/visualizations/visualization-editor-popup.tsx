@@ -105,7 +105,7 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
         setAnalysisError(null); setSwitchingToBasic(true);
         let recovered = view;
         try {
-            const analysis = query.trim() ? await client.fetchQuery(lccaAnalysisOptions(query)) : null;
+            const analysis = query.trim() ? await client.fetchQuery(lccaAnalysisOptions(query, topicId)) : null;
             if (analysis?.basicView) recovered = analysis.basicView;
             else if (analysis?.sources.length === 1) {
                 const source = analysis.sources[0];
@@ -134,7 +134,7 @@ export function VisualizationEditorPopup({topicId, initialContent, onConfirm, on
         }
         const content: VisualizationContent = {query: currentQuery, queryMode, queryLanguageVersion: 1, spec};
         if (mode === 'basic' && generated.view) {
-            client.setQueryData(lccaAnalysisOptions(currentQuery).queryKey, {
+            client.setQueryData(lccaAnalysisOptions(currentQuery, topicId).queryKey, {
                 basicView: generated.view,
                 sources: result.data!.sources.map(({topicId,blockNumber}) => ({topicId,blockNumber})),
             });

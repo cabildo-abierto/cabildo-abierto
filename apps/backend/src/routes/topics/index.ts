@@ -1,3 +1,4 @@
+import {topicMemberRoutes} from './members.js';
 import express from 'express';
 import type {AppContext} from '#/setup.js';
 import {topicContentRoutes} from './routes.js';
@@ -9,6 +10,7 @@ import {topicSearchRoutes} from './search.js';
 
 export function topicRoutes(ctx: AppContext): express.Router {
     const router = express.Router();
+    router.use(topicMemberRoutes(ctx));
     router.use(topicListRoutes(ctx));
     router.use(topicSearchRoutes(ctx));
     router.use(topicConnectionRoutes(ctx));

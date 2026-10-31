@@ -3,12 +3,13 @@
 import {createContext, type ReactNode, useContext} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import type {PublicUser, SessionOutput} from "@cabildo-abierto/api";
+import {useRouter} from "next/navigation";
 import {get, post} from "@/utils/react/fetch";
 
 type AuthContextValue = {
     user: PublicUser | null
     loading: boolean
-    setUser: (user: PublicUser) => void
+    setUser: (user: PublicUser) => Promise<void>
     logout: () => Promise<void>
 }
 
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({children}: {children: ReactNode}) {
     const queryClient = useQueryClient();
+    const router = useRouter();
     const session = useQuery({
         queryKey: ["auth", "session"],
         queryFn: async () => {
@@ -25,12 +27,22 @@ export function AuthProvider({children}: {children: ReactNode}) {
         },
         retry: false,
     });
+    const updateSession = async (user: PublicUser | null) => {
+        await queryClient.cancelQueries();
+        // Keep the observed session query while discarding the previous account's data.
+        queryClient.removeQueries({predicate: query => !(query.queryKey.length === 2
+            && query.queryKey[0] === 'auth' && query.queryKey[1] === 'session')});
+        queryClient.setQueryData(["auth", "session"], user);
+    };
     const logoutMutation = useMutation({
         mutationFn: () => post("/auth/logout"),
-        onSuccess: () => { queryClient.setQueryData(["auth", "session"], null); },
+        onSuccess: () => updateSession(null),
     });
-    const setUser = (user: PublicUser) => queryClient.setQueryData(["auth", "session"], user);
-    const logout = async () => { await logoutMutation.mutateAsync(); };
+    const setUser = (user: PublicUser) => updateSession(user);
+    const logout = async () => {
+        await logoutMutation.mutateAsync();
+        router.replace("/");
+    };
 
     return <AuthContext.Provider value={{user: session.data ?? null, loading: session.isLoading, setUser, logout}}>
         {children}

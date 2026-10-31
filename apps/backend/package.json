@@ -50,9 +50,9 @@
     "datasets:prepare": "tsx src/scripts/datasets-prepare.ts"
   },
   "dependencies": {
-    "@cabildo-abierto/api": "workspace:*",
     "@aws-sdk/client-s3": "^3.1136.0",
     "@aws-sdk/s3-request-presigner": "^3.1136.0",
+    "@cabildo-abierto/api": "workspace:*",
     "@cabildo-abierto/utils": "workspace:*",
     "@duckdb/node-api": "1.5.5-r.5",
     "cors": "^2.8.6",
@@ -77,6 +77,7 @@
     "@eslint/js": "^9.39.5",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/pg": "^8.23.1",
     "@types/yauzl": "^3.4.0",
     "eslint": "^9.39.5",

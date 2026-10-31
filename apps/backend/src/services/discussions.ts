@@ -1,3 +1,4 @@
+import {requireTopicAccess} from './topic-access.js';
 import {lockSearchTopic} from "./search/schema.js";
 import {synchronizeTopicSearch} from "./search/index.js";
 import {randomUUID} from "node:crypto";
@@ -13,6 +14,7 @@ type Database = Kysely<DB> | Transaction<DB>;
 
 export async function mutateDiscussion<T>(database: Kysely<DB>, target: DiscussionTarget, action: (trx: Transaction<DB>, authorId: string) => Promise<T>): Promise<T> {
     return database.transaction().execute(async trx => {
+        await requireTopicAccess(trx, target.topicId);
         await lockSearchTopic(trx, target.topicId);
         if (target.kind === "title") await lockTopicTitleEdits(trx, target.topicId);
         await sql`select pg_advisory_xact_lock(hashtext(${`${target.rootId}:reaction`}))`.execute(trx);

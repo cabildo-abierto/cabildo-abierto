@@ -37,6 +37,7 @@ export type ApiResponse = {$ref?: string; description: string; content?: Content
 export type RequestBody = {$ref?: string; description?: string; required?: boolean; content?: Content};
 export type Operation = {
     operationId?: string;
+    'x-display-order'?: number;
     summary?: string;
     description?: string;
     tags?: string[];
@@ -54,6 +55,7 @@ export type ApiDocument = {
     info: {title: string; version: string; description?: string};
     servers?: {url: string}[];
     security?: Record<string, string[]>[];
+    tags?: {name: string}[];
     paths: Record<string, PathItem>;
     components?: {
         schemas?: Record<string, Schema>;
@@ -83,6 +85,7 @@ export function resolveReference<T extends {$ref?: string}>(value: T, document: 
 }
 
 export function getEndpoints(document: ApiDocument): Endpoint[] {
+    const groupOrder = new Map(document.tags?.map((tag, index) => [tag.name, index]));
     return Object.entries(document.paths).flatMap(([path, item]) => {
         const resolved = resolveReference(item, document);
         return httpMethods.flatMap(method => {
@@ -95,6 +98,13 @@ export function getEndpoints(document: ApiDocument): Endpoint[] {
             }
             return [{method, path, id: `${method}:${path}`, operation: {...operation, parameters: [...parameters.values()]}}];
         });
+    }).sort((left, right) => {
+        const leftGroup = left.operation.tags?.[0] ?? 'General';
+        const rightGroup = right.operation.tags?.[0] ?? 'General';
+        const groupDifference = (groupOrder.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) - (groupOrder.get(rightGroup) ?? Number.MAX_SAFE_INTEGER);
+        if (groupDifference) return groupDifference;
+        if (leftGroup !== rightGroup) return leftGroup.localeCompare(rightGroup, 'es');
+        return (left.operation['x-display-order'] ?? Number.MAX_SAFE_INTEGER) - (right.operation['x-display-order'] ?? Number.MAX_SAFE_INTEGER);
     });
 }
 

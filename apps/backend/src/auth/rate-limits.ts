@@ -9,7 +9,7 @@ type RateLimitOptions = {
     tokensPerHour: number;
 };
 
-export function createApiRateLimits(ctx: AppContext, options: RateLimitOptions) {
+export function createApiRateLimits(ctx: AppContext, options: RateLimitOptions): Router {
     const router = Router();
     const limiter = (policy: string, windowMs: number, limit: number) => rateLimit({
         windowMs,

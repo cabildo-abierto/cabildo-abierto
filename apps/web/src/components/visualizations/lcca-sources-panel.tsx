@@ -1,4 +1,5 @@
 "use client";
+import {useOptionalTopicRoute} from '@/components/topic-route-provider';
 import {useQuery} from '@tanstack/react-query';
 import type {VisualizationSourcesOutput} from '@cabildo-abierto/api';
 import {dataViewRequest,DataViewRequestError} from '@/utils/react/data-view-request';
@@ -7,8 +8,9 @@ import {Spinner} from '@/components/ui/spinner';
 import {cn} from '@/lib/utils';
 
 export function LccaSourcesPanel({query, id}: {query: string; id?: string}) {
-    const result = useQuery({queryKey: ['visualization-sources',query,1],enabled: !!query.trim(),
-        queryFn: ({signal}) => dataViewRequest<VisualizationSourcesOutput>('/lcca/sources',{method: 'POST',signal,headers: {'Content-Type':'application/json'},body: JSON.stringify({query,queryLanguageVersion: 1})}),
+    const contextTopicId = useOptionalTopicRoute()?.id;
+    const result = useQuery({queryKey: ['visualization-sources',query,1,contextTopicId],enabled: !!query.trim(),
+        queryFn: ({signal}) => dataViewRequest<VisualizationSourcesOutput>('/lcca/sources',{method: 'POST',signal,headers: {'Content-Type':'application/json'},body: JSON.stringify({query,queryLanguageVersion: 1, contextTopicId})}),
         retry: false});
     return <section id={id} aria-label="Datos usados" className={cn('min-w-0 space-y-3 rounded-lg border bg-muted/20 p-3')}>
         <h3 className={cn('text-xs font-medium text-muted-foreground')}>Datos usados</h3>

@@ -14,10 +14,11 @@ export type DB = {
         expires_at: Timestamp;
     };
     notification: {
+        invitation_id: Generated<string | null>;
         id: string;
         recipient_id: string;
         actor_id: string;
-        kind: "comment" | "reply" | "replica" | "rejection" | "positive_vote" | "edit";
+        kind: "comment" | "reply" | "replica" | "rejection" | "positive_vote" | "edit" | "topic_invitation";
         source_id: string;
         topic_id: string;
         block_number: string | null;
@@ -78,7 +79,24 @@ export type DB = {
         created_at: Generated<Timestamp>;
         expires_at: Timestamp;
     };
+    topic_member: {
+        topic_id: string;
+        user_id: string;
+        role: 'member' | 'admin';
+        created_at: Generated<Timestamp>;
+    };
+    topic_invitation: {
+        id: string;
+        topic_id: string;
+        recipient_id: string;
+        inviter_id: string;
+        role: 'member' | 'admin';
+        status: Generated<'pending' | 'accepted' | 'declined' | 'cancelled'>;
+        created_at: Generated<Timestamp>;
+        resolved_at: Timestamp | null;
+    };
     topic: {
+        visibility: Generated<'public' | 'private'>;
         id: string;
         title: string;
         slug: string;

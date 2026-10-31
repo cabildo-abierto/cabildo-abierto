@@ -87,9 +87,9 @@ export function documentRoutes(ctx: AppContext): express.Router {
             if (!fileId) throw new TopicActionError(404, 'La vista previa todavía no está disponible.');
             const file = await ctx.kysely.selectFrom('file').selectAll().where('id', '=', fileId).executeTakeFirstOrThrow();
             const disposition = preview && file.mime === 'application/pdf' ? 'inline' : 'attachment';
-            const url = await getStorage().signedUrl(file, `${disposition}; filename*=UTF-8''${encodeURIComponent(file.name).replace(/'/g, '%27')}`, file.mime, 'public');
             res.setHeader('Cache-Control', 'private, no-store');
-            return res.redirect(url);
+            res.setHeader('Content-Disposition', `${disposition}; filename*=UTF-8''${encodeURIComponent(file.name).replace(/'/g, '%27')}`);
+            return res.type(file.mime).end(Buffer.from(await getStorage().read(file)));
         } catch (error) { return fail(res, error); }
     });
     api.post('/documents/versions/:id/preview', requireSession(ctx), async (req, res) => {

@@ -1,12 +1,12 @@
 import type {Kysely, Transaction} from 'kysely';
 import type {LccaAnalysis, DatasetReference} from '@cabildo-abierto/api';
 import type {DB} from '#/db/types.js';
-import {resolveTopic} from '../resolve-topic.js';
+import {requireTopicSource} from '../topic-access.js';
 
 export async function resolveSources(database: Kysely<DB> | Transaction<DB>, analysis: LccaAnalysis) {
     const resolvedTopicIds: Record<string,string> = Object.create(null);
     for (const reference of new Set(analysis.sources.map(source => source.topicId))) {
-        resolvedTopicIds[reference] = (await resolveTopic(database,reference)).id;
+        resolvedTopicIds[reference] = (await requireTopicSource(database,reference)).id;
     }
     const unique = new Map<string,DatasetReference>();
     for (const source of analysis.sources) {

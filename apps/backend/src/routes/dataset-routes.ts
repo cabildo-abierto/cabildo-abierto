@@ -1,3 +1,4 @@
+import {requireTopicAccess, topicAccessContext} from '#/services/topic-access.js';
 import type {DatasetSourceDetails} from '@cabildo-abierto/api';
 import {listDatasets} from '#/services/datasets/list.js';
 import {datasetSourceBlocks} from '#/services/visualizations/source-blocks.js';
@@ -127,6 +128,8 @@ export function datasetRoutes(ctx: AppContext, createStorage: () => ObjectStorag
     });
     api.get('/datasets/:topicId/:blockNumber', async (req, res) => {
         try {
+            const sourceTopic = await requireTopicAccess(ctx.kysely, req.params.topicId);
+            topicAccessContext.getStore()!.topicId = sourceTopic.id;
             const {sources: [{topic,block}]} = await datasetSourceBlocks(ctx.kysely,[{topicId: String(req.params.topicId),blockNumber: String(req.params.blockNumber)}]);
             const topicId = topic.id;
             const data = parseDatasetBlock(block.content)!;

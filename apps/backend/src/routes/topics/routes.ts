@@ -1,3 +1,4 @@
+import {requireTopicAccess, requireTopicSource} from '#/services/topic-access.js';
 import {resolveTopic} from '#/services/resolve-topic.js';
 import {createApiRouter} from '../../openapi/router.js';
 import {ensureDatasetSource} from '#/services/datasets/sources.js';
@@ -16,7 +17,7 @@ import {documentBlockContent} from "#/services/documents/block-content.js";
 import {requireDocumentFileAccess} from "#/services/documents/access.js";
 import {publicRemoteUrl} from '#/services/storage/download.js';
 import {TopicActionError} from "#/services/topic-title-edits.js";
-import {randomUUID} from "node:crypto";
+import {randomBytes, randomUUID} from "node:crypto";
 import express, {type Router} from "express";
 import {sql} from "kysely";
 import type {BlockType, CreateTopicOutput, SaveTopicEditOutput, TopicBlockVersionsOutput} from "@cabildo-abierto/api";
@@ -200,6 +201,7 @@ export const topicContentRoutes = (ctx: AppContext): Router => {
         const user = requiredUser(req);
         try {
             await ctx.kysely.transaction().execute(async trx => {
+                await requireTopicAccess(trx, String(req.params.id));
                 await lockSearchTopic(trx, String(req.params.id));
                 await sql`select pg_advisory_xact_lock(hashtext(${`${req.params.id}:edit`}))`.execute(trx);
                 const version = await trx.selectFrom("block_version")
@@ -271,6 +273,7 @@ export const topicContentRoutes = (ctx: AppContext): Router => {
                 }
             }
             const blocks = await ctx.kysely.transaction().execute(async trx => {
+                await requireTopicAccess(trx, topicId);
                 await lockSearchTopic(trx, topicId);
                 await sql`select pg_advisory_xact_lock(hashtext(${`${topicId}:edit`}))`.execute(trx);
                 for (const [content,sources] of dependencies) {
@@ -341,10 +344,7 @@ export const topicContentRoutes = (ctx: AppContext): Router => {
                 }
                 const linkedTopicIds = [...new Set([...changedExisting, ...newInputs].filter(block => !block.deleted).flatMap(block => blockRichTextContents(block).flatMap(richTextInternalTopicIds)))];
                 if (linkedTopicIds.length > 0) {
-                    const existingTopics = await trx.selectFrom("topic").select("id").where("id", "in", linkedTopicIds).execute();
-                    if (existingTopics.length !== linkedTopicIds.length) {
-                        throw new TopicEditError(400, "La edición contiene links a temas inexistentes.");
-                    }
+                    for (const reference of linkedTopicIds) await requireTopicSource(trx, reference);
                 }
                 if (changedExisting.length === 0 && newInputs.length === 0) {
                     throw new TopicEditError(400, "La edición no contiene cambios.");
@@ -471,24 +471,26 @@ export const topicContentRoutes = (ctx: AppContext): Router => {
     api.post("/topics", requireSession(ctx), async (req, res) => {
         const input = req.body;
         const title = typeof input.title === "string" ? input.title.trim() : "";
-        const id = canonicalizeTopicId(title);
+        const baseId = canonicalizeTopicId(title);
+        const id = input.visibility === 'private' ? (input.privateKey ?? randomBytes(6).toString('hex')) : baseId;
 
         if (title.length < 3 || title.length > 120) {
             return res.status(400).json({success: false, error: "El título debe tener entre 3 y 120 caracteres."});
         }
-        if (!id) {
+        if (!baseId) {
             return res.status(400).json({success: false, error: "El título debe incluir al menos una letra o un número."});
         }
 
         try {
             const topic = await ctx.kysely.transaction().execute(async trx => {
                 await lockSearchTopic(trx, id);
-                const topic = await trx.insertInto("topic").values({id, title, slug: id})
-                    .returning(["id", "title", "slug"]).executeTakeFirstOrThrow();
+                const topic = await trx.insertInto("topic").values({id, title, slug: input.visibility === 'private' ? `${baseId}-${id}` : id, visibility: input.visibility})
+                    .returning(["id", "title", "slug", "visibility"]).executeTakeFirstOrThrow();
+                if (input.visibility === 'private') await trx.insertInto('topic_member').values({topic_id: id, user_id: requiredUser(req).id, role: 'admin'}).execute();
                 const editId = randomUUID();
                 await trx.insertInto("record").values({id: editId, type_id: "edit", author_id: requiredUser(req).id}).execute();
                 await trx.insertInto("edit").values({id: editId, topic_id: id, title, message: null}).execute();
-                await trx.insertInto("topic_redirect").values({slug: id, topic_id: id, edit_id: editId}).execute();
+                await trx.insertInto("topic_redirect").values({slug: topic.slug, topic_id: id, edit_id: editId}).execute();
                 await synchronizeTopicSearch(trx, id);
                 return topic;
             });

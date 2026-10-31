@@ -1,3 +1,4 @@
+import {visibleTopic} from '../topic-access.js';
 import {randomUUID} from 'node:crypto';
 import {searchQueries, searchMatches} from './matching.js';
 import {sql, type Kysely} from 'kysely';
@@ -61,7 +62,7 @@ export async function searchTopics(database: Kysely<DB>, options: TopicSearchOpt
             LEFT JOIN block_version v ON v.id = r.block_version_id
             LEFT JOIN record vr ON vr.id = v.edit_id
             LEFT JOIN document d ON d.id = v.id LEFT JOIN dataset ds ON ds.id = v.id
-            WHERE r.is_visible AND ${currentReference}
+            WHERE ${visibleTopic(sql.ref("r.topic_id"))} AND r.is_visible AND ${currentReference}
             ORDER BY m.id, r.topic_id, r.is_current DESC, vr.created_at DESC NULLS LAST, r.id DESC
         ), ranked AS (
             SELECT *, count(*) OVER (PARTITION BY topic_id) AS match_count,
@@ -73,7 +74,7 @@ export async function searchTopics(database: Kysely<DB>, options: TopicSearchOpt
         ), results AS (
             SELECT p.topic_title, p.title_match, p.match_count, p.rank, p.topic_id,
                 json_build_object(
-                    'topic', json_build_object('id', t.id, 'title', t.title, 'slug', t.slug),
+                    'topic', json_build_object('id', t.id, 'title', t.title, 'slug', t.slug, 'visibility', t.visibility),
                     'matchCount', p.match_count, 'entryId', e.id::text, 'kind', s.kind,
                     'blockType', e.block_type_id, 'versionId', p.block_version_id, 'commentId', p.comment_id,
                     'comment', CASE WHEN cr.id IS NOT NULL THEN json_build_object(

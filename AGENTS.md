@@ -14,3 +14,4 @@ Code instructions:
 - Always use cn to join class names.
 - Never create or edit migrations unless explicitly asked.
 - Don't update README files unless asked explicitly.
+- When you update a UI, always look at the context, and the rest of the app if it's a new page or view, to ensure that the styling is consistent.

@@ -1,4 +1,4 @@
-import {ArrowsClockwiseIcon, ArrowBendUpLeftIcon, ChatCircleIcon, CheckIcon, PencilSimpleIcon, XIcon} from "@phosphor-icons/react";
+import {ArrowsClockwiseIcon, ArrowBendUpLeftIcon, ChatCircleIcon, CheckIcon, PencilSimpleIcon, EnvelopeSimpleIcon, XIcon} from "@phosphor-icons/react";
 import type {Notification} from "@cabildo-abierto/api";
 import {cn} from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const icons = {
     rejection: XIcon,
     positive_vote: CheckIcon,
     edit: PencilSimpleIcon,
+    topic_invitation: EnvelopeSimpleIcon,
 } as const;
 
 export function NotificationIcon({kind}: {kind: Notification["kind"]}) {

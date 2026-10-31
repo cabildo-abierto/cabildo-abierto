@@ -24,25 +24,25 @@ export const datasetPreviewInputSchema = datasetSourceOptionsSchema.partial().ex
 export const datasetUploadSchema = datasetSourceOptionsSchema.extend({fileId: z.string(), fileName: z.string(), sourceUrl: z.null()});
 const datasetResponses = {...actionErrors, '202': pendingResponse};
 export const datasetsContract = {
-    '/datasets': {get: {operationId: 'listDatasets', summary: 'Buscar datasets', tags: ['Datasets'],
+    '/datasets': {get: {operationId: 'listDatasets', 'x-display-order': 10, summary: 'Buscar datasets', tags: ['Datasets'],
         requestParams: {query: resourceListQuerySchema}, responses: {...datasetResponses, '200': successResponse(datasetListSchema, 'Página de datasets.')}}},
-    '/datasets/:topicId/:blockNumber': {get: {operationId: 'getDatasetSource', summary: 'Consultar una fuente de datos', tags: ['Datasets'],
+    '/datasets/:topicId/:blockNumber': {get: {operationId: 'getDatasetSource', 'x-display-order': 20, summary: 'Consultar una fuente de datos', tags: ['Datasets'],
         requestParams: {path: datasetReferenceSchema}, responses: {...datasetResponses, '200': successResponse(datasetSourceDetailsSchema, 'Fuente, tema y bloque.')}}},
-    '/datasets/upload': {post: {operationId: 'uploadDataset', summary: 'Cargar un archivo CSV o JSON', tags: ['Datasets'], security: sessionSecurity,
+    '/datasets/upload': {post: {operationId: 'uploadDataset', 'x-display-order': 60, summary: 'Cargar un archivo CSV o JSON', tags: ['Datasets'], security: sessionSecurity,
         description: 'Enviá los bytes del archivo con Content-Type application/octet-stream y su nombre en el parámetro name. El servidor valida el tamaño y formato antes de almacenarlo.',
         requestParams: {query: z.object({name: z.string()})}, requestBody: binaryBody,
         responses: {...datasetResponses, '201': successResponse(datasetUploadSchema, 'Archivo cargado.')}}},
-    '/datasets/preview': {post: {operationId: 'previewDataset', summary: 'Preparar una vista previa de un dataset', tags: ['Datasets'], security: sessionSecurity,
+    '/datasets/preview': {post: {operationId: 'previewDataset', 'x-display-order': 70, summary: 'Preparar una vista previa de un dataset', tags: ['Datasets'], security: sessionSecurity,
         description: 'Usá fileId o sourceUrl, exclusivamente uno. La preparación puede devolver 202; reintentá para obtener el resultado.',
         requestBody: jsonBody(datasetPreviewInputSchema), responses: {...datasetResponses, '200': successResponse(datasetPreviewSchema, 'Página de vista previa.')}}},
-    '/datasets/versions/:id/table-page': {post: {operationId: 'getDatasetTablePage', summary: 'Consultar una página de tabla', tags: ['Datasets'],
+    '/datasets/versions/:id/table-page': {post: {operationId: 'getDatasetTablePage', 'x-display-order': 40, summary: 'Consultar una página de tabla', tags: ['Datasets'],
         requestParams: {path: idParams}, requestBody: jsonBody(tablePageInputSchema), responses: {...datasetResponses, '200': successResponse(tablePageOutputSchema, 'Página filtrada y ordenada.')}}},
-    '/datasets/versions/:id': {get: {operationId: 'getDatasetVersion', summary: 'Obtener una versión de dataset', tags: ['Datasets'],
+    '/datasets/versions/:id': {get: {operationId: 'getDatasetVersion', 'x-display-order': 30, summary: 'Obtener una versión de dataset', tags: ['Datasets'],
         requestParams: {path: idParams, query: z.object({page: z.string().optional(), snapshotId: z.string().optional(), retry: z.enum(['true', 'false']).optional()})},
         responses: {...datasetResponses, '200': successResponse(datasetOutputSchema, 'Dataset con sus filas.')}}},
-    '/datasets/versions/:id/metadata': {get: {operationId: 'getDatasetMetadata', summary: 'Consultar metadatos de un dataset', tags: ['Datasets'],
+    '/datasets/versions/:id/metadata': {get: {operationId: 'getDatasetMetadata', 'x-display-order': 50, summary: 'Consultar metadatos de un dataset', tags: ['Datasets'],
         requestParams: {path: idParams}, responses: {...datasetResponses, '200': successResponse(datasetMetadataSchema, 'Metadatos y última comprobación.')}}},
-    '/datasets/versions/:id/update': {get: {operationId: 'getDatasetUpdate', summary: 'Consultar el estado de actualización', tags: ['Datasets'],
+    '/datasets/versions/:id/update': {get: {operationId: 'getDatasetUpdate', 'x-display-order': 80, summary: 'Consultar el estado de actualización', tags: ['Datasets'],
         requestParams: {path: idParams}, responses: {...datasetResponses, '200': successResponse(datasetUpdateSchema, 'Estado de actualización.')}}},
 } satisfies ApiContract;
 

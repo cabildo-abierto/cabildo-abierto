@@ -35,7 +35,7 @@ export async function convergeTopicName(database: Transaction<DB>, topicId: stri
     const editId = await currentTopicTitleEdit(database, topicId);
     if (!editId) throw new Error("Topic has no accepted title edit");
     const edit = await database.selectFrom("edit").select("title").where("id", "=", editId).executeTakeFirstOrThrow();
-    await database.updateTable("topic").set({title: edit.title!, slug: canonicalizeTopicId(edit.title!)})
+    await database.updateTable("topic").set({title: edit.title!, slug: sql<string>`CASE WHEN visibility = 'private' THEN ${canonicalizeTopicId(edit.title!)} || '-' || id ELSE ${canonicalizeTopicId(edit.title!)} END`})
         .where("id", "=", topicId).execute();
 }
 
@@ -46,7 +46,7 @@ export async function topicTitleEditViews(database: Database, ids: string[], use
         .innerJoin("user", "user.id", "record.author_id")
         .innerJoin("topic", "topic.id", "edit.topic_id")
         .select(["edit.id", "edit.topic_id", "edit.title", "edit.message", "record.created_at", "record.deleted",
-            "user.id as authorId", "user.username", "topic.title as topicTitle", "topic.slug as topicSlug",
+            "user.id as authorId", "user.username", "topic.title as topicTitle", "topic.slug as topicSlug", "topic.visibility",
             sql<number>`(SELECT count(*)::int FROM reaction WHERE subject_id = edit.id AND type = 'accept')`.as("acceptCount"),
             sql<number>`(SELECT count(*)::int FROM comment
                 INNER JOIN record comment_record ON comment_record.id = comment.id
@@ -66,7 +66,7 @@ export async function topicTitleEditViews(database: Database, ids: string[], use
         const row = byId.get(id)!;
         return {
             id: row.id, topic: {id: row.topic_id, title: row.topicTitle, slug: row.topicSlug},
-            title: row.title!, slug: canonicalizeTopicId(row.title!), message: row.message, initial: initial.get(row.topic_id) === id,
+            title: row.title!, slug: row.visibility === 'private' ? `${canonicalizeTopicId(row.title!)}-${row.topic_id}` : canonicalizeTopicId(row.title!), message: row.message, initial: initial.get(row.topic_id) === id,
             createdAt: row.created_at.toISOString(), author: {id: row.authorId, username: row.username},
             status: row.deleted ? "deleted" : rejects.get(id) ? "rejected" : current.get(row.topic_id) === id ? "current" : "accepted",
             acceptCount: row.acceptCount, rejectCount: visible.unreplicated.get(id) ?? 0,

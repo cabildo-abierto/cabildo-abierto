@@ -4,6 +4,7 @@ import {type FormEvent, useEffect, useState} from "react";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useRouter} from "next/navigation";
 import type {CreateTopicInput, CreateTopicOutput} from "@cabildo-abierto/api";
+import {TopicPrivacyField} from '@/components/topic-privacy-field';
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Field, FieldDescription, FieldError, FieldGroup, FieldLabel} from "@/components/ui/field";
@@ -21,6 +22,12 @@ export default function NewTopicPage() {
         if (!loading && !user) router.replace("/iniciar-sesion");
     }, [loading, user, router]);
     const queryClient = useQueryClient();
+    const [privateKey, setPrivateKey] = useState('');
+    useEffect(() => {
+        const bytes = crypto.getRandomValues(new Uint8Array(6));
+        setPrivateKey(Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''));
+    }, []);
+    const [isPrivate, setPrivate] = useState(false);
     const [title, setTitle] = useState("");
     const [error, setError] = useState<string | null>(null);
     const createTopicMutation = useMutation({
@@ -32,12 +39,13 @@ export default function NewTopicPage() {
         onSuccess: () => queryClient.invalidateQueries({queryKey: ["topics"]}),
     });
     const topicId = canonicalizeTopicId(title);
+    const topicSlug = isPrivate ? `${topicId}-${privateKey}` : topicId;
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
         try {
-            const topic = await createTopicMutation.mutateAsync({title});
+            const topic = await createTopicMutation.mutateAsync({title, visibility: isPrivate ? 'private' : 'public', ...(isPrivate ? {privateKey} : {})});
             router.push(`/tema/${encodeURIComponent(topic.slug)}`);
         } catch (mutationError) {
             setError(mutationError instanceof Error ? mutationError.message : "No pudimos crear el tema.");
@@ -60,15 +68,16 @@ export default function NewTopicPage() {
                         <Field>
                             <FieldLabel htmlFor="title">Título</FieldLabel>
                             <Input id="title" name="title" value={title} onChange={event => setTitle(event.target.value)} minLength={3} maxLength={120} required autoFocus/>
-                            {topicId && <FieldDescription>
-                                La URL del tema va a ser <code className="text-foreground">/tema/{topicId}</code>.
+                            {topicId && (!isPrivate || privateKey) && <FieldDescription>
+                                El URL del tema va a ser <code className="text-foreground">/tema/{topicSlug}</code>.
                             </FieldDescription>}
                         </Field>
+                        <TopicPrivacyField value={isPrivate} onChange={setPrivate}/>
                         {error && <FieldError>{error}</FieldError>}
                     </FieldGroup>
                 </CardContent>
                 <CardFooter className="mt-4">
-                    <Button type="submit" disabled={createTopicMutation.isPending || !topicId}>
+                    <Button type="submit" disabled={createTopicMutation.isPending || !topicId || (isPrivate && !privateKey)}>
                         {createTopicMutation.isPending ? <><Spinner/>Creando…</> : "Crear tema"}
                     </Button>
                 </CardFooter>

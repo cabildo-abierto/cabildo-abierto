@@ -1,3 +1,5 @@
+import {requireTopicAccess} from '#/services/topic-access.js';
+import {TopicActionError} from '#/services/topic-title-edits.js';
 import {createApiRouter} from '../../openapi/router.js';
 import express, {type Router} from "express";
 import type {AppContext} from "#/setup.js";
@@ -25,12 +27,17 @@ export function topicConnectionRoutes(ctx: AppContext): Router {
         if (!ctx.topicConnections) return res.status(503).json({success: false, error: 'Las conexiones en tiempo real no están disponibles.'});
         const ids = [...new Set(req.query.ids.split(','))];
         const mode = req.query.mode;
+        try { await Promise.all(ids.map(id => requireTopicAccess(ctx.kysely, id))); }
+        catch (error) {
+            if (error instanceof TopicActionError) return res.status(error.status).json({success: false, error: error.message});
+            throw error;
+        }
         if (mode && ids.length !== 1) {
             return res.status(400).json({success: false, error: 'Para registrar presencia, indicá un único tema.'});
         }
         if (!mode) {
             startEventStream(res);
-            const unsubscribe = ctx.topicConnections.watch(ids, res);
+            const unsubscribe = ctx.topicConnections.watch(ids, res, currentUser(req)?.id ?? null);
             res.once('close', unsubscribe);
             return;
         }

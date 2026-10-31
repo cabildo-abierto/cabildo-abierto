@@ -1,3 +1,4 @@
+import {env} from '#/lib/env.js';
 import type {ErrorResponder} from '../openapi/handler.js';
 import {createApiRouter} from '../openapi/router.js';
 import express from 'express';
@@ -38,9 +39,15 @@ export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage 
         try {
             const file = await requireFileAccess(ctx.kysely,String(req.params.fileId),currentUser(req)?.id,'image');
             const asset = await ctx.kysely.selectFrom('image_asset').select(['width','height']).where('file_id','=',file.id).executeTakeFirstOrThrow();
-            const url = await getStorage().signedUrl(file,'inline',file.mime,'public');
+            const url = `${env.PUBLIC_URL.replace(/\/$/, '')}/images/files/${encodeURIComponent(file.id)}/content`;
             return res.set('Cache-Control','no-store').json({success:true,value:{fileId:file.id,fileName:file.name,...asset,url,expiresAt:Date.now()+900000}});
         } catch(error) { return fail(res,error); }
+    });
+    api.get('/images/files/:fileId/content', withSession(ctx), async (req, res) => {
+        try {
+            const file = await requireFileAccess(ctx.kysely, req.params.fileId, currentUser(req)?.id, 'image');
+            return res.set('Cache-Control', 'private, no-store').type(file.mime).end(Buffer.from(await getStorage().read(file)));
+        } catch (error) { return fail(res, error); }
     });
     return router;
 }

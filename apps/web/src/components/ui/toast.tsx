@@ -1,7 +1,7 @@
 "use client"
 
 import {createContext, useCallback, useContext, useMemo, useState, type ReactNode} from "react";
-import {CheckIcon} from "@phosphor-icons/react";
+import {CheckIcon, WarningCircleIcon} from "@phosphor-icons/react";
 import {cn} from "@/lib/utils";
 
 type ToastOptions = {
@@ -28,7 +28,9 @@ export function ToastProvider({children}: {children: ReactNode}) {
                 "pointer-events-auto flex items-center gap-3 rounded-lg border bg-background px-4 py-3 text-sm shadow-lg",
                 item.variant === "destructive" && "border-destructive/50 text-destructive",
             )}>
-                <CheckIcon className={cn("size-5 shrink-0 text-primary", item.variant === "destructive" && "text-destructive")} aria-hidden="true"/>
+                {item.variant === "destructive"
+                    ? <WarningCircleIcon className={cn("size-5 shrink-0 text-destructive")} aria-hidden="true"/>
+                    : <CheckIcon className={cn("size-5 shrink-0 text-primary")} aria-hidden="true"/>}
                 <div>
                     <p className="font-medium">{item.title}</p>
                     {item.description && <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>}

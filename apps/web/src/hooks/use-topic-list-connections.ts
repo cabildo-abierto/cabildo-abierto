@@ -13,7 +13,7 @@ export function useTopicListConnections(queryKey: QueryKey, results: TopicListRe
         if (!ids) return;
         const topicIds = new Set(ids.split(','));
         const key = JSON.parse(cacheKey) as QueryKey;
-        const source = new EventSource(`${backendUrl}/topics/events?${new URLSearchParams({ids})}`);
+        const source = new EventSource(`${backendUrl}/topics/events?${new URLSearchParams({ids})}`, {withCredentials: true});
         const onChange = (event: Event) => {
             try {
                 const message = JSON.parse((event as MessageEvent<string>).data) as TopicConnectionsChangedEvent;
@@ -33,6 +33,8 @@ export function useTopicListConnections(queryKey: QueryKey, results: TopicListRe
                 // Reconnection sends a fresh snapshot if an event cannot be read.
             }
         };
+        const onRevoked = () => { source.close(); client.clear(); window.location.assign('/'); };
+        source.addEventListener('access.revoked', onRevoked);
         source.addEventListener('connections.changed', onChange);
         return () => {
             source.removeEventListener('connections.changed', onChange);

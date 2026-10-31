@@ -1,3 +1,4 @@
+import {requireTopicAccess, topicAccessContext} from '#/services/topic-access.js';
 import type {PendingErrorResponder} from '../openapi/handler.js';
 import {createApiRouter} from '../openapi/router.js';
 import express from 'express';
@@ -16,7 +17,16 @@ export function lccaRoutes(ctx: AppContext, createStorage: () => ObjectStorage =
     warmQueryWorker();
     const router = express.Router();
     const api = createApiRouter(router);
-    router.use((_req,res,next)=>{res.set('Cache-Control','no-store');next();});
+    router.use(async (req, res, next) => {
+        res.set('Cache-Control', 'private, no-store');
+        try {
+            if (req.body?.contextTopicId) topicAccessContext.getStore()!.topicId = (await requireTopicAccess(ctx.kysely, req.body.contextTopicId)).id;
+            next();
+        } catch (error) {
+            if (error instanceof TopicActionError) return res.status(error.status).json({success: false, error: error.message});
+            next(error);
+        }
+    });
     let storage: ObjectStorage | undefined;
     const getStorage = () => storage ??= createStorage();
     const fail = (res: PendingErrorResponder, error: unknown) => {

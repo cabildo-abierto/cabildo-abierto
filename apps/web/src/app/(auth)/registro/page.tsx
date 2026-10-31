@@ -44,7 +44,7 @@ export default function RegisterPage() {
             email: String(form.get("email") ?? ""),
             password,
         };
-        try { setUser(await registerMutation.mutateAsync(input)); }
+        try { await setUser(await registerMutation.mutateAsync(input)); }
         catch (mutationError) {
             setError(mutationError instanceof Error ? mutationError.message : "No pudimos crear la cuenta.");
             return;

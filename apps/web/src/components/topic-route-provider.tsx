@@ -9,6 +9,10 @@ import {TopicLoading} from "@/components/topic-loading";
 
 const TopicRouteContext = createContext<TopicSummary | null>(null);
 
+export function useOptionalTopicRoute() {
+    return useContext(TopicRouteContext);
+}
+
 export function useTopicRoute() {
     const topic = useContext(TopicRouteContext);
     if (!topic) throw new Error("Missing topic route provider");

@@ -96,6 +96,9 @@ import type {HttpMethod, OperationContract} from './common';
 
 export const apiContract = {...topicsContract, ...authContract, ...notificationsContract, ...datasetsContract, ...lccaContract, ...imagesContract, ...documentsContract};
 
+// Product order for the generated API reference. Operation priorities live in each section's contract.
+export const apiReferenceTags = ['Temas', 'Discusiones', 'Títulos', 'Documentos', 'Datasets', 'Visualizaciones', 'Imágenes', 'Accesos', 'Notificaciones', 'Tiempo real', 'Autenticación'].map(name => ({name}));
+
 type Contract = typeof apiContract;
 export type ApiPath<Method extends HttpMethod> = {
     [Path in keyof Contract]: Method extends keyof Contract[Path] ? Path : never;

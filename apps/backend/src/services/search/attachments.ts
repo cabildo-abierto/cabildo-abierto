@@ -1,3 +1,4 @@
+import {visibleTopic, topicAccessContext} from '../topic-access.js';
 import {sql} from 'kysely';
 import type {TopicSummary} from '@cabildo-abierto/api';
 import type {SearchDatabase} from './schema.js';
@@ -31,7 +32,9 @@ export async function searchAttachments(database: SearchDatabase, options: {
             JOIN block b ON b.topic_id = v.topic_id AND b.block_number = v.block_number
             JOIN record vr ON vr.id = v.edit_id
             JOIN topic t ON t.id = v.topic_id
-            WHERE r.is_selected AND (${options.includeDeleted ?? false} OR NOT r.is_deleted)
+            WHERE ${visibleTopic(sql.ref('t.id'))}
+                AND (t.visibility = 'public' OR t.id = ${options.topicId ?? topicAccessContext.getStore()?.topicId ?? null})
+                AND r.is_selected AND (${options.includeDeleted ?? false} OR NOT r.is_deleted)
                 AND NOT vr.deleted AND b.type_id = ${options.type}
                 ${options.topicId ? sql`AND r.topic_id = ${options.topicId}` : sql``}
             GROUP BY v.id, v.topic_id, v.block_number, v."order", b.type_id, r.is_deleted, t.title, t.slug

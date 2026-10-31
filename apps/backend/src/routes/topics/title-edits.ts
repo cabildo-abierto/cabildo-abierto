@@ -1,3 +1,4 @@
+import {requireTopicAccess} from '#/services/topic-access.js';
 import type {ErrorResponder} from '../../openapi/handler.js';
 import {createApiRouter} from '../../openapi/router.js';
 import {lockSearchTopic} from "#/services/search/schema.js";
@@ -56,16 +57,18 @@ export function topicTitleEditRoutes(ctx: AppContext): express.Router {
             const {title: rawTitle, message: rawMessage} = req.body ?? {};
             const title = typeof rawTitle === "string" ? rawTitle.trim() : "";
             const message = typeof rawMessage === "string" ? rawMessage.trim() : "";
-            const slug = canonicalizeTopicId(title);
+            let slug = canonicalizeTopicId(title);
             if (title.length < 3 || title.length > 120 || !slug || !message || message.length > 500) throw new TopicActionError(400, "Ingresá un título de 3 a 120 caracteres y un motivo de hasta 500 caracteres.");
             const topicId = String(req.params.id);
             const user = requiredUser(req);
             const id = randomUUID();
             await ctx.kysely.transaction().execute(async trx => {
+                await requireTopicAccess(trx, topicId);
                 await lockSearchTopic(trx, topicId);
                 await lockTopicTitleEdits(trx, topicId);
                 const topic = await trx.selectFrom("topic").selectAll().where("id", "=", topicId).executeTakeFirst();
                 if (!topic) throw new TopicActionError(404, "No encontramos ese tema.");
+                if (topic.visibility === 'private') slug = `${slug}-${topic.id}`;
                 if (topic.title === title && topic.slug === slug) throw new TopicActionError(400, "El tema ya tiene ese nombre.");
                 const alias = await trx.selectFrom("topic_redirect").select("topic_id").where("slug", "=", slug).executeTakeFirst();
                 if (alias && alias.topic_id !== topicId) throw new TopicActionError(409, "Esa URL pertenece a otro tema, aunque haya cambiado de nombre.");
@@ -85,6 +88,7 @@ export function topicTitleEditRoutes(ctx: AppContext): express.Router {
             const edit = await ctx.kysely.selectFrom("edit").select(["id", "topic_id"]).where("id", "=", req.params.editId).where("topic_id", "=", req.params.id).where("title", "is not", null).executeTakeFirst();
             if (!edit) throw new TopicActionError(404, "No encontramos ese cambio de título.");
             await ctx.kysely.transaction().execute(async trx => {
+                await requireTopicAccess(trx, edit.topic_id);
                 await lockSearchTopic(trx, edit.topic_id);
                 await lockTopicTitleEdits(trx, edit.topic_id);
                 if (await initialTitleEdit(trx, edit.topic_id) === edit.id) throw new TopicActionError(403, "No se puede eliminar el título inicial.");

@@ -28,7 +28,8 @@ type LocalConnection = {
 };
 
 type InternalNotification = {
-    type: "connections.changed" | "topic.changed";
+    type: "connections.changed" | "topic.changed" | "access.changed";
+    userId?: string;
     topicId: string;
     source?: TopicChangedEvent["source"];
 };
@@ -44,6 +45,7 @@ export async function notifyTopicChanged(database: Kysely<DB> | Transaction<DB>,
 
 export class TopicConnections {
     private readonly connections = new Map<string, LocalConnection>();
+    private readonly identities = new WeakMap<EventStreamResponse, string | null>();
     private readonly observers = new Map<EventStreamResponse, Set<string>>();
     private readonly pendingTopics = new Set<string>();
     private broadcasting: Promise<void> | null = null;
@@ -69,6 +71,7 @@ export class TopicConnections {
     }
 
     async add(topicId: string, viewerId: string, mode: TopicConnectionMode, response: EventStreamResponse): Promise<() => void> {
+        this.identities.set(response, viewerId.startsWith('user:') ? viewerId.slice(5) : null);
         const connectionId = randomUUID();
         await this.database.insertInto("topic_connection").values({
             connection_id: connectionId,
@@ -107,7 +110,8 @@ export class TopicConnections {
         if (Number(deleted.numDeletedRows) > 0) await this.notifyTopic(topicId);
     }
 
-    watch(topicIds: string[], response: EventStreamResponse): () => void {
+    watch(topicIds: string[], response: EventStreamResponse, userId: string | null = null): () => void {
+        this.identities.set(response, userId);
         this.observers.set(response, new Set(topicIds));
         const unsubscribe = () => { this.observers.delete(response); };
         response.once('error', unsubscribe);
@@ -148,7 +152,12 @@ export class TopicConnections {
             if (!notification.payload) return;
             try {
                 const payload = JSON.parse(notification.payload) as Partial<InternalNotification>;
-                if (typeof payload.topicId === "string" && payload.type === "connections.changed") {
+                if (typeof payload.topicId === 'string' && payload.type === 'access.changed') {
+                    this.revokeAccess(payload.topicId, payload.userId);
+                    void this.broadcastConnections([payload.topicId]).catch(error => {
+                        this.logger.pino.error({error, topicId: payload.topicId}, 'could not refresh revoked topic counters');
+                    });
+                } else if (typeof payload.topicId === "string" && payload.type === "connections.changed") {
                     void this.broadcastConnections([payload.topicId]).catch(error => {
                         this.logger.pino.error({error, topicId: payload.topicId}, "could not broadcast topic connections");
                     });
@@ -286,8 +295,33 @@ export class TopicConnections {
         this.writeEvent(response, event);
     }
 
-    private writeEvent(response: EventStreamResponse, event: TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent): void {
-        response.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
+    private async writeEvent(response: EventStreamResponse, event: TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent): Promise<void> {
+        try {
+            const userId = this.identities.get(response) ?? null;
+            const access = await this.database.selectFrom('topic').select('id').where('id', '=', event.topicId)
+                .where(eb => eb.or([eb('visibility', '=', 'public'), eb.exists(eb.selectFrom('topic_member').select('user_id')
+                    .whereRef('topic_member.topic_id', '=', 'topic.id').where('user_id', '=', userId))])).executeTakeFirst();
+            if (!access) { this.revokeAccess(event.topicId, userId); return; }
+            if (response.destroyed || response.writableEnded) return;
+            response.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
+        } catch (error) {
+            this.logger.pino.error({error}, 'could not verify realtime access');
+            response.end();
+        }
+    }
+
+    private revokeAccess(topicId: string, userId?: string | null): void {
+        const matches = (response: EventStreamResponse) => userId === undefined || (this.identities.get(response) ?? null) === userId;
+        for (const [id, connection] of this.connections) if (connection.topicId === topicId && matches(connection.response)) {
+            connection.response.write(`event: access.revoked\ndata: ${JSON.stringify({topicId})}\n\n`);
+            connection.response.end();
+            void this.remove(id);
+        }
+        for (const [response, ids] of this.observers) if (ids.has(topicId) && matches(response)) {
+            response.write(`event: access.revoked\ndata: ${JSON.stringify({topicId})}\n\n`);
+            this.observers.delete(response);
+            response.end();
+        }
     }
 
     private sendHeartbeats(): void {

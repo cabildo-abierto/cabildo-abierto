@@ -1,5 +1,6 @@
 "use client";
 
+import {TopicInvitationNotification} from '@/components/topic-invitation-notification';
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
@@ -25,6 +26,7 @@ function notificationHref(item: Notification): string {
 
 function notificationText(item: Notification): string {
     switch (item.kind) {
+        case "topic_invitation": return `${item.actor.username} te invitó al tema ${item.topic.title}`;
         case "replica": return item.replicaToReplica
             ? `${item.actor.username} replicó a tu réplica`
             : `${item.actor.username} replicó tu voto`;
@@ -82,6 +84,7 @@ export function NotificationList() {
         {!query.isPending && !query.error && notifications.length === 0 && <p className={cn("text-sm text-muted-foreground")}>Todavía no tenés notificaciones.</p>}
         <ol className={cn("space-y-2")}>
             {notifications.map(item => <li key={item.id}>
+                {item.kind === "topic_invitation" ? <TopicInvitationNotification item={item}/> : <>
                 <Button variant="ghost" className={cn("h-auto w-full items-start justify-start gap-2.5 whitespace-normal rounded-lg border border-border p-3.5 text-left hover:bg-muted/50", !item.readAt && "border-primary/30 bg-primary/5")}
                     onClick={() => void open(item)}>
                     <NotificationIcon kind={item.kind}/>
@@ -91,6 +94,7 @@ export function NotificationList() {
                     </span>
                     {!item.readAt && <span aria-label="Sin leer" className={cn("mt-1.5 size-2 shrink-0 rounded-full bg-primary")}/>}
                 </Button>
+                </>}
             </li>)}
         </ol>
         {query.hasNextPage && <Button variant="outline" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>

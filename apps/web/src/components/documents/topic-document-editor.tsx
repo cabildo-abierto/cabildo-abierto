@@ -27,11 +27,13 @@ export function TopicDocumentEditor({topicId, blocks, summary, includeDeleted, d
     const [query, setQuery] = useState('');
     const [expanded, setExpanded] = useState(false);
     const [editingBlockNumber, setEditingBlockNumber] = useState<string | null>(null);
-    const result = useTopicAttachments(topicId, dataset ? 'dataset' : 'documento', {search: query, page, includeDeleted, revision: summary.revision, enabled: expanded});
+    const hasAttachments = summary.count + (includeDeleted ? summary.deletedCount : 0) > 0 || blocks.length > 0;
+    const result = useTopicAttachments(topicId, dataset ? 'dataset' : 'documento', {search: query, page, includeDeleted, revision: summary.revision, enabled: expanded && hasAttachments});
     const pending = new Set(blocks.map(block => block.blockNumber));
     const pageBlocks = (result.loading || result.isError ? [] : result.data?.items ?? []).map(({block}) => ({...block, isNew: false})).filter(block => !pending.has(block.blockNumber));
     const visible = [...blocks, ...pageBlocks];
     const label = dataset ? 'conjuntos de datos' : 'documentos';
+    if (!hasAttachments) return null;
     return <DocumentSection dataset={dataset} onExpandedChange={setExpanded}
         actions={<AttachmentSectionAddButton type={dataset ? 'dataset' : 'documento'} action={insertionAction} disabled={disabled}/>}
         endActions={<AttachmentSearch dataset={dataset} value={query} onChange={value => {setQuery(value); setPage(0);}}/>}

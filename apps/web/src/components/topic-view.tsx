@@ -1,3 +1,5 @@
+import {TopicAccessDialog} from '@/components/topic-access-dialog';
+import {LockSimpleIcon} from '@phosphor-icons/react';
 import type {ReactNode} from "react";
 import type {TopicConnectionMode, TopicSummary} from "@cabildo-abierto/api";
 import {TopicTitle} from "@/components/topic-title";
@@ -11,7 +13,11 @@ export function TopicView({topic, connectionMode, action, children}: {topic: Top
                 <TopicTitle topic={topic} editing={connectionMode === "editing"}/>
                 <p className={cn('mt-1 break-words text-xs text-muted-foreground')}>{topic.slug}</p>
             </div>
-            {action}
+            <div className={cn('flex shrink-0 flex-wrap items-center gap-2')}>
+                {topic.visibility === 'private' && <span className={cn('flex items-center gap-1 text-xs text-muted-foreground')}><LockSimpleIcon/>Privado</span>}
+                {topic.role === 'admin' && <TopicAccessDialog topic={topic}/>}
+                {action}
+            </div>
         </div>
         <div className={cn('flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-2')}>
             <TopicConnectionCount topicId={topic.id} mode={connectionMode} className="mt-0"/>

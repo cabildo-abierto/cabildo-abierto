@@ -3,13 +3,13 @@ import type {DatasetReference, VisualizationSourcesOutput} from '@cabildo-abiert
 import type {DB} from '#/db/types.js';
 import {parseDatasetBlock} from '@cabildo-abierto/utils';
 import {loadConvergedBlocks, topicConvergenceReferences} from '../topic-convergence.js';
-import {resolveTopic} from '../resolve-topic.js';
+import {requireTopicSource} from '../topic-access.js';
 import {TopicActionError} from '../topic-title-edits.js';
 
 export async function datasetSourceBlocks(database: Kysely<DB> | Transaction<DB>, references: DatasetReference[]): Promise<VisualizationSourcesOutput> {
     const sources: VisualizationSourcesOutput['sources'] = [];
     for (const reference of new Set(references.map(source => source.topicId))) {
-        const topic = await resolveTopic(database,reference);
+        const topic = await requireTopicSource(database,reference);
         const topicSources = references.filter(source => source.topicId === reference);
         const blockNumbers = [...new Set(topicSources.map(source => source.blockNumber))];
         const blocks = await loadConvergedBlocks(database, await topicConvergenceReferences(database,topic.id,'dataset',blockNumbers));

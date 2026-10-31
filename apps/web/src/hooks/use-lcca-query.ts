@@ -1,4 +1,5 @@
 "use client";
+import {useOptionalTopicRoute} from '@/components/topic-route-provider';
 import {useEffect} from 'react';
 import {useQueries, useQuery, useQueryClient} from '@tanstack/react-query';
 import type {DatasetSource, LccaOutput, TopicChangedEvent} from '@cabildo-abierto/api';
@@ -7,11 +8,12 @@ import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from './use-debounced-value';
 import {TOPIC_REALTIME_CHANGE_EVENT} from './use-topic-realtime-change';
 export function useLccaQuery(query: string, enabled = true, refreshOnMount = true, cacheResults = false) {
+    const contextTopicId = useOptionalTopicRoute()?.id;
     const debounced = useDebouncedValue(query,600);
     const client = useQueryClient();
     const result = useQuery({
-        queryKey: ['lcca-query', debounced], enabled: enabled && !!debounced.trim() && debounced === query,
-        queryFn: ({signal}) => preparedDataRequest<LccaOutput>('/lcca/query', {method: 'POST', signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: debounced, queryLanguageVersion: 1, retry: true})}),
+        queryKey: ['lcca-query', debounced, contextTopicId], enabled: enabled && !!debounced.trim() && debounced === query,
+        queryFn: ({signal}) => preparedDataRequest<LccaOutput>('/lcca/query', {method: 'POST', signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: debounced, queryLanguageVersion: 1, contextTopicId, retry: true})}),
         // Cached results remain valid until source-version checks invalidate them.
         staleTime: cacheResults ? Infinity : 0, gcTime: cacheResults ? 5 * 60 * 1000 : 0, retry: false,
         refetchOnMount: refreshOnMount ? (cacheResults ? true : 'always') : false, refetchOnWindowFocus: false, refetchOnReconnect: false,
@@ -24,7 +26,7 @@ export function useLccaQuery(query: string, enabled = true, refreshOnMount = tru
     }))});
     const changed = checks.some((check,i) => !!check.data && check.dataUpdatedAt > result.dataUpdatedAt && check.data.versionId !== sources[i]?.versionId);
     const missing = checks.find(check => check.error && check.errorUpdatedAt > result.dataUpdatedAt)?.error;
-    useEffect(() => { if (changed && !result.isFetching) void client.invalidateQueries({queryKey: ['lcca-query', debounced], exact: true}, {cancelRefetch: false}); }, [changed, result.isFetching, client, debounced]);
+    useEffect(() => { if (changed && !result.isFetching) void client.invalidateQueries({queryKey: ['lcca-query', debounced, contextTopicId], exact: true}, {cancelRefetch: false}); }, [changed, result.isFetching, client, debounced, contextTopicId]);
     useEffect(() => {
         const handle = (event: Event) => {
             const change = (event as CustomEvent<TopicChangedEvent>).detail;

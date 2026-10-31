@@ -38,7 +38,7 @@ export default function LoginPage() {
             identifier: String(form.get("identifier") ?? ""),
             password: String(form.get("password") ?? ""),
         };
-        try { setUser(await loginMutation.mutateAsync(input)); }
+        try { await setUser(await loginMutation.mutateAsync(input)); }
         catch { return; }
         router.replace("/");
     };

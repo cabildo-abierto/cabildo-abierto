@@ -16,6 +16,11 @@ export async function createNotification(database: Database, input: {
     documentBlockId?: string | null;
 }) {
     if (input.recipientId === input.actorId) return;
+    const access = await database.selectFrom('topic').select('visibility').where('id', '=', input.topicId).executeTakeFirst();
+    if (access?.visibility === 'private') {
+        const member = await database.selectFrom('topic_member').select('user_id').where('topic_id', '=', input.topicId).where('user_id', '=', input.recipientId).executeTakeFirst();
+        if (!member) return;
+    }
     await database.insertInto("notification").values({
         id: randomUUID(), recipient_id: input.recipientId, actor_id: input.actorId,
         kind: input.kind, source_id: input.sourceId, topic_id: input.topicId,
