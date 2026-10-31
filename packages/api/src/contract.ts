@@ -42,6 +42,7 @@
  * │   └── read-all [PATCH]
  * ├── openapi.json [GET] -- contrato generado
  * └── topics [GET, POST]
+ *     ├── events [GET] -- SSE; mode opcional registra presencia
  *     ├── search [GET]
  *     └── :id [GET]
  *         ├── blocks [GET]
@@ -51,8 +52,7 @@
  *         │       └── versions [GET]
  *         │           └── :versionId [DELETE]
  *         │               └── reactions [POST, DELETE]
- *         ├── connections [GET] -- SSE
- *         │   └── :connectionId/disconnect [POST]
+ *         ├── connections/:connectionId/disconnect [POST]
  *         ├── edits [POST]
  *         └── title-edits [GET]
  *             └── :editId [GET, DELETE]
@@ -81,7 +81,7 @@
  * POST topics/:id/edits acepta changes por bloque o title + message, nunca ambos.
  * changes omite los bloques intactos; update/delete comprueban baseVersionId.
  * Uploads: application/octet-stream; documentos y datasets requieren query name.
- * connections emite eventos SSE TopicRealtimeEvent; mode=editing requiere sesión.
+ * events emite eventos SSE TopicRealtimeEvent; mode=editing requiere sesión.
  * Descargas de documentos redirigen a URLs firmadas; imágenes devuelven URL y expiración.
  */
 

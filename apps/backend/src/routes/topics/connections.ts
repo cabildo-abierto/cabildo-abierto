@@ -1,63 +1,49 @@
 import {createApiRouter} from '../../openapi/router.js';
-import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
-import type {TopicConnectionMode} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {currentUser, withSession} from "#/auth/middleware.js";
-import {readCookie} from "#/auth/session.js";
+import {getViewerId} from '#/auth/viewer.js';
 
-const VIEWER_COOKIE = "ca_viewer";
-const VIEWER_COOKIE_DURATION_MS = 365 * 24 * 60 * 60 * 1000;
-const ANONYMOUS_VIEWER_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function getViewerId(req: express.Request, res: {cookie(name: string, value: string, options: express.CookieOptions): unknown}): string {
-    const user = currentUser(req);
-    if (user) return `user:${user.id}`;
-
-    const existingViewerId = readCookie(req, VIEWER_COOKIE);
-    const anonymousViewerId = existingViewerId && ANONYMOUS_VIEWER_PATTERN.test(existingViewerId)
-        ? existingViewerId
-        : randomUUID();
-    if (anonymousViewerId !== existingViewerId) {
-        res.cookie(VIEWER_COOKIE, anonymousViewerId, {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            path: "/",
-            maxAge: VIEWER_COOKIE_DURATION_MS,
-        });
-    }
-    return `visitor:${anonymousViewerId}`;
+function startEventStream(res: {
+    setHeader(name: string, value: string): unknown;
+    flushHeaders(): unknown;
+    write(chunk: string): unknown;
+}) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+    res.write('retry: 2000\n\n');
 }
 
 export function topicConnectionRoutes(ctx: AppContext): Router {
     const router = express.Router();
     const api = createApiRouter(router);
 
-    api.get("/topics/:id/connections", withSession(ctx), async (req, res) => {
-        if (!ctx.topicConnections) return res.status(503).json({success: false, error: "Las conexiones en tiempo real no están disponibles."});
-
+    api.get('/topics/events', withSession(ctx), async (req, res) => {
+        if (!ctx.topicConnections) return res.status(503).json({success: false, error: 'Las conexiones en tiempo real no están disponibles.'});
+        const ids = [...new Set(req.query.ids.split(','))];
         const mode = req.query.mode;
-        if (mode !== "reading" && mode !== "editing") {
-            return res.status(400).json({success: false, error: "El modo de conexión no es válido."});
+        if (mode && ids.length !== 1) {
+            return res.status(400).json({success: false, error: 'Para registrar presencia, indicá un único tema.'});
         }
-        if (mode === "editing" && !currentUser(req)) {
-            return res.status(401).json({success: false, error: "Tenés que iniciar sesión para editar."});
+        if (!mode) {
+            startEventStream(res);
+            const unsubscribe = ctx.topicConnections.watch(ids, res);
+            res.once('close', unsubscribe);
+            return;
+        }
+        if (mode === 'editing' && !currentUser(req)) {
+            return res.status(401).json({success: false, error: 'Tenés que iniciar sesión para editar.'});
         }
 
-        const topic = await ctx.kysely.selectFrom("topic").select("id").where("id", "=", req.params.id).executeTakeFirst();
+        const topic = await ctx.kysely.selectFrom("topic").select("id").where("id", "=", ids[0]).executeTakeFirst();
         if (!topic) return res.status(404).json({success: false, error: "No encontramos ese tema."});
-        const viewerId = getViewerId(req, res);
+        const viewerId = getViewerId(req);
 
         res.status(200);
-        res.set({
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache, no-transform",
-            Connection: "keep-alive",
-            "X-Accel-Buffering": "no",
-        });
-        res.flushHeaders();
-        res.write("retry: 2000\n\n");
+        startEventStream(res);
 
         let disconnect: (() => void) | null = null;
         let closed = false;
@@ -66,7 +52,7 @@ export function topicConnectionRoutes(ctx: AppContext): Router {
             disconnect?.();
         });
         try {
-            disconnect = await ctx.topicConnections.add(topic.id, viewerId, mode as TopicConnectionMode, res);
+            disconnect = await ctx.topicConnections.add(topic.id, viewerId, mode, res);
             if (closed) disconnect();
         } catch (error) {
             ctx.logger.pino.error({error, topicId: topic.id}, "could not open topic connection");
@@ -81,7 +67,7 @@ export function topicConnectionRoutes(ctx: AppContext): Router {
         if (typeof topicId !== 'string' || !topicId || typeof connectionId !== 'string' || !connectionId) {
             return res.status(400).json({success: false, error: "La conexión no es válida."});
         }
-        const viewerId = getViewerId(req, res);
+        const viewerId = getViewerId(req);
         await ctx.topicConnections.disconnect(connectionId, topicId, viewerId);
         return res.json({success: true});
     });

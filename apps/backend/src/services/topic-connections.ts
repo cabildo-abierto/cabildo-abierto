@@ -4,6 +4,7 @@ import {sql, type Kysely, type Transaction} from "kysely";
 import type {TopicChangedEvent, TopicConnectionCounts, TopicConnectionMode, TopicConnectionOpenedEvent, TopicConnectionsChangedEvent} from "@cabildo-abierto/api";
 import type {DB} from "#/db/types.js";
 import type {Logger} from "#/utils/logger.js";
+import {topicConnectionCounts} from './topics/connections.js';
 
 type EventStreamResponse = {
     write(chunk: string): boolean;
@@ -43,6 +44,9 @@ export async function notifyTopicChanged(database: Kysely<DB> | Transaction<DB>,
 
 export class TopicConnections {
     private readonly connections = new Map<string, LocalConnection>();
+    private readonly observers = new Map<EventStreamResponse, Set<string>>();
+    private readonly pendingTopics = new Set<string>();
+    private broadcasting: Promise<void> | null = null;
     private listener: Client | null = null;
     private heartbeatTimer: NodeJS.Timeout | null = null;
     private leaseTimer: NodeJS.Timeout | null = null;
@@ -103,6 +107,18 @@ export class TopicConnections {
         if (Number(deleted.numDeletedRows) > 0) await this.notifyTopic(topicId);
     }
 
+    watch(topicIds: string[], response: EventStreamResponse): () => void {
+        this.observers.set(response, new Set(topicIds));
+        const unsubscribe = () => { this.observers.delete(response); };
+        response.once('error', unsubscribe);
+        void this.broadcastConnections(topicIds).catch(error => {
+            this.logger.pino.error({error}, 'could not send topic counter snapshot');
+            unsubscribe();
+            response.end();
+        });
+        return unsubscribe;
+    }
+
     async close(): Promise<void> {
         this.closing = true;
         if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
@@ -111,9 +127,13 @@ export class TopicConnections {
 
         const connectionIds = [...this.connections.keys()];
         const localConnections = [...this.connections.values()];
+        const observers = [...this.observers.keys()];
         const topicIds = new Set(localConnections.map(connection => connection.topicId));
         this.connections.clear();
+        this.observers.clear();
         for (const connection of localConnections) connection.response.end();
+        for (const response of observers) response.end();
+        await this.broadcasting?.catch(() => undefined);
         if (connectionIds.length > 0) {
             await this.database.deleteFrom("topic_connection").where("connection_id", "in", connectionIds).execute();
             await Promise.all([...topicIds].map(topicId => this.notifyTopic(topicId)));
@@ -129,7 +149,7 @@ export class TopicConnections {
             try {
                 const payload = JSON.parse(notification.payload) as Partial<InternalNotification>;
                 if (typeof payload.topicId === "string" && payload.type === "connections.changed") {
-                    void this.broadcastConnections(payload.topicId).catch(error => {
+                    void this.broadcastConnections([payload.topicId]).catch(error => {
                         this.logger.pino.error({error, topicId: payload.topicId}, "could not broadcast topic connections");
                     });
                 } else if (typeof payload.topicId === "string" && payload.type === "topic.changed" && payload.source) {
@@ -152,6 +172,11 @@ export class TopicConnections {
         await listener.connect();
         await listener.query(`LISTEN ${NOTIFICATION_CHANNEL}`);
         this.listener = listener;
+        const topicIds = [...this.connections.values()].map(connection => connection.topicId);
+        for (const ids of this.observers.values()) topicIds.push(...ids);
+        void this.broadcastConnections(topicIds).catch(error => {
+            this.logger.pino.error({error}, 'could not refresh topic counters after reconnect');
+        });
     }
 
     private scheduleListenerReconnect(): void {
@@ -207,17 +232,45 @@ export class TopicConnections {
         await sql`select pg_notify(${NOTIFICATION_CHANNEL}, ${JSON.stringify(notification)})`.execute(this.database);
     }
 
-    private async broadcastConnections(topicId: string): Promise<void> {
-        const topicConnections = [...this.connections.values()].filter(connection => connection.topicId === topicId);
-        if (topicConnections.length === 0) return;
-        const counts = await this.getCounts(topicId);
-        for (const connection of topicConnections) this.sendEvent(connection.response, topicId, counts);
+    private broadcastConnections(topicIds: string[]): Promise<void> {
+        for (const id of topicIds) this.pendingTopics.add(id);
+        if (!this.broadcasting) {
+            this.broadcasting = this.flushConnectionCounts().finally(() => {
+                this.broadcasting = null;
+                if (this.pendingTopics.size && !this.closing) {
+                    void this.broadcastConnections([]).catch(error => {
+                        this.logger.pino.error({error}, 'could not refresh pending topic counters');
+                    });
+                }
+            });
+        }
+        return this.broadcasting;
+    }
+
+    private async flushConnectionCounts(): Promise<void> {
+        // Serialize snapshots and updates so an older query cannot overwrite newer counts.
+        while (this.pendingTopics.size && !this.closing) {
+            const interested = new Set([...this.connections.values()].map(connection => connection.topicId));
+            for (const ids of this.observers.values()) for (const id of ids) interested.add(id);
+            const topicIds = [...this.pendingTopics].filter(id => interested.has(id));
+            this.pendingTopics.clear();
+            if (!topicIds.length) continue;
+            const counts = await topicConnectionCounts(this.database, topicIds);
+            for (const connection of this.connections.values()) {
+                const count = counts.get(connection.topicId);
+                if (count) this.sendEvent(connection.response, connection.topicId, count);
+            }
+            for (const [response, ids] of this.observers) {
+                for (const id of topicIds) if (ids.has(id)) this.sendEvent(response, id, counts.get(id)!);
+            }
+        }
     }
 
     private broadcastTopicChange(topicId: string, source: TopicChangedEvent["source"]): void {
         const event: TopicChangedEvent = {type: "topic.changed", topicId, source};
         const recipients = [...this.connections.values()].filter(connection => connection.topicId === topicId);
         for (const connection of recipients) this.writeEvent(connection.response, event);
+        for (const [response, ids] of this.observers) if (ids.has(topicId)) this.writeEvent(response, event);
     }
 
     private async sendTopicSnapshot(topicId: string, response: EventStreamResponse): Promise<void> {
@@ -225,24 +278,7 @@ export class TopicConnections {
     }
 
     private async getCounts(topicId: string): Promise<TopicConnectionCounts> {
-        const activeConnections = await this.database.selectFrom("topic_connection")
-            .select(["viewer_id", "mode"])
-            .where("topic_id", "=", topicId)
-            .where("expires_at", ">", new Date())
-            .execute();
-        const modesByViewer = new Map<string, TopicConnectionMode>();
-        for (const connection of activeConnections) {
-            if (connection.mode !== "reading" && connection.mode !== "editing") continue;
-            const currentMode = modesByViewer.get(connection.viewer_id);
-            if (currentMode !== "editing") modesByViewer.set(connection.viewer_id, connection.mode);
-        }
-        let reading = 0;
-        let editing = 0;
-        for (const mode of modesByViewer.values()) {
-            if (mode === "editing") editing += 1;
-            else reading += 1;
-        }
-        return {reading, editing};
+        return (await topicConnectionCounts(this.database, [topicId])).get(topicId)!;
     }
 
     private sendEvent(response: EventStreamResponse, topicId: string, connections: TopicConnectionCounts): void {
@@ -261,6 +297,10 @@ export class TopicConnections {
                 continue;
             }
             connection.response.write(": heartbeat\n\n");
+        }
+        for (const response of this.observers.keys()) {
+            if (response.destroyed || response.writableEnded || response.socket?.destroyed) this.observers.delete(response);
+            else response.write(': heartbeat\n\n');
         }
     }
 

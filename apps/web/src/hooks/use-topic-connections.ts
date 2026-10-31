@@ -13,7 +13,7 @@ export function useTopicConnections(topicId: string, mode: TopicConnectionMode):
     useEffect(() => {
         setConnections(null);
         const source = new EventSource(
-            `${backendUrl}/topics/${encodeURIComponent(topicId)}/connections?mode=${encodeURIComponent(mode)}`,
+            `${backendUrl}/topics/events?${new URLSearchParams({ids: topicId, mode})}`,
             {withCredentials: true},
         );
         let connectionId: string | null = null;

@@ -3,13 +3,15 @@
 import {useQuery} from '@tanstack/react-query';
 import type {TopicListOutput} from '@cabildo-abierto/api';
 import {get} from '@/utils/react/fetch';
+import {useTopicListConnections} from './use-topic-list-connections';
 
 export function useTopics({search = '', offset = 0, limit = 20, enabled = true}: {
     search?: string; offset?: number; limit?: number; enabled?: boolean;
 } = {}) {
     const query = search.trim();
-    return useQuery({
-        queryKey: ['topics', query, offset, limit],
+    const queryKey = ['topics', query, offset, limit] as const;
+    const topics = useQuery({
+        queryKey,
         enabled,
         queryFn: async () => {
             const params = new URLSearchParams({offset: String(offset), limit: String(limit)});
@@ -20,4 +22,6 @@ export function useTopics({search = '', offset = 0, limit = 20, enabled = true}:
             return result.value;
         },
     });
+    useTopicListConnections(queryKey, enabled ? topics.data?.results : undefined);
+    return topics;
 }

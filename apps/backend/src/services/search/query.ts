@@ -3,6 +3,7 @@ import {searchQueries, searchMatches} from './matching.js';
 import {sql, type Kysely} from 'kysely';
 import type {DB} from '#/db/types.js';
 import type {BlockType, TopicListOutput, TopicMatch, TopicSummary, SearchSnippet} from '@cabildo-abierto/api';
+import {withTopicConnectionCounts} from '../topics/connections.js';
 
 export type TopicSearchOptions = {search: string; history: boolean; types: BlockType['id'][]; comments: boolean; offset: number; limit: number};
 
@@ -99,7 +100,8 @@ export async function searchTopics(database: Kysely<DB>, options: TopicSearchOpt
             coalesce((SELECT json_agg(result ORDER BY topic_title DESC, title_match DESC, match_count DESC, rank DESC, topic_id ASC) FROM results), '[]'::json) AS results
     `.execute(database);
     const row = output.rows[0];
-    return {...row, limit: options.limit, offset: options.offset, results: row.results.map(({headline, topic, matchCount, ...match}) => ({
+    const results = row.results.map(({headline, topic, matchCount, ...match}) => ({
         topic, matchCount, matches: [{...match, snippet: parseSearchHeadline(headline, start, end)}],
-    }))};
+    }));
+    return {...row, limit: options.limit, offset: options.offset, results: await withTopicConnectionCounts(database, results)};
 }

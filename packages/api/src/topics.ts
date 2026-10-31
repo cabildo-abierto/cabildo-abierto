@@ -32,9 +32,11 @@ export const topicMatchSchema = z.object({
     historical: z.boolean(),
     snippet: z.object({text: z.string(), highlights: z.array(z.object({start: z.number(), end: z.number()}))}),
 });
+export const connectionCountsSchema = z.object({reading: z.number(), editing: z.number()});
 export const topicListSchema = z.object({
     results: z.array(z.object({
         topic: topicSummarySchema,
+        connections: connectionCountsSchema,
         matchCount: z.number().describe('Cantidad total de coincidencias en el tema; 0 sin búsqueda.'),
         matches: z.array(topicMatchSchema).max(1).describe('Mejor coincidencia del tema para mostrar como resumen; vacío sin búsqueda.'),
     })),
@@ -123,7 +125,11 @@ export type CreateBlockReactionInput = z.output<typeof createReactionSchema>;
 export type DeleteBlockReactionInput = z.output<typeof deleteReactionSchema>;
 export type CreateBlockCommentOutput = z.output<typeof blockCommentOutputSchema>;
 export const connectionModeSchema = z.enum(['reading', 'editing']);
-export const connectionCountsSchema = z.object({reading: z.number(), editing: z.number()});
+export const topicEventsQuerySchema = z.object({
+    ids: z.string().max(2048).regex(/^[^,\s]+(?:,[^,\s]+){0,49}$/).meta({param: {allowReserved: true}})
+        .describe('Hasta 50 identificadores de temas separados por comas.'),
+    mode: connectionModeSchema.optional().describe('Registra presencia en un único tema. editing requiere sesión.'),
+});
 export const topicChangedSourceSchema = z.enum(['edit', 'comment', 'vote', 'title']);
 export const topicRealtimeEventSchema = z.discriminatedUnion('type', [
     z.object({type: z.literal('connections.changed'), topicId: z.string(), connections: connectionCountsSchema}),
@@ -248,9 +254,9 @@ export const topicsContract = {
             requestParams: {path: titleParams}, requestBody: jsonBody(deleteReactionSchema, false), responses: {...actionErrors, '200': emptySuccess}},
     },
 
-    '/topics/:id/connections': {get: {operationId: 'openTopicConnection', summary: 'Suscribirse a los eventos de un tema', tags: ['Tiempo real'], security: optionalSessionSecurity,
-        description: 'Canal Server-Sent Events. Cada mensaje contiene un evento JSON. La edición requiere sesión; la lectura admite visitantes. El servidor asigna una cookie de visitante cuando corresponde. Cerrá el canal y notificá la desconexión al salir.',
-        requestParams: {path: idParams, query: z.object({mode: connectionModeSchema})},
+    '/topics/events': {get: {operationId: 'subscribeTopicEvents', summary: 'Suscribirse a eventos de temas', tags: ['Tiempo real'], security: optionalSessionSecurity,
+        description: 'Sin mode observa eventos. Con mode registra presencia en un único tema; editing requiere sesión.',
+        requestParams: {query: topicEventsQuerySchema},
         responses: {...actionErrors, '200': {description: 'Stream SSE con connection.opened, connections.changed y topic.changed.', content: {'text/event-stream': {schema: z.string().describe('Mensajes SSE; cada data contiene un JSON que cumple el esquema TopicRealtimeEvent.')}}}}}},
     '/topics/:id/connections/:connectionId/disconnect': {post: {operationId: 'disconnectTopicBeacon', summary: 'Cerrar una conexión mediante beacon', tags: ['Tiempo real'], security: optionalSessionSecurity,
         requestParams: {path: disconnectParams}, responses: {...actionErrors, '200': emptySuccess}}},

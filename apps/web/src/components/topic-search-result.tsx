@@ -6,8 +6,9 @@ import {SearchSnippet} from '@/components/search/search-snippet';
 import {cn} from '@/lib/utils';
 import {topicAuthorName} from '@/components/topic-author-name';
 import {formatRelativeDate, formatTopicBlockDate} from '@/components/topic-block-date';
+import {TopicConnectionSummary} from './topic-connection-summary';
 
-export function TopicSearchResult({result: {topic, matches}}: {result: TopicListResult}) {
+export function TopicSearchResult({result: {topic, matches, connections}}: {result: TopicListResult}) {
     const result = matches[0];
     const ResultIcon = result?.kind === 'comment' ? ChatCircleIcon : result?.blockType === 'dataset' ? DatabaseIcon : result?.blockType === 'tabla' ? TableIcon : FileTextIcon;
     const resultType = result?.kind === 'comment' ? 'Comentario' : result?.blockType === 'dataset' ? 'Conjunto de datos' : 'Documento';
@@ -15,6 +16,7 @@ export function TopicSearchResult({result: {topic, matches}}: {result: TopicList
         <Card className={cn("py-0 transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-sm active:translate-y-0 motion-reduce:transition-none")}>
             <CardContent className={cn("flex flex-col gap-2 px-4 py-4")}>
                 <span className={cn("font-medium")}>{topic.title}</span>
+                <TopicConnectionSummary connections={connections} hideZero/>
                 {result && result.kind !== 'topic_title' && <>
                     {(result.attachmentTitle || result.kind === 'comment') && <span className={cn('flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground')}>
                         <ResultIcon className={cn('size-3.5 shrink-0')} role="img" aria-label={resultType}/>

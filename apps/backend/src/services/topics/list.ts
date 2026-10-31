@@ -1,9 +1,10 @@
 import {sql, type Kysely} from 'kysely';
 import type {TopicListOutput} from '@cabildo-abierto/api';
 import type {DB} from '#/db/types.js';
+import {withTopicConnectionCounts} from './connections.js';
 
 export async function listTopics(database: Kysely<DB>, options: {offset: number; limit: number}): Promise<TopicListOutput> {
-    const result = await sql<{totalTopics: number; results: TopicListOutput['results']}>`
+    const result = await sql<{totalTopics: number; results: Omit<TopicListOutput['results'][number], 'connections'>[]}>`
         WITH topic_activity AS (
             SELECT edit.topic_id, record.author_id, record.created_at
             FROM edit JOIN record ON record.id = edit.id
@@ -31,5 +32,6 @@ export async function listTopics(database: Kysely<DB>, options: {offset: number;
                 'matchCount', 0, 'matches', '[]'::json
             ) ORDER BY position) FROM page), '[]'::json) AS results
     `.execute(database);
-    return {...result.rows[0], totalMatches: 0, offset: options.offset, limit: options.limit};
+    const row = result.rows[0];
+    return {...row, results: await withTopicConnectionCounts(database, row.results), totalMatches: 0, offset: options.offset, limit: options.limit};
 }
