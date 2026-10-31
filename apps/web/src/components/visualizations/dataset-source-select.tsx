@@ -3,7 +3,7 @@ import {useState} from 'react';
 import {Combobox} from '@base-ui/react/combobox';
 import {keepPreviousData, useQuery} from '@tanstack/react-query';
 import {CaretDownIcon, CheckIcon, DatabaseIcon} from '@phosphor-icons/react';
-import type {DatasetSource, DatasetCatalogOutput} from '@cabildo-abierto/api';
+import type {DatasetSource, DatasetListOutput} from '@cabildo-abierto/api';
 import {dataViewRequest} from '@/utils/react/data-view-request';
 import {useDebouncedValue} from '@/hooks/use-debounced-value';
 import {Button} from '@/components/ui/button';
@@ -21,12 +21,12 @@ export function DatasetSourceSelect({topicId, value, onChange, label: fieldLabel
     const catalog = useQuery({queryKey: ['dataset-catalog', topicId, debounced], enabled: open && search === debounced,
         placeholderData: keepPreviousData,
         queryFn: ({signal}) => {
-            const params = new URLSearchParams({topicId, search: debounced});
-            return dataViewRequest<DatasetCatalogOutput>(`/datasets?${params}`, {signal});
+            const params = new URLSearchParams({preferredTopicId: topicId, search: debounced, pageSize: '5'});
+            return dataViewRequest<DatasetListOutput>(`/datasets?${params}`, {signal});
         }, retry: false});
     const loading = catalog.isFetching || catalog.isPending || search !== debounced || catalog.isPlaceholderData;
     return <div className={cn('grid gap-1 text-xs text-muted-foreground')}>
-        <Combobox.Root items={loading ? [] : catalog.data?.sources ?? []} value={value} filter={null} inputValue={search} onInputValueChange={setSearch}
+        <Combobox.Root items={loading ? [] : catalog.data?.items.flatMap(item => item.source ? [item.source] : []) ?? []} value={value} filter={null} inputValue={search} onInputValueChange={setSearch}
             itemToStringLabel={label} isItemEqualToValue={(a,b) => a.topicId === b.topicId && a.blockNumber === b.blockNumber}
             onValueChange={source => { if (source) onChange(source); }} onOpenChange={open => {setOpen(open); if (open) setSearch('');}}>
             <Combobox.Label className={cn(iconOnly && 'sr-only')}>{fieldLabel}</Combobox.Label>

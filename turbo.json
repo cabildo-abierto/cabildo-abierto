@@ -35,6 +35,7 @@
       "outputs": []
     },
     "typecheck": {
+      "dependsOn": ["^typecheck"],
       "outputs": []
     },
     "test": {

@@ -7,18 +7,6 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./dist/index.js"
-    },
-    "./dist": {
-      "types": "./src/index.ts",
-      "default": "./dist/index.js"
-    },
-    "./dist/types/*": {
-      "types": "./src/types/*.ts",
-      "default": "./dist/types/*.js"
-    },
-    "./dist/client/types/*": {
-      "types": "./src/client/types/*.ts",
-      "default": "./dist/client/types/*.js"
     }
   },
   "scripts": {
@@ -29,5 +17,8 @@
   },
   "devDependencies": {
     "json-schema-to-typescript": "^16.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }

@@ -17,7 +17,7 @@ export function useTablePage(value: DatasetTableContent) {
     const versionId = source.data?.versionId ?? '';
     const query = useQuery({queryKey: ['table-page', versionId, value.columns.map(column => column.field), value.pageSize, debounced, position],
         enabled: !!versionId && search === debounced,
-        queryFn: ({signal}) => preparedDataRequest<TablePageOutput>(`/dataset-versions/${encodeURIComponent(versionId)}/table-page`, {
+        queryFn: ({signal}) => preparedDataRequest<TablePageOutput>(`/datasets/versions/${encodeURIComponent(versionId)}/table-page`, {
             method: 'POST', signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({...position, columns: value.columns.map(column => column.field), pageSize: value.pageSize, search: debounced})}),
         placeholderData: previous => !position.snapshotId || previous?.snapshotId === position.snapshotId ? previous : undefined,
         retry: false, gcTime: 60000, refetchOnWindowFocus: false, refetchOnReconnect: false});

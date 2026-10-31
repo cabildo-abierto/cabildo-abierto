@@ -1,13 +1,23 @@
-import type {SaveTopicEditBlockInput} from "@cabildo-abierto/api";
+import type {TopicEditableBlock} from "@cabildo-abierto/api";
 import {blockRichTextContents, mapBlockRichText, parseRichTextContent, parseFootnoteAttrs, richTextInlineNodes} from "@cabildo-abierto/utils";
 import {TopicActionError} from "./topic-title-edits.js";
 
+export type TopicEditBlock = Pick<TopicEditableBlock, 'typeId' | 'content' | 'order' | 'deleted'> & {
+    id: string | null; blockNumber: string | null; localId?: string;
+};
+
 export function resolveTopicFootnotes(
-    blocks: SaveTopicEditBlockInput[],
+    blocks: TopicEditBlock[],
     localNumbers: ReadonlyMap<string, string>,
-    previous: ReadonlyMap<string, {content: string}>,
-): SaveTopicEditBlockInput[] {
-    const targets = new Map(blocks.filter(block => !block.deleted).map(block => [block.blockNumber, block]));
+    previous: ReadonlyMap<string, {content: string; typeId: string; deleted: boolean}>,
+): TopicEditBlock[] {
+    const targets = new Map([...previous].filter(([, block]) => !block.deleted));
+    for (const block of blocks) {
+        if (block.blockNumber) {
+            if (block.deleted) targets.delete(block.blockNumber);
+            else targets.set(block.blockNumber, block);
+        }
+    }
     return blocks.map(block => {
         if (block.deleted || !blockRichTextContents(block).length) return block;
         const previousContent = block.blockNumber ? previous.get(block.blockNumber)?.content : undefined;

@@ -9,8 +9,8 @@ import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/spinner';
 import {cn} from '@/lib/utils';
 
-export function DocumentUrlPicker({topicId, value, onChange, onBusyChange}: {
-    topicId: string; value: DocumentBlockContent; onChange: (value: DocumentBlockContent) => void; onBusyChange: (busy: boolean) => void;
+export function DocumentUrlPicker({ value, onChange, onBusyChange}: {
+    value: DocumentBlockContent; onChange: (value: DocumentBlockContent) => void; onBusyChange: (busy: boolean) => void;
 }) {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export function DocumentUrlPicker({topicId, value, onChange, onBusyChange}: {
     const load = async () => {
         setBusy(true); onBusyChange(true); setError(null);
         try {
-            const result = await post<{url: string}, DocumentImportOutput>(`/topics/${encodeURIComponent(topicId)}/documents/import`, {url});
+            const result = await post<{url: string}, DocumentImportOutput>(`/documents/import`, {url});
             if ('error' in result) throw new Error(result.error);
             onChange({...value, fileId: result.value.fileId, sourceUrl: result.value.sourceUrl,
                 title: value.title || result.value.fileName.replace(/\.[^.]+$/, '').slice(0, 200)});

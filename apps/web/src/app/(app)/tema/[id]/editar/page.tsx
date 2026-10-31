@@ -4,14 +4,12 @@ import {useTopicRoute} from "@/components/topic-route-provider";
 
 import {useRouter} from "next/navigation";
 import {useEffect, useRef} from "react";
-import {useQuery} from "@tanstack/react-query";
-import type {TopicEditorDataOutput} from "@cabildo-abierto/api";
 import {TopicEditingBadge} from "@/components/topic-editing-badge";
 import {BackToTopicButton} from "@/components/back-to-topic-button";
 import {TopicView} from "@/components/topic-view";
 import {TopicBlockEditor, type TopicBlockEditorHandle} from "@/components/topic-block-editor";
 import {useAuth} from "@/components/auth-provider";
-import {get} from "@/utils/react/fetch";
+import {useTopicBlocks} from "@/hooks/use-topic-blocks";
 import {TopicLoading} from "@/components/topic-loading";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 
@@ -27,17 +25,7 @@ export default function EditTopicPage() {
         if (!authLoading && !user) router.replace("/iniciar-sesion");
     }, [authLoading, router, user]);
 
-    const blocksQuery = useQuery({
-        queryKey: ["topic", id, "editor-data"],
-        queryFn: async () => {
-            const result = await get<TopicEditorDataOutput>(`/topics/${encodeURIComponent(id)}/editor-data`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value;
-        },
-        enabled: !authLoading && Boolean(user),
-    });
-    const blocks = blocksQuery.data?.blocks ?? [];
-    const blockTypes = blocksQuery.data?.blockTypes ?? [];
+    const blocksQuery = useTopicBlocks(id, !authLoading && Boolean(user));
     const error = blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (authLoading || !user || isMobile === null) return <TopicLoading/>;
@@ -54,7 +42,7 @@ export default function EditTopicPage() {
             if (editorRef.current?.canFinishEditing() ?? true) router.push(`/tema/${encodeURIComponent(topic.slug)}`);
         }}/>
         <TopicView topic={topic} connectionMode="editing">
-            <TopicBlockEditor ref={editorRef} topicId={topic.id} initialBlocks={blocks} blockTypes={blockTypes}/>
+            <TopicBlockEditor ref={editorRef} topicId={topic.id} data={blocksQuery.data!}/>
         </TopicView>
     </>;
 }

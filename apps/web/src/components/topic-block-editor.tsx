@@ -12,12 +12,13 @@ import {VisualizationBlock} from '@/components/visualizations/visualization-bloc
 import {VisualizationEditActions} from '@/components/visualizations/visualization-edit-actions';
 
 
-import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
+import {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useToast} from "@/components/ui/toast";
-import type {BlockType, SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicEditorDataOutput} from "@cabildo-abierto/api";
+import type {SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicBlocksOutput} from "@cabildo-abierto/api";
 import {compareContentBlocks, isAttachmentBlock, orderBetween} from "@cabildo-abierto/utils";
 import {DotsSixVerticalIcon, PencilSimpleIcon} from "@phosphor-icons/react";
+import {changeKind, deactivateBlock, editableTopicBlocks, mergeConvergence, newAttachmentBlock, persistedBlocks, stageAttachment, stateFromSaved, topicEditChanges, type ChangeKind, type TopicEditState, type WorkingBlock} from '@/components/topic-editor-state';
 import {TopicDocumentEditor} from "@/components/documents/topic-document-editor";
 import {TopicBlockContent} from "@/components/topic-block-content";
 import {TopicBlockTools, topicBlockVersionsKey} from "@/components/topic-block-tools";
@@ -26,7 +27,7 @@ import {TopicBlockInsertButton} from "@/components/topic-block-insert-button";
 import {TopicBlockEditForm} from "@/components/topic-block-edit-form";
 import {TopicEditActionsCard} from "@/components/topic-edit-actions-card";
 import {TopicEditActionButtons} from "@/components/topic-edit-action-buttons";
-import {post} from "@/utils/react/fetch";
+import {get, post} from "@/utils/react/fetch";
 import {cn} from "@/lib/utils";
 import {TopicConvergenceNotice} from "@/components/topic-convergence-notice";
 import {sameConvergence} from "@/components/topic-convergence";
@@ -37,121 +38,19 @@ import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
 import {normalizeTopicBlockOrders} from "@/components/topic-block-order";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
-type WorkingBlock = TopicBlock & {isNew: boolean; deleted: boolean};
-type TopicEditState = {
-    savedBlocks: WorkingBlock[]
-    blocks: WorkingBlock[]
-    activeBlockNumber: string | null
-    showDeleted: boolean
-    message: string
-};
-type ChangeKind = "new" | "content" | "order" | null;
-
-function newAttachmentBlock(typeId: "documento" | "dataset", id: string, content: string): WorkingBlock {
-    return {id, blockNumber: id, typeId, content, order: "n", commentCount: 0, isNew: true, deleted: false};
-}
-
-function persistedBlocks(blocks: TopicEditableBlock[]): WorkingBlock[] {
-    return blocks.map(block => ({...block, isNew: false}));
-}
-
-function emptyParagraph(): WorkingBlock {
-    const localNumber = `new-${crypto.randomUUID()}`;
-    return {
-        id: localNumber,
-        blockNumber: localNumber,
-        typeId: "parrafo",
-        content: "",
-        order: "n",
-        commentCount: 0,
-        isNew: true,
-        deleted: false,
-    };
-}
-
-function stateFromSaved(savedBlocks: WorkingBlock[], activeBlockNumber: string | null = null): Pick<TopicEditState, "savedBlocks" | "blocks" | "activeBlockNumber"> {
-    const blocks = [...savedBlocks];
-    if (blocks.some(block => !block.deleted)) return {savedBlocks, blocks, activeBlockNumber};
-    const paragraph = emptyParagraph();
-    return {savedBlocks, blocks: [...blocks, paragraph], activeBlockNumber: paragraph.blockNumber};
-}
-
-function changeKind(block: WorkingBlock, savedByNumber: ReadonlyMap<string, WorkingBlock>): ChangeKind {
-    if (block.isNew) return blockIsEmpty(block) ? null : "new";
-    const saved = savedByNumber.get(block.blockNumber);
-    if (!saved) return null;
-    if (block.deleted) return null;
-    if (saved.deleted !== block.deleted) return "content";
-    if (block.content !== saved.content) return "content";
-    if (!isAttachmentBlock(block.typeId) && block.order !== saved.order) return "order";
-    return null;
-}
-
-function mergeConvergence(state: TopicEditState, latestBlocks: TopicEditableBlock[]): TopicEditState {
-    const previousSavedByNumber = new Map(state.savedBlocks.map(block => [block.blockNumber, block]));
-    const workingByNumber = new Map(state.blocks.filter(block => !block.isNew).map(block => [block.blockNumber, block]));
-    const latest = persistedBlocks(latestBlocks).map(block => {
-        const saved = previousSavedByNumber.get(block.blockNumber);
-        const working = workingByNumber.get(block.blockNumber);
-        if (!saved || !working) return block;
-        const contentChanged = working.content !== saved.content;
-        const orderChanged = !isAttachmentBlock(working.typeId) && working.order !== saved.order;
-        const deletionChanged = working.deleted !== saved.deleted;
-        return {
-            ...block,
-            content: contentChanged ? working.content : block.content,
-            order: orderChanged ? working.order : block.order,
-            deleted: deletionChanged ? working.deleted : contentChanged || orderChanged ? false : block.deleted,
-        };
-    });
-    const localBlocks = state.blocks.filter(block => block.isNew);
-    let blocks = [...latest, ...localBlocks]
-        .sort(compareContentBlocks);
-    const visibleBlocks = blocks.filter(block => !block.deleted && !isAttachmentBlock(block.typeId));
-    const hasDuplicateOrder = visibleBlocks.some((block, index) => index > 0 && visibleBlocks[index - 1].order >= block.order);
-    const savedBlocks = persistedBlocks(latestBlocks);
-    const hasLocalOrderChanges = state.blocks.some(block => !block.isNew && !block.deleted && !isAttachmentBlock(block.typeId)
-        && block.order !== previousSavedByNumber.get(block.blockNumber)?.order);
-    if (hasDuplicateOrder || hasLocalOrderChanges) blocks = normalizeTopicBlockOrders(blocks, savedBlocks);
-    const activeBlockNumber = blocks.some(block => !block.deleted && block.blockNumber === state.activeBlockNumber)
-        ? state.activeBlockNumber
-        : null;
-    if (blocks.some(block => !block.deleted)) return {...state, savedBlocks, blocks, activeBlockNumber};
-    const paragraph = emptyParagraph();
-    return {...state, savedBlocks, blocks: [...blocks, paragraph], activeBlockNumber: paragraph.blockNumber};
-}
-
 function changeBarClass(kind: Exclude<ChangeKind, null>): string {
     if (kind === "new") return "bg-green-500";
     if (kind === "content") return "bg-yellow-500";
     return "bg-blue-500";
 }
 
-function deactivateBlock(state: TopicEditState, nextActiveBlockNumber: string | null): TopicEditState {
-    const activeBlock = state.blocks.find(block => block.blockNumber === state.activeBlockNumber);
-    if (!activeBlock || activeBlock.blockNumber === nextActiveBlockNumber || !blockIsEmpty(activeBlock)) {
-        return {...state, activeBlockNumber: nextActiveBlockNumber};
-    }
-    if (activeBlock.isNew) {
-        return {
-            ...state,
-            blocks: state.blocks.filter(block => block.blockNumber !== activeBlock.blockNumber),
-            activeBlockNumber: nextActiveBlockNumber,
-        };
-    }
-    const saved = state.savedBlocks.find(block => block.blockNumber === activeBlock.blockNumber)!;
-    return {
-        ...state,
-        blocks: state.blocks.map(block => block.blockNumber === activeBlock.blockNumber ? {...saved, deleted: true} : block),
-        activeBlockNumber: nextActiveBlockNumber,
-    };
-}
-
 export type TopicBlockEditorHandle = {
     canFinishEditing: () => boolean
 };
 
-export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; initialBlocks: TopicEditableBlock[]; blockTypes: BlockType[]}>(function TopicBlockEditor({topicId, initialBlocks, blockTypes}, ref) {
+export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: string; data: TopicBlocksOutput}>(function TopicBlockEditor({topicId, data}, ref) {
+    const initialBlocks = useMemo(() => editableTopicBlocks(data), [data]);
+    const blockTypes = data.blockTypes;
     const openToolsInPage = useMediaQuery("(max-width: 1535px)") !== false;
     const queryClient = useQueryClient();
     const {toast} = useToast();
@@ -165,6 +64,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState<Set<string>>(new Set());
     const [error, setError] = useState<string | null>(null);
+    const [conflict, setConflict] = useState(false);
     const [shaking, setShaking] = useState(false);
     const [toolbarContainer, setToolbarContainer] = useState<HTMLDivElement | null>(null);
     const blockSectionProps = useTopicBlockSection();
@@ -178,13 +78,17 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const modifiedBlockCount = changedBlocks.length + newBlocks.filter(block => changeKind(block, savedByNumber) === null).length;
     const deletedBlocks = edit.blocks.filter(block => block.deleted && !block.isNew && !savedByNumber.get(block.blockNumber)?.deleted);
     const deletedBlocksForDisplay = edit.blocks.filter(block => block.deleted && !block.isNew);
+    const deletedAttachmentChanges = edit.blocks.filter(block => isAttachmentBlock(block.typeId) && !block.isNew).reduce((count, block) =>
+        count + Number(block.deleted) - Number(savedByNumber.get(block.blockNumber)?.deleted ?? false), 0);
+    const deletedCount = Math.max(0, deletedBlocksForDisplay.filter(block => !isAttachmentBlock(block.typeId)).length
+        + data.attachments.documento.deletedCount + data.attachments.dataset.deletedCount + deletedAttachmentChanges);
     const hasChanges = changedBlocks.length > 0 || deletedBlocks.length > 0;
     const affectedBlockCount = modifiedBlockCount + deletedBlocks.length;
     const showActionsCard = deletedBlocks.length > 0 || affectedBlockCount > 1;
     const requiresMessage = affectedBlockCount > 1;
     const singleChangedBlockNumber = !showActionsCard && changedBlocks.length === 1 ? changedBlocks[0].blockNumber : null;
-    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && block.typeId === "visualizacion" && changeKind(block, savedByNumber) !== null && validVisualizations.get(block.blockNumber) !== block.content) || edit.blocks.some(block => !block.deleted && blockContentIsInvalid(block));
-    const convergenceChanged = !saving && !deletingVersion && !sameConvergence(edit.savedBlocks, initialBlocks);
+    const hasInvalidBlock = uploading.size > 0 || edit.blocks.some(block => !block.deleted && block.typeId === "visualizacion" && changeKind(block, savedByNumber) !== null && validVisualizations.get(block.blockNumber) !== block.content) || edit.blocks.some(block => !block.deleted && !(block.isNew && block.typeId === "parrafo" && blockIsEmpty(block)) && blockContentIsInvalid(block));
+    const convergenceChanged = !saving && !deletingVersion && (conflict || !sameConvergence(edit.savedBlocks.filter(block => !isAttachmentBlock(block.typeId)), initialBlocks.filter(block => !isAttachmentBlock(block.typeId))));
 
     useEffect(() => {
         const countsByNumber = new Map(initialBlocks.map(block => [block.blockNumber, block.commentCount]));
@@ -374,6 +278,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     const cancel = () => {
         setEdit(current => ({...stateFromSaved(current.savedBlocks), showDeleted: false, message: ""}));
         setError(null);
+        setConflict(false);
         setShaking(false);
     };
 
@@ -386,43 +291,27 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         setError(null);
         const input: SaveTopicEditInput = {
             message: multiple ? state.message.trim() : null,
-            baseBlocks: state.savedBlocks.map(block => ({
-                id: block.id,
-                blockNumber: block.blockNumber,
-                typeId: block.typeId,
-                content: block.content,
-                order: block.order,
-                deleted: block.deleted,
-            })),
-            blocks: state.blocks.map(block => ({
-                ...(block.isNew ? {localId: block.blockNumber} : {}),
-                id: block.isNew ? null : block.id,
-                blockNumber: block.isNew ? null : block.blockNumber,
-                typeId: block.typeId,
-                content: block.content,
-                order: block.order,
-                deleted: block.deleted,
-            })),
+            changes: topicEditChanges(state),
         };
         const result = await post<SaveTopicEditInput, SaveTopicEditOutput>(`/topics/${encodeURIComponent(topicId)}/edits`, input);
         if ("error" in result) {
             setSaving(false);
             setError(result.error);
             if (result.error.includes("convergencia")) {
-                void queryClient.invalidateQueries({queryKey: ["topic", topicId, "editor-data"]});
+                setConflict(true);
+                void queryClient.invalidateQueries({queryKey: ["topic", topicId, "blocks"]});
             }
             return false;
         }
-        const editorDataKey = ["topic", topicId, "editor-data"];
+        const blocksKey = ["topic", topicId, "blocks"];
         // Prevent an older in-flight snapshot from replacing the saved convergence.
-        await queryClient.cancelQueries({queryKey: editorDataKey, exact: true});
-        queryClient.setQueryData<TopicEditorDataOutput>(editorDataKey, current => current
-            ? {...current, blocks: result.value.blocks}
-            : {blocks: result.value.blocks, blockTypes});
+        await queryClient.cancelQueries({queryKey: blocksKey, exact: true});
+        queryClient.setQueryData<TopicBlocksOutput>(blocksKey, result.value);
         for (const block of [...changed, ...deleted]) {
             if (!block.isNew) void queryClient.invalidateQueries({queryKey: topicBlockVersionsKey(topicId, block.blockNumber)});
         }
-        const blocks = persistedBlocks(result.value.blocks);
+        const blocks = persistedBlocks(editableTopicBlocks(result.value));
+        setConflict(false);
         setEdit({...stateFromSaved(blocks), showDeleted: false, message: ""});
         setSaving(false);
         toast({title: "Se guardó la edición"});
@@ -430,19 +319,38 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         return true;
     };
 
+    const refreshConvergence = async () => {
+        setSaving(true);
+        try {
+            const latest = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(topicId)}/blocks`);
+            if ('error' in latest) throw new Error(latest.error);
+            const attachments = await Promise.all(edit.savedBlocks.filter(block => isAttachmentBlock(block.typeId)).map(async block => {
+                const result = await get<{block: TopicEditableBlock}>(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}`);
+                if ('error' in result) throw new Error(result.error);
+                return result.value.block;
+            }));
+            const blocks = [...new Map([...editableTopicBlocks(latest.value), ...attachments].map(block => [block.blockNumber, block])).values()].sort(compareContentBlocks);
+            queryClient.setQueryData(['topic', topicId, 'blocks'], latest.value);
+            setEdit(current => mergeConvergence(current, blocks));
+            setConflict(false);
+            setError(null);
+        } catch (error) { setError(error instanceof Error ? error.message : 'No pudimos actualizar la convergencia.'); }
+        finally { setSaving(false); }
+    };
+
     const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
     const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
-    return <TopicFootnoteProvider topicId={topicId} blocks={edit.blocks}><div className="flex flex-1 flex-col gap-3">
+    return <TopicFootnoteProvider topicId={topicId} blocks={edit.blocks} onSelectAttachment={block => setEdit(current => {
+        if (current.blocks.some(item => item.blockNumber === block.blockNumber)) return current;
+        return stageAttachment(current, block, block);
+    })}><div className="flex flex-1 flex-col gap-3">
         {inlinePopup?.typeId === "visualizacion" && <VisualizationEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
         {inlinePopup?.typeId === "tabla" && <TableEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
-        {inlinePopup?.typeId === "imagen" && <ImageEditorPopup topicId={topicId} initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
-        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => {
-            setEdit(current => mergeConvergence(current, initialBlocks));
-            setError(null);
-        }}/>}
-        <TopicDeletedBlocks topicId={topicId} count={deletedBlocksForDisplay.length} open={edit.showDeleted}
+        {inlinePopup?.typeId === "imagen" && <ImageEditorPopup initialContent={inlinePopup.content} onClose={() => setInlinePopup(null)} onConfirm={confirmInlineBlock}/>}
+        {convergenceChanged && <TopicConvergenceNotice onUpdate={() => void refreshConvergence()}/>}
+        <TopicDeletedBlocks topicId={topicId} count={deletedCount} open={edit.showDeleted}
             onToggle={() => setEdit(current => ({...current, showDeleted: !current.showDeleted}))}/>
-        {edit.showDeleted && deletedBlocksForDisplay.length === 0 && <p className="text-xs text-muted-foreground">No hay bloques eliminados.</p>}
+        {edit.showDeleted && deletedCount === 0 && <p className="text-xs text-muted-foreground">No hay bloques eliminados.</p>}
         <TopicContentFlow className={cn("relative flex-1")}>
         {!saving && (visibleBlocks.length === 0 || !blockIsEmpty(visibleBlocks[0])) && <div className="absolute inset-x-0 top-0 z-10 -translate-y-1/2">
             <TopicBlockInsertButton onClick={() => startNewBlock(null)}/>
@@ -532,8 +440,10 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             </div>;
         })}
         <div className={cn("clear-both")}><TopicFootnoteList footnotes={footnotes}/></div>
-        {(["documento", "dataset"] as const).map(type => <TopicDocumentEditor key={type} dataset={type === "dataset"} topicId={topicId} blocks={edit.blocks.filter(block => block.typeId === type && (!block.deleted || edit.showDeleted))}
-            insertionAction={attachmentInsertion(type)} disabled={saving || uploading.size > 0} onChange={updateBlock} onRestore={restoreBlock}
+        {(["documento", "dataset"] as const).map(type => <TopicDocumentEditor key={type} dataset={type === "dataset"} topicId={topicId} summary={data.attachments[type]} includeDeleted={edit.showDeleted}
+            blocks={edit.blocks.filter(block => block.typeId === type && (changeKind(block, savedByNumber) !== null || (block.deleted && !savedByNumber.get(block.blockNumber)?.deleted)))}
+            insertionAction={attachmentInsertion(type)} disabled={saving || uploading.size > 0} onChange={(block, original) => setEdit(current => stageAttachment(current, original, {...original, ...block}))}
+            onRestore={block => setEdit(current => stageAttachment(current, block, {...block, deleted: false}))}
             renderActions={(blockNumber, onClose) => (!hasChanges || singleChangedBlockNumber === blockNumber) && <div className={cn("flex flex-col items-end gap-2", shaking && "animate-[block-shake_180ms_ease-in-out]")}
                 onAnimationEnd={() => setShaking(false)}>
                 {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}
@@ -542,7 +452,9 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
             onBusyChange={(blockNumber, busy) => setUploading(current => {
                 const next = new Set(current); if (busy) next.add(blockNumber); else next.delete(blockNumber); return next;
             })}
-            onRemove={blockNumber => setEdit(current => ({...current, blocks: current.blocks.flatMap(block => block.blockNumber !== blockNumber ? [block] : block.isNew ? [] : [{...block, deleted: true}])}))}/>) }
+            onRemove={block => setEdit(current => block.isNew
+                ? {...current, blocks: current.blocks.filter(item => item.blockNumber !== block.blockNumber)}
+                : stageAttachment(current, block, {...block, deleted: true}))}/>) }
         {showActionsCard && <TopicEditActionsCard
             modifiedCount={modifiedBlockCount}
             deletedCount={deletedBlocks.length}

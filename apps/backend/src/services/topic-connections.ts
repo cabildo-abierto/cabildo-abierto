@@ -1,10 +1,18 @@
 import {randomUUID} from "node:crypto";
-import type {Response} from "express";
 import {Client} from "pg";
 import {sql, type Kysely, type Transaction} from "kysely";
 import type {TopicChangedEvent, TopicConnectionCounts, TopicConnectionMode, TopicConnectionOpenedEvent, TopicConnectionsChangedEvent} from "@cabildo-abierto/api";
 import type {DB} from "#/db/types.js";
 import type {Logger} from "#/utils/logger.js";
+
+type EventStreamResponse = {
+    write(chunk: string): boolean;
+    end(): unknown;
+    once(event: string, listener: () => void): unknown;
+    destroyed: boolean;
+    writableEnded: boolean;
+    socket: {destroyed: boolean} | null;
+};
 
 const NOTIFICATION_CHANNEL = "topic_realtime";
 const HEARTBEAT_INTERVAL_MS = 15_000;
@@ -15,7 +23,7 @@ const LISTENER_RECONNECT_DELAY_MS = 2_000;
 type LocalConnection = {
     topicId: string;
     viewerId: string;
-    response: Response;
+    response: EventStreamResponse;
 };
 
 type InternalNotification = {
@@ -56,7 +64,7 @@ export class TopicConnections {
         await this.removeExpiredConnections();
     }
 
-    async add(topicId: string, viewerId: string, mode: TopicConnectionMode, response: Response): Promise<() => void> {
+    async add(topicId: string, viewerId: string, mode: TopicConnectionMode, response: EventStreamResponse): Promise<() => void> {
         const connectionId = randomUUID();
         await this.database.insertInto("topic_connection").values({
             connection_id: connectionId,
@@ -212,7 +220,7 @@ export class TopicConnections {
         for (const connection of recipients) this.writeEvent(connection.response, event);
     }
 
-    private async sendTopicSnapshot(topicId: string, response: Response): Promise<void> {
+    private async sendTopicSnapshot(topicId: string, response: EventStreamResponse): Promise<void> {
         this.sendEvent(response, topicId, await this.getCounts(topicId));
     }
 
@@ -237,12 +245,12 @@ export class TopicConnections {
         return {reading, editing};
     }
 
-    private sendEvent(response: Response, topicId: string, connections: TopicConnectionCounts): void {
+    private sendEvent(response: EventStreamResponse, topicId: string, connections: TopicConnectionCounts): void {
         const event: TopicConnectionsChangedEvent = {type: "connections.changed", topicId, connections};
         this.writeEvent(response, event);
     }
 
-    private writeEvent(response: Response, event: TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent): void {
+    private writeEvent(response: EventStreamResponse, event: TopicConnectionsChangedEvent | TopicConnectionOpenedEvent | TopicChangedEvent): void {
         response.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
     }
 

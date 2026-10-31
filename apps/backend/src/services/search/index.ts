@@ -3,7 +3,7 @@ import {env} from "#/lib/env.js";
 import {sql} from 'kysely';
 import {parseRichTextContent, richTextParagraphs, parseDocumentBlock, parseDatasetBlock, parseImageBlock, parseVisualizationBlock} from '@cabildo-abierto/utils';
 import type {BlockType} from '@cabildo-abierto/api';
-import {topicConvergence} from '../topic-convergence.js';
+import {topicConvergenceReferences} from '../topic-convergence.js';
 import {currentTopicTitleEdit} from '../topic-title-edits.js';
 import {documentBlockContent} from '../documents/block-content.js';
 import {searchTable, type SearchDatabase} from './schema.js';
@@ -127,12 +127,17 @@ export async function synchronizeTopicSearch(database: SearchDatabase, topicId: 
     for (const comment of missingComments.rows) {
         await indexMetadata(database, topicId, 'comment', comment.id, {title: '', text: comment.content, type: comment.type, location: {}}, schema);
     }
-    const blocks = await topicConvergence(database, topicId);
+    const blocks = await topicConvergenceReferences(database, topicId);
+    const selectedIds = blocks.map(block => block.id);
+    const deletedIds = blocks.filter(block => block.deleted).map(block => block.id);
     const currentIds = blocks.filter(block => !block.deleted).map(block => block.id);
     const titleId = await currentTopicTitleEdit(database, topicId);
-    await sql`UPDATE ${reference} r SET is_visible = flags.visible, is_current = flags.visible AND flags.current
+    await sql`UPDATE ${reference} r SET is_visible = flags.visible, is_current = flags.visible AND flags.current,
+            is_selected = flags.selected, is_deleted = flags.deleted
         FROM (
             SELECT r.id,
+                coalesce(r.block_version_id = ANY(${selectedIds}::text[]), false) AS selected,
+                coalesce(r.block_version_id = ANY(${deletedIds}::text[]), false) AS deleted,
                 CASE WHEN r.block_version_id IS NOT NULL THEN NOT vr.deleted AND NOT v.deleted
                      WHEN r.title_edit_id IS NOT NULL THEN NOT tr.deleted
                      ELSE NOT cr.deleted AND NOT root.deleted END AS visible,
@@ -144,7 +149,7 @@ export async function synchronizeTopicSearch(database: SearchDatabase, topicId: 
             LEFT JOIN record tr ON tr.id = r.title_edit_id
             LEFT JOIN comment c ON c.id = r.comment_id LEFT JOIN record cr ON cr.id = c.id LEFT JOIN record root ON root.id = c.root_id
             WHERE r.topic_id = ${topicId}
-        ) flags WHERE r.id = flags.id AND (r.is_visible, r.is_current) IS DISTINCT FROM (flags.visible, flags.visible AND flags.current)`.execute(database);
+        ) flags WHERE r.id = flags.id AND (r.is_visible, r.is_current, r.is_selected, r.is_deleted) IS DISTINCT FROM (flags.visible, flags.visible AND flags.current, flags.selected, flags.deleted)`.execute(database);
     const ids = await sql<{source_id: string}>`SELECT DISTINCT source_id FROM ${reference} WHERE topic_id = ${topicId}`.execute(database);
     await updateSearchEntryVisibility(database, ids.rows.map(row => row.source_id), schema);
     if (schema === 'public') await notifySearchPending(database);

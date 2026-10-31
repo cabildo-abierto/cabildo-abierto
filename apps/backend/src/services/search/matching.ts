@@ -19,7 +19,7 @@ export async function searchQueries(database: SearchDatabase, input: string) {
     return {spanish: queryFor('public.search_spanish'), spanishAll: queryFor('public.search_spanish_all'), simple: queryFor('public.search_simple')};
 }
 
-export function searchMatches(queries: Awaited<ReturnType<typeof searchQueries>>, options: {history: boolean; types: BlockType['id'][]; comments: boolean}) {
+export function searchMatches(queries: Awaited<ReturnType<typeof searchQueries>>, options: {history: boolean; types: BlockType['id'][]; comments: boolean; includeDeleted?: boolean}) {
     const {spanish, spanishAll, simple} = queries;
     const currentEntry = options.history ? sql`true` : sql`e.is_current`;
     const types = options.types.length ? sql`e.block_type_id = ANY(${options.types}::text[])` : sql`true`;
@@ -34,7 +34,7 @@ export function searchMatches(queries: Awaited<ReturnType<typeof searchQueries>>
                 WHEN e.search_config = 'public.search_simple'::regconfig THEN ${simple}::tsquery
                 WHEN e.search_config = 'public.search_spanish_all'::regconfig THEN ${spanishAll}::tsquery
                 ELSE ${spanish}::tsquery END AS query) q
-            WHERE e.is_visible AND ${currentEntry} AND ${types} AND ${comments}
+            WHERE ${options.includeDeleted ? sql`true` : sql`e.is_visible`} AND ${currentEntry} AND ${types} AND ${comments}
                 AND ((e.search_config = 'public.search_spanish'::regconfig AND e.search_vector @@ ${spanish}::tsquery)
                   OR (e.search_config = 'public.search_spanish_all'::regconfig AND e.search_vector @@ ${spanishAll}::tsquery)
                   OR (e.search_config = 'public.search_simple'::regconfig AND e.search_vector @@ ${simple}::tsquery))`;

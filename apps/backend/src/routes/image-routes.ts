@@ -1,3 +1,5 @@
+import type {ErrorResponder} from '../openapi/handler.js';
+import {createApiRouter} from '../openapi/router.js';
 import express from 'express';
 import type {AppContext} from '#/setup.js';
 import {currentUser, requiredUser, requireSession, withSession} from '#/auth/middleware.js';
@@ -6,19 +8,18 @@ import {S3Storage, type ObjectStorage} from '#/services/storage/storage.js';
 import {requireFileAccess} from '#/services/storage/access.js';
 import {downloadRemoteFile} from '#/services/storage/download.js';
 import {storeImage, IMAGE_MAX_BYTES} from '#/services/images/upload.js';
-export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new S3Storage()) {
+export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage = () => new S3Storage()): express.Router {
     const router = express.Router();
+    const api = createApiRouter(router);
     let storage: ObjectStorage | undefined;
     const getStorage = () => storage ??= createStorage();
-    const fail = (res: express.Response, error: unknown) => {
+    const fail = (res: ErrorResponder, error: unknown) => {
         if (error instanceof TopicActionError) return res.status(error.status).json({success:false,error:error.message});
         ctx.logger.pino.error({error},'image request failed');
         return res.status(500).json({success:false,error:'No pudimos cargar la imagen. Podés reintentar.'});
     };
-    for (const method of ['upload','import'] as const) router.post('/topics/:id/images/'+method,requireSession(ctx),async(req,res) => {
+    for (const method of ['upload','import'] as const) api.post(`/images/${method}`,requireSession(ctx),async(req,res) => {
         try {
-            const topic = await ctx.kysely.selectFrom('topic').select('id').where('id','=',String(req.params.id)).executeTakeFirst();
-            if (!topic) throw new TopicActionError(404,'No encontramos ese tema.');
             let data: Buffer;
             if (method === 'import') {
                 if (typeof req.body?.url !== 'string') throw new TopicActionError(400,'Ingresá la URL de una imagen.');
@@ -33,7 +34,7 @@ export function imageRoutes(ctx: AppContext, createStorage: () => ObjectStorage 
             return res.status(201).json({success:true,value:await storeImage(ctx,getStorage(),data,requiredUser(req).id)});
         } catch(error) { return fail(res,error); }
     });
-    router.get('/images/files/:fileId',withSession(ctx),async(req,res) => {
+    api.get('/images/files/:fileId',withSession(ctx),async(req,res) => {
         try {
             const file = await requireFileAccess(ctx.kysely,String(req.params.fileId),currentUser(req)?.id,'image');
             const asset = await ctx.kysely.selectFrom('image_asset').select(['width','height']).where('file_id','=',file.id).executeTakeFirstOrThrow();

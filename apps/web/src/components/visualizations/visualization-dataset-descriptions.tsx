@@ -10,7 +10,7 @@ export function VisualizationDatasetDescriptions({sources}: {sources: LccaOutput
     const versionIds = [...new Set(sources.map(source => source.versionId))];
     const queries = useQueries({queries: versionIds.map(versionId => ({
         queryKey: ['dataset-metadata', versionId],
-        queryFn: () => dataViewRequest<DatasetMetadata>(`/dataset-versions/${encodeURIComponent(versionId)}/metadata`),
+        queryFn: () => dataViewRequest<DatasetMetadata>(`/datasets/versions/${encodeURIComponent(versionId)}/metadata`),
         staleTime: 300000,
         retry: false,
     }))});

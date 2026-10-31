@@ -37,7 +37,7 @@ export function TopicDocumentEditorItem({topicId, block, isNew, disabled, onChan
         <DocumentCard block={block} linksEnabled={false} openEnabled={!isNew}/>
         {isNew ? <div className={cn("flex items-center justify-end gap-1")}>{actions}</div>
             : <TopicBlockTools topicId={topicId} block={block} actions={actions}/>}
-        {editing && <AttachmentEditorPopup type={dataset ? "dataset" : "documento"} topicId={topicId} content={block.content} disabled={disabled}
+        {editing && <AttachmentEditorPopup type={dataset ? "dataset" : "documento"} content={block.content} disabled={disabled}
             onChange={content => onChange({...block, content})} onBusyChange={onBusyChange} onClose={() => changeEditing(false)}>
             {renderActions(() => changeEditing(false))}
         </AttachmentEditorPopup>}

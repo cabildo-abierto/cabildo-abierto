@@ -12,14 +12,12 @@ import type {ObjectStorage} from "#/services/storage/storage.js";
 import {storeFile, removeUnattachedFile} from "#/services/storage/files.js";
 import {documentFileType, validateDocumentFile} from "./validation.js";
 
-export async function uploadDocument(ctx: AppContext, storage: ObjectStorage, req: Request, topicId: string, authorId: string) {
+export async function uploadDocument(ctx: AppContext, storage: ObjectStorage, req: Request, authorId: string) {
     const name = typeof req.query.name === 'string' ? req.query.name.normalize('NFC') : '';
     if (!name || name.length > 255 || /[\x00-\x1f/\\]/.test(name)) throw new TopicActionError(400, 'El nombre de archivo no es válido.');
     if (!req.is('application/octet-stream')) throw new TopicActionError(400, 'Enviá el archivo como contenido binario.');
     const type = documentFileType(name);
     if (Number(req.headers['content-length']) > type.maxBytes) throw new TopicActionError(413, 'El archivo supera el tamaño permitido.');
-    const topic = await ctx.kysely.selectFrom('topic').select('id').where('id', '=', topicId).executeTakeFirst();
-    if (!topic) throw new TopicActionError(404, 'No encontramos ese tema.');
     const directory = await mkdtemp(join(tmpdir(), 'ca-upload-'));
     try {
         const path = join(directory, 'upload');

@@ -1,14 +1,12 @@
 "use client"
 
 import {type FormEvent, useState} from "react";
-import {useQuery} from "@tanstack/react-query";
-import type {SearchTopicsOutput, TopicSummary} from "@cabildo-abierto/api";
 import {ArrowSquareOutIcon, MagnifyingGlassIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Spinner} from "@/components/ui/spinner";
-import {get} from "@/utils/react/fetch";
+import {useTopics} from '@/hooks/use-topics';
 import {useDebounce} from "@/utils/react/debounce";
 import {cn} from "@/lib/utils";
 
@@ -34,15 +32,7 @@ export function RichTextLinkPicker({current, onApply, onRemove}: {
     const [url, setUrl] = useState(current?.type === "external" ? current.href : "");
     const [urlError, setUrlError] = useState<string | null>(null);
     const query = useDebounce(search.trim(), 200);
-    const topicsQuery = useQuery({
-        queryKey: ["topics", "search", query],
-        queryFn: async () => {
-            const result = await get<SearchTopicsOutput>(`/topics?search=${encodeURIComponent(query)}`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value.topics;
-        },
-        enabled: mode === "internal",
-    });
+    const topicsQuery = useTopics({search: query, enabled: mode === 'internal'});
 
     const applyExternal = (event: FormEvent) => {
         event.preventDefault();
@@ -71,8 +61,8 @@ export function RichTextLinkPicker({current, onApply, onRemove}: {
                 <div className="space-y-1 pr-3">
                     {topicsQuery.isFetching && <p className="flex items-center gap-2 p-2 text-xs text-muted-foreground"><Spinner/>Buscando…</p>}
                     {topicsQuery.isError && <p className="p-2 text-xs text-destructive">No pudimos buscar los temas.</p>}
-                    {!topicsQuery.isFetching && topicsQuery.data?.length === 0 && <p className="p-2 text-xs text-muted-foreground">No encontramos temas.</p>}
-                    {!topicsQuery.isFetching && topicsQuery.data?.map((topic: TopicSummary) => <Button key={topic.id} type="button" variant="ghost"
+                    {!topicsQuery.isFetching && topicsQuery.data?.results.length === 0 && <p className="p-2 text-xs text-muted-foreground">No encontramos temas.</p>}
+                    {!topicsQuery.isFetching && topicsQuery.data?.results.map(({topic}) => <Button key={topic.id} type="button" variant="ghost"
                         className={cn("h-auto w-full justify-start px-2 py-1.5 text-left", current?.type === "internal" && current.topicId === topic.id && "bg-muted")}
                         onClick={() => onApply({type: "internal", topicId: topic.id})}>
                         <span className="min-w-0"><span className="block truncate font-medium">{topic.title}</span><span className="block truncate text-[10px] text-muted-foreground">{topic.id}</span></span>

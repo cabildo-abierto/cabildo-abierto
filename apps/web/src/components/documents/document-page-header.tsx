@@ -20,7 +20,7 @@ export function DocumentPageHeader({document}: {document: DocumentOutput}) {
         </div>
         <div className={cn("flex flex-wrap items-center justify-between gap-2")}>
             <p className={cn("min-w-0 text-xs text-muted-foreground break-all")}>{document.fileName} <span className={cn("whitespace-nowrap")}>· {size}</span></p>
-            <Button nativeButton={false} render={<a href={`${backendUrl}/documents/${document.id}/file`}/>} variant="outline" size="sm"><DownloadSimpleIcon/>Descargar</Button>
+            <Button nativeButton={false} render={<a href={`${backendUrl}/documents/versions/${document.id}/file`}/>} variant="outline" size="sm"><DownloadSimpleIcon/>Descargar</Button>
         </div>
     </header>;
 }

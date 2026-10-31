@@ -12,7 +12,7 @@ export function DocumentFileName({fileId}: {fileId: string}) {
         queryKey: ["document-file", fileId, user?.id],
         staleTime: Infinity,
         queryFn: async () => {
-            const result = await get<Pick<DocumentUploadOutput, "fileId" | "fileName">>(`/document-files/${encodeURIComponent(fileId)}`);
+            const result = await get<Pick<DocumentUploadOutput, "fileId" | "fileName">>(`/documents/files/${encodeURIComponent(fileId)}`);
             if ("error" in result) throw new Error(result.error);
             return result.value;
         },

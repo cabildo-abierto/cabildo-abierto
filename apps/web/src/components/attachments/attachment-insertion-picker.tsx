@@ -2,7 +2,6 @@
 
 import {useEffect, useRef, useState} from "react";
 import {parseDocumentBlock, parseDatasetBlock} from "@cabildo-abierto/utils";
-import {useTopicRoute} from "@/components/topic-route-provider";
 import {Button} from "@/components/ui/button";
 import {AttachmentEditorPopup} from "./attachment-editor-popup";
 import {cn} from "@/lib/utils";
@@ -19,7 +18,6 @@ export type AttachmentInsertionAction = {
 export function AttachmentInsertionPicker({action, type, onCancel}: {action: AttachmentInsertionAction; type: "documento" | "dataset"; onCancel: () => void}) {
     const dataset = type === "dataset";
     const parseContent = dataset ? parseDatasetBlock : parseDocumentBlock;
-    const topic = useTopicRoute();
     const [content, setContent] = useState("");
     const [uploading, setBusy] = useState(false);
     const [id] = useState(() => `new-${crypto.randomUUID()}`);
@@ -46,6 +44,6 @@ export function AttachmentInsertionPicker({action, type, onCancel}: {action: Att
         </div>
     </>;
 
-    return <AttachmentEditorPopup type={type} topicId={topic.id} content={content} disabled={busy} inserting
+    return <AttachmentEditorPopup type={type} content={content} disabled={busy} inserting
         onChange={changeContent} onBusyChange={changeBusy} onClose={onCancel} onSubmit={submit}>{actions}</AttachmentEditorPopup>;
 }

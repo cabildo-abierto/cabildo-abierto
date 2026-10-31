@@ -4,20 +4,23 @@ import type {SearchDatabase} from './schema.js';
 import {searchQueries, searchMatches} from './matching.js';
 
 type AttachmentResult = {
-    id: string; blockNumber: string; typeId: 'documento' | 'dataset'; order: string; deleted: false; topic: TopicSummary;
+    id: string; blockNumber: string; typeId: 'documento' | 'dataset'; order: string; deleted: boolean; topic: TopicSummary;
 };
 
 export async function searchAttachments(database: SearchDatabase, options: {
-    q: string; type: AttachmentResult['typeId']; topicId?: string; preferredTopicId?: string; page: number; pageSize?: number;
+    q: string; type: AttachmentResult['typeId']; topicId?: string; preferredTopicId?: string; page: number; pageSize?: number; includeDeleted?: boolean;
 }) {
     const pageSize = options.pageSize ?? 12;
     const q = options.q.trim();
-    const matches = q ? searchMatches(await searchQueries(database, q), {history: false, types: [options.type], comments: false}) : null;
+    const matches = q ? searchMatches(await searchQueries(database, q), {history: Boolean(options.includeDeleted), types: [options.type], comments: false, includeDeleted: options.includeDeleted}) : null;
     const relevance = matches ? sql`title_match DESC, rank DESC,` : sql``;
     const preferred = !matches && options.preferredTopicId ? sql`(topic_id = ${options.preferredTopicId}) DESC,` : sql``;
+    const order = sql`${relevance} ${preferred} topic_title, topic_id,
+        regexp_replace(block_number, '[0-9]+$', ''),
+        length(substring(block_number from '[0-9]+$')), substring(block_number from '[0-9]+$'), block_number, id`;
     const output = await sql<{results: AttachmentResult[]; total: number; page: number}>`
         WITH candidates AS (
-            SELECT v.id, v.topic_id, v.block_number, v."order", b.type_id,
+            SELECT v.id, v.topic_id, v.block_number, v."order", b.type_id, r.is_deleted AS deleted,
                 t.title AS topic_title, t.slug AS topic_slug,
                 ${matches ? sql`bool_or(m.title_match)` : sql`false`} AS title_match,
                 ${matches ? sql`max(m.rank)` : sql`0`} AS rank
@@ -28,19 +31,20 @@ export async function searchAttachments(database: SearchDatabase, options: {
             JOIN block b ON b.topic_id = v.topic_id AND b.block_number = v.block_number
             JOIN record vr ON vr.id = v.edit_id
             JOIN topic t ON t.id = v.topic_id
-            WHERE r.is_visible AND r.is_current AND NOT v.deleted AND NOT vr.deleted AND b.type_id = ${options.type}
+            WHERE r.is_selected AND (${options.includeDeleted ?? false} OR NOT r.is_deleted)
+                AND NOT vr.deleted AND b.type_id = ${options.type}
                 ${options.topicId ? sql`AND r.topic_id = ${options.topicId}` : sql``}
-            GROUP BY v.id, v.topic_id, v.block_number, v."order", b.type_id, t.title, t.slug
+            GROUP BY v.id, v.topic_id, v.block_number, v."order", b.type_id, r.is_deleted, t.title, t.slug
         ), totals AS (SELECT count(*)::int AS total FROM candidates),
         pagination AS (SELECT total, least(${options.page}, greatest(0, (total - 1) / ${pageSize})) AS page FROM totals),
         page AS (
-            SELECT * FROM candidates ORDER BY ${relevance} ${preferred} topic_title, topic_id, block_number, id
+            SELECT * FROM candidates ORDER BY ${order}
             LIMIT ${pageSize} OFFSET (SELECT page * ${pageSize} FROM pagination)
         )
         SELECT pagination.total, pagination.page, coalesce((SELECT json_agg(json_build_object(
-            'id', id, 'blockNumber', block_number, 'typeId', type_id, 'order', "order", 'deleted', false,
+            'id', id, 'blockNumber', block_number, 'typeId', type_id, 'order', "order", 'deleted', deleted,
             'topic', json_build_object('id', topic_id, 'title', topic_title, 'slug', topic_slug)
-        ) ORDER BY ${relevance} ${preferred} topic_title, topic_id, block_number, id) FROM page), '[]'::json) AS results FROM pagination
+        ) ORDER BY ${order}) FROM page), '[]'::json) AS results FROM pagination
     `.execute(database);
     return {...output.rows[0], pageSize};
 }

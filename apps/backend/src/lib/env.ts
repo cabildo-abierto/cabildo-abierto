@@ -1,7 +1,15 @@
 import dotenv from 'dotenv'
-import {cleanEnv, host, port, str, num, testOnly, bool} from 'envalid'
+import {cleanEnv, host, port, str, num, testOnly, bool, makeValidator} from 'envalid'
 
 dotenv.config()
+
+const requestLimit = makeValidator<number>(value => {
+    const limit = Number(value);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 2147483646) {
+        throw new Error('El límite de solicitudes debe ser un entero entre 1 y 2147483646.');
+    }
+    return limit;
+});
 
 export const env = cleanEnv(process.env, {
     NODE_ENV: str({
@@ -15,6 +23,10 @@ export const env = cleanEnv(process.env, {
     FRONTEND_URL: str({devDefault: 'http://127.0.0.1:3000'}),
     DIRECT_URL: str({default: ''}),
     ADMIN_TOKEN: str(),
+    TRUST_PROXY: str({default: '', desc: 'Direcciones o CIDR de proxies confiables, separados por comas. Vacío ignora X-Forwarded-For.'}),
+    API_RATE_LIMIT_PER_MINUTE: requestLimit({default: 600}),
+    AUTH_RATE_LIMIT_PER_15_MINUTES: requestLimit({default: 20}),
+    API_TOKEN_RATE_LIMIT_PER_HOUR: requestLimit({default: 10}),
 
     CLOUDFLARE_ACCOUNT_ID: str({default: ''}),
     CLOUDFLARE_ACCESS_KEY_ID: str({default: ''}),

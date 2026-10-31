@@ -11,7 +11,7 @@ export function DocumentBlockComments({documentId, blockId, versionId}: {documen
     const queryClient = useQueryClient();
     const {toast} = useToast();
     const [error, setError] = useState<string | null>(null);
-    const path = `/documents/${documentId}/blocks/${blockId}/comments`;
+    const path = `/documents/versions/${documentId}/blocks/${blockId}/comments`;
     const queryKey = ['document-comments', documentId, blockId];
     const query = useQuery({queryKey, queryFn: async () => {
         const result = await get<DiscussionCommentsOutput>(path);

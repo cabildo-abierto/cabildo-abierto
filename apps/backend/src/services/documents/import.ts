@@ -10,8 +10,7 @@ import {documentFileType, documentExtensionForMime} from './validation.js';
 import {saveDocumentPath} from './upload.js';
 import {decodeDocumentHtml, htmlPlainText} from './html.js';
 
-export async function importDocument(ctx: AppContext, storage: ObjectStorage, topicId: string, authorId: string, url: string) {
-    if (!await ctx.kysely.selectFrom('topic').select('id').where('id', '=', topicId).executeTakeFirst()) throw new TopicActionError(404, 'No encontramos ese tema.');
+export async function importDocument(ctx: AppContext, storage: ObjectStorage, authorId: string, url: string) {
     const {response, finalUrl} = await openRemoteFile(url, {maxBytes: Math.max(env.DOCUMENT_MAX_MB, env.DOCUMENT_TEXT_MAX_MB) * 1024 * 1024, accept: '*/*', userAgent: 'Mozilla/5.0 (compatible; CabildoAbierto/1.0)', label: 'el documento'});
     if (!response) throw new TopicActionError(400, 'No pudimos descargar el documento.');
     let directory: string | undefined;

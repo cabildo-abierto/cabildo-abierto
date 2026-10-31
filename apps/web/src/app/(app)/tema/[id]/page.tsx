@@ -3,8 +3,6 @@
 import {useTopicRoute} from "@/components/topic-route-provider";
 
 import Link from "next/link";
-import {useQuery} from "@tanstack/react-query";
-import type {TopicReadingOutput} from "@cabildo-abierto/api";
 import {PencilSimpleIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {
@@ -19,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {TopicView} from "@/components/topic-view";
 import {useAuth} from "@/components/auth-provider";
-import {get} from "@/utils/react/fetch";
+import {useTopicBlocks} from "@/hooks/use-topic-blocks";
 import {TopicLoading} from "@/components/topic-loading";
 import {useIsMobile} from "@/hooks/use-is-mobile";
 import {TopicReadingContent} from "@/components/topic-reading-content";
@@ -31,14 +29,7 @@ export default function TopicPage() {
     const {user, loading: authLoading} = useAuth();
     const isMobile = useIsMobile();
     const openToolsInPage = useMediaQuery("(max-width: 1535px)");
-    const blocksQuery = useQuery({
-        queryKey: ["topic", id, "blocks", "reading"],
-        queryFn: async () => {
-            const result = await get<TopicReadingOutput>(`/topics/${encodeURIComponent(id)}/reading`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value;
-        },
-    });
+    const blocksQuery = useTopicBlocks(id);
     const blocks = blocksQuery.data?.blocks ?? [];
     const deletedBlocks = blocksQuery.data?.deletedBlocks ?? [];
     const error = blocksQuery.error instanceof Error ? blocksQuery.error.message : null;

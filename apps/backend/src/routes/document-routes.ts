@@ -1,5 +1,8 @@
+import {listAttachments} from '#/services/attachments.js';
+import type {ErrorResponder} from '../openapi/handler.js';
+import {createApiRouter} from '../openapi/router.js';
 import {requireFileAccess} from '#/services/storage/access.js';
-import express, {type Request, type Response} from "express";
+import express, {type Request} from "express";
 import {sql} from "kysely";
 import type {DocumentFormat, DocumentOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
@@ -12,11 +15,12 @@ import {importDocument} from '#/services/documents/import.js';
 import {convertOfficeFile} from "#/services/documents/conversion.js";
 import {deleteDiscussionComment, discussionComments, mutateDiscussion, publishDiscussionComment, type DiscussionTarget} from "#/services/discussions.js";
 
-export function documentRoutes(ctx: AppContext) {
+export function documentRoutes(ctx: AppContext): express.Router {
     const router = express.Router();
+    const api = createApiRouter(router);
     let storage: ObjectStorage | undefined;
     const getStorage = () => storage ??= new S3Storage();
-    const fail = (res: Response, error: unknown) => {
+    const fail = (res: ErrorResponder, error: unknown) => {
         if (error instanceof TopicActionError) return res.status(error.status).json({success: false, error: error.message});
         ctx.logger.pino.error({error}, 'document request failed');
         return res.status(500).json({success: false, error: 'No pudimos completar la operación del documento.'});
@@ -32,28 +36,34 @@ export function documentRoutes(ctx: AppContext) {
         const file = await ctx.kysely.selectFrom('file').select('preview_error').where('id', '=', uploaded.id).executeTakeFirstOrThrow();
         return {fileId: uploaded.id, fileName: uploaded.fileName, previewError: file.preview_error};
     };
-    router.post('/topics/:id/documents/import', requireSession(ctx), async (req, res) => {
+    api.get('/documents', async (req, res) => {
+        try {
+            const value = await ctx.kysely.transaction().setIsolationLevel('repeatable read').execute(trx => listAttachments(trx, 'documento', req.query));
+            return res.json({success: true, value});
+        } catch (error) { return fail(res, error); }
+    });
+    api.post('/documents/import', requireSession(ctx), async (req, res) => {
         try {
             const url = req.body?.url;
             if (typeof url !== 'string' || !url.trim() || url.length > 4096) throw new TopicActionError(400, 'La URL no es válida.');
             const sourceUrl = url.trim();
-            const uploaded = await importDocument(ctx, getStorage(), String(req.params.id), requiredUser(req).id, sourceUrl);
+            const uploaded = await importDocument(ctx, getStorage(), requiredUser(req).id, sourceUrl);
             res.status(201).json({success: true, value: {...await prepare(uploaded), format: uploaded.format, sourceUrl}});
         } catch (error) { return fail(res, error); }
     });
-    router.post('/topics/:id/documents', requireSession(ctx), async (req, res) => {
+    api.post('/documents/upload', requireSession(ctx), async (req, res) => {
         try {
-            const uploaded = await uploadDocument(ctx, getStorage(), req, String(req.params.id), requiredUser(req).id);
+            const uploaded = await uploadDocument(ctx, getStorage(), req, requiredUser(req).id);
             return res.status(201).json({success: true, value: await prepare(uploaded)});
         } catch (error) { return fail(res, error); }
     });
-    router.get('/document-files/:id', withSession(ctx), async (req, res) => {
+    api.get('/documents/files/:id', withSession(ctx), async (req, res) => {
         try {
             const file = await requireFileAccess(ctx.kysely, String(req.params.id), currentUser(req)?.id);
             return res.json({success: true, value: {fileId: file.id, fileName: file.name}});
         } catch (error) { return fail(res, error); }
     });
-    router.get('/document-versions/:id', withSession(ctx), async (req, res) => {
+    api.get('/documents/versions/:id', withSession(ctx), async (req, res) => {
         try {
             const doc = await requireDocumentAccess(ctx.kysely, String(req.params.id));
             const file = await ctx.kysely.selectFrom('file').selectAll().where('id', '=', doc.file_id).executeTakeFirstOrThrow();
@@ -69,7 +79,7 @@ export function documentRoutes(ctx: AppContext) {
             return res.json({success: true, value});
         } catch (error) { return fail(res, error); }
     });
-    router.get('/documents/:id/file', withSession(ctx), async (req, res) => {
+    api.get('/documents/versions/:id/file', withSession(ctx), async (req, res) => {
         try {
             const doc = await requireDocumentAccess(ctx.kysely, String(req.params.id));
             const preview = req.query.preview === 'true';
@@ -82,7 +92,7 @@ export function documentRoutes(ctx: AppContext) {
             return res.redirect(url);
         } catch (error) { return fail(res, error); }
     });
-    router.post('/documents/:id/preview', requireSession(ctx), async (req, res) => {
+    api.post('/documents/versions/:id/preview', requireSession(ctx), async (req, res) => {
         try {
             const doc = await requireDocumentAccess(ctx.kysely, String(req.params.id));
             if (doc.author_id !== requiredUser(req).id) throw new TopicActionError(403, 'Solo el autor puede reintentar la conversión.');
@@ -97,22 +107,22 @@ export function documentRoutes(ctx: AppContext) {
         if (!block) throw new TopicActionError(404, 'No encontramos ese bloque.');
         return {id: doc.edit_id, rootId: doc.edit_id, topicId: doc.topic_id, blockNumber: null, documentBlockId: block.id, documentVersionId: doc.id, kind: 'document'};
     };
-    const path = '/documents/:id/blocks/:blockId/comments';
-    router.get(path, withSession(ctx), async (req, res) => {
+    const path = '/documents/versions/:id/blocks/:blockId/comments';
+    api.get(path, withSession(ctx), async (req, res) => {
         try {
             const target = await resolveBlock(req);
             const comments = await discussionComments(ctx.kysely, target.topicId, {documentBlockId: target.documentBlockId!});
             return res.json({success: true, value: {comments}});
         } catch (error) { return fail(res, error); }
     });
-    router.post(path, requireSession(ctx), async (req, res) => {
+    api.post(path, requireSession(ctx), async (req, res) => {
         try {
             const target = await resolveBlock(req);
             const comment = await mutateDiscussion(ctx.kysely, target, (trx, authorId) => publishDiscussionComment(trx, target, requiredUser(req), authorId, req.body ?? {}));
             return res.status(201).json({success: true, value: {comment}});
         } catch (error) { return fail(res, error); }
     });
-    router.delete(`${path}/:commentId`, requireSession(ctx), async (req, res) => {
+    api.delete(`${path}/:commentId`, requireSession(ctx), async (req, res) => {
         try {
             const target = await resolveBlock(req);
             await mutateDiscussion(ctx.kysely, target, trx => deleteDiscussionComment(trx, target, String(req.params.commentId), requiredUser(req).id));

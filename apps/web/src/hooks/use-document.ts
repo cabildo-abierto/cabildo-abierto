@@ -11,7 +11,7 @@ export function useDocument(versionId: string, enabled = true) {
         enabled,
         queryKey: ["document-version", versionId, user?.id],
         queryFn: async () => {
-            const result = await get<DocumentOutput>(`/document-versions/${encodeURIComponent(versionId)}`);
+            const result = await get<DocumentOutput>(`/documents/versions/${encodeURIComponent(versionId)}`);
             if ("error" in result) throw new Error(result.error);
             return result.value;
         },

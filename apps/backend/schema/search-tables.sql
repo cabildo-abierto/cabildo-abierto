@@ -69,6 +69,8 @@ CREATE TABLE __SEARCH_SCHEMA__.search_reference (
     comment_id text REFERENCES public.comment(id) ON DELETE CASCADE,
     is_visible boolean NOT NULL DEFAULT false,
     is_current boolean NOT NULL DEFAULT false,
+    is_selected boolean NOT NULL DEFAULT false,
+    is_deleted boolean NOT NULL DEFAULT false,
     CHECK (num_nonnulls(block_version_id, title_edit_id, comment_id) = 1),
     CHECK (NOT is_current OR is_visible),
     UNIQUE (source_id, block_version_id), UNIQUE (source_id, title_edit_id), UNIQUE (source_id, comment_id)
@@ -78,3 +80,5 @@ CREATE INDEX search_reference_current_idx ON __SEARCH_SCHEMA__.search_reference(
 CREATE INDEX search_reference_history_idx ON __SEARCH_SCHEMA__.search_reference(source_id, topic_id)
     WHERE is_visible;
 CREATE INDEX search_reference_topic_idx ON __SEARCH_SCHEMA__.search_reference(topic_id, source_id);
+
+CREATE INDEX search_reference_selected_idx ON __SEARCH_SCHEMA__.search_reference(topic_id, block_version_id) WHERE is_selected;

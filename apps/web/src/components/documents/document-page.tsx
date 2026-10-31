@@ -24,7 +24,7 @@ export function DocumentPage({versionId, inWindow = false}: {versionId: string; 
         {document.sourceUrl && <DocumentSourceLink url={document.sourceUrl}/>}
         {document.format === 'office' && document.previewStatus !== 'ready' && document.canRetry && <Button variant="outline" size="sm" disabled={retrying} onClick={async () => {
             setRetrying(true); setError(null);
-            const result = await post(`/documents/${document.id}/preview`);
+            const result = await post(`/documents/versions/${document.id}/preview`);
             if ("error" in result) setError(result.error);
             await query.refetch(); setRetrying(false);
         }}>{retrying ? 'Preparando vista previa…' : 'Reintentar vista previa'}</Button>}

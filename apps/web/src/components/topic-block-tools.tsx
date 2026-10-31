@@ -8,7 +8,7 @@ import {useTopicRoute} from "@/components/topic-route-provider";
 import {useId, useState, type MouseEvent, type ReactNode} from "react";
 import Link from "next/link";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import type {CreateBlockCommentInput, CreateBlockReactionInput, TopicBlock, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput, TopicEditorDataOutput} from "@cabildo-abierto/api";
+import type {CreateBlockCommentInput, CreateBlockReactionInput, TopicBlock, TopicBlockOutput, TopicBlockVersion, TopicBlockVersionsOutput, TopicBlocksOutput} from "@cabildo-abierto/api";
 import {ChatCircleIcon, GitDiffIcon} from "@phosphor-icons/react";
 import {Button} from "@/components/ui/button";
 import {TopicBlockComments} from "@/components/topic-block-comments";
@@ -135,22 +135,24 @@ export function TopicBlockTools({topicId, block, actions, buttonClassName, openI
         onSuccess: async () => {
             setSelectedVersion(null);
             setPreviewVersion(null);
-            const result = await get<TopicEditorDataOutput>(`/topics/${encodeURIComponent(topicId)}/editor-data`);
+            const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(topicId)}/blocks`);
             if ("error" in result) {
                 toast({title: "La edición se eliminó, pero no pudimos actualizar el tema", description: result.error, variant: "destructive"});
             } else {
+                const blockKey = ['topic', topicId, 'blocks', 'block', block.blockNumber];
                 await Promise.all([
                     queryClient.cancelQueries({queryKey: blocksKey, exact: true}),
-                    queryClient.cancelQueries({queryKey: ["topic", topicId, "editor-data"], exact: true}),
+                    queryClient.cancelQueries({queryKey: blockKey, exact: true}),
                 ]);
                 const data = result.value;
-                queryClient.setQueryData<TopicEditorDataOutput>(["topic", topicId, "editor-data"], data);
-                queryClient.setQueryData<TopicBlocksOutput>(blocksKey, {
-                    blocks: data.blocks.filter(block => !block.deleted),
-                    deletedBlocks: data.blocks.filter(block => block.deleted),
-                    blockTypes: data.blockTypes,
-                });
-                notifyTopicLocalConvergence(topicId, data.blocks);
+                queryClient.setQueryData<TopicBlocksOutput>(blocksKey, data);
+                const selected = await get<TopicBlockOutput>(`/topics/${encodeURIComponent(topicId)}/blocks/${encodeURIComponent(block.blockNumber)}`);
+                const blocks = [...data.blocks, ...data.deletedBlocks, ...data.footnoteAttachments];
+                if (!('error' in selected)) {
+                    blocks.push(selected.value.block);
+                    queryClient.setQueryData(blockKey, selected.value.block);
+                }
+                notifyTopicLocalConvergence(topicId, [...new Map(blocks.map(block => [block.blockNumber, block])).values()]);
             }
             void queryClient.invalidateQueries({queryKey: ["topic", topicId], refetchType: "all"});
         },

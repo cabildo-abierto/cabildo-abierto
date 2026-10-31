@@ -8,7 +8,8 @@ import {cn} from "@/lib/utils";
 import {useParams, useSearchParams} from "next/navigation";
 import {useQuery} from "@tanstack/react-query";
 import {useRef} from "react";
-import type {TopicBlocksOutput} from "@cabildo-abierto/api";
+import type {TopicBlockOutput} from "@cabildo-abierto/api";
+import {useTopicBlocks} from "@/hooks/use-topic-blocks";
 import {get} from "@/utils/react/fetch";
 import {Spinner} from "@/components/ui/spinner";
 import {TopicConnectionCount} from "@/components/topic-connection-count";
@@ -19,22 +20,22 @@ export default function TopicBlockPage() {
     const id = topic.id;
     const {blockNumber} = useParams<{blockNumber: string}>();
     const searchParams = useSearchParams();
-    const blocksQuery = useQuery({
-        queryKey: ["topic", id, "blocks"],
+    const blocksQuery = useTopicBlocks(id);
+    const blockQuery = useQuery({
+        queryKey: ['topic', id, 'blocks', 'block', blockNumber],
         queryFn: async () => {
-            const result = await get<TopicBlocksOutput>(`/topics/${encodeURIComponent(id)}/blocks`);
-            if ("error" in result) throw new Error(result.error);
-            return result.value;
+            const result = await get<TopicBlockOutput>(`/topics/${encodeURIComponent(id)}/blocks/${encodeURIComponent(blockNumber)}`);
+            if ('error' in result) throw new Error(result.error);
+            return result.value.block;
         },
     });
-    const block = blocksQuery.data?.blocks.find(candidate => candidate.blockNumber === blockNumber)
-        ?? blocksQuery.data?.deletedBlocks.find(candidate => candidate.blockNumber === blockNumber);
+    const block = blockQuery.data;
     const initialBlock = useRef(block);
     if (!initialBlock.current && block) initialBlock.current = block;
-    const error = blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
+    const error = blockQuery.error instanceof Error ? blockQuery.error.message : blocksQuery.error instanceof Error ? blocksQuery.error.message : null;
 
     if (error) return <div className="mx-auto max-w-2xl p-6 text-sm text-destructive">{error}</div>;
-    if (blocksQuery.isPending) return <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-sm text-muted-foreground"><Spinner className="size-7"/>Cargando bloque…</div>;
+    if (blocksQuery.isPending || blockQuery.isPending) return <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-sm text-muted-foreground"><Spinner className="size-7"/>Cargando bloque…</div>;
     if (!initialBlock.current) return <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-2xl flex-col items-start justify-center gap-4 p-6"><p className="text-sm text-destructive">No encontramos ese bloque.</p><BackToTopicButton href={`/tema/${encodeURIComponent(topic.slug)}`}/></div>;
 
     return <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-[682px] flex-col gap-4 p-6">
@@ -47,7 +48,7 @@ export default function TopicBlockPage() {
                 <TopicConnectionCount topicId={topic.id} mode="reading"/>
             </div>
         </header>
-        <TopicFootnoteProvider topicId={id} blocks={blocksQuery.data?.blocks ?? []}><TopicBlockPageContent topicId={topic.id} initialBlock={initialBlock.current} latestBlock={block}
+        <TopicFootnoteProvider topicId={id} blocks={[...(blocksQuery.data?.blocks ?? []), ...(blocksQuery.data?.footnoteAttachments ?? [])]}><TopicBlockPageContent topicId={topic.id} initialBlock={initialBlock.current} latestBlock={block}
             initialHistoryOpen={searchParams.get("seccion") === "historial"}/></TopicFootnoteProvider>
     </div>;
 }

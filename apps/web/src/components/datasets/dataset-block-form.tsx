@@ -18,8 +18,8 @@ function draft(content: string): DatasetContent {
     const empty: DatasetContent = {sourceFormat: 'csv', jqFilter: null, title: '', description: '', fileId: null, sourceUrl: null, columns: [], csvOptions: {delimiter: ',', decimal: '.'}};
     try { return {...empty, ...JSON.parse(content)}; } catch { return empty; }
 }
-export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyChange, embedded = false}: {
-    topicId: string; content: string; disabled: boolean; embedded?: boolean; onChange: (content: string) => void; onBusyChange: (busy: boolean) => void;
+export function DatasetBlockForm({ content, disabled, onChange, onBusyChange, embedded = false}: {
+    content: string; disabled: boolean; embedded?: boolean; onChange: (content: string) => void; onBusyChange: (busy: boolean) => void;
 }) {
     const value = draft(content);
     const [source, setSource] = useState<'file' | 'url'>(value.sourceUrl ? 'url' : 'file');
@@ -39,12 +39,12 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
             const options: DatasetSourceOptions = {sourceFormat, jqFilter: sourceFormat === 'json' ? latest.current.value.jqFilter?.trim() || null : null};
             let fileId = source === 'file' ? latest.current.value.fileId : null;
             if(file){
-                const uploaded=await preparedDataRequest<{fileId:string}>(`/topics/${encodeURIComponent(topicId)}/datasets/upload?name=${encodeURIComponent(file.name)}`,{
+                const uploaded=await preparedDataRequest<{fileId:string}>(`/datasets/upload?name=${encodeURIComponent(file.name)}`,{
                     method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});
                 fileId=uploaded.fileId;
                 latest.current.onChange(JSON.stringify({...latest.current.value, ...options, fileId, sourceUrl: null, columns: [], rowCount: undefined, title: latest.current.value.title || file.name.replace(/\.(csv|json)$/i, '')}));
             }
-            const result = {value:await preparedDataRequest<DatasetPreview>(`/topics/${encodeURIComponent(topicId)}/datasets/preview`,{
+            const result = {value:await preparedDataRequest<DatasetPreview>(`/datasets/preview`,{
                 method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...options,fileId,sourceUrl:source==='url'?url:null,retry:true})},setStatus)};
             setPreview(result.value);
             const current = latest.current.value;
@@ -94,7 +94,7 @@ export function DatasetBlockForm({topicId, content, disabled, onChange, onBusyCh
         {error && <p role="alert" className={cn('text-xs text-destructive')}>{error}</p>}
         {busy && <p className={cn('text-xs text-muted-foreground')}>{status}</p>}
         {preview && !busy && <div className={cn('space-y-2')}>
-            <DatasetPreviewTable key={preview.snapshotId} topicId={topicId} preview={preview} columns={value.columns} onTypeChange={(index, type) => update({columns: value.columns.map((column,i) => i === index ? {...column,type} : column)})}/>
+            <DatasetPreviewTable key={preview.snapshotId} preview={preview} columns={value.columns} onTypeChange={(index, type) => update({columns: value.columns.map((column,i) => i === index ? {...column,type} : column)})}/>
         </div>}
 
     </fieldset>;

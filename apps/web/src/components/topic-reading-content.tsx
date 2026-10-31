@@ -7,7 +7,7 @@ import {compareContentBlocks, isAttachmentBlock} from "@cabildo-abierto/utils";
 import {TopicAttachmentSection} from "@/components/attachments/topic-attachment-section";
 
 import {useEffect, useState} from "react";
-import type {TopicBlock, TopicEditableBlock, TopicReadingOutput} from "@cabildo-abierto/api";
+import type {TopicBlock, TopicEditableBlock, TopicBlocksOutput} from "@cabildo-abierto/api";
 import {cn} from "@/lib/utils";
 import {TopicBlockView} from "@/components/topic-block";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
@@ -24,7 +24,7 @@ export function TopicReadingContent({topicId, latestBlocks, latestDeletedBlocks,
     latestBlocks: TopicBlock[];
     latestDeletedBlocks: TopicBlock[];
     footnoteAttachments?: TopicBlock[];
-    attachments: TopicReadingOutput['attachments'];
+    attachments: TopicBlocksOutput['attachments'];
     openToolsInPage: boolean;
 }) {
     const [displayedBlocks, setDisplayedBlocks] = useState(latestBlocks);

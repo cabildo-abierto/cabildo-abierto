@@ -1,5 +1,5 @@
 import {createHash, randomBytes} from "node:crypto";
-import type {Request, Response} from "express";
+import type {Request, Response, CookieOptions} from "express";
 import type {Kysely, Transaction} from "kysely";
 import type {AppContext} from "#/setup.js";
 import type {DB} from "#/db/types.js";
@@ -36,7 +36,7 @@ export function readSessionToken(req: Request): string | null {
     return readCookie(req, SESSION_COOKIE);
 }
 
-export function setSessionCookie(res: Response, token: string): void {
+export function setSessionCookie(res: {cookie(name: string, value: string, options: CookieOptions): unknown}, token: string): void {
     res.cookie(SESSION_COOKIE, token, {
         httpOnly: true,
         sameSite: "lax",
@@ -46,7 +46,7 @@ export function setSessionCookie(res: Response, token: string): void {
     });
 }
 
-export function clearSessionCookie(res: Response): void {
+export function clearSessionCookie(res: {clearCookie(...args: Parameters<Response['clearCookie']>): unknown}): void {
     res.clearCookie(SESSION_COOKIE, {
         httpOnly: true,
         sameSite: "lax",

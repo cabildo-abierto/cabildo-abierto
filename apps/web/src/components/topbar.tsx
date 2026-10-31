@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {HouseIcon, SignOutIcon, UserCircleIcon} from "@phosphor-icons/react";
+import {cn} from '@/lib/utils';
 import {Button} from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -22,9 +23,9 @@ export function Topbar() {
     const {user, logout} = useAuth();
     const pathname = usePathname();
 
-    return <header className="sticky top-0 z-40 flex h-12 w-full items-center justify-between bg-background/95 px-4 backdrop-blur">
-        <div>
-            {pathname !== "/" && <Button nativeButton={false} render={<Link href="/"/>} variant="ghost" size="sm">
+    return <header className={cn('sticky top-0 z-40 flex h-12 w-full items-center justify-between bg-background/95 px-4 backdrop-blur sm:px-8')}>
+        <div className={cn('flex items-center gap-1')}>
+            {pathname !== "/" && <Button nativeButton={false} render={<Link href="/"/>} variant="ghost" size="sm" className={cn('-ml-1 border-0 sm:-ml-2')}>
                 <HouseIcon/>
                 Inicio
             </Button>}

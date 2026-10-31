@@ -29,7 +29,7 @@ export default function NewTopicPage() {
             if ("error" in result) throw new Error(result.error);
             return result.value.topic;
         },
-        onSuccess: () => queryClient.invalidateQueries({queryKey: ["topics", "search"]}),
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["topics"]}),
     });
     const topicId = canonicalizeTopicId(title);
 

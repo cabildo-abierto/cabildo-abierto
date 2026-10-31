@@ -1,55 +1,54 @@
 "use client";
 
-import {useMemo, useState, type ReactNode} from "react";
-import type {TopicBlock} from "@cabildo-abierto/api";
-import {AttachmentPagination} from "@/components/attachments/attachment-pagination";
-import {AttachmentSearch} from "@/components/attachments/attachment-search";
-import {attachmentSearchMatcher} from "@/components/attachments/attachment-search-matches";
-import {useDebouncedValue} from "@/hooks/use-debounced-value";
-import {TopicDocumentEditorItem} from "./topic-document-editor-item";
-import {DocumentSection} from "./document-section";
-import {AttachmentSectionAddButton} from "@/components/attachments/attachment-section-add-button";
-import type {AttachmentInsertionAction} from "@/components/attachments/attachment-insertion-picker";
-import {TopicDeletedBlockItem} from "@/components/topic-deleted-blocks";
-import {cn} from "@/lib/utils";
+import {useState, type ReactNode} from 'react';
+import type {TopicAttachmentSummary, TopicBlock, TopicEditableBlock} from '@cabildo-abierto/api';
+import {AttachmentPagination} from '@/components/attachments/attachment-pagination';
+import {AttachmentSearch} from '@/components/attachments/attachment-search';
+import {TopicDocumentEditorItem} from './topic-document-editor-item';
+import {DocumentSection} from './document-section';
+import {AttachmentSectionAddButton} from '@/components/attachments/attachment-section-add-button';
+import type {AttachmentInsertionAction} from '@/components/attachments/attachment-insertion-picker';
+import {TopicDeletedBlockItem} from '@/components/topic-deleted-blocks';
+import {useTopicAttachments} from '@/hooks/use-topic-attachments';
+import {Button} from '@/components/ui/button';
+import {Spinner} from '@/components/ui/spinner';
+import {cn} from '@/lib/utils';
 
-const PAGE_SIZE = 12;
-
-type EditableDocumentBlock = TopicBlock & {isNew: boolean; deleted: boolean};
-export function TopicDocumentEditor({topicId, blocks, disabled, onChange, onRemove, onRestore, onBusyChange, renderActions, insertionAction, dataset = false}: {
-    dataset?: boolean; topicId: string; blocks: EditableDocumentBlock[]; disabled: boolean;
+type WorkingAttachment = TopicEditableBlock & {isNew: boolean};
+export function TopicDocumentEditor({topicId, blocks, summary, includeDeleted, disabled, onChange, onRemove, onRestore, onBusyChange, renderActions, insertionAction, dataset = false}: {
+    dataset?: boolean; topicId: string; blocks: WorkingAttachment[]; summary: TopicAttachmentSummary; includeDeleted: boolean; disabled: boolean;
     insertionAction: AttachmentInsertionAction;
-    onChange: (block: TopicBlock) => void;
+    onChange: (block: TopicBlock, original: TopicEditableBlock) => void;
     renderActions: (blockNumber: string, onClose: () => void) => ReactNode;
-    onRemove: (blockNumber: string) => void; onRestore: (blockNumber: string) => void;
+    onRemove: (block: WorkingAttachment) => void; onRestore: (block: TopicEditableBlock) => void;
     onBusyChange: (blockNumber: string, busy: boolean) => void;
 }) {
     const [page, setPage] = useState(0);
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState('');
+    const [expanded, setExpanded] = useState(false);
     const [editingBlockNumber, setEditingBlockNumber] = useState<string | null>(null);
-    const debouncedQuery = useDebouncedValue(query, 250);
-    const matchesSearch = useMemo(() => attachmentSearchMatcher(debouncedQuery), [debouncedQuery]);
-    const label = dataset ? "conjuntos de datos" : "documentos";
-    const matches = blocks.filter(block => block.blockNumber === editingBlockNumber || matchesSearch(block));
-    const editingIndex = matches.findIndex(block => block.blockNumber === editingBlockNumber);
-    const requestedPage = editingIndex >= 0 ? Math.floor(editingIndex / PAGE_SIZE) : page;
-    const currentPage = Math.min(requestedPage, Math.max(0, Math.ceil(matches.length / PAGE_SIZE) - 1));
-    const pageBlocks = matches.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
-    if (blocks.length === 0) return null;
-    return <DocumentSection dataset={dataset} actions={<AttachmentSectionAddButton type={dataset ? "dataset" : "documento"} action={insertionAction} disabled={disabled}/>}
+    const result = useTopicAttachments(topicId, dataset ? 'dataset' : 'documento', {search: query, page, includeDeleted, revision: summary.revision, enabled: expanded});
+    const pending = new Set(blocks.map(block => block.blockNumber));
+    const pageBlocks = (result.loading || result.isError ? [] : result.data?.items ?? []).map(({block}) => ({...block, isNew: false})).filter(block => !pending.has(block.blockNumber));
+    const visible = [...blocks, ...pageBlocks];
+    const label = dataset ? 'conjuntos de datos' : 'documentos';
+    return <DocumentSection dataset={dataset} onExpandedChange={setExpanded}
+        actions={<AttachmentSectionAddButton type={dataset ? 'dataset' : 'documento'} action={insertionAction} disabled={disabled}/>}
         endActions={<AttachmentSearch dataset={dataset} value={query} onChange={value => {setQuery(value); setPage(0);}}/>}
-        after={blocks.length > PAGE_SIZE && <div className={cn('mt-3')}>
-            <AttachmentPagination total={matches.length} page={currentPage} pageSize={PAGE_SIZE} label={label}
-                disabled={disabled || editingBlockNumber !== null || query !== debouncedQuery} onPageChange={setPage}/>
+        after={result.data && result.data.total > result.data.pageSize && <div className={cn('mt-3')}>
+            <AttachmentPagination total={result.data.total} page={result.data.page} pageSize={result.data.pageSize} label={label}
+                disabled={disabled || editingBlockNumber !== null || result.loading} onPageChange={setPage}/>
         </div>}>
-        {() => {
-            return matches.length === 0 ? <p className={cn("col-span-full py-2 text-sm text-muted-foreground")}>No encontramos {label} para esa búsqueda.</p>
-                : pageBlocks.map(block => <div key={block.blockNumber} className={cn("group/block relative")}>
-                    {block.deleted ? <TopicDeletedBlockItem topicId={topicId} block={block} openInPage={false} onRestore={() => onRestore(block.blockNumber)}/>
-                        : <TopicDocumentEditorItem key={block.id} onEditingChange={editing => setEditingBlockNumber(editing ? block.blockNumber : null)} topicId={topicId} block={block} isNew={block.isNew} disabled={disabled}
-                            renderActions={onClose => renderActions(block.blockNumber, onClose)}
-                            onChange={onChange} onRemove={() => onRemove(block.blockNumber)} onBusyChange={busy => onBusyChange(block.blockNumber, busy)}/>}
-                </div>);
-        }}
+        {result.loading && <div role="status" aria-label={`Cargando ${label}`} className={cn('col-span-full flex justify-center py-4')}><Spinner/></div>}
+        {result.isError && <div className={cn('col-span-full space-y-2')}><p role="alert" className={cn('text-xs text-destructive')}>{result.error.message}</p>
+            <Button type="button" variant="outline" size="sm" onClick={() => void result.refetch()}>Reintentar</Button></div>}
+        {visible.map(block => <div key={block.blockNumber} className={cn('group/block relative')}>
+            {block.deleted ? <TopicDeletedBlockItem topicId={topicId} block={block} openInPage={false} onRestore={() => onRestore(block)}/>
+                : <TopicDocumentEditorItem topicId={topicId} block={block} isNew={block.isNew} disabled={disabled}
+                    onEditingChange={editing => setEditingBlockNumber(editing ? block.blockNumber : null)}
+                    renderActions={onClose => renderActions(block.blockNumber, onClose)} onChange={next => onChange(next, block)}
+                    onRemove={() => onRemove(block)} onBusyChange={busy => onBusyChange(block.blockNumber, busy)}/>}
+        </div>)}
+        {!result.loading && !result.isError && !visible.length && <p className={cn('col-span-full py-2 text-xs text-muted-foreground')}>No encontramos {label} para esa búsqueda.</p>}
     </DocumentSection>;
 }

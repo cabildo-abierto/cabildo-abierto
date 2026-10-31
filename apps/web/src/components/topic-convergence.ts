@@ -1,8 +1,8 @@
 import type {TopicBlock} from "@cabildo-abierto/api";
 
-export function sameConvergence(left: TopicBlock[], right: TopicBlock[]): boolean {
+export function sameConvergence(left: (TopicBlock & {deleted?: boolean})[], right: (TopicBlock & {deleted?: boolean})[]): boolean {
     if (left.length !== right.length) return false;
-    return left.every((block, index) => block.blockNumber === right[index].blockNumber && block.id === right[index].id);
+    return left.every((block, index) => block.blockNumber === right[index].blockNumber && block.id === right[index].id && Boolean(block.deleted) === Boolean(right[index].deleted));
 }
 
 export function updateCommentCounts<T extends TopicBlock>(displayed: T[], latest: TopicBlock[]): T[] {

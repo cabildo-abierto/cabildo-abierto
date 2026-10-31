@@ -8,13 +8,19 @@ import {createRouter} from '#/routes/routes.js'
 import cors from 'cors'
 import {AppContext, Role, setupAppContext} from "#/setup.js";
 import morgan from "morgan"
+import {documentationRoutes} from './routes/documentation-routes.js';
+import {createOpenApiErrorHandler, openApiValidation} from './openapi/middleware.js';
+import {createOpenApiDocument} from './openapi/document.js';
+import {createApiRateLimits} from './auth/rate-limits.js';
+import {startRateLimitCleanup} from './auth/postgres-rate-limit-store.js';
 
 export class Server {
     constructor(
         public app: express.Application,
         public server: http.Server,
         public ctx: AppContext,
-        private stopSearchWorker: () => Promise<void>
+        private stopSearchWorker: () => Promise<void>,
+        private stopRateLimitCleanup: () => Promise<void>,
     ) {
     }
 
@@ -24,9 +30,9 @@ export class Server {
         const {ctx} = await setupAppContext(roles)
         ctx.logger.pino.info("app context created")
 
-        app.set('trust proxy', true)
-
-        app.use(express.json({ limit: "50mb" })) // TO DO: Mejorar
+        app.set('trust proxy', env.TRUST_PROXY.trim()
+            ? env.TRUST_PROXY.split(',').map(proxy => proxy.trim()).filter(Boolean)
+            : false)
 
         const allowedOrigins = [
             'http://127.0.0.1:3000',
@@ -60,15 +66,24 @@ export class Server {
                 }
             },
             credentials: true,
+            exposedHeaders: ['RateLimit', 'RateLimit-Policy', 'Retry-After'],
         }))
 
-        app.use(express.json())
+        app.use(morgan('combined'))
+        app.use(createApiRateLimits(ctx, {
+            requestsPerMinute: env.API_RATE_LIMIT_PER_MINUTE,
+            authAttemptsPerQuarterHour: env.AUTH_RATE_LIMIT_PER_15_MINUTES,
+            tokensPerHour: env.API_TOKEN_RATE_LIMIT_PER_HOUR,
+        }))
+        app.use(express.json({limit: '50mb'}))
         app.use(express.urlencoded({extended: true}))
 
-        app.use(morgan('combined'))
-
         const router = createRouter(ctx)
+        const openApiDocument = createOpenApiDocument({includeInternal: true})
+        app.use(documentationRoutes(createOpenApiDocument()))
+        app.use(openApiValidation(openApiDocument))
         app.use(router)
+        app.use(createOpenApiErrorHandler(ctx.logger))
         app.use(express.static('public'))
         app.use((_req, res) => res.sendStatus(404))
         ctx.logger.pino.info(`running listen on ${env.HOST}:${env.PORT}`)
@@ -76,7 +91,7 @@ export class Server {
         await events.once(server, 'listening')
         ctx.logger.pino.info(`Server (${env.NODE_ENV}) running on port http://${env.HOST}:${env.PORT}`)
 
-        const serverInstance = new Server(app, server, ctx, startSearchWorker(ctx))
+        const serverInstance = new Server(app, server, ctx, startSearchWorker(ctx), startRateLimitCleanup(ctx))
 
         process.on('SIGINT', async () => {
             await serverInstance.close()
@@ -94,6 +109,7 @@ export class Server {
     async close() {
         this.ctx.logger.pino.info('sigint received, shutting down')
         await this.stopSearchWorker()
+        await this.stopRateLimitCleanup()
         await this.ctx.topicConnections?.close()
         return new Promise<void>((resolve) => {
             this.server.close(async () => {

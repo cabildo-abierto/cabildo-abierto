@@ -9,9 +9,8 @@ import {cn} from "@/lib/utils";
 import {DatasetBlockForm} from "@/components/datasets/dataset-block-form";
 import {DocumentBlockForm} from "@/components/documents/document-block-form";
 
-export function AttachmentEditorPopup({type, topicId, content, onChange, onClose, onBusyChange, disabled, inserting = false, onSubmit, children}: {
+export function AttachmentEditorPopup({type, content, onChange, onClose, onBusyChange, disabled, inserting = false, onSubmit, children}: {
     type: "documento" | "dataset";
-    topicId: string;
     content: string;
     onChange: (content: string) => void;
     onClose: () => void;
@@ -46,7 +45,7 @@ export function AttachmentEditorPopup({type, topicId, content, onChange, onClose
                 <form className={cn("flex min-h-0 flex-col")} onSubmit={event => { event.preventDefault(); if (!busy) onSubmit?.(); }}>
                     <ScrollArea className={cn("flex min-h-0 flex-col")} viewportClassName={cn("min-h-0 flex-1")}>
                         <div className={cn("p-4")}>
-                            <Form topicId={topicId} content={content} disabled={disabled} embedded onChange={onChange}
+                            <Form content={content} disabled={disabled} embedded onChange={onChange}
                                 onBusyChange={value => { setLoading(value); busyCallback.current(value); }}/>
                         </div>
                     </ScrollArea>

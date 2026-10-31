@@ -1,17 +1,14 @@
 import Link from "next/link";
 import {ChatCircleIcon, FileTextIcon, TableIcon, DatabaseIcon} from '@phosphor-icons/react';
-import type {ContentSearchResult, TopicSummary} from "@cabildo-abierto/api";
+import type {TopicListResult} from "@cabildo-abierto/api";
 import {Card, CardContent} from "@/components/ui/card";
 import {SearchSnippet} from '@/components/search/search-snippet';
 import {cn} from '@/lib/utils';
 import {topicAuthorName} from '@/components/topic-author-name';
 import {formatRelativeDate, formatTopicBlockDate} from '@/components/topic-block-date';
 
-type TopicSearchResultProps = {topic: TopicSummary} | {result: ContentSearchResult};
-
-export function TopicSearchResult(props: TopicSearchResultProps) {
-    const result = 'result' in props ? props.result : null;
-    const topic = 'topic' in props ? props.topic : props.result.topic;
+export function TopicSearchResult({result: {topic, matches}}: {result: TopicListResult}) {
+    const result = matches[0];
     const ResultIcon = result?.kind === 'comment' ? ChatCircleIcon : result?.blockType === 'dataset' ? DatabaseIcon : result?.blockType === 'tabla' ? TableIcon : FileTextIcon;
     const resultType = result?.kind === 'comment' ? 'Comentario' : result?.blockType === 'dataset' ? 'Conjunto de datos' : 'Documento';
     return <Link href={`/tema/${encodeURIComponent(topic.slug)}`} className={cn("block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}>

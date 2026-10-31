@@ -1,13 +1,15 @@
+import {createApiRouter} from '../openapi/router.js';
 import express from "express";
 import {sql} from "kysely";
 import type {NotificationsOutput, NotificationCountOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {requireSession, requiredUser} from "#/auth/middleware.js";
 
-export function notificationRoutes(ctx: AppContext) {
+export function notificationRoutes(ctx: AppContext): express.Router {
     const router = express.Router();
+    const api = createApiRouter(router);
     router.use("/notifications", requireSession(ctx));
-    router.get("/notifications/count", async (req, res) => {
+    api.get("/notifications/count", async (req, res) => {
         try {
             const row = await ctx.kysely.selectFrom("notification")
                 .select(sql<number>`count(*)::int`.as("count"))
@@ -19,7 +21,7 @@ export function notificationRoutes(ctx: AppContext) {
             return res.status(500).json({success: false, error: "No pudimos cargar las notificaciones."});
         }
     });
-    router.get("/notifications", async (req, res) => {
+    api.get("/notifications", async (req, res) => {
         try {
             let query = ctx.kysely.selectFrom("notification")
                 .innerJoin("user", "user.id", "notification.actor_id")
@@ -74,7 +76,7 @@ export function notificationRoutes(ctx: AppContext) {
             return res.status(500).json({success: false, error: "No pudimos cargar las notificaciones."});
         }
     });
-    router.patch("/notifications/read-all", async (req, res) => {
+    api.patch("/notifications/read-all", async (req, res) => {
         try {
             await ctx.kysely.updateTable("notification").set({read_at: sql`now()`})
                 .where("recipient_id", "=", requiredUser(req).id)
@@ -87,7 +89,7 @@ export function notificationRoutes(ctx: AppContext) {
             return res.status(500).json({success: false, error: "No pudimos marcar las notificaciones como leídas."});
         }
     });
-    router.patch("/notifications/:id/read", async (req, res) => {
+    api.patch("/notifications/:id/read", async (req, res) => {
         try {
             const updated = await ctx.kysely.updateTable("notification").set({read_at: sql`coalesce(read_at, now())`})
                 .where("id", "=", String(req.params.id)).where("recipient_id", "=", requiredUser(req).id)

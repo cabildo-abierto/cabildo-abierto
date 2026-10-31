@@ -1,6 +1,9 @@
+import {createApiToken, listApiTokens, revokeApiToken} from '#/auth/api-tokens.js';
+import type {ErrorResponder} from '../openapi/handler.js';
+import {createApiRouter} from '../openapi/router.js';
 import {randomUUID} from "node:crypto";
 import express, {type Router} from "express";
-import type {AuthOutput, LoginInput, PublicUser, RegisterInput, SessionOutput} from "@cabildo-abierto/api";
+import type {AuthOutput, PublicUser, SessionOutput} from "@cabildo-abierto/api";
 import type {AppContext} from "#/setup.js";
 import {hashPassword, verifyPassword} from "#/auth/password.js";
 import {
@@ -10,7 +13,7 @@ import {
     revokeSession,
     setSessionCookie,
 } from "#/auth/session.js";
-import {currentUser, withSession} from "#/auth/middleware.js";
+import {currentUser, requiredUser, requireBrowserSession, requireSession, withBrowserSession} from "#/auth/middleware.js";
 
 const USERNAME_PATTERN = /^[a-z0-9_-]{3,30}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,9 +36,31 @@ function publicUser(user: {id: string; username: string}): PublicUser {
 
 export const authRoutes = (ctx: AppContext): Router => {
     const router = express.Router();
+    const api = createApiRouter(router);
 
-    router.post("/auth/register", async (req, res) => {
-        const input = (req.body ?? {}) as Partial<RegisterInput>;
+    const tokenFailure = (res: ErrorResponder, error: unknown) => {
+        ctx.logger.pino.error({error: error instanceof Error ? error.message : 'Unknown error'}, 'API token operation failed');
+        return res.status(500).json({success: false, error: 'No pudimos completar la operación del token.'});
+    };
+    router.use('/auth', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
+    api.get('/auth/tokens', requireBrowserSession(ctx), async (req, res) => {
+        try { return res.json({success: true, value: await listApiTokens(ctx.kysely, requiredUser(req).id)}); }
+        catch (error) { return tokenFailure(res, error); }
+    });
+    api.post('/auth/tokens', requireBrowserSession(ctx), async (req, res) => {
+        if (!req.body.name.trim()) return res.status(400).json({success: false, error: 'Ingresá un nombre para el token.'});
+        try { return res.status(201).json({success: true, value: await createApiToken(ctx.kysely, requiredUser(req).id, req.body)}); }
+        catch (error) { return tokenFailure(res, error); }
+    });
+    api.delete('/auth/tokens/:id', requireBrowserSession(ctx), async (req, res) => {
+        try {
+            if (!await revokeApiToken(ctx.kysely, requiredUser(req).id, req.params.id)) return res.status(404).json({success: false, error: 'No encontramos ese token.'});
+            return res.json({success: true, value: {}});
+        } catch (error) { return tokenFailure(res, error); }
+    });
+
+    api.post("/auth/register", async (req, res) => {
+        const input = req.body;
         const username = typeof input.username === "string" ? input.username.trim().toLowerCase() : "";
         const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
         const password = typeof input.password === "string" ? input.password : "";
@@ -93,8 +118,8 @@ export const authRoutes = (ctx: AppContext): Router => {
         }
     });
 
-    router.post("/auth/login", async (req, res) => {
-        const input = (req.body ?? {}) as Partial<LoginInput>;
+    api.post("/auth/login", async (req, res) => {
+        const input = req.body;
         const identifier = typeof input.identifier === "string" ? input.identifier.trim().toLowerCase() : "";
         const password = typeof input.password === "string" ? input.password : "";
 
@@ -119,12 +144,16 @@ export const authRoutes = (ctx: AppContext): Router => {
         return res.json({success: true, value});
     });
 
-    router.get("/auth/session", withSession(ctx), (req, res) => {
+    api.get('/auth/me', requireSession(ctx), (req, res) => {
+        return res.json({success: true, value: {user: requiredUser(req)}});
+    });
+
+    api.get("/auth/session", withBrowserSession(ctx), (req, res) => {
         const value: SessionOutput = {user: currentUser(req)};
         return res.json({success: true, value});
     });
 
-    router.post("/auth/logout", async (req, res) => {
+    api.post("/auth/logout", withBrowserSession(ctx), async (req, res) => {
         const token = readSessionToken(req);
         if (token) await revokeSession(ctx, token);
         clearSessionCookie(res);

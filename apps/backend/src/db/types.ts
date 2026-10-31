@@ -7,6 +7,12 @@ type Generated<T> = T extends ColumnType<infer Select, infer Insert, infer Updat
 type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type DB = {
+    api_rate_limit: {
+        policy: string;
+        client_key: string;
+        hits: number;
+        expires_at: Timestamp;
+    };
     notification: {
         id: string;
         recipient_id: string;
@@ -44,6 +50,7 @@ export type DB = {
         id: Generated<string>; source_id: string; topic_id: string;
         block_version_id: Generated<string | null>; title_edit_id: Generated<string | null>; comment_id: Generated<string | null>;
         is_visible: Generated<boolean>; is_current: Generated<boolean>;
+        is_selected: Generated<boolean>; is_deleted: Generated<boolean>;
     };
     migration: {
         migration_id: Generated<string>;
@@ -55,6 +62,15 @@ export type DB = {
         username: string;
         email: string;
         password_hash: string;
+    };
+    api_token: {
+        id: string;
+        user_id: string;
+        name: string;
+        token_hash: string;
+        token_prefix: string;
+        created_at: Generated<Timestamp>;
+        expires_at: Timestamp;
     };
     session: {
         token_hash: string;

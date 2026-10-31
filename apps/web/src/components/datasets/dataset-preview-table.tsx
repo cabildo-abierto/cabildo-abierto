@@ -7,10 +7,10 @@ import {preparedDataRequest} from '@/utils/react/prepared-data-request';
 import {DatasetTable} from './dataset-table';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
-export function DatasetPreviewTable({topicId,preview,columns,onTypeChange}:{topicId:string;preview:DatasetPreview;columns:DatasetColumn[];onTypeChange:(index:number,type:DatasetColumnType)=>void}){
+export function DatasetPreviewTable({preview,columns,onTypeChange}:{preview:DatasetPreview;columns:DatasetColumn[];onTypeChange:(index:number,type:DatasetColumnType)=>void}){
     const [page,setPage]=useState(0);
     const query=useQuery({queryKey:['dataset-preview',preview.snapshotId,page],
-        queryFn:({signal})=>preparedDataRequest<DatasetPreview>(`/topics/${encodeURIComponent(topicId)}/datasets/preview`,{
+        queryFn:({signal})=>preparedDataRequest<DatasetPreview>(`/datasets/preview`,{
             method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceFormat:preview.sourceFormat,jqFilter:preview.jqFilter,fileId:preview.fileId,sourceUrl:preview.sourceUrl,snapshotId:preview.snapshotId,page})}),
         placeholderData:previous=>previous?.snapshotId===preview.snapshotId?previous:undefined,
         initialData:page===0?preview:undefined,staleTime:Infinity,gcTime:60000,retry:false});

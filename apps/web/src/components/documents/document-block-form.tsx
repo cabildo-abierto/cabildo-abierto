@@ -18,8 +18,8 @@ function draft(content: string): DocumentBlockContent {
     catch { return {title: "", description: "", fileId: ""}; }
 }
 
-export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyChange, embedded = false}: {
-    topicId: string; content: string; disabled: boolean; embedded?: boolean; onChange: (content: string) => void; onBusyChange: (busy: boolean) => void;
+export function DocumentBlockForm({ content, disabled, onChange, onBusyChange, embedded = false}: {
+    content: string; disabled: boolean; embedded?: boolean; onChange: (content: string) => void; onBusyChange: (busy: boolean) => void;
 }) {
     const value = draft(content);
     const [source, setSource] = useState<'file' | 'url'>(() => value.sourceUrl != null ? 'url' : 'file');
@@ -32,7 +32,7 @@ export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyC
         }
         setBusy(true); onBusyChange(true); setError(null);
         try {
-            const response = await fetch(`${backendUrl}/topics/${encodeURIComponent(topicId)}/documents?name=${encodeURIComponent(file.name)}`, {
+            const response = await fetch(`${backendUrl}/documents/upload?name=${encodeURIComponent(file.name)}`, {
                 method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/octet-stream'}, body: file,
             });
             const result: {success: boolean; value: DocumentUploadOutput; error: string} = await response.json();
@@ -53,7 +53,7 @@ export function DocumentBlockForm({topicId, content, disabled, onChange, onBusyC
             {(['file', 'url'] as const).map(mode => <Button key={mode} type="button" size="xs" variant={source === mode ? 'secondary' : 'outline'} aria-pressed={source === mode}
                 onClick={() => {if (source === mode) return; setSource(mode); setError(null); onChange(JSON.stringify({...value, fileId: '', sourceUrl: mode === 'url' ? '' : null}));}}>{mode === 'file' ? 'Archivo' : 'URL'}</Button>)}
         </div>
-        {source === 'url' ? <DocumentUrlPicker topicId={topicId} value={value} onChange={next => onChange(JSON.stringify(next))}
+        {source === 'url' ? <DocumentUrlPicker value={value} onChange={next => onChange(JSON.stringify(next))}
             onBusyChange={next => {setBusy(next); onBusyChange(next);}}/>
             : <DocumentFilePicker fileId={value.fileId} busy={busy} disabled={disabled} onSelect={upload}/>}
         {error && <p role="alert" className={cn("text-xs text-destructive")}>{error}</p>}

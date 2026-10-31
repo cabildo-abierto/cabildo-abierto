@@ -16,7 +16,7 @@ import {ImageCanvas} from './image-canvas';
 import {ImageBlockFrame} from './image-block-frame';
 import {TopicContentFlow} from './topic-content-flow';
 
-export function ImageEditorPopup({topicId,initialContent,onConfirm,onClose}: {topicId:string;initialContent?:string;onConfirm:(content:string)=>void;onClose:()=>void}) {
+export function ImageEditorPopup({initialContent,onConfirm,onClose}: {initialContent?:string;onConfirm:(content:string)=>void;onClose:()=>void}) {
     const [value,setValue]=useState<ImageContent>(()=>parseImageBlock(initialContent??'')??{fileId:'',widthPercent:100,alignment:'center',flow:'separate',alt:'',caption:''});
     const [mode,setMode]=useState<'upload'|'import'>('upload');
     const [url,setUrl]=useState('');
@@ -25,7 +25,7 @@ export function ImageEditorPopup({topicId,initialContent,onConfirm,onClose}: {to
     const load=async(file?:File)=>{
         setBusy(true);setError(null);
         try {
-            const output=await dataViewRequest<Omit<ImageAssetOutput,'url'|'expiresAt'>>('/topics/'+encodeURIComponent(topicId)+'/images/'+(file?'upload':'import'),{
+            const output=await dataViewRequest<Omit<ImageAssetOutput,'url'|'expiresAt'>>('/images/'+(file?'upload':'import'),{
                 method:'POST',headers:{'Content-Type':file?'application/octet-stream':'application/json'},body:file??JSON.stringify({url})});
             setValue(current=>({...current,fileId:output.fileId}));
         } catch(cause){setError(cause instanceof Error?cause.message:'No pudimos cargar esa imagen.');}
