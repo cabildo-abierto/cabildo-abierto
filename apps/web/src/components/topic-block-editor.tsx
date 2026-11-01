@@ -1,4 +1,5 @@
 "use client";
+import {EditableTableBlock} from '@/components/tables/editable-table-block';
 import {TableEditorPopup} from '@/components/tables/table-editor-popup';
 
 import {blockIsEmpty, blockContentIsInvalid} from "@/components/topic-block-content-validation";
@@ -12,7 +13,7 @@ import {VisualizationBlock} from '@/components/visualizations/visualization-bloc
 import {VisualizationEditActions} from '@/components/visualizations/visualization-edit-actions';
 
 
-import {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from "react";
+import {forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useToast} from "@/components/ui/toast";
 import type {SaveTopicEditInput, SaveTopicEditOutput, TopicBlock, TopicEditableBlock, TopicBlocksOutput} from "@cabildo-abierto/api";
@@ -34,7 +35,7 @@ import {sameConvergence} from "@/components/topic-convergence";
 import {TopicDeletedBlockItem, TopicDeletedBlocks} from "@/components/topic-deleted-blocks";
 import {useTopicBlockSection} from "@/hooks/use-topic-block-section";
 import {useTopicLocalConvergence} from "@/hooks/use-topic-local-convergence";
-import {topicFootnotes} from "@/components/rich-text/topic-footnotes";
+import {useTopicFootnotes} from "@/hooks/use-topic-footnotes";
 import {normalizeTopicBlockOrders} from "@/components/topic-block-order";
 import {TopicFootnoteList} from "@/components/rich-text/topic-footnote-list";
 
@@ -186,7 +187,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
         return <VisualizationEditActions {...props}/>;
     };
 
-    const updateBlock = (updated: TopicBlock) => {
+    const updateBlock = useCallback((updated: TopicBlock) => {
         setEdit(current => ({
             ...current,
             blocks: current.blocks.map(block => block.blockNumber === updated.blockNumber
@@ -194,7 +195,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                 : block),
         }));
         setError(null);
-    };
+    }, []);
 
     const activateBlock = (blockNumber: string) => {
         setEdit(current => deactivateBlock(current, blockNumber));
@@ -339,7 +340,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
     };
 
     const visibleBlocks = edit.blocks.filter(block => !isAttachmentBlock(block.typeId) && (!block.deleted || (edit.showDeleted && !block.isNew)));
-    const {footnotes, numberById} = topicFootnotes(edit.blocks.filter(block => !block.deleted));
+    const {footnotes, numberById} = useTopicFootnotes(edit.blocks);
     return <TopicFootnoteProvider topicId={topicId} blocks={edit.blocks} onSelectAttachment={block => setEdit(current => {
         if (current.blocks.some(item => item.blockNumber === block.blockNumber)) return current;
         return stageAttachment(current, block, block);
@@ -393,7 +394,7 @@ export const TopicBlockEditor = forwardRef<TopicBlockEditorHandle, {topicId: str
                             })}/>
                             <TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/>
                         </div>
-                        : block.typeId === "tabla" ? <div className={cn("min-w-0 py-2")}><TopicBlockContent block={block} footnoteNumbers={numberById}/><TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/></div>
+                        : block.typeId === "tabla" ? <div className={cn("min-w-0 py-2")}><EditableTableBlock topicId={topicId} block={block} footnoteNumbers={numberById} disabled={saving || uploading.size > 0} onChange={updateBlock}/><TopicBlockTools topicId={topicId} block={block} actions={inlineActions(block)} hideDiscussion={block.isNew} openInPage={openToolsInPage} {...blockSectionProps(block.blockNumber)}/></div>
                         : active ? <TopicBlockEditForm topicId={topicId} block={block} isNew={block.isNew} blockTypes={blockTypes} footnoteNumbers={numberById} toolbarContainer={toolbarContainer}
                             documentInsertion={attachmentInsertion("documento")} datasetInsertion={attachmentInsertion("dataset")} onInsertVisualization={() => setInlinePopup({typeId: "visualizacion", after: block.blockNumber})} onInsertImage={() => setInlinePopup({typeId: "imagen", after: block.blockNumber})} onInsertTable={() => setInlinePopup({typeId: "tabla", after: block.blockNumber})} onChange={updateBlock} onDeleteEmpty={() => removeEmptyBlock(block.blockNumber)}/>
                         : <article

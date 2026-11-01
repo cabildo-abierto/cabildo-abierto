@@ -5,7 +5,7 @@ import {RichTextEditor} from '@/components/rich-text/rich-text-editor';
 import {cn} from '@/lib/utils';
 
 export function TableCellEditor({topicId, content, footnoteNumbers, onChange}: {
-    topicId: string; content: string; footnoteNumbers: ReadonlyMap<string, number>; onChange: (content: string) => void;
+    topicId: string; content: string; footnoteNumbers: ReadonlyMap<string, number>; onChange: (content: string) => void | boolean;
 }) {
     const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
     const [toolbar, setToolbar] = useState<HTMLDivElement | null>(null);

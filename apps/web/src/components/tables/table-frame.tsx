@@ -3,17 +3,15 @@ import {TableRows} from './table-rows';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {cn} from '@/lib/utils';
 
-export function TableFrame({headers, rows, renderCell, renderHeader, sort, equalColumns = false, overlay}: {
-    equalColumns?: boolean; overlay?: ReactNode;
+export function TableFrame({headers, rows, renderCell, renderHeader, sort, contentSized = false, overlay}: {
+    contentSized?: boolean; overlay?: ReactNode;
     headers?: ReactNode[]; rows: ReactNode[][]; sort?: {column: number; direction: 'asc' | 'desc'};
     renderCell?: (cell: ReactNode, row: number, column: number) => ReactNode;
     renderHeader?: (cell: ReactNode, column: number) => ReactNode;
 }) {
-    const columnCount = headers?.length ?? rows[0]?.length ?? 0;
-    const cellClassName = cn('border-r border-b border-border px-3 py-2 align-top wrap-anywhere last:border-r-0', !equalColumns && 'min-w-36 max-w-80');
-    return <ScrollArea horizontal overlay={overlay} className={cn('w-full min-w-0 rounded-md border', overlay && 'min-h-24')}>
-        <table className={cn('w-full border-collapse text-left text-xs', equalColumns && 'table-fixed')} style={equalColumns ? {minWidth: columnCount * 144} : undefined}>
-            {equalColumns && <colgroup>{Array.from({length: columnCount}, (_, index) => <col key={index} style={{width: `${100 / columnCount}%`}}/>)}</colgroup>}
+    const cellClassName = cn('border-r border-b border-border px-3 py-2 align-top last:border-r-0', contentSized ? 'wrap-normal break-normal' : 'wrap-anywhere min-w-36 max-w-80');
+    return <ScrollArea horizontal overlay={overlay} className={cn('min-w-0 rounded-md border', contentSized ? 'w-fit max-w-full' : 'w-full', overlay && 'min-h-24')}>
+        <table className={cn('border-collapse text-left text-xs', contentSized ? 'w-auto table-auto' : 'w-full')}>
             {headers && <thead className={cn('bg-muted')}><tr>{headers.map((cell, index) => <th key={index} scope="col" aria-sort={sort?.column === index ? sort.direction === 'asc' ? 'ascending' : 'descending' : sort ? 'none' : undefined} className={cn(cellClassName, 'font-medium whitespace-normal')}>{renderHeader ? renderHeader(cell, index) : cell}</th>)}</tr></thead>}
             <TableRows rows={rows} cellClassName={cellClassName} renderCell={renderCell}/>
         </table>

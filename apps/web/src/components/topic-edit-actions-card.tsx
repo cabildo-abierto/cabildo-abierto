@@ -45,7 +45,7 @@ export function TopicEditActionsCard({modifiedCount, deletedCount, deletedBlockN
                 <Input value={message} onChange={event => onMessageChange(event.target.value)} placeholder="Mensaje de edición" maxLength={500}/>
             </div>}
             {error && <p className="text-xs text-destructive">{error}</p>}
-            <TopicEditActionButtons saving={saving} saveDisabled={saveDisabled} onCancel={onCancel} onSave={onSave}/>
+            <TopicEditActionButtons confirmCancel={requiresMessage} saving={saving} saveDisabled={saveDisabled} onCancel={onCancel} onSave={onSave}/>
         </CardContent>
     </Card>;
 }

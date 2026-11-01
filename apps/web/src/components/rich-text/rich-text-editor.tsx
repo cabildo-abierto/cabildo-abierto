@@ -85,7 +85,7 @@ export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContai
     datasetInsertion?: AttachmentInsertionAction
     documentInsertion?: AttachmentInsertionAction
     toolbarContainer: HTMLElement | null
-    onChange: (content: string) => void
+    onChange: (content: string) => void | boolean
     onDeleteEmpty: () => void
 }) {
     const mountRef = useRef<HTMLDivElement>(null);
@@ -219,7 +219,7 @@ export function RichTextEditor({topicId, content, footnoteNumbers, toolbarContai
                 if (transaction.docChanged) {
                     const serialized = serializeRichTextDocument(nextState.doc);
                     if (richTextPlainText(serialized).length > 20_000 || serialized.length > 100_000) return;
-                    onChangeRef.current(serialized);
+                    if (onChangeRef.current(serialized) === false) return;
                 }
                 editor.updateState(nextState);
                 setToolbar(toolbarState(editor));

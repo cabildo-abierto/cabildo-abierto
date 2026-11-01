@@ -7,5 +7,5 @@ export function StaticTable({value, footnoteNumbers, linksEnabled = true, refres
     value: StaticTableContent; footnoteNumbers?: ReadonlyMap<string, number>; linksEnabled?: boolean; refreshOnMount?: boolean;
 }) {
     const cell = (content: string) => <div className={cn('rich-text-content min-w-0')}><RichTextRenderer content={content} linksEnabled={linksEnabled} footnoteNumbers={footnoteNumbers} refreshOnMount={refreshOnMount}/></div>;
-    return <TableFrame equalColumns headers={value.showHeaders ? value.headers.map(cell) : undefined} rows={value.rows.map(row => row.map(cell))}/>;
+    return <TableFrame contentSized headers={value.showHeaders ? value.headers.map(cell) : undefined} rows={value.rows.map(row => row.map(cell))}/>;
 }
